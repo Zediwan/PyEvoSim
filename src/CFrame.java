@@ -42,10 +42,6 @@ public class CFrame extends JPanel implements ActionListener {
     public static ArrayList<Plant>[][] pGrid = new ArrayList[amountOfFieldsX][amountOfFieldsY];
 
 
-    public static void main(String[] args){
-        CFrame frame = new CFrame();
-    }
-
     public CFrame(){
         JFrame frame = new JFrame("Ecosystem");     //title of the frame
         frame.setSize(WIDTH, HEIGHT);                    //frame size
