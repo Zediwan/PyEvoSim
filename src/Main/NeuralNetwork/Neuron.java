@@ -1,7 +1,5 @@
 package Main.NeuralNetwork;
-
 import Main.Helper.Vector2D;
-
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -32,10 +30,10 @@ public class Neuron {
     }
 
     public void paint(Graphics2D g) {
+        for(Connection con : connections) con.paint(g);
         Color c = new Color(0,0,0);
         g.setColor(c);
         g.fillOval((int)Math.round(this.location.x-8),(int)Math.round(this.location.y-8),16,16);
-        for(Connection con : connections) con.paint(g);
     }
 
     public void update() {

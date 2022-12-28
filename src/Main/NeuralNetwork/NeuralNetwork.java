@@ -1,6 +1,6 @@
 package Main.NeuralNetwork;
 import Main.Helper.Matrix;
-
+import java.awt.*;
 import java.util.function.Function;
 
 public class NeuralNetwork{
@@ -152,5 +152,42 @@ public class NeuralNetwork{
         this.bias_o.map(func);
     }
 
+    public void initializeVisualNetwork(double x, double y) {
+        n = new Network(x,y);
+        //add input Neurons
+        for(int i = 0; i < this.input_nodes; i++){
+            n.addNeuron(new Neuron(x,y + i * 50));
+        }
+        //add hidden Neurons
+        for(int i = 0; i < this.hidden_nodes; i++){
+            n.addNeuron(new Neuron(x + 50,y + i * 50));
+        }
+        //add output Neurons
+        for(int i = 0; i < this.output_nodes; i++){
+            n.addNeuron(new Neuron(x + 50 * 2,y + i * 50));
+        }
+        //connect input to hidden Neurons
+        for(int i = 0; i < this.input_nodes; i++){
+            for(int j = 0; j < this.hidden_nodes; j++){
+                n.connect(n.neurons.get(i), n.neurons.get(j+this.input_nodes), weights_ih.data[j][i]);
+            }
+        }
+        //connect hidden to output Neurons
+        for(int i = 0; i < this.hidden_nodes; i++) {
+            for (int j = 0; j < this.output_nodes; j++) {
+                n.connect(n.neurons.get(i+this.input_nodes), n.neurons.get(j+this.hidden_nodes+this.input_nodes), weights_ho.data[j][i]);
+            }
+        }
+    }
+
+    public void update() {
+        for(Neuron n : n.neurons) n.update();
+    }
+
+    public void paint(Graphics2D g, double x, double y) {
+        //g.translate(x, y);
+        this.initializeVisualNetwork(x,y);
+        for(Neuron n : n.neurons) n.paint(g);
+    }
 
 }

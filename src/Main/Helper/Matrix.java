@@ -7,7 +7,7 @@ public class Matrix {
     //TODO: couldn't we remove the rows and cols indicator and jsut use .length()
     private final int rows;
     private final int cols;
-    private double[][] data;
+    public double[][] data;
 
     public Matrix(int rows, int cols){
         this.rows = rows;

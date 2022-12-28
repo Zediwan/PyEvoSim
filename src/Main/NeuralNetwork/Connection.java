@@ -1,7 +1,5 @@
 package Main.NeuralNetwork;
-
 import Main.Helper.Vector2D;
-
 import java.awt.*;
 
 public class Connection {
@@ -40,14 +38,16 @@ public class Connection {
     }
 
     public void paint(Graphics2D g) {
-        Color c = new Color(0,0,0);
-        g.setColor(c);
-        g.setStroke(new BasicStroke(Math.round(1+4*this.weight)));
+        if(this.weight >= 0) g.setColor(Color.BLACK);
+        else g.setColor(Color.RED);
+        g.setStroke(new BasicStroke(Math.round(1+4*Math.abs(this.weight))));
         g.drawLine((int)Math.round(this.a.location.x),(int)Math.round(this.a.location.y),(int)Math.round(this.b.location.x),(int)Math.round(this.b.location.y));
 
+        /*
         if(this.sending) {
             g.setColor(new Color(0,0,0,100));
             g.fillOval((int)this.sender.x-8,(int)this.sender.y-8,16,16);
         }
+         */
     }
 }

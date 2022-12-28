@@ -1,5 +1,4 @@
 package Main.NeuralNetwork;
-
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -19,6 +18,11 @@ public class Network {
         a.addConnection(c);
     }
 
+    public void connect(Neuron a, Neuron b, double weight) {
+        Connection c = new Connection(a,b,weight);
+        a.addConnection(c);
+    }
+
     public void feedForward(double input) {
         Neuron start = neurons.get(0);
         start.feedForward(input);
@@ -27,13 +31,6 @@ public class Network {
     public void update() {
         for(Neuron n : neurons) n.update();
     }
-
-    /*
-    public static Main.Main.NeuralNetwork.NeuralNetwork.Network transformNN(double x, double y, NeuralNetwork.NeuralNetwork nn, Graphics2D g){
-        Main.Main.NeuralNetwork.NeuralNetwork.Network n = new Main.Main.NeuralNetwork.NeuralNetwork.Network(x,y);
-        g.translate(x,y);
-    }
-     */
 
     public void paint(Graphics2D g, double x, double y) {
         g.translate(x, y);

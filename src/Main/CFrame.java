@@ -1,5 +1,4 @@
 package Main;
-
 import Main.Helper.Vector2D;
 import Main.NeuralNetwork.Network;
 import Main.NeuralNetwork.NeuralNetwork;
@@ -10,22 +9,22 @@ import Main.Organisms.Animals.Rabbit;
 import Main.Organisms.Attributes.DNA;
 import Main.Organisms.Plants.Grass;
 import Main.Organisms.Plants.Plant;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Random;
+
 //TODO: use grid in food search
 //TODO: make mating a thing
 //TODO: update data output
-//TODO: add legend to Main.Main.NeuralNetwork.NeuralNetwork.DNA
+//TODO: add legend to Main.NeuralNetwork.NeuralNetwork.DNA
 //TODO: add graphs
 
 public class CFrame extends JPanel implements ActionListener {
     public static Random random = new Random();
-    NeuralNetwork nn = new NeuralNetwork(2,5,1);
+    NeuralNetwork nn = new NeuralNetwork(2,10,1);
     Network n;
 
     public static final int WIDTH = 800; //width of the frame
@@ -54,14 +53,13 @@ public class CFrame extends JPanel implements ActionListener {
     public static ArrayList<Plant> Plants = new ArrayList<>();
     public static ArrayList<Plant>[][] pGrid = new ArrayList[amountOfFieldsX][amountOfFieldsY];
 
-
     public CFrame(){
         JFrame frame = new JFrame("Ecosystem");     //title of the frame
         frame.setSize(WIDTH, HEIGHT);                    //frame size
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.initiate();
-        this.initiateNetwork();
+        //this.initiateNetwork();
 
         Timer t = new Timer(TIME_PERIOD,this);
         t.start();
@@ -180,9 +178,9 @@ public class CFrame extends JPanel implements ActionListener {
             //Interface
             //TODO: make a class or something better here
             g.setColor(Color.BLACK);
-            if(Fox.totalAmountOfFoxes > 0) g.drawString("Avg F Main.Main.NeuralNetwork.NeuralNetwork.DNA:  "+
+            if(Fox.totalAmountOfFoxes > 0) g.drawString("Avg F:  "+
                     DNA.div(Fox.totalAmountOfFoxes, Fox.sumDNA), CFrame.WIDTH,15);
-            if(Rabbit.totalAmountOfRabbits > 0) g.drawString("Avg R Main.Main.NeuralNetwork.NeuralNetwork.DNA: " +
+            if(Rabbit.totalAmountOfRabbits > 0) g.drawString("Avg R: " +
                     DNA.div(Rabbit.totalAmountOfRabbits, Rabbit.sumDNA), CFrame.WIDTH,30);
             g.drawString("Amount of Foxes:       " +
                     Foxes.size(), CFrame.WIDTH, 45);
@@ -194,10 +192,8 @@ public class CFrame extends JPanel implements ActionListener {
                     Fox.totalAmountOfFoxes, CFrame.WIDTH, 90);
             g.drawString("Total amount of Rabbits (naturally born): " +
                     Rabbit.totalAmountOfRabbits, CFrame.WIDTH, 105);
-            //g.drawString("Time: " + time/TIME_PERIOD / 10, 850, 120);
 
-            //Main.Main.NeuralNetwork.NeuralNetwork.Network
-            n.paint((Graphics2D) g, 1100, 500);
+            //n.paint((Graphics2D) g, 1100, 500);
         }
 
         if(Foxes.size() <= 0) for(int i = 0; i< 1; i++) Foxes.add(new Fox());
@@ -212,14 +208,17 @@ public class CFrame extends JPanel implements ActionListener {
         if(input[0] + input[1] > 0) target[0] = 1;
         else target[0] = 0;
         nn.train(input, target);
+        nn.paint((Graphics2D) g,1200,500);
 
-        //Main.Main.NeuralNetwork.NeuralNetwork.Network
+        //Network
+        /*
         this.time_ -= 1;
         if(this.time_ <= 0){
             this.time_ = this.newSend;
             n.feedForward(Math.random());
         }
         n.update();
+         */
     }
 
     //TODO: this needs to be updated / does not work correctly right now!!!
