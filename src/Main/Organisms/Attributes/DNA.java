@@ -1,8 +1,10 @@
+package Main.Organisms.Attributes;
+
 import java.util.Random;
 
 public class DNA {
     Random rand = new Random();
-    double[] genes;
+    public double[] genes;
 
     public DNA(int num){
         this.genes = new double[num];
@@ -16,7 +18,7 @@ public class DNA {
     }
 
 
-    DNA copy(){
+    public DNA copy(){
         double[] newGenes = new double[this.genes.length];
         for(int i = 0; i < this.genes.length; i++) newGenes[i] = this.genes[i];
         return new DNA(newGenes);

@@ -1,3 +1,5 @@
+package Main.Helper;
+
 import java.util.function.Function;
 
 public class Matrix {
@@ -56,7 +58,7 @@ public class Matrix {
         return this;
     }
     public static Matrix randomize(Matrix m1){
-        assert m1.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         for(int r = 0 ; r < m1.rows; r++){
             for(int c = 0; c < m1.cols; c++){
@@ -76,7 +78,7 @@ public class Matrix {
         return this;
     }
     public static Matrix add(Matrix m1, double scalar){
-        assert m1.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.cols, m1.rows);
         for(int r = 0 ; r < m1.rows; r++){
@@ -90,7 +92,7 @@ public class Matrix {
     public Matrix add(Matrix oM){
         assert this.cols == oM.cols : "Cols don't match: " + this.cols + "!=" + oM.cols;
         assert this.rows == oM.rows : "Rows don't match: " + this.rows + "!=" + oM.rows;;
-        assert oM.data != null : "Matrix is null";
+        assert oM.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){
@@ -100,8 +102,8 @@ public class Matrix {
         return this;
     }
     public static Matrix add(Matrix m1, Matrix m2){
-        assert m1.data != null : "Matrix is null";
-        assert m2.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
+        assert m2.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.cols, m1.rows);
         for(int r = 0 ; r < m1.rows; r++){
@@ -115,7 +117,7 @@ public class Matrix {
     public Matrix sub(Matrix oM){
         assert this.cols == oM.cols : "Cols don't match: " + this.cols + "!=" + oM.cols;
         assert this.rows == oM.rows : "Rows don't match: " + this.rows + "!=" + oM.rows;;
-        assert oM.data != null : "Matrix is null";
+        assert oM.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){
@@ -125,8 +127,8 @@ public class Matrix {
         return this;
     }
     public static Matrix sub(Matrix m1, Matrix m2){
-        assert m1.data != null : "Matrix is null";
-        assert m2.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
+        assert m2.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.cols, m1.rows);
         for(int r = 0 ; r < m1.rows; r++){
@@ -147,7 +149,7 @@ public class Matrix {
         return this;
     }
     public static Matrix mult(Matrix m1, double scalar){
-        assert m1.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.cols, m1.rows);
         for(int r = 0 ; r < m1.rows; r++){
@@ -160,8 +162,8 @@ public class Matrix {
 
     public static Matrix mult(Matrix m1, Matrix m2){
         assert m1.cols == m2.rows : "Cols and Rows don't match; " + m1.cols + "!=" + m2.rows;
-        assert m1.data != null : "Matrix is null";
-        assert m2.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
+        assert m2.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.rows, m2.cols);
         for(int r = 0 ; r < result.rows ; r++){
@@ -178,7 +180,7 @@ public class Matrix {
 
 
     public Matrix mult(Matrix oM){
-        assert oM.data != null : "Matrix is null";
+        assert oM.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){
@@ -189,8 +191,8 @@ public class Matrix {
     }
     public static Matrix elemMult(Matrix m1, Matrix m2){
         assert m1.rows != m2.rows || m1.cols != m2.cols : "Columns and Rows of A must match Columns and Rows of B.";
-        assert m1.data != null : "Matrix is null";
-        assert m2.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
+        assert m2.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.cols, m1.rows);
         for(int r = 0 ; r < m1.rows; r++){
@@ -203,7 +205,7 @@ public class Matrix {
 
 
     public static Matrix transpose(Matrix m1) {
-        assert m1.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.cols, m1.rows);
         for(int r = 0 ; r < m1.rows; r++){
@@ -216,7 +218,7 @@ public class Matrix {
 
 
     public Matrix map(Function<Double, Double> f){
-        assert this.data != null : "Matrix is null";
+        assert this.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){
@@ -227,7 +229,7 @@ public class Matrix {
         return this;
     }
     public static Matrix map(Matrix m1, Function<Double, Double> f) {
-        assert m1.data != null : "Matrix is null";
+        assert m1.data != null : "Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
         Matrix result = new Matrix(m1.rows, m1.cols);
         for(int r = 0 ; r < result.rows; r++){

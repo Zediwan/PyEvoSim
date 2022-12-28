@@ -1,11 +1,13 @@
+package Main.Helper;
+
 import java.awt.*;
 
 public class Transform {
     //TODO: change variables to private
-    Vector2D location;          //location vector
-    Vector2D velocity;          //direction vector
-    Vector2D acceleration;      //speed at which is being moved
-    double size;                 //size of the object
+    public Vector2D location;          //location vector
+    public Vector2D velocity;          //direction vector
+    public Vector2D acceleration;      //speed at which is being moved
+    public double size;                 //size of the object
 
     //Constructors
     public Transform(Vector2D location, Vector2D velocity, Vector2D acceleration, float size){

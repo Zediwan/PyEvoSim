@@ -1,4 +1,10 @@
-public abstract class Plant extends Organism{
+package Main.Organisms.Plants;
+
+import Main.Organisms.Attributes.DNA;
+import Main.Helper.Transform;
+import Main.Organisms.Organism;
+
+public abstract class Plant extends Organism {
     float growthInterval, growthTimer = 0;
 
     //Constructors

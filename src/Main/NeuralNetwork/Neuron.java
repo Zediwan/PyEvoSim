@@ -1,3 +1,7 @@
+package Main.NeuralNetwork;
+
+import Main.Helper.Vector2D;
+
 import java.awt.*;
 import java.util.ArrayList;
 

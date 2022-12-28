@@ -1,4 +1,6 @@
-import java.util.ArrayList;
+package Main.NeuralNetwork;
+import Main.Helper.Matrix;
+
 import java.util.function.Function;
 
 public class NeuralNetwork{

@@ -1,6 +1,8 @@
+package Main.Organisms.Plants;
+
 import java.awt.*;
 
-public class Grass extends Plant{
+public class Grass extends Plant {
     //Constructor
     public Grass(){
         super();

@@ -1,3 +1,5 @@
+package Main.NeuralNetwork;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -27,8 +29,8 @@ public class Network {
     }
 
     /*
-    public static Network transformNN(double x, double y, NeuralNetwork nn, Graphics2D g){
-        Network n = new Network(x,y);
+    public static Main.NeuralNetwork.NeuralNetwork.Network transformNN(double x, double y, NeuralNetwork.NeuralNetwork nn, Graphics2D g){
+        Main.NeuralNetwork.NeuralNetwork.Network n = new Main.NeuralNetwork.NeuralNetwork.Network(x,y);
         g.translate(x,y);
     }
      */

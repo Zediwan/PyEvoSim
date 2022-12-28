@@ -1,7 +1,16 @@
+package Main.Organisms.Animals;
+
+import Main.CFrame;
+import Main.Organisms.Attributes.DNA;
+import Main.Organisms.Attributes.Gender;
+import Main.Helper.Transform;
+import Main.Helper.Vector2D;
+import Main.Organisms.Organism;
+
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Fox extends Animal{
+public class Fox extends Animal {
     public static DNA sumDNA = DNA.initiateSumDNA(11);
     public static int totalAmountOfFoxes = 0;
 
@@ -23,7 +32,7 @@ public class Fox extends Animal{
 
     @Override
     public boolean collision(Organism Rabbit) {
-        assert Rabbit.getClass() == Rabbit.class;
+        assert Rabbit.getClass() == Main.Organisms.Animals.Rabbit.class;
         if(this.transform.location.dist(Rabbit.transform.location) <= this.transform.getR()){
             if(this.health >= 400) this.health = 400;
             Rabbit.health -= 500;                                     //reduce plants health to 0
@@ -89,10 +98,10 @@ public class Fox extends Animal{
      */
     @Override
     public void decodeDNA() {
-        //Define Gender
+        //Define Main.NeuralNetwork.NeuralNetwork.Gender
         /*
-        if(this.dna.genes[0]) this.gender = Gender.MALE;
-        else this.gender = Gender.FEMALE;
+        if(this.dna.genes[0]) this.gender = Main.NeuralNetwork.NeuralNetwork.Gender.MALE;
+        else this.gender = Main.NeuralNetwork.NeuralNetwork.Gender.FEMALE;
          */
         if(Math.random() <= .5) this.gender = Gender.MALE;
         else this.gender = Gender.FEMALE;

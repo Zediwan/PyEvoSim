@@ -1,11 +1,20 @@
+package Main.Organisms.Animals;
+
+import Main.CFrame;
+import Main.Organisms.Attributes.DNA;
+import Main.Organisms.Attributes.Gender;
+import Main.Helper.Transform;
+import Main.Helper.Vector2D;
+import Main.Organisms.Organism;
+
 import java.util.ArrayList;
 
-public abstract class Animal extends Organism{
-    Gender gender;
-    double maxSpeed, maxForce, viewDistance;
-    double desiredSepDist, desiredAliDist, desiredCohDist;
-    double sepWeight, aliWeight, cohWeight, fleeWeight;
-    Organism target = null;
+public abstract class Animal extends Organism {
+    public Gender gender;
+    public double maxSpeed, maxForce, viewDistance;
+    public double desiredSepDist, desiredAliDist, desiredCohDist;
+    public double sepWeight, aliWeight, cohWeight, fleeWeight;
+    public Organism target = null;
     //float reproductiveUrge = 0;
     //float hunger = 0;
     //float viewDistance;

@@ -3,38 +3,38 @@ import java.awt.*;
 import java.util.Random;
 
 public class FlowField {
-    Vector2D[][] field;
+    Main.NeuralNetwork.NeuralNetwork.Vector2D[][] field;
     int rows, cols; //Columns and Rows
     int resolution; //How large is each cell in the flow field
 
-    public FlowField(int resolution, CFrame frame){
+    public FlowField(int resolution, Main.NeuralNetwork.NeuralNetwork.CFrame frame){
         this.resolution = resolution;
         //Determine the number of columns and rows
         this.cols = frame.WIDTH/this.resolution;
         this.rows = frame.HEIGHT/this.resolution;
 
-        field = new Vector2D[cols][rows];
+        field = new Main.NeuralNetwork.NeuralNetwork.Vector2D[cols][rows];
         this.init(frame);
     }
 
-    private void init(CFrame frame) {
+    private void init(Main.NeuralNetwork.NeuralNetwork.CFrame frame) {
         //Reseed noise so we can get a new flow field every time
         float xoff = 0;
         for(int i = 0; i < this.cols; i++){
             float yoff = 0;
             for(int j = 0; j < this.rows; j++){
                 //System.out.println(new PerlinNoise(10).noise(xoff,yoff));
-                //float theta = Vector2D.map(Math.round(frame.pNoise.noise2(xoff,yoff)*100),0,1,0,Math.round(2*Math.PI));
+                //float theta = Main.NeuralNetwork.NeuralNetwork.Vector2D.map(Math.round(frame.pNoise.noise2(xoff,yoff)*100),0,1,0,Math.round(2*Math.PI));
                 float theta = 90;
                 theta += frame.random.nextFloat(4)-2;
-                field[i][j] = Vector2D.fromAngle(theta);
+                field[i][j] = Main.NeuralNetwork.NeuralNetwork.Vector2D.fromAngle(theta);
                 yoff += .1;
             }
             xoff += .1;
         }
     }
 
-    public Vector2D lookup(Vector2D lookup) {
+    public Main.NeuralNetwork.NeuralNetwork.Vector2D lookup(Main.NeuralNetwork.NeuralNetwork.Vector2D lookup) {
         int col = (int)(this.constrain(lookup.x / this.resolution,0,cols-1));
         int row = (int)(this.constrain(lookup.y / this.resolution, 0 ,rows-1));
         return field[col][row];

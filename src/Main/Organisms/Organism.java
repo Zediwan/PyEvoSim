@@ -1,9 +1,16 @@
+package Main.Organisms;
+
+import Main.CFrame;
+import Main.Organisms.Attributes.DNA;
+import Main.Helper.Transform;
+import Main.Helper.Vector2D;
+
 import java.awt.*;
 
 public abstract class Organism {
-    double health;
-    DNA dna;
-    Transform transform;
+    public double health;
+    public DNA dna;
+    public Transform transform;
     //TODO: change variables to private
     //TODO: implement age via sys-time
     //TODO: set a timescale for the age according to sys-time
@@ -26,7 +33,7 @@ public abstract class Organism {
 
     public abstract void paint(Graphics2D g);
 
-    boolean dead(){
+    public boolean dead(){
         return health <= 0 || this.transform.size <= 0;
     }
 

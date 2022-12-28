@@ -1,7 +1,17 @@
+package Main.Organisms.Animals;
+
+import Main.CFrame;
+import Main.Organisms.Attributes.DNA;
+import Main.Organisms.Attributes.Gender;
+import Main.Helper.Transform;
+import Main.Helper.Vector2D;
+import Main.Organisms.Organism;
+import Main.Organisms.Plants.Grass;
+
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Rabbit extends Animal{
+public class Rabbit extends Animal {
     public static DNA sumDNA = DNA.initiateSumDNA(12);
     public static int totalAmountOfRabbits = 0;
 
@@ -37,10 +47,10 @@ public class Rabbit extends Animal{
      */
     @Override
     public void decodeDNA() {
-        //Define Gender
+        //Define Main.NeuralNetwork.NeuralNetwork.Gender
         /*
-        if(this.dna.genes[0]) this.gender = Gender.MALE;
-        else this.gender = Gender.FEMALE;
+        if(this.dna.genes[0]) this.gender = Main.NeuralNetwork.NeuralNetwork.Gender.MALE;
+        else this.gender = Main.NeuralNetwork.NeuralNetwork.Gender.FEMALE;
          */
         if(Math.random() <= .5) this.gender = Gender.MALE;
         else this.gender = Gender.FEMALE;
@@ -88,7 +98,7 @@ public class Rabbit extends Animal{
     }
     @Override
     public boolean collision(Organism Grass) {
-        assert Grass.getClass() == Grass.class;
+        assert Grass.getClass() == Main.Organisms.Plants.Grass.class;
         if(this.transform.location.dist(Grass.transform.location) <= this.transform.getR()){
             this.health += (Grass.transform.size*20)+1;     //gain health
             if(this.health >= 400) this.health = 400;

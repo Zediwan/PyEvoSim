@@ -1,3 +1,5 @@
+package Main.Helper;
+
 public class Vector2D {
     //TODO: change variables to private
     public double x; //x coordinate
