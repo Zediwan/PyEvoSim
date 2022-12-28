@@ -20,6 +20,7 @@ public class NeuralNetwork{
 
     public double learning_rate;
     public ActivationFunction activation_function;
+    private Matrix output_errors;
 
     //Painting
     Network n;
@@ -102,7 +103,7 @@ public class NeuralNetwork{
 
         // Calculate the error
         // ERROR = TARGETS - OUTPUTS
-        Matrix output_errors = Matrix.sub(targets, outputs);
+        this.output_errors = Matrix.sub(targets, outputs);
 
         // let gradient = outputs * (1 - outputs);
         // Calculate gradient
@@ -160,11 +161,11 @@ public class NeuralNetwork{
         }
         //add hidden Neurons
         for(int i = 0; i < this.hidden_nodes; i++){
-            n.addNeuron(new Neuron(x + 50,y + i * 50));
+            n.addNeuron(new Neuron(x + 100,y + i * 50, this.bias_h.data[i][0]));
         }
         //add output Neurons
         for(int i = 0; i < this.output_nodes; i++){
-            n.addNeuron(new Neuron(x + 50 * 2,y + i * 50));
+            n.addNeuron(new Neuron(x + 100 * 2,y + i * 50, this.bias_o.data[i][0]));
         }
         //connect input to hidden Neurons
         for(int i = 0; i < this.input_nodes; i++){
@@ -190,4 +191,20 @@ public class NeuralNetwork{
         for(Neuron n : n.neurons) n.paint(g);
     }
 
+    public void paint(Graphics2D g, double x, double y, double[] input_array, double[] target_array) {
+        //g.translate(x, y);
+        this.initializeVisualNetwork(x,y);
+        g.setColor(Color.BLACK);
+        //Draw Input
+        for(int i = 0; i<input_array.length; i++)g.drawString(String.format("%.2f",input_array[i]) + "-->",(int)x-50,(int)y + i * 50);
+        //Draw output
+        for(int i = 0; i<target_array.length; i++){
+            g.drawString("-->"+String.format("%.2f",this.predict(input_array)[i]),(int)x+200,(int)y + i * 50);
+            if(this.output_errors.data[0][i] >= 0) g.setColor(Color.BLACK);
+            else g.setColor(Color.RED);
+            g.drawString("      " + String.format("%.2f",Math.abs(this.output_errors.data[0][i])), (int)x+200,(int)y + i * 50 + 15);
+        }
+        //Paint the graph
+        for(Neuron n : n.neurons) n.paint(g);
+    }
 }

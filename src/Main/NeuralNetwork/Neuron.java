@@ -7,10 +7,17 @@ public class Neuron {
     Vector2D location;
     ArrayList<Connection> connections;
     double sum = 0;
+    double bias = 0;
 
     public Neuron(double x, double y){
         this.location = new Vector2D(x,y);
         connections = new ArrayList();
+    }
+
+    public Neuron(double x, double y, double bias){
+        this.location = new Vector2D(x,y);
+        connections = new ArrayList();
+        this.bias = bias;
     }
 
     public void addConnection(Connection c) {
@@ -31,9 +38,10 @@ public class Neuron {
 
     public void paint(Graphics2D g) {
         for(Connection con : connections) con.paint(g);
-        Color c = new Color(0,0,0);
-        g.setColor(c);
-        g.fillOval((int)Math.round(this.location.x-8),(int)Math.round(this.location.y-8),16,16);
+        if(this.bias >= 0) g.setColor(Color.BLACK);
+        else g.setColor(Color.RED);
+        int size = (int)Math.round(10+4*Math.abs(this.bias));
+        g.fillOval((int)Math.round(this.location.x-size/2),(int)Math.round(this.location.y-size/2),size,size);
     }
 
     public void update() {

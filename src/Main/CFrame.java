@@ -24,7 +24,8 @@ import java.util.Random;
 
 public class CFrame extends JPanel implements ActionListener {
     public static Random random = new Random();
-    NeuralNetwork nn = new NeuralNetwork(2,10,1);
+    NeuralNetwork nn1 = new NeuralNetwork(2,2,1);
+    NeuralNetwork nn2 = new NeuralNetwork(2,2,1);
     Network n;
 
     public static final int WIDTH = 800; //width of the frame
@@ -207,8 +208,10 @@ public class CFrame extends JPanel implements ActionListener {
         input[1] = random.nextInt(2);
         if(input[0] + input[1] > 0) target[0] = 1;
         else target[0] = 0;
-        nn.train(input, target);
-        nn.paint((Graphics2D) g,1200,500);
+        nn1.train(input, target);
+        nn1.paint((Graphics2D) g,1000,300, input, target);
+        nn2.train(input,target);
+        nn2.paint((Graphics2D) g,1000,600, input, target);
 
         //Network
         /*

@@ -40,7 +40,7 @@ public class Connection {
     public void paint(Graphics2D g) {
         if(this.weight >= 0) g.setColor(Color.BLACK);
         else g.setColor(Color.RED);
-        g.setStroke(new BasicStroke(Math.round(1+4*Math.abs(this.weight))));
+        g.setStroke(new BasicStroke(Math.round(1+Math.abs(this.weight))));
         g.drawLine((int)Math.round(this.a.location.x),(int)Math.round(this.a.location.y),(int)Math.round(this.b.location.x),(int)Math.round(this.b.location.y));
 
         /*
