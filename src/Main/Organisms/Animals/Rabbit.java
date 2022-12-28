@@ -47,10 +47,10 @@ public class Rabbit extends Animal {
      */
     @Override
     public void decodeDNA() {
-        //Define Main.NeuralNetwork.NeuralNetwork.Gender
+        //Define Main.Main.NeuralNetwork.NeuralNetwork.Gender
         /*
-        if(this.dna.genes[0]) this.gender = Main.NeuralNetwork.NeuralNetwork.Gender.MALE;
-        else this.gender = Main.NeuralNetwork.NeuralNetwork.Gender.FEMALE;
+        if(this.dna.genes[0]) this.gender = Main.Main.NeuralNetwork.NeuralNetwork.Gender.MALE;
+        else this.gender = Main.Main.NeuralNetwork.NeuralNetwork.Gender.FEMALE;
          */
         if(Math.random() <= .5) this.gender = Gender.MALE;
         else this.gender = Gender.FEMALE;

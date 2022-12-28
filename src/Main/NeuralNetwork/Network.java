@@ -29,8 +29,8 @@ public class Network {
     }
 
     /*
-    public static Main.NeuralNetwork.NeuralNetwork.Network transformNN(double x, double y, NeuralNetwork.NeuralNetwork nn, Graphics2D g){
-        Main.NeuralNetwork.NeuralNetwork.Network n = new Main.NeuralNetwork.NeuralNetwork.Network(x,y);
+    public static Main.Main.NeuralNetwork.NeuralNetwork.Network transformNN(double x, double y, NeuralNetwork.NeuralNetwork nn, Graphics2D g){
+        Main.Main.NeuralNetwork.NeuralNetwork.Network n = new Main.Main.NeuralNetwork.NeuralNetwork.Network(x,y);
         g.translate(x,y);
     }
      */

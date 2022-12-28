@@ -8,7 +8,7 @@ public enum Gender {
     FEMALE;
 
     /**
-     * @return a random Main.NeuralNetwork.NeuralNetwork.Gender
+     * @return a random Main.Main.NeuralNetwork.NeuralNetwork.Gender
      */
     public static Gender getRandomGender(){
         if(CFrame.random.nextBoolean())return Gender.MALE;
