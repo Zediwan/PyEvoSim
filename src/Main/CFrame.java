@@ -110,6 +110,14 @@ public class CFrame extends JPanel implements ActionListener {
         time += TIME_PERIOD;
         super.paintComponent(g);
 
+        for(int i = 0; i < amountOfFieldsX; i++){
+            for(int j = 0; j <amountOfFieldsY; j++){
+                pGrid[i][j].clear();
+                rGrid[i][j].clear();
+                fGrid[i][j].clear();
+            }
+        }
+
         for(int j = 0; j < Plants.size(); j++){
             Plant p = Plants.get(j);
             if(p.dead()) Plants.remove(p);
@@ -228,7 +236,7 @@ public class CFrame extends JPanel implements ActionListener {
         ArrayList list = new ArrayList();
 
         int column = (int)(location.x / resolution);
-        int row = (int)(location.x / resolution);
+        int row = (int)(location.y / resolution);
 
         //String radius = "";
 
