@@ -69,7 +69,11 @@ public class Rabbit extends Animal {
         //Define separation, alignment, cohesion weights
         this.sepWeight = this.dna.genes[8];
         this.aliWeight = this.dna.genes[9];
-        this.cohWeight = this.dna.genes[10];
+        //newborn rabbits stick together more when they're outnumbered by foxes
+        if(Rabbit.totalAmountOfRabbits <= 0){
+            this.cohWeight = this.dna.genes[10];
+        }else{
+        this.cohWeight = this.dna.genes[10] * Math.sqrt(10*Fox.totalAmountOfFoxes/Rabbit.totalAmountOfRabbits);}
         //Define flee weight
         this.fleeWeight = this.dna.genes[11];
         //System.out.println(this.dna);
