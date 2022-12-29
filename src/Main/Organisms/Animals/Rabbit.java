@@ -61,7 +61,7 @@ public class Rabbit extends Animal {
         //Define maxForce
         this.maxForce = this.dna.genes[3];
         //Define viewDistance
-        this.viewDistance = (this.dna.genes[4])*this.transform.size;
+        this.viewDistance = this.dna.genes[4]+this.transform.size*this.dna.genes[4];
         //Define separation, alignment, cohesion distances
         this.desiredSepDist = this.dna.genes[5] * this.transform.size;
         this.desiredAliDist = this.dna.genes[6] * this.transform.size;
@@ -83,12 +83,6 @@ public class Rabbit extends Animal {
     //Behavior
     public void update(){
         //TODO: rework
-        target = searchFood();
-        if(target != null && this.health <= 300) {
-            this.transform.applyForce(seek(target.getLocation()));
-            if (collision(target)) target = searchFood();
-        }
-
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
         this.transform.location.add(this.transform.velocity);
@@ -97,7 +91,7 @@ public class Rabbit extends Animal {
         //this.transform.move(this.maxSpeed);
         this.borders1();
         //this.grow();
-        this.health -= 5;
+        this.health -= 4;
         //System.out.println(this.health);
     }
     @Override
@@ -116,17 +110,24 @@ public class Rabbit extends Animal {
 
     //TODO: rework for better performance
     @Override
-    public Organism searchFood() {
+    public Organism searchFood(ArrayList<Organism> organisms) {
         Organism closestFood = null;
-        double closestDistance = Double.POSITIVE_INFINITY;
-        for(Organism o : CFrame.Plants){
-            double distance = Vector2D.sub(o.transform.location, this.transform.location).mag();
-            if((closestDistance >= distance) && (distance <= this.viewDistance)){
-                closestDistance = distance;
-                closestFood = o;
+        if(target != null && this.health <= 300) {
+            this.transform.applyForce(seek(target.getLocation()));
+            if (collision(target)) target = searchFood(organisms);
+        }else{
+            double closestDistance = Double.POSITIVE_INFINITY;
+            for(Organism o : organisms){
+                assert o.getClass() == Grass.class;
+                double distance = Vector2D.sub(o.transform.location, this.transform.location).mag();
+                if((closestDistance >= distance) && (distance <= this.viewDistance)){
+                    closestDistance = distance;
+                    closestFood = o;
+                }
             }
+            if(closestFood != null) assert closestFood.getClass() == Grass.class;
+            this.target = closestFood;
         }
-        if(closestFood != null) assert closestFood.getClass() == Grass.class;
         return closestFood;
     }
 
@@ -153,18 +154,18 @@ public class Rabbit extends Animal {
         }
     }
 
-    public void flee(ArrayList<Animal> animals) {
+    public void flee(ArrayList<Organism> organisms) {
         Vector2D sum = new Vector2D();
         Vector2D steer = new Vector2D();
         int count = 0; //of animals being too close
 
-        for (Animal a : animals) {
-            assert a.getClass() == Fox.class;
+        for (Organism o : organisms) {
+            assert o.getClass() == Fox.class;
             //calculate distance of the two animals
-            double distance = Vector2D.dist(this.getLocation(), a.getLocation());
+            double distance = Vector2D.dist(this.getLocation(), o.getLocation());
             //here check distance > 0 to avoid an animal fleeing from itself
             if ((distance > 0) && (distance < this.viewDistance)) {
-                Vector2D difference = Vector2D.sub(this.getLocation(), a.getLocation());
+                Vector2D difference = Vector2D.sub(this.getLocation(), o.getLocation());
                 difference.normalize();
                 //the closer an animal the more we should flee
                 difference.div(distance);

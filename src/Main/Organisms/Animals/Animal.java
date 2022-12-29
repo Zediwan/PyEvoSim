@@ -37,38 +37,38 @@ public abstract class Animal extends Organism {
     public abstract boolean collision(Organism o);
 
     //Search for food
-    public abstract Organism searchFood();
+    public abstract Organism searchFood(ArrayList<Organism> organisms);
     public abstract void reproduce();
 
     //Border handling
     public void borders1(){
-        if(this.transform.location.x < -this.transform.getR())this.transform.location.x = CFrame.WIDTH+this.transform.getR();
-        if(this.transform.location.y < -this.transform.getR())this.transform.location.y = CFrame.HEIGHT+this.transform.getR();
-        if(this.transform.location.x > CFrame.WIDTH+this.transform.getR())this.transform.location.x = -this.transform.getR();
-        if(this.transform.location.y > CFrame.HEIGHT+this.transform.getR())this.transform.location.y = -this.transform.getR();
+        if(this.transform.location.x < -this.transform.getR())this.transform.location.x = CFrame.WIDTH;
+        if(this.transform.location.y < -this.transform.getR())this.transform.location.y = CFrame.HEIGHT;
+        if(this.transform.location.x > CFrame.WIDTH + this.transform.getR())this.transform.location.x = 0;
+        if(this.transform.location.y > CFrame.HEIGHT + this.transform.getR())this.transform.location.y = 0;
     }
     public void borders2(){
         if(this.getLocX() < 0){
             Vector2D desired = new Vector2D(this.maxSpeed, this.transform.velocity.getY());
             Vector2D steer = Vector2D.sub(desired,this.transform.getVelocity());
             steer.limit(this.maxForce);
-            this.transform.applyForce(steer.mult(-this.transform.location.x));
+            this.transform.applyForce(steer.mult(-this.transform.location.x*10));
         }else if (this.getLocX() > CFrame.WIDTH){
             Vector2D desired = new Vector2D(-this.maxSpeed, this.transform.velocity.getY());
             Vector2D steer = Vector2D.sub(desired,this.transform.getVelocity());
             steer.limit(this.maxForce);
-            this.transform.applyForce(steer.mult(this.transform.location.x-CFrame.HEIGHT));
+            this.transform.applyForce(steer.mult((this.transform.location.x-CFrame.HEIGHT)*10));
         }
         if(this.getLocY() < 0){
             Vector2D desired = new Vector2D(this.transform.velocity.getX(), this.maxSpeed);
             Vector2D steer = Vector2D.sub(desired,this.transform.getVelocity());
             steer.limit(this.maxForce);
-            this.transform.applyForce(steer.mult(-this.transform.location.y));
+            this.transform.applyForce(steer.mult(-this.transform.location.y*10));
         }else if (this.getLocY() > CFrame.HEIGHT){
             Vector2D desired = new Vector2D(this.transform.velocity.getX(), -this.maxSpeed);
             Vector2D steer = Vector2D.sub(desired,this.transform.getVelocity());
             steer.limit(this.maxForce);
-            this.transform.applyForce(steer.mult(this.transform.location.y-CFrame.HEIGHT));
+            this.transform.applyForce(steer.mult((this.transform.location.y-CFrame.HEIGHT)*10));
         }
     }
 
@@ -136,7 +136,6 @@ public abstract class Animal extends Organism {
         this.transform.applyForce(sep);
         this.transform.applyForce(ali);
         this.transform.applyForce(coh);
-
     }
 
     //environmental effects
@@ -225,5 +224,5 @@ public abstract class Animal extends Organism {
         return steer;
     }
 
-    public abstract void flee(ArrayList<Animal> animals);
+    public abstract void flee(ArrayList<Organism> organisms);
 }

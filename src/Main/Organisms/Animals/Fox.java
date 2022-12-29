@@ -6,7 +6,6 @@ import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
-
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -32,7 +31,7 @@ public class Fox extends Animal {
 
     @Override
     public boolean collision(Organism Rabbit) {
-        assert Rabbit.getClass() == Main.Organisms.Animals.Rabbit.class;
+        assert Rabbit.getClass() == Rabbit.class;
         if(this.transform.location.dist(Rabbit.transform.location) <= this.transform.getR()){
             if(this.health >= 400) this.health = 400;
             Rabbit.health -= 500;                                     //reduce plants health to 0
@@ -46,18 +45,24 @@ public class Fox extends Animal {
 
     //TODO: rework for better performance
     @Override
-    public Organism searchFood() {
+    public Organism searchFood(ArrayList<Organism> organisms) {
         Organism closestFood = null;
-        double closestDistance = Double.POSITIVE_INFINITY;
-        for(Organism o : CFrame.Rabbits){
-            assert o.getClass() == Rabbit.class;
-            double distance = Vector2D.sub(o.transform.location, this.transform.location).mag();
-            if((closestDistance >= distance) && (distance <= this.viewDistance)){
-                closestDistance = distance;
-                closestFood = o;
+        if(target != null && this.health <= 300) {
+            this.transform.applyForce(seek(target.getLocation()));
+            if (collision(target)) target = searchFood(organisms);
+        }else{
+            double closestDistance = Double.POSITIVE_INFINITY;
+            for(Organism o : organisms){
+                assert o.getClass() == Rabbit.class;
+                double distance = Vector2D.sub(o.transform.location, this.transform.location).mag();
+                if((closestDistance >= distance) && (distance <= this.viewDistance)){
+                    closestDistance = distance;
+                    closestFood = o;
+                }
             }
+            if(closestFood != null) assert closestFood.getClass() == Rabbit.class;
+            this.target = closestFood;
         }
-        if(closestFood != null) assert closestFood.getClass() == Rabbit.class;
         return closestFood;
     }
 
@@ -80,7 +85,7 @@ public class Fox extends Animal {
     }
 
     @Override
-    public void flee(ArrayList<Animal> animals) {
+    public void flee(ArrayList<Organism> organisms) {
     }
 
     /**
@@ -112,7 +117,7 @@ public class Fox extends Animal {
         //Define maxForce
         this.maxForce = this.dna.genes[3];
         //Define viewDistance
-        this.viewDistance = (this.dna.genes[4])*this.transform.size;
+        this.viewDistance = this.dna.genes[4]+this.transform.size*this.dna.genes[4];
         //Define separation, alignment, cohesion distances
         this.desiredSepDist = this.dna.genes[5] * this.transform.size;
         this.desiredAliDist = this.dna.genes[6] * this.transform.size;
@@ -127,12 +132,6 @@ public class Fox extends Animal {
     //Behavior
     public void update(){
         //TODO: rework
-        target = searchFood();
-        if(target != null  && this.health <= 300) {
-            this.transform.applyForce(seek(target.getLocation()));
-            if (collision(target)) target = searchFood();
-        }
-
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
         this.transform.location.add(this.transform.velocity);
@@ -141,9 +140,10 @@ public class Fox extends Animal {
         //this.transform.move(this.maxSpeed);
         this.borders1();
         //this.grow();
-        if(this.transform.velocity.mag() <= this.maxSpeed){
-            this.health -= Vector2D.map(this.transform.velocity.mag(),0,this.maxSpeed,5, 8);
-        }else this.health -= 5;
+        //if(this.transform.velocity.mag() <= this.maxSpeed){
+            //this.health -= Vector2D.map(this.transform.velocity.mag(),0,this.maxSpeed,0, 3);
+        //}else
+            this.health-=4;
 
         //System.out.println(this.health);
     }
