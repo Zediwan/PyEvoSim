@@ -40,7 +40,7 @@ public class Neuron {
         for(Connection con : connections) con.paint(g);
         if(this.bias >= 0) g.setColor(Color.BLACK);
         else g.setColor(Color.RED);
-        int size = (int)Math.round(10+4*Math.abs(this.bias));
+        int size = (int)Math.round(15+4*Math.abs(this.bias));
         g.fillOval((int)Math.round(this.location.x-size/2),(int)Math.round(this.location.y-size/2),size,size);
     }
 

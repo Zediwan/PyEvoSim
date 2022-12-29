@@ -1,6 +1,7 @@
 package Main.Organisms.Animals;
 
 import Main.CFrame;
+import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
@@ -15,6 +16,7 @@ public abstract class Animal extends Organism {
     public double desiredSepDist, desiredAliDist, desiredCohDist;
     public double sepWeight, aliWeight, cohWeight, fleeWeight;
     public Organism target = null;
+    public NeuralNetwork nn;
     //float reproductiveUrge = 0;
     //float hunger = 0;
     //float viewDistance;
@@ -33,9 +35,11 @@ public abstract class Animal extends Organism {
 
     //Collision registration
     public abstract boolean collision(Organism o);
+
     //Search for food
     public abstract Organism searchFood();
     public abstract void reproduce();
+
     //Border handling
     public void borders1(){
         if(this.transform.location.x < -this.transform.getR())this.transform.location.x = CFrame.WIDTH+this.transform.getR();
@@ -67,7 +71,6 @@ public abstract class Animal extends Organism {
             this.transform.applyForce(steer.mult(this.transform.location.y-CFrame.HEIGHT));
         }
     }
-
 
     //movement types
     /**

@@ -137,7 +137,7 @@ public class NeuralNetwork{
         //System.out.print("Input: \n" + inputs);
         //System.out.print("Output: " + outputs);
         //System.out.print("Target: " + targets);
-        System.out.println("Error: \n" + output_errors);
+        //System.out.println("Error: \n" + output_errors);
     }
 
     // Adding function for neuro-evolution
@@ -153,20 +153,23 @@ public class NeuralNetwork{
         this.bias_o.map(func);
     }
 
-    public void initializeVisualNetwork(double x, double y) {
-        n = new Network(x,y);
+    public void initializeVisualNetwork() {
+        n = new Network(0,0);
+        //TODO: add biases to the nodes
         //add input Neurons
-        for(int i = 0; i < this.input_nodes; i++){
-            n.addNeuron(new Neuron(x,y + i * 50));
-        }
+        n.generateCentralizedNodes(-50, this.input_nodes);
+        //for(int i = 0; i < this.input_nodes; i++) n.addNeuron(new Neuron(-50,i * 50));
+
         //add hidden Neurons
-        for(int i = 0; i < this.hidden_nodes; i++){
-            n.addNeuron(new Neuron(x + 100,y + i * 50, this.bias_h.data[i][0]));
-        }
+        n.generateCentralizedNodes(0, this.hidden_nodes);
+        //for(int i = 0; i < this.hidden_nodes; i++) n.addNeuron(new Neuron(0,  i * 50, this.bias_h.data[i][0]));
+
         //add output Neurons
-        for(int i = 0; i < this.output_nodes; i++){
-            n.addNeuron(new Neuron(x + 100 * 2,y + i * 50, this.bias_o.data[i][0]));
-        }
+        n.generateCentralizedNodes(50, this.output_nodes);
+        //for(int i = 0; i < this.output_nodes; i++) n.addNeuron(new Neuron(50 * 2,i * 50, this.bias_o.data[i][0]));
+
+        //add all weights
+
         //connect input to hidden Neurons
         for(int i = 0; i < this.input_nodes; i++){
             for(int j = 0; j < this.hidden_nodes; j++){
@@ -186,23 +189,23 @@ public class NeuralNetwork{
     }
 
     public void paint(Graphics2D g, double x, double y) {
-        //g.translate(x, y);
-        this.initializeVisualNetwork(x,y);
+        g.translate(x, y);
+        this.initializeVisualNetwork();
         for(Neuron n : n.neurons) n.paint(g);
     }
 
     public void paint(Graphics2D g, double x, double y, double[] input_array, double[] target_array) {
-        //g.translate(x, y);
-        this.initializeVisualNetwork(x,y);
+        g.translate(x, y);
+        this.initializeVisualNetwork();
         g.setColor(Color.BLACK);
         //Draw Input
-        for(int i = 0; i<input_array.length; i++)g.drawString(String.format("%.2f",input_array[i]) + "-->",(int)x-50,(int)y + i * 50);
+        for(int i = 0; i<input_array.length; i++)g.drawString(String.format("%.2f",input_array[i]) + "->",-100,i * 50);
         //Draw output
         for(int i = 0; i<target_array.length; i++){
-            g.drawString("-->"+String.format("%.2f",this.predict(input_array)[i]),(int)x+200,(int)y + i * 50);
+            g.drawString("->"+String.format("%.2f",this.predict(input_array)[i]),110, i * 50);
             if(this.output_errors.data[0][i] >= 0) g.setColor(Color.BLACK);
             else g.setColor(Color.RED);
-            g.drawString("      " + String.format("%.2f",Math.abs(this.output_errors.data[0][i])), (int)x+200,(int)y + i * 50 + 15);
+            g.drawString("    " + String.format("%.2f",Math.abs(this.output_errors.data[0][i])), 110,i * 50 + 15);
         }
         //Paint the graph
         for(Neuron n : n.neurons) n.paint(g);

@@ -24,9 +24,8 @@ import java.util.Random;
 
 public class CFrame extends JPanel implements ActionListener {
     public static Random random = new Random();
-    NeuralNetwork nn1 = new NeuralNetwork(2,2,1);
-    NeuralNetwork nn2 = new NeuralNetwork(2,2,1);
-    Network n;
+    NeuralNetwork nn1 = new NeuralNetwork(2,4,1);
+    NeuralNetwork nn2 = new NeuralNetwork(2,5,1);
 
     public static final int WIDTH = 800; //width of the frame
     public static final int HEIGHT = 800; //height of the frame
@@ -34,8 +33,6 @@ public class CFrame extends JPanel implements ActionListener {
     //TODO: find out what this is for
     static final int TIME_PERIOD = 24;
     static int time = 0;
-    int newSend = 100;
-    int time_ = 10;
 
     private final int STARTING_RABBITS = 100;
     private final int STARTING_FOXES = 5;
@@ -70,6 +67,7 @@ public class CFrame extends JPanel implements ActionListener {
     }
 
     //TEST
+    /*
     public void initiateNetwork(){
         n = new Network(1100,500);
 
@@ -88,6 +86,7 @@ public class CFrame extends JPanel implements ActionListener {
         n.connect(b,d);
         n.connect(c,d);
     }
+     */
 
     public void initiate(){
         for(int i=0;i<rGrid.length;i++) {
@@ -101,7 +100,6 @@ public class CFrame extends JPanel implements ActionListener {
         for(int i = 0; i < STARTING_FOXES; i++) Foxes.add(new Fox());
         for(int j = 0; j < STARTING_PLANTS; j++) Plants.add(new Grass());
     }
-
 
     /**
      *
@@ -202,16 +200,18 @@ public class CFrame extends JPanel implements ActionListener {
         if(random.nextInt()<= 1 && Plants.size()<= 5000) for(int i = 0; i< 10; i++) Plants.add(new Grass());
 
         //NN
+        //Generate inputs and targets
         double[] input = new double[2];
         double[] target = new double[1];
         input[0] = random.nextInt(2);
         input[1] = random.nextInt(2);
         if(input[0] + input[1] > 0) target[0] = 1;
         else target[0] = 0;
+        //Train and paint
         nn1.train(input, target);
         nn1.paint((Graphics2D) g,1000,300, input, target);
         nn2.train(input,target);
-        nn2.paint((Graphics2D) g,1000,600, input, target);
+        nn2.paint((Graphics2D) g,0,400, input, target);
 
         //Network
         /*
@@ -224,6 +224,25 @@ public class CFrame extends JPanel implements ActionListener {
          */
     }
 
+    public ArrayList getGridFields(Vector2D location, ArrayList[][] grid){
+        ArrayList list = new ArrayList();
+
+        int column = (int)(location.x / resolution);
+        int row = (int)(location.x / resolution);
+
+        //String radius = "";
+
+        for(int x = -1; x <= 1; x++){
+            for(int y = -1;y <= 1; y++){
+                int newCol = column+x;
+                int newRow = row+y;
+                if (((newCol >= 0 && newCol < amountOfFieldsX) && (newRow >= 0 && newRow < amountOfFieldsY))) list.addAll(grid[newCol][newRow]);
+                //radius += "("+newCol+","+newRow+")";
+            }
+        }
+        //System.out.println(radius);
+        return list;
+    }
     //TODO: this needs to be updated / does not work correctly right now!!!
     public ArrayList getGridFields(Animal a, ArrayList[][] grid){
         ArrayList list = new ArrayList();
@@ -244,25 +263,6 @@ public class CFrame extends JPanel implements ActionListener {
             }
         }
         System.out.println(radius);
-        return list;
-    }
-    public ArrayList getGridFields(Vector2D location, ArrayList[][] grid){
-        ArrayList list = new ArrayList();
-
-        int column = (int)(location.x / resolution);
-        int row = (int)(location.x / resolution);
-
-        //String radius = "";
-
-        for(int x = -1; x <= 1; x++){
-            for(int y = -1;y <= 1; y++){
-                int newCol = column+x;
-                int newRow = row+y;
-                if (((newCol >= 0 && newCol < amountOfFieldsX) && (newRow >= 0 && newRow < amountOfFieldsY))) list.addAll(grid[newCol][newRow]);
-                //radius += "("+newCol+","+newRow+")";
-            }
-        }
-        //System.out.println(radius);
         return list;
     }
 
