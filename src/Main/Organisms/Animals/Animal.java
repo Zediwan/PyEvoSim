@@ -183,14 +183,14 @@ public abstract class Animal extends Organism {
      */
     public Vector2D cohesion(ArrayList<Animal> animals){
         Vector2D sum = new Vector2D();
-        int count = 0;
+        double count = 0;
 
         for(Animal a : animals){
             double distance = Vector2D.dist(this.getLocation(),a.getLocation());
             if((distance > 0) && (distance < this.desiredCohDist)){
                 //TODO: does this make the movement smoother?
                 sum.add(a.getLocation().mult(1/Math.pow(distance,2)));
-                count++;
+                count+= 1/Math.pow(distance,2);
             }
         }
         if(count > 0){
