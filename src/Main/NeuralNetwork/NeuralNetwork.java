@@ -161,11 +161,11 @@ public class NeuralNetwork{
         //for(int i = 0; i < this.input_nodes; i++) n.addNeuron(new Neuron(-50,i * 50));
 
         //add hidden Neurons
-        n.generateCentralizedNodes(0, this.hidden_nodes);
+        n.generateCentralizedNodes(0, this.hidden_nodes, this.bias_h.toArray());
         //for(int i = 0; i < this.hidden_nodes; i++) n.addNeuron(new Neuron(0,  i * 50, this.bias_h.data[i][0]));
 
         //add output Neurons
-        n.generateCentralizedNodes(100, this.output_nodes);
+        n.generateCentralizedNodes(100, this.output_nodes, this.bias_o.toArray());
         //for(int i = 0; i < this.output_nodes; i++) n.addNeuron(new Neuron(50 * 2,i * 50, this.bias_o.data[i][0]));
 
         //add all weights

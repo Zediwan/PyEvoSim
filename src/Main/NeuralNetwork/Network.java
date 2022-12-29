@@ -25,15 +25,38 @@ public class Network {
 
     public void generateCentralizedNodes(double rowPos, int amountOfNodes){
         //TODO: adjust order
-        //is it an even amount of Nodes
+        //If it is an even amount of Nodes
         if(amountOfNodes % 2 == 0){
             for(int i = 0; i < amountOfNodes/2 ; i++){
+                //Add the alternating Nodes
                 addNeuron(new Neuron(rowPos, 25 + 50 * i));
                 addNeuron(new Neuron(rowPos, -25 - 50 * i));
             }
         }else{
+            //Adding the centre Node
             addNeuron(new Neuron(rowPos, 0));
             for(int i = 1; i <= amountOfNodes/2; i++){
+                //Add the alternating Nodes
+                addNeuron(new Neuron(rowPos, 50 * i));
+                addNeuron(new Neuron(rowPos, -50 * i));
+            }
+        }
+    }
+
+    public void generateCentralizedNodes(double rowPos, int amountOfNodes, double[] bias){
+        //TODO: adjust order
+        //If it is an even amount of Nodes
+        if(amountOfNodes % 2 == 0){
+            for(int i = 0; i < amountOfNodes/2 ; i++){
+                //Add the alternating Nodes
+                addNeuron(new Neuron(rowPos, 25 + 50 * i));
+                addNeuron(new Neuron(rowPos, -25 - 50 * i));
+            }
+        }else{
+            //Adding the centre Node
+            addNeuron(new Neuron(rowPos, 0));
+            for(int i = 1; i <= amountOfNodes/2; i++){
+                //Add the alternating Nodes
                 addNeuron(new Neuron(rowPos, 50 * i));
                 addNeuron(new Neuron(rowPos, -50 * i));
             }
