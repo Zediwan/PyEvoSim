@@ -188,7 +188,8 @@ public abstract class Animal extends Organism {
         for(Animal a : animals){
             double distance = Vector2D.dist(this.getLocation(),a.getLocation());
             if((distance > 0) && (distance < this.desiredCohDist)){
-                sum.add(a.getLocation());
+                //TODO: does this make the movement smoother?
+                sum.add(a.getLocation().mult(1/Math.pow(distance,2)));
                 count++;
             }
         }
