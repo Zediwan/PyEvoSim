@@ -25,6 +25,7 @@ public class Network {
 
     public void generateCentralizedNodes(double rowPos, int amountOfNodes){
         //TODO: adjust order
+        //is it an even amount of Nodes
         if(amountOfNodes % 2 == 0){
             for(int i = 0; i < amountOfNodes/2 ; i++){
                 addNeuron(new Neuron(rowPos, 25 + 50 * i));

@@ -24,8 +24,8 @@ import java.util.Random;
 
 public class CFrame extends JPanel implements ActionListener {
     public static Random random = new Random();
-    NeuralNetwork nn1 = new NeuralNetwork(2,4,1);
-    NeuralNetwork nn2 = new NeuralNetwork(2,5,1);
+    NeuralNetwork nn1 = new NeuralNetwork(2,3,1);
+    NeuralNetwork nn2 = new NeuralNetwork(2,4,1);
 
     public static final int WIDTH = 800; //width of the frame
     public static final int HEIGHT = 800; //height of the frame
@@ -106,6 +106,7 @@ public class CFrame extends JPanel implements ActionListener {
      * @param g
      */
     public void paint(Graphics g) {
+        //TODO: refactor the grid updating
         time += TIME_PERIOD;
         super.paintComponent(g);
 
@@ -203,10 +204,9 @@ public class CFrame extends JPanel implements ActionListener {
         //Generate inputs and targets
         double[] input = new double[2];
         double[] target = new double[1];
-        input[0] = random.nextInt(2);
-        input[1] = random.nextInt(2);
-        if(input[0] + input[1] > 0) target[0] = 1;
-        else target[0] = 0;
+        input[0] = random.nextDouble(1);
+        input[1] = random.nextDouble(1);
+        target[0] = input[0] + input[1];
         //Train and paint
         nn1.train(input, target);
         nn1.paint((Graphics2D) g,1000,300, input, target);
