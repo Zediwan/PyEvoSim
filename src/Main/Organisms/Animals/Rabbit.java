@@ -73,7 +73,7 @@ public class Rabbit extends Animal {
         this.sepWeight = this.dna.genes[8];
         this.aliWeight = this.dna.genes[9];
         //newborn rabbits stick together more when they're outnumbered by foxes
-        if(Rabbit.totalAmountOfRabbits <= 0){
+        if(Rabbits.size() <= 0){
             this.cohWeight = this.dna.genes[10];
         }else{
         this.cohWeight = this.dna.genes[10] * Math.sqrt(10*Foxes.size()/ Rabbits.size());}
