@@ -107,6 +107,19 @@ public abstract class Animal extends Organism {
         //this.transform.applyForce(steer);
         return steer;
     }
+    
+    
+    public Vector2D seek(Vector2D target, int groupRatio){
+        Vector2D desired = Vector2D.sub(target,this.transform.location);
+
+        desired.setMag(this.maxSpeed * groupRatio);
+
+        Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
+        steer.limit(this.maxForce);
+        //this.transform.applyForce(steer);
+        return steer;
+    }
+
     public Vector2D flee(Vector2D target){
         Vector2D desired = Vector2D.sub(target,this.transform.location);
         desired = desired.mult(-1);
@@ -183,19 +196,24 @@ public abstract class Animal extends Organism {
      */
     public Vector2D cohesion(ArrayList<Animal> animals){
         Vector2D sum = new Vector2D();
-        double count = 0;
+        int count = 0;
+        int ratio = 0;
 
         for(Animal a : animals){
             double distance = Vector2D.dist(this.getLocation(),a.getLocation());
             if((distance > 0) && (distance < this.desiredCohDist)){
-                //TODO: does this make the movement smoother?
-                sum.add(a.getLocation().mult(1/Math.pow(distance,2)));
-                count+= 1/Math.pow(distance,2);
+                if(distance < 0.5 * this.desiredCohDist) {
+                    ratio++;
+                }
+                ratio++;
+                sum.add(a.getLocation().negVectorCheck());
+                count++;
             }
         }
         if(count > 0){
             sum.div(count);
-            return seek(sum);
+            ratio/= count * 2;
+            return seek(sum,ratio);
         }else return new Vector2D();
     }
     /**
