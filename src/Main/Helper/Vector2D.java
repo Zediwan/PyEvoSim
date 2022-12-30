@@ -17,6 +17,20 @@ public class Vector2D {
         this.x = 0;
         this.y = 0;
     }
+    /**
+     * Transforms a "negative vector" into the null vector
+     */
+
+    public Vector2D negVectorCheck(){
+        if(this.x < 0){
+            this.x = 0;
+        }
+        if(this.y < 0){
+            this.y = 0;
+        }
+        return this;
+    }
+
 
     /**
      * Generates a random vector within 0 to the limits
