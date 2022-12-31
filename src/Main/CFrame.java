@@ -208,9 +208,9 @@ public class CFrame extends JPanel implements ActionListener {
             g.translate(0,200);
             //Summary of Amount
             g.drawString("Amount of Rabbits", 0, 0);
-            g.drawString(": "+Foxes.size(), 150, 0);
+            g.drawString(": "+Rabbits.size(), 150, 0);
             g.drawString("Tot num of born Rabbits", 0, 15);
-            g.drawString(": "+Fox.totalAmountOfFoxes,150,15);
+            g.drawString(": "+Rabbit.totalAmountOfRabbits,150,15);
 
             //Plant information
             g.setColor(Color.BLACK);
