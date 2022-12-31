@@ -14,10 +14,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Random;
 
-//TODO: use grid in food search
 //TODO: make mating a thing
 //TODO: update data output
-//TODO: add legend to Main.NeuralNetwork.NeuralNetwork.DNA
+//TODO: add legend to DNA
 //TODO: add graphs
 
 public class CFrame extends JPanel implements ActionListener {
@@ -64,28 +63,6 @@ public class CFrame extends JPanel implements ActionListener {
         frame.add(this);
         frame.setVisible(true);
     }
-
-    //TEST
-    /*
-    public void initiateNetwork(){
-        n = new Network(1100,500);
-
-        Neuron a = new Neuron(-200,0);
-        Neuron b = new Neuron(0,100);
-        Neuron c = new Neuron(0,-100);
-        Neuron d = new Neuron(200,0);
-
-        n.addNeuron(a);
-        n.addNeuron(b);
-        n.addNeuron(c);
-        n.addNeuron(d);
-
-        n.connect(a,b);
-        n.connect(a,c);
-        n.connect(b,d);
-        n.connect(c,d);
-    }
-     */
 
     public void initiate(){
         for(int i=0;i<numFieldsY;i++) {

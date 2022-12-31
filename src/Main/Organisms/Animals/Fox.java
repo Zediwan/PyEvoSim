@@ -39,8 +39,11 @@ public class Fox extends Animal {
             //System.out.println(this.health);
             target = null;                                  //remove target
             //System.out.println("eating");
+            assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
             return true;
-        } return false;
+        }
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
+        return false;
     }
 
     //TODO: rework for better performance
@@ -63,6 +66,7 @@ public class Fox extends Animal {
             if(closestFood != null) assert closestFood.getClass() == Rabbit.class;
             this.target = closestFood;
         }
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return closestFood;
     }
 
@@ -133,6 +137,7 @@ public class Fox extends Animal {
     public void update(){
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         this.transform.location.add(this.transform.velocity);
         this.transform.acceleration.mult(0);
 
@@ -143,6 +148,7 @@ public class Fox extends Animal {
             //this.health -= Vector2D.map(this.transform.velocity.mag(),0,this.maxSpeed,0, 3);
         //}else
             this.health-=5;
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
 
         //System.out.println(this.health);
     }

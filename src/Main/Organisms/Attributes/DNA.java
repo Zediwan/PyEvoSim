@@ -5,16 +5,22 @@ import java.util.Random;
 public class DNA {
     Random rand = new Random();
     public double[] genes;
+    public String[] names;
 
     public DNA(int num){
         this.genes = new double[num];
-        for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(3);
+        for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(2)-1;
     }
     public DNA(){
         this(1);
     }
     public DNA(double[] genes){
         this.genes = genes;
+    }
+    public DNA(double[] genes, String[] names){
+        assert names.length <= genes.length;
+        this.genes = genes;
+        this.names = names;
     }
 
 
@@ -26,7 +32,7 @@ public class DNA {
 
     public void mutate(double mutationChance) {
         for(int i = 0; i < this.genes.length; i++){
-            if(Math.random() < mutationChance) this.genes[i] += this.rand.nextDouble(4)-2;
+            if(Math.random() < mutationChance) this.genes[i] += this.rand.nextDouble(1)-.5;
         }
     }
 

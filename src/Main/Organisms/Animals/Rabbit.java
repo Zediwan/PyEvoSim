@@ -88,6 +88,7 @@ public class Rabbit extends Animal {
         //TODO: rework
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         this.transform.location.add(this.transform.velocity);
         this.transform.acceleration.mult(0);
 
@@ -95,6 +96,7 @@ public class Rabbit extends Animal {
         this.borders1();
         //this.grow();
         this.health -= 5;
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         //System.out.println(this.health);
     }
     @Override
@@ -107,8 +109,11 @@ public class Rabbit extends Animal {
             Grass.transform.size--;
             target = null;                                  //remove target
             //System.out.println("eating");
+            assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
             return true;
-        } return false;
+        }
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
+        return false;
     }
 
     //TODO: rework for better performance
@@ -131,6 +136,7 @@ public class Rabbit extends Animal {
             if(closestFood != null) assert closestFood.getClass() == Grass.class;
             this.target = closestFood;
         }
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return closestFood;
     }
 
@@ -187,6 +193,7 @@ public class Rabbit extends Animal {
         }
         steer.mult(this.fleeWeight);
         this.transform.applyForce(steer);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
     }
 
             //Visualization

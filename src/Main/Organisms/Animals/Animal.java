@@ -91,6 +91,7 @@ public abstract class Animal extends Organism {
         Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
         steer.limit(this.maxForce);                                         //Limit to maximum steering
         //this.transform.applyForce(steer);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return steer;
     }
     /**
@@ -105,6 +106,7 @@ public abstract class Animal extends Organism {
         Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
         steer.limit(this.maxForce);
         //this.transform.applyForce(steer);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return steer;
     }
     
@@ -117,6 +119,7 @@ public abstract class Animal extends Organism {
         Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
         steer.limit(this.maxForce);
         //this.transform.applyForce(steer);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return steer;
     }
 
@@ -129,6 +132,7 @@ public abstract class Animal extends Organism {
         Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
         steer.limit(this.maxForce);
         //this.transform.applyForce(steer);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return steer;
     }
     public void flock(ArrayList<Animal> animals){
@@ -149,6 +153,7 @@ public abstract class Animal extends Organism {
         this.transform.applyForce(sep);
         this.transform.applyForce(ali);
         this.transform.applyForce(coh);
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
     }
 
     //environmental effects
@@ -186,6 +191,7 @@ public abstract class Animal extends Organism {
 
             //this.transform.applyForce(steer);
         }
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return steer;
     }
     /**
@@ -212,8 +218,12 @@ public abstract class Animal extends Organism {
         if(count > 0){
             sum.div(count);
             ratio/= count * 2;
+            assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
             return seek(sum,ratio);
-        }else return new Vector2D();
+        }else {
+            assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
+            return new Vector2D();
+        }
     }
     /**
      * Steer in the same direction as your neighbors
@@ -239,6 +249,7 @@ public abstract class Animal extends Organism {
             steer = Vector2D.sub(sum,this.transform.getVelocity());
             steer.limit(this.maxForce);
         }
+        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         return steer;
     }
 
