@@ -1,8 +1,6 @@
 package Main;
 import Main.Helper.Vector2D;
-import Main.NeuralNetwork.Network;
 import Main.NeuralNetwork.NeuralNetwork;
-import Main.NeuralNetwork.Neuron;
 import Main.Organisms.Animals.Animal;
 import Main.Organisms.Animals.Fox;
 import Main.Organisms.Animals.Rabbit;
@@ -27,30 +25,30 @@ public class CFrame extends JPanel implements ActionListener {
     NeuralNetwork nn1 = new NeuralNetwork(2,3,1);
     NeuralNetwork nn2 = new NeuralNetwork(2,4,1);
 
-    public static final int WIDTH = 800; //width of the frame
+    public static final int WIDTH = 600; //width of the frame
     public static final int HEIGHT = 800; //height of the frame
 
     //TODO: find out what this is for
     static final int TIME_PERIOD = 24;
     static int time = 0;
 
-    private final int STARTING_RABBITS = 100;
-    private final int STARTING_FOXES = 5;
-    private final int STARTING_PLANTS = 5000;
+    private final int STARTING_RABBITS = 1000;
+    private final int STARTING_FOXES = 50;
+    private final int STARTING_PLANTS = 10000;
 
-    public static int resolution = 10;
-    public static int scale = 4;
-    static int amountOfFieldsX = (int)(WIDTH/scale);
-    static int amountOfFieldsY = (int)(HEIGHT/scale);
+    public static int resolution = 10;              //total amount of fields in x and y direction not used right now
+    public static int scale = 10;                   //width of a field
+    static int numFieldsX = (int)(WIDTH/scale);     //amount of fields in x dir
+    static int numFieldsY = (int)(HEIGHT/scale);    //amount of fields in y dir
     //Rabbits
     public static ArrayList<Animal> Rabbits = new ArrayList<>();
-    public static ArrayList<Animal>[][] rGrid = new ArrayList[resolution][resolution];
+    public static ArrayList<Animal>[][] rGrid = new ArrayList[numFieldsY][numFieldsX];
     //Foxes
     public static ArrayList<Animal> Foxes = new ArrayList<>();
-    public static ArrayList<Animal>[][] fGrid = new ArrayList[resolution][resolution];
+    public static ArrayList<Animal>[][] fGrid = new ArrayList[numFieldsY][numFieldsX];
     //Plants
     public static ArrayList<Plant> Plants = new ArrayList<>();
-    public static ArrayList<Plant>[][] pGrid = new ArrayList[resolution][resolution];
+    public static ArrayList<Plant>[][] pGrid = new ArrayList[numFieldsY][numFieldsX];
 
     public CFrame(){
         JFrame frame = new JFrame("Ecosystem");     //title of the frame
@@ -90,8 +88,8 @@ public class CFrame extends JPanel implements ActionListener {
      */
 
     public void initiate(){
-        for(int i=0;i<rGrid.length;i++) {
-            for (int i2 = 0; i2 < rGrid[i].length; i2++) {
+        for(int i=0;i<numFieldsY;i++) {
+            for (int i2 = 0; i2 < numFieldsX; i2++) {
                 rGrid[i][i2] = new ArrayList<>();
                 pGrid[i][i2] = new ArrayList<>();
                 fGrid[i][i2] = new ArrayList<>();
@@ -112,8 +110,8 @@ public class CFrame extends JPanel implements ActionListener {
         super.paintComponent(g);
 
         //clear all the grids
-        for(int i = 0; i < resolution; i++){
-            for(int j = 0; j < resolution; j++){
+        for(int i = 0; i < numFieldsY; i++){
+            for(int j = 0; j < numFieldsX; j++){
                 pGrid[i][j].clear();
                 rGrid[i][j].clear();
                 fGrid[i][j].clear();
@@ -125,16 +123,16 @@ public class CFrame extends JPanel implements ActionListener {
             if(p.dead()) Plants.remove(p);
             else{
                 //int column = (int)(p.getLocX() / resolution);
-                int column = (int) Vector2D.map(p.getLocX(),0, WIDTH,0,resolution);
+                int column = (int) Vector2D.map(p.getLocX(),0, WIDTH,0,numFieldsX);
                 //int row = (int)(p.getLocY() / resolution);
-                int row = (int)Vector2D.map(p.getLocY(), 0, HEIGHT, 0, resolution);
+                int row = (int)Vector2D.map(p.getLocY(), 0, HEIGHT, 0, numFieldsY);
                 //Check for border cases
                 if (column < 0) column = 0;
-                else if (column >= resolution) column = resolution-1;
+                else if (column >= numFieldsX) column = numFieldsX-1;
                 if (row < 0) row = 0;
-                else if (row >= resolution) row = resolution-1;
+                else if (row >= numFieldsY) row = numFieldsY-1;
                 //Add to the correct grid
-                pGrid[column][row].add(p);
+                pGrid[row][column].add(p);
                 p.update();
                 p.paint((Graphics2D) g);
             }
@@ -147,16 +145,16 @@ public class CFrame extends JPanel implements ActionListener {
             else{
                 //Define Grid position
                 //int column = (int)(r.getLocX() / resolution);
-                int column = (int)Vector2D.map(r.getLocX(),0,WIDTH,0,resolution);
+                int column = (int)Vector2D.map(r.getLocX(),0,WIDTH,0,numFieldsX);
                 //int row = (int)(r.getLocY() / resolution);
-                int row = (int)Vector2D.map(r.getLocY(), 0, HEIGHT, 0, resolution);
+                int row = (int)Vector2D.map(r.getLocY(), 0, HEIGHT, 0, numFieldsY);
                 //Check for border cases
                 if (column < 0) column = 0;
-                else if (column >= resolution) column = resolution-1;
+                else if (column >= numFieldsX) column = numFieldsX-1;
                 if (row < 0) row = 0;
-                else if (row >= resolution) row = resolution-1;
+                else if (row >= numFieldsY) row = numFieldsY-1;
                 //Add to the correct grid
-                rGrid[column][row].add(r);
+                rGrid[row][column].add(r);
 
                 //Behavior
                 r.flock(getGridFields(r.transform.location, rGrid));
@@ -177,16 +175,16 @@ public class CFrame extends JPanel implements ActionListener {
             else{
                 //Define Grid position
                 //int column = (int)(f.getLocX() / resolution);
-                int column = (int)Vector2D.map(f.getLocX(),0,WIDTH,0,resolution);
+                int column = (int)Vector2D.map(f.getLocX(),0,WIDTH,0,numFieldsX);
                 //int row = (int)(f.getLocY() / resolution);
-                int row = (int)Vector2D.map(f.getLocY(), 0, HEIGHT, 0, resolution);
+                int row = (int)Vector2D.map(f.getLocY(), 0, HEIGHT, 0, numFieldsY);
                 //Check for border cases
                 if (column < 0) column = 0;
-                else if (column >= resolution) column = resolution-1;
+                else if (column >= numFieldsX) column = numFieldsX-1;
                 if (row < 0) row = 0;
-                else if (row >= resolution) row = resolution-1;
+                else if (row >= numFieldsY) row = numFieldsY-1;
                 //Add to the correct grid
-                fGrid[column][row].add(f);
+                fGrid[row][column].add(f);
 
                 //Behavior
                 f.flock(getGridFields(f.transform.location, fGrid));
@@ -251,9 +249,9 @@ public class CFrame extends JPanel implements ActionListener {
         ArrayList list = new ArrayList();
 
         //int column = (int)(location.x / resolution);
-        int column = (int)Vector2D.map(location.x, 0, HEIGHT, 0, resolution);
+        int column = (int)Vector2D.map(location.x, 0, WIDTH, 0, numFieldsX);
         //int row = (int)(location.y / resolution);
-        int row = (int)Vector2D.map(location.y, 0, HEIGHT, 0, resolution);
+        int row = (int)Vector2D.map(location.y, 0, HEIGHT, 0, numFieldsY);
 
         //String radius = "";
 
@@ -261,39 +259,15 @@ public class CFrame extends JPanel implements ActionListener {
             for(int y = -1;y <= 1; y++){
                 int newCol = column+x;
                 int newRow = row+y;
-                if (((newCol >= 0 && newCol < resolution) &&
-                        (newRow >= 0 && newRow < resolution))) list.addAll(grid[newCol][newRow]);
+                //TODO: can be improve to not add duplicates into the grids
+                if (((newCol >= 0 && newCol < numFieldsX) &&
+                        (newRow >= 0 && newRow < numFieldsY))) list.addAll(grid[newRow][newCol]);
                 //radius += "("+newCol+","+newRow+")";
             }
         }
         //System.out.println(radius);
         return list;
     }
-    //TODO: this needs to be updated / does not work correctly right now!!!
-    /*
-    public ArrayList getGridFields(Animal a, ArrayList[][] grid){
-        ArrayList list = new ArrayList();
-        int column = (int)(a.transform.location.x / resolution);
-        int row = (int)(a.transform.location.x / resolution);
-
-        String radius = "";
-
-        int fieldViewDistanceX = (int)(a.viewDistance / amountOfFieldsX);
-        int fieldViewDistanceY = (int)(a.viewDistance / amountOfFieldsY);
-
-        for(int x = -fieldViewDistanceX; x <= fieldViewDistanceX; x++){
-            for(int y = -fieldViewDistanceY;y <= fieldViewDistanceY; y++){
-                int newCol = column+x;
-                int newRow = row+y;
-                if (((newCol >= 0 && newCol < amountOfFieldsX) && (newRow >= 0 && newRow < amountOfFieldsY))) list.addAll(grid[newCol][newRow]);
-                radius += "("+newCol+","+newRow+")";
-            }
-        }
-        System.out.println(radius);
-        return list;
-    }
-     */
-
 
     /**
      * don't really know what this does
