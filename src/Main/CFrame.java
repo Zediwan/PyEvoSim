@@ -31,9 +31,9 @@ public class CFrame extends JPanel implements ActionListener {
     static final int TIME_PERIOD = 24;
     static int time = 0;
 
-    private final int STARTING_RABBITS = 1000;
-    private final int STARTING_FOXES = 50;
-    private final int STARTING_PLANTS = 10000;
+    private final int STARTING_RABBITS = 2000;
+    private final int STARTING_FOXES = 10;
+    private final int STARTING_PLANTS = 15000;
 
     public static int resolution = 10;              //total amount of fields in x and y direction not used right now
     public static int scale = 10;                   //width of a field
@@ -142,6 +142,11 @@ public class CFrame extends JPanel implements ActionListener {
 
                 //Reproduction
                 r.reproduce();
+
+                assert r.transform.location.x <= CFrame.WIDTH+10;
+                assert r.transform.location.y <= CFrame.HEIGHT+10;
+                assert r.transform.location.x >= -10;
+                assert r.transform.location.y >= -10;
             }
         }
 
@@ -171,58 +176,21 @@ public class CFrame extends JPanel implements ActionListener {
 
                 //Reproduction
                 f.reproduce();
-            }
 
-            //Interface
-            //TODO: make a class or something better here
-            //TODO: make auto-scaling a thing
-            //Fox information
-            //DNA
-            //AVG DNA
-            g.setColor(Color.BLACK);
-            g.translate(CFrame.WIDTH, 15);
-            if(Fox.totalAmountOfFoxes > 0) {
-                g.setColor(Color.BLACK);
-                g.drawString("Avg F:  ", 0,0);
-                Fox.sumDNA.paint((Graphics2D) g, 50, 0);
+                assert f.transform.location.x <= CFrame.WIDTH+10;
+                assert f.transform.location.y <= CFrame.HEIGHT+10;
+                assert f.transform.location.x >= -10;
+                assert f.transform.location.y >= -10;
             }
-            g.setColor(Color.BLACK);
-            g.translate(0,200);
-            //Summary of Amount
-            g.drawString("Amount of Foxes", 0, 0);
-            g.drawString(": "+Foxes.size(), 150, 0);
-            g.drawString("Tot num of born Foxes", 0, 15);
-            g.drawString(": "+Fox.totalAmountOfFoxes,150,15);
-
-            //Rabbit information
-            //DNA
-            //AVG DNA
-            g.setColor(Color.BLACK);
-            g.translate(250,-200);
-            if(Rabbit.totalAmountOfRabbits > 0){
-                g.setColor(Color.BLACK);
-                g.drawString("Avg R:  ", 0,0);
-                Rabbit.sumDNA.paint((Graphics2D) g, 50, 0);
-            }
-            g.setColor(Color.BLACK);
-            g.translate(0,200);
-            //Summary of Amount
-            g.drawString("Amount of Rabbits", 0, 0);
-            g.drawString(": "+Rabbits.size(), 150, 0);
-            g.drawString("Tot num of born Rabbits", 0, 15);
-            g.drawString(": "+Rabbit.totalAmountOfRabbits,150,15);
-
-            //Plant information
-            g.setColor(Color.BLACK);
-            g.translate(250,0);
-            //Summary of Amount
-            g.drawString("Amount of Plants", 0, 0);
-            g.drawString(": "+Plants.size(), 150, 0);
         }
+
 
         if(Foxes.size() <= 0) for(int i = 0; i< 1; i++) Foxes.add(new Fox());
         if(Rabbits.size() <= 0) for(int i = 0; i< 5; i++) Rabbits.add(new Rabbit());
         if(random.nextInt()<= 1 && Plants.size()<= 10000) for(int i = 0; i< 10; i++) Plants.add(new Grass());
+
+        //Interface
+        paintStats(g);
 
         //NN
         //Generate inputs and targets
@@ -236,16 +204,52 @@ public class CFrame extends JPanel implements ActionListener {
         nn1.paint((Graphics2D) g,1000,500, input, target);
         nn2.train(input,target);
         nn2.paint((Graphics2D) g,0,200, input, target);
+    }
 
-        //Network
-        /*
-        this.time_ -= 1;
-        if(this.time_ <= 0){
-            this.time_ = this.newSend;
-            n.feedForward(Math.random());
+    public void paintStats(Graphics g){
+        //TODO: make auto-scaling a thing
+        //Fox information
+        //DNA
+        //AVG DNA
+        g.setColor(Color.BLACK);
+        g.translate(CFrame.WIDTH, 15);
+        if(Fox.totalAmountOfFoxes > 0) {
+            g.setColor(Color.BLACK);
+            g.drawString("Avg F:  ", 0,0);
+            Fox.sumDNA.paint((Graphics2D) g, 50, 0);
         }
-        n.update();
-         */
+        g.setColor(Color.BLACK);
+        g.translate(0,200);
+        //Summary of Amount
+        g.drawString("Amount of Foxes", 0, 0);
+        g.drawString(": "+Foxes.size(), 150, 0);
+        g.drawString("Tot num of born Foxes", 0, 15);
+        g.drawString(": "+Fox.totalAmountOfFoxes,150,15);
+
+        //Rabbit information
+        //DNA
+        //AVG DNA
+        g.setColor(Color.BLACK);
+        g.translate(250,-200);
+        if(Rabbit.totalAmountOfRabbits > 0){
+            g.setColor(Color.BLACK);
+            g.drawString("Avg R:  ", 0,0);
+            Rabbit.sumDNA.paint((Graphics2D) g, 50, 0);
+        }
+        g.setColor(Color.BLACK);
+        g.translate(0,200);
+        //Summary of Amount
+        g.drawString("Amount of Rabbits", 0, 0);
+        g.drawString(": "+Rabbits.size(), 150, 0);
+        g.drawString("Tot num of born Rabbits", 0, 15);
+        g.drawString(": "+Rabbit.totalAmountOfRabbits,150,15);
+
+        //Plant information
+        g.setColor(Color.BLACK);
+        g.translate(250,0);
+        //Summary of Amount
+        g.drawString("Amount of Plants", 0, 0);
+        g.drawString(": "+Plants.size(), 150, 0);
     }
 
     public ArrayList getGridFields(Vector2D location, ArrayList[][] grid){

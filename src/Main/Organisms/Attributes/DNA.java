@@ -12,7 +12,7 @@ public class DNA {
 
     public DNA(int num){
         this.genes = new double[num];
-        for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(2)-1;
+        for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(4)-2;
     }
     public DNA(){
         this(1);
