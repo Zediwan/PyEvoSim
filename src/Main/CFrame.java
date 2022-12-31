@@ -33,8 +33,8 @@ public class CFrame extends JPanel implements ActionListener {
     //GRID HANDLING
     public static int resolution = 10;              //total amount of fields in x and y direction not used right now
     public static int scale = 10;                   //width of a field
-    static int numFieldsX = (int)(WIDTH/scale);     //amount of fields in x dir
-    static int numFieldsY = (int)(HEIGHT/scale);    //amount of fields in y dir
+    static int numFieldsX = (WIDTH/scale);          //amount of fields in x dir
+    static int numFieldsY = (HEIGHT/scale);         //amount of fields in y dir
 
     //Rabbits
     public static ArrayList<Animal> Rabbits = new ArrayList<>();
@@ -52,7 +52,13 @@ public class CFrame extends JPanel implements ActionListener {
     private final int STARTING_FOXES = 10;
     private final int STARTING_PLANTS = 15000;
 
+    private final int MIN_NUM_RABBITS = 0;          //The amount at which the system starts spawning new Rabbits
+    private final int MIN_NUM_FOXES = 0;            //The amount at which the system starts spawning new Foxes
     private final int MAX_NUM_PLANTS = 10000;       //The maximum amount of Plants allowed in the simulation at once
+
+    private final int NUM_NEW_PLANTS = 10;          //The amount of new Plants being spawned each tick
+    private final int NUM_NEW_RABBITS = 5;          //The amount of new Rabbits being spawned each tick
+    private final int NUM_NEW_FOXES = 2;            //The amount of new Foxes being spawned each tick
 
 
     public CFrame(){
@@ -189,11 +195,11 @@ public class CFrame extends JPanel implements ActionListener {
             }
         }
 
-        //Spawning Foxes and Rabbits if none left alive
-        if(Foxes.size() <= 0) for(int i = 0; i< 1; i++) Foxes.add(new Fox());
-        if(Rabbits.size() <= 0) for(int i = 0; i< 5; i++) Rabbits.add(new Rabbit());
+        //Spawning Foxes and Rabbits if less than the MIN are alive
+        if(Foxes.size() <= MIN_NUM_FOXES) for(int i = 0; i< NUM_NEW_FOXES; i++) Foxes.add(new Fox());
+        if(Rabbits.size() <= MIN_NUM_RABBITS) for(int i = 0; i< NUM_NEW_RABBITS; i++) Rabbits.add(new Rabbit());
         //Spawns new plants if there are less than MAX_NUM_PLANTS
-        if(Plants.size()<= MAX_NUM_PLANTS) for(int i = 0; i< 10; i++) Plants.add(new Grass());
+        if(Plants.size()<= MAX_NUM_PLANTS) for(int i = 0; i< NUM_NEW_PLANTS; i++) Plants.add(new Grass());
 
         //Interface
         paintStats(g);
