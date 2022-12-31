@@ -11,6 +11,9 @@ import Main.Organisms.Plants.Grass;
 import java.awt.*;
 import java.util.ArrayList;
 
+import static Main.CFrame.Foxes;
+import static Main.CFrame.Rabbits;
+
 public class Rabbit extends Animal {
     public static DNA sumDNA = DNA.initiateSumDNA(12);
     public static int totalAmountOfRabbits = 0;
@@ -70,10 +73,10 @@ public class Rabbit extends Animal {
         this.sepWeight = this.dna.genes[8];
         this.aliWeight = this.dna.genes[9];
         //newborn rabbits stick together more when they're outnumbered by foxes
-        if(Rabbit.totalAmountOfRabbits <= 0){
+        if(Rabbits.size() <= 0){
             this.cohWeight = this.dna.genes[10];
         }else{
-        this.cohWeight = this.dna.genes[10] * Math.sqrt(10*Fox.totalAmountOfFoxes/Rabbit.totalAmountOfRabbits);}
+        this.cohWeight = this.dna.genes[10] * Math.sqrt(10*Foxes.size()/ Rabbits.size());}
         //Define flee weight
         this.fleeWeight = this.dna.genes[11];
         //System.out.println(this.dna);
