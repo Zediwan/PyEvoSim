@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 //TODO: make mating a thing
-//TODO: update data output
-//TODO: add legend to DNA
 //TODO: add graphs
 
 public class CFrame extends JPanel implements ActionListener {
@@ -24,21 +22,20 @@ public class CFrame extends JPanel implements ActionListener {
     NeuralNetwork nn1 = new NeuralNetwork(2,3,1);
     NeuralNetwork nn2 = new NeuralNetwork(2,4,1);
 
-    public static final int WIDTH = 600; //width of the frame
-    public static final int HEIGHT = 800; //height of the frame
-
     //TODO: find out what this is for
     static final int TIME_PERIOD = 24;
     static int time = 0;
 
-    private final int STARTING_RABBITS = 2000;
-    private final int STARTING_FOXES = 10;
-    private final int STARTING_PLANTS = 15000;
+    //FRAME SIZES
+    public static final int WIDTH = 600; //width of the frame
+    public static final int HEIGHT = 800; //height of the frame
 
+    //GRID HANDLING
     public static int resolution = 10;              //total amount of fields in x and y direction not used right now
     public static int scale = 10;                   //width of a field
     static int numFieldsX = (int)(WIDTH/scale);     //amount of fields in x dir
     static int numFieldsY = (int)(HEIGHT/scale);    //amount of fields in y dir
+
     //Rabbits
     public static ArrayList<Animal> Rabbits = new ArrayList<>();
     public static ArrayList<Animal>[][] rGrid = new ArrayList[numFieldsY][numFieldsX];
@@ -48,6 +45,15 @@ public class CFrame extends JPanel implements ActionListener {
     //Plants
     public static ArrayList<Plant> Plants = new ArrayList<>();
     public static ArrayList<Plant>[][] pGrid = new ArrayList[numFieldsY][numFieldsX];
+
+    //SIMULATION VARIABLES
+    //AMOUNT OF STARTING ENTITIES
+    private final int STARTING_RABBITS = 2000;
+    private final int STARTING_FOXES = 10;
+    private final int STARTING_PLANTS = 15000;
+
+    private final int MAX_NUM_PLANTS = 10000;       //The maximum amount of Plants allowed in the simulation at once
+
 
     public CFrame(){
         JFrame frame = new JFrame("Ecosystem");     //title of the frame
@@ -186,9 +192,8 @@ public class CFrame extends JPanel implements ActionListener {
         //Spawning Foxes and Rabbits if none left alive
         if(Foxes.size() <= 0) for(int i = 0; i< 1; i++) Foxes.add(new Fox());
         if(Rabbits.size() <= 0) for(int i = 0; i< 5; i++) Rabbits.add(new Rabbit());
-        //Spawns new plants if there are less than 10000
-        //TODO: make this a variable
-        if(Plants.size()<= 10000) for(int i = 0; i< 10; i++) Plants.add(new Grass());
+        //Spawns new plants if there are less than MAX_NUM_PLANTS
+        if(Plants.size()<= MAX_NUM_PLANTS) for(int i = 0; i< 10; i++) Plants.add(new Grass());
 
         //Interface
         paintStats(g);
