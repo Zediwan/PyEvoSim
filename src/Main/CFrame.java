@@ -55,7 +55,6 @@ public class CFrame extends JPanel implements ActionListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.initiate();
-        //this.initiateNetwork();
 
         Timer t = new Timer(TIME_PERIOD,this);
         t.start();
@@ -65,6 +64,7 @@ public class CFrame extends JPanel implements ActionListener {
     }
 
     public void initiate(){
+        //initiate the grids
         for(int i=0;i<numFieldsY;i++) {
             for (int i2 = 0; i2 < numFieldsX; i2++) {
                 rGrid[i][i2] = new ArrayList<>();
@@ -72,6 +72,7 @@ public class CFrame extends JPanel implements ActionListener {
                 fGrid[i][i2] = new ArrayList<>();
             }
         }
+        //initiate the organisms
         for(int i = 0; i < STARTING_RABBITS; i++) Rabbits.add(new Rabbit());
         for(int i = 0; i < STARTING_FOXES; i++) Foxes.add(new Fox());
         for(int j = 0; j < STARTING_PLANTS; j++) Plants.add(new Grass());
@@ -82,7 +83,6 @@ public class CFrame extends JPanel implements ActionListener {
      * @param g
      */
     public void paint(Graphics g) {
-        //TODO: refactor the grid updating
         time += TIME_PERIOD;
         super.paintComponent(g);
 
@@ -95,6 +95,7 @@ public class CFrame extends JPanel implements ActionListener {
             }
         }
 
+        //TODO: refactor these into a method or something
         for(int j = 0; j < Plants.size(); j++){
             Plant p = Plants.get(j);
             if(p.dead()) Plants.remove(p);
@@ -114,7 +115,6 @@ public class CFrame extends JPanel implements ActionListener {
                 p.paint((Graphics2D) g);
             }
         }
-
         for(int i = 0; i < Rabbits.size(); i++){
             Animal r = Rabbits.get(i);
             //Remove if rabbit is dead
@@ -149,7 +149,6 @@ public class CFrame extends JPanel implements ActionListener {
                 assert r.transform.location.y >= -10;
             }
         }
-
         for(int i = 0; i < Foxes.size(); i++){
             Animal f = Foxes.get(i);
             //Remove if rabbit is dead
@@ -184,10 +183,12 @@ public class CFrame extends JPanel implements ActionListener {
             }
         }
 
-
+        //Spawning Foxes and Rabbits if none left alive
         if(Foxes.size() <= 0) for(int i = 0; i< 1; i++) Foxes.add(new Fox());
         if(Rabbits.size() <= 0) for(int i = 0; i< 5; i++) Rabbits.add(new Rabbit());
-        if(random.nextInt()<= 1 && Plants.size()<= 10000) for(int i = 0; i< 10; i++) Plants.add(new Grass());
+        //Spawns new plants if there are less than 10000
+        //TODO: make this a variable
+        if(Plants.size()<= 10000) for(int i = 0; i< 10; i++) Plants.add(new Grass());
 
         //Interface
         paintStats(g);
