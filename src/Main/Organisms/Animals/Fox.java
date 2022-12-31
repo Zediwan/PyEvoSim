@@ -10,7 +10,13 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Fox extends Animal {
-    public static DNA sumDNA = DNA.initiateSumDNA(11);
+    public static DNA sumDNA = DNA.initiateSumDNA(11,
+            new String[]{
+            "NA","size", "maxSpeed", "maxForce", "viewDistance",
+            "desiredSepDist", "desiredAliDist", "desiredCohDist",
+            "sepWeight", "aliWeight", "cohWeight"
+            }
+    );
     public static int totalAmountOfFoxes = 0;
 
     //Constructors

@@ -15,7 +15,13 @@ import static Main.CFrame.Foxes;
 import static Main.CFrame.Rabbits;
 
 public class Rabbit extends Animal {
-    public static DNA sumDNA = DNA.initiateSumDNA(12);
+    public static DNA sumDNA = DNA.initiateSumDNA(12,
+            new String[]{
+            "NA","size", "maxSpeed", "maxForce", "viewDistance",
+                    "desiredSepDist", "desiredAliDist", "desiredCohDist",
+                    "sepWeight", "aliWeight", "cohWeight", "fleeWeight"
+            }
+    );
     public static int totalAmountOfRabbits = 0;
 
     //Constructors
@@ -196,7 +202,7 @@ public class Rabbit extends Animal {
         assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
     }
 
-            //Visualization
+    //Visualization
     @Override
     public void paint(Graphics2D g) {
         Color c = new Color(121, 83, 71, 200);

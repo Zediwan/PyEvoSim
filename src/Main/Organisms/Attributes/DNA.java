@@ -1,5 +1,8 @@
 package Main.Organisms.Attributes;
 
+import Main.Helper.Vector2D;
+
+import java.awt.*;
 import java.util.Random;
 
 public class DNA {
@@ -18,7 +21,7 @@ public class DNA {
         this.genes = genes;
     }
     public DNA(double[] genes, String[] names){
-        assert names.length <= genes.length;
+        assert names.length <= genes.length: "more names given than genes";
         this.genes = genes;
         this.names = names;
     }
@@ -36,10 +39,12 @@ public class DNA {
         }
     }
 
-    public static DNA initiateSumDNA(int num){
+    public static DNA initiateSumDNA(int num, String[] names){
+        assert names.length <= num: "more names given than genes";
         DNA dna = new DNA();
         dna.genes = new double[num];
         for(int i = 0; i < dna.genes.length; i++) dna.genes[i] = 0;
+        dna.names = names;
         return dna;
     }
 
@@ -64,5 +69,26 @@ public class DNA {
         }
         s += "]";
         return s;
+    }
+
+    public void paint(Graphics2D g, int x, int y) {
+        //TODO: figure out how long the longest string is and auto-scale the positions according to it
+        for(int i = 0; i < this.genes.length; i++){
+            if(names.length >= i){
+                g.setColor(Color.BLACK);
+                g.drawString(names[i], x, y + i * 15);
+                if(genes[i] < 0) g.setColor(Color.RED);
+                //TODO: for some weird reason the last number isn't painted
+                g.drawString(": "+String.format("%.2f",genes[i]), x+100, i * 15);
+            }
+            else {
+                g.setColor(Color.BLACK);
+                g.drawString(String.format("%.2f",genes[i]), x+100, i * 15);
+            }
+        }
+    }
+
+    public void paint(Graphics2D g, Vector2D loc) {
+        this.paint(g, (int)loc.x,(int)loc.y);
     }
 }
