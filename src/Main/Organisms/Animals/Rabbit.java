@@ -28,7 +28,7 @@ public class Rabbit extends Animal {
     public Rabbit(Transform transform, float health, DNA dna){
         super(transform, health, dna);
         this.decodeDNA();
-        sumDNA.add(this.dna);
+        sumDNA.addToAVG(this.sumDNA,totalAmountOfRabbits, this.dna);
         totalAmountOfRabbits++;
         //System.out.println("R: " + this.dna);
     }

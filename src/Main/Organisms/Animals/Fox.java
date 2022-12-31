@@ -23,7 +23,7 @@ public class Fox extends Animal {
     public Fox(Transform transform, float health, DNA dna){
         super(transform, health, dna);
         this.decodeDNA();
-        sumDNA.add(this.dna);
+        sumDNA.addToAVG(this.sumDNA,totalAmountOfFoxes, this.dna);
         totalAmountOfFoxes++;
         //System.out.println("F: " + this.dna);
     }

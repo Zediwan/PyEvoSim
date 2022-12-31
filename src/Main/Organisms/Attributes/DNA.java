@@ -48,6 +48,13 @@ public class DNA {
         return dna;
     }
 
+    //Adds a new element to an existing average
+    public void addToAVG(DNA avg, int size, DNA newDNA){
+        for(int i = 0; i < avg.genes.length; i++) {
+            avg.genes[i] = (size * avg.genes[i] + newDNA.genes[i])/(size+1);
+        }
+    }
+
     public void add(DNA dna){
         assert dna.genes.length >= this.genes.length;
 
@@ -79,7 +86,7 @@ public class DNA {
                 g.drawString(names[i], x, y + i * 15);
                 if(genes[i] < 0) g.setColor(Color.RED);
                 //TODO: for some weird reason the last number isn't painted
-                g.drawString(": "+String.format("%.2f",genes[i]), x+100, i * 15);
+                g.drawString(": "+String.format("%.2f",Math.abs(genes[i])), x+100, i * 15);
             }
             else {
                 g.setColor(Color.BLACK);
