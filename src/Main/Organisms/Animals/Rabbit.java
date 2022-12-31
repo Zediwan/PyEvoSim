@@ -64,7 +64,7 @@ public class Rabbit extends Animal {
         //Define maxForce
         this.maxForce = this.dna.genes[3];
         //Define viewDistance
-        this.viewDistance = this.dna.genes[4]+this.transform.size*this.dna.genes[4];
+        this.viewDistance = this.dna.genes[4]+this.transform.size;
         //Define separation, alignment, cohesion distances
         this.desiredSepDist = this.dna.genes[5] * this.transform.size;
         this.desiredAliDist = this.dna.genes[6] * this.transform.size;
@@ -94,7 +94,7 @@ public class Rabbit extends Animal {
         //this.transform.move(this.maxSpeed);
         this.borders1();
         //this.grow();
-        this.health -= 4;
+        this.health -= 5;
         //System.out.println(this.health);
     }
     @Override

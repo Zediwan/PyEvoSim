@@ -117,7 +117,7 @@ public class Fox extends Animal {
         //Define maxForce
         this.maxForce = this.dna.genes[3];
         //Define viewDistance
-        this.viewDistance = this.dna.genes[4]+this.transform.size*this.dna.genes[4];
+        this.viewDistance = this.dna.genes[4]+this.transform.size;
         //Define separation, alignment, cohesion distances
         this.desiredSepDist = this.dna.genes[5] * this.transform.size;
         this.desiredAliDist = this.dna.genes[6] * this.transform.size;
@@ -131,7 +131,6 @@ public class Fox extends Animal {
 
     //Behavior
     public void update(){
-        //TODO: rework
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
         this.transform.location.add(this.transform.velocity);
@@ -143,7 +142,7 @@ public class Fox extends Animal {
         //if(this.transform.velocity.mag() <= this.maxSpeed){
             //this.health -= Vector2D.map(this.transform.velocity.mag(),0,this.maxSpeed,0, 3);
         //}else
-            this.health-=4;
+            this.health-=5;
 
         //System.out.println(this.health);
     }

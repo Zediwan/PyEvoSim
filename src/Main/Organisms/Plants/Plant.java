@@ -1,7 +1,5 @@
 package Main.Organisms.Plants;
 
-import Main.CFrame;
-import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA;
 import Main.Helper.Transform;
 import Main.Organisms.Organism;

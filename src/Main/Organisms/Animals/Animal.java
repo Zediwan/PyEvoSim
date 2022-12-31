@@ -140,9 +140,9 @@ public abstract class Animal extends Organism {
 
 
         //weights for the forces
-        sep.mult(this.sepWeight);
-        ali.mult(this.aliWeight);
-        coh.mult(this.cohWeight);
+        sep.mult(this.sepWeight).limit(this.maxForce);
+        ali.mult(this.aliWeight).limit(this.maxForce);
+        coh.mult(this.cohWeight).limit(this.maxForce);
 
 
         //apply forces

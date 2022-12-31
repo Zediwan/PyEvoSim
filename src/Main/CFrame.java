@@ -27,7 +27,7 @@ public class CFrame extends JPanel implements ActionListener {
     NeuralNetwork nn1 = new NeuralNetwork(2,3,1);
     NeuralNetwork nn2 = new NeuralNetwork(2,4,1);
 
-    public static final int WIDTH = 600; //width of the frame
+    public static final int WIDTH = 800; //width of the frame
     public static final int HEIGHT = 800; //height of the frame
 
     //TODO: find out what this is for
@@ -38,7 +38,7 @@ public class CFrame extends JPanel implements ActionListener {
     private final int STARTING_FOXES = 5;
     private final int STARTING_PLANTS = 5000;
 
-    public static int resolution = 4;
+    public static int resolution = 10;
     public static int scale = 4;
     static int amountOfFieldsX = (int)(WIDTH/scale);
     static int amountOfFieldsY = (int)(HEIGHT/scale);
@@ -221,7 +221,7 @@ public class CFrame extends JPanel implements ActionListener {
 
         if(Foxes.size() <= 0) for(int i = 0; i< 1; i++) Foxes.add(new Fox());
         if(Rabbits.size() <= 0) for(int i = 0; i< 5; i++) Rabbits.add(new Rabbit());
-        if(random.nextInt()<= 1 && Plants.size()<= 5000) for(int i = 0; i< 10; i++) Plants.add(new Grass());
+        if(random.nextInt()<= 1 && Plants.size()<= 10000) for(int i = 0; i< 10; i++) Plants.add(new Grass());
 
         //NN
         //Generate inputs and targets
