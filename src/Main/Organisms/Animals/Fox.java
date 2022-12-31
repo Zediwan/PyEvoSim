@@ -23,23 +23,26 @@ public class Fox extends Animal {
     public Fox(Transform transform, float health, DNA dna){
         super(transform, health, dna);
         this.decodeDNA();
+        //start with a random velocity
+        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,(Math.random()-.5)*5);
+        //add this DNA to the collection
         sumDNA.addToAVG(this.sumDNA,totalAmountOfFoxes, this.dna);
         totalAmountOfFoxes++;
-        //System.out.println("F: " + this.dna);
     }
     public Fox(){
         super();
         this.dna = new DNA(11);
         this.decodeDNA();
         this.health = 600;
-        //System.out.println(this.dna);
+        //start with a random velocity
+        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,(Math.random()-.5)*5);
     }
 
     @Override
     public boolean collision(Organism Rabbit) {
         assert Rabbit.getClass() == Rabbit.class;
         if(this.transform.location.dist(Rabbit.transform.location) <= this.transform.getR()){
-            if(this.health >= 400) this.health = 400;
+            if(this.health >= 600) this.health = 600;
             Rabbit.health -= 500;                                     //reduce plants health to 0
             if(Rabbit.health <= 0) this.health += Rabbit.transform.size * 100;
             //System.out.println(this.health);
@@ -56,7 +59,7 @@ public class Fox extends Animal {
     @Override
     public Organism searchFood(ArrayList<Organism> organisms) {
         Organism closestFood = null;
-        if(target != null && this.health <= 300) {
+        if(target != null && this.health <= 500) {
             this.transform.applyForce(seek(target.getLocation()));
             if (collision(target)) target = searchFood(organisms);
         }else{
@@ -79,18 +82,18 @@ public class Fox extends Animal {
     @Override
     public void reproduce(){
         double birthChance = 0;
-        if(this.health >= 300){
+        if(this.health >= 500){
+            birthChance = .01;
+        }else if(this.health >= 400){
             birthChance = .005;
-        }else if(this.health >= 200){
+        }else if(this.health >= 300){
             birthChance = .0025;
-        }else if(this.health >= 100){
-            birthChance = .001;
         }
         if(Math.random() <= birthChance){
             DNA childDNA = dna.copy();
             childDNA.mutate(.5);
             Transform t = this.transform.clone();
-            CFrame.Foxes.add(new Fox(t,300, childDNA));
+            CFrame.Foxes.add(new Fox(t,600, childDNA));
         }
     }
 
