@@ -41,7 +41,7 @@ public class Fox extends Animal {
     @Override
     public boolean collision(Organism Rabbit) {
         assert Rabbit.getClass() == Rabbit.class;
-        if(this.transform.location.dist(Rabbit.transform.location) <= this.transform.getR()){
+        if(this.transform.location.dist(Rabbit.transform.location) <= this.transform.getR() + Rabbit.transform.getR()){
             if(this.health >= 600) this.health = 600;
             Rabbit.health -= 500;                                     //reduce plants health to 0
             if(Rabbit.health <= 0) this.health += Rabbit.transform.size * 100;
