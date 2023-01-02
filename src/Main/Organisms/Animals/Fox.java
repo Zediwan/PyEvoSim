@@ -34,6 +34,7 @@ public class Fox extends Animal {
 
     public static final double BASE_SIZE = 7;                   //Base size of a Fox
     public Color col = new Color(237, 150, 11, 200);
+    public static final double DMG_PER_TICK = 5;                //Damage each Fox takes each tick
 
     //Constructors
     public Fox(Transform transform, float health, DNA dna){
@@ -54,102 +55,6 @@ public class Fox extends Animal {
         this.health = STARTING_HEALTH;
         this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
                 (Math.random()-.5)*5);                       //start with a random velocity
-    }
-
-    /**
-     * This method checks if a Fox collides with his Prey and if so deal damage and gain health if the prey is dead
-     * PRE-CONDITION: the Prey needs to be of the correct class, this mustn't be dead
-     * @param Prey the target that should be checked for a collision with
-     * @return true if the prey is dead
-     */
-    @Override
-    public boolean collision(Organism Prey) {
-        //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
-        assert this.dead() : "This is dead";                                            //check if this is dead
-        assert Prey.getClass() == Rabbit.class;                                         //check if the target is a Rabbit
-
-        //check if the two collide
-        if(this.transform.location.dist(Prey.transform.location) <= this.transform.getR() + Prey.transform.getR()){
-            //TODO: maybe make this dependant on attributes of the Fox (size, ect)
-            Prey.health -= DAMAGE;                                                      //reduce Preys health by dmg
-            //TODO: rework so that once an animal is dead it leaves a corpse that then can be consumed
-            //TODO: make damaged animals walk slower for a short period of time
-            if(Prey.health <= 0) {                                                      //if the prey is dead
-                this.health += Prey.transform.size * 100;                               //adds health if the rabbit is dead
-                target = null;                                                          //remove target
-            }
-        }
-        assert this.invariant(): "Invariant is broken";
-
-        return target == null;                                                          //return true if the prey has been killed
-    }
-
-    /**
-     * Searches for possible Prey if the Fox is hungry enough and doesn't already have a target
-     * PRE-CONDITION: this mustn't be dead
-     * @param organisms that can be hunted
-     * @return the Prey
-     */
-    //TODO: rework for better performance
-    //TODO: consider health of an animal too, if a Prey is lower health it should get prioritized
-    @Override
-    public Organism searchFood(ArrayList<Organism> organisms) {
-        assert this.dead() : "This is dead";
-
-        Organism closestFood = null;
-
-        //if there is a target and the Fox is hungry enough to look for food
-        if(target != null && this.health <= MAX_HUNTING_HEALTH) {
-            this.transform.applyForce(seek(target.getLocation()));          //seek the target
-            if (collision(target)) target = searchFood(organisms);          //if the target is dead
-        }
-        //else look for food
-        else{
-            double closestDistance = Double.POSITIVE_INFINITY;
-            for(Organism o : organisms){
-                //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
-                assert o.getClass() == Rabbit.class;                                //check if the target is a Rabbit
-
-                double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();
-                //if the distance is smaller than the current closest distance and smaller than the viewDistance
-                if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
-                    closestDistance = distance;
-                    closestFood = o;
-                }
-            }
-            if(closestFood != null) assert closestFood.getClass() == Rabbit.class;  //check if the target is a Rabbit
-            this.target = closestFood;
-        }
-        assert this.invariant(): "Invariant is broken";
-        return closestFood;
-    }
-
-    /**
-     * Calculates the Chance to give birth and adds boni according to this Foxes health
-     * Then gives birth if the Chance occurs and creates a new Fox
-     * PRE-CONDITION: this mustn't be dead
-     */
-    @Override
-    public void reproduce(){
-        assert this.dead() : "This is dead";
-
-        double birthChance = BASE_REPRODUCTION_CHANCE;
-        //Adds all Boni that for each threshold that has been met
-        for(int i = 0; i < HEALTH_REPRODUCTION_BONUS[0].length; i++){
-            if(this.health >= HEALTH_REPRODUCTION_BONUS[0][i]) birthChance += HEALTH_REPRODUCTION_BONUS[1][i];
-        }
-        if(Math.random() <= birthChance){
-            DNA childDNA = dna.copy();                              //copy this DNA
-            childDNA.mutate(MUTATION_CHANCE);                       //mutate DNA if MUTATION_CHANCE occurs
-            Transform t = this.transform.clone();                   //Copy this transform
-            CFrame.Foxes.add(new Fox(t,MAX_HEALTH, childDNA));      //Add a new Fox
-        }
-        assert this.invariant(): "Invariant is broken";
-    }
-
-    //right now there aren't any animals that a fox needs to flee of so this is currently empty
-    @Override
-    public void flee(ArrayList<Organism> organisms) {
     }
 
     /**
@@ -193,24 +98,125 @@ public class Fox extends Animal {
     }
 
     //Behavior
+
+    /**
+     * Updates the position of the Fox
+     * PRE-CONDITION: this mustn't be dead
+     */
+    //TODO: an Animal moving slower than maxSpeed should take less tick-DMG
     public void update(){
+        assert this.dead() : "This is dead";
+
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
-        assert this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
         this.transform.location.add(this.transform.velocity);
         this.transform.acceleration.mult(0);
 
-        //this.transform.move(this.maxSpeed);
         this.borders1();
-        //this.grow();
-        //if(this.transform.velocity.mag() <= this.maxSpeed){
-            //this.health -= Vector2D.map(this.transform.velocity.mag(),0,this.maxSpeed,0, 3);
-        //}else
-            this.health-=5;
+        this.health -= DMG_PER_TICK;
 
         assert this.invariant(): "Invariant is broken";
     }
 
+    /**
+     * Searches for possible Prey if the Fox is hungry enough and doesn't already have a target
+     * PRE-CONDITION: this mustn't be dead
+     * @param organisms that can be hunted
+     * @return the Prey
+     */
+    //TODO: consider health of an animal too, if a Prey is lower health it should get prioritized
+    @Override
+    public Organism searchFood(ArrayList<Organism> organisms) {
+        assert this.dead() : "This is dead";
+
+        Organism closestFood = null;
+
+        //if there is a target and the Fox is hungry enough to look for food
+        if(target != null && this.health <= MAX_HUNTING_HEALTH) {
+            this.transform.applyForce(seek(target.getLocation()));          //seek the target
+            if (collision(target)) target = searchFood(organisms);          //if the target is dead
+        }
+        //else look for food
+        else{
+            double closestDistance = Double.POSITIVE_INFINITY;
+            for(Organism o : organisms){
+                //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
+                assert o.getClass() == Rabbit.class;                                //check if the target is a Rabbit
+
+                double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();
+                //if the distance is smaller than the current closest distance and smaller than the viewDistance
+                if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
+                    closestDistance = distance;
+                    closestFood = o;
+                }
+            }
+            if(closestFood != null) assert closestFood.getClass() == Rabbit.class;  //check if the target is a Rabbit
+            this.target = closestFood;
+        }
+
+        assert this.invariant(): "Invariant is broken";
+        return closestFood;
+    }
+
+    /**
+     * This method checks if a Fox collides with his Prey and if so deal damage and gain health if the prey is dead
+     * PRE-CONDITION: the Prey needs to be of the correct class, this mustn't be dead
+     * @param Prey the target that should be checked for a collision with
+     * @return true if the prey is dead
+     */
+    @Override
+    public boolean collision(Organism Prey) {
+        //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
+        assert this.dead() : "This is dead";                                            //check if this is dead
+        assert Prey.getClass() == Rabbit.class;                                         //check if the target is a Rabbit
+
+        //check if the two collide
+        if(this.transform.location.dist(Prey.transform.location) <= this.transform.getR() + Prey.transform.getR()){
+            //TODO: maybe make this dependant on attributes of the Fox (size, ect)
+            Prey.health -= DAMAGE;                                                      //reduce Preys health by dmg
+            //TODO: rework so that once an animal is dead it leaves a corpse that then can be consumed
+            //TODO: make damaged animals walk slower for a short period of time
+            if(Prey.health <= 0) {                                                      //if the prey is dead
+                this.health += Prey.transform.size * 100;                               //adds health if the rabbit is dead
+                target = null;                                                          //remove target
+            }
+        }
+
+        assert this.invariant(): "Invariant is broken";
+        return target == null;                                                          //return true if the prey has been killed
+    }
+
+    /**
+     * Calculates the Chance to give birth and adds boni according to this Foxes health
+     * Then gives birth if the Chance occurs and creates a new Fox
+     * PRE-CONDITION: this mustn't be dead
+     */
+    @Override
+    public void reproduce(){
+        assert this.dead() : "This is dead";
+
+        double birthChance = BASE_REPRODUCTION_CHANCE;
+        //Adds all Boni that for each threshold that has been met
+        for(int i = 0; i < HEALTH_REPRODUCTION_BONUS[0].length; i++){
+            if(this.health >= HEALTH_REPRODUCTION_BONUS[0][i]) birthChance += HEALTH_REPRODUCTION_BONUS[1][i];
+        }
+        if(Math.random() <= birthChance){
+            DNA childDNA = dna.copy();                              //copy this DNA
+            childDNA.mutate(MUTATION_CHANCE);                       //mutate DNA if MUTATION_CHANCE occurs
+            Transform t = this.transform.clone();                   //Copy this transform
+            CFrame.Foxes.add(new Fox(t,MAX_HEALTH, childDNA));      //Add a new Fox
+        }
+
+        assert this.invariant(): "Invariant is broken";
+    }
+
+    //right now there aren't any animals that a fox needs to flee of so this is currently empty
+    @Override
+    public void flee(ArrayList<Organism> organisms) {
+    }
+
+    //right now this isn't implemented
+    //TODO: implement growth of an Animal
     @Override
     public void grow() {
 
