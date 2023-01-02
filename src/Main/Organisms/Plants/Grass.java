@@ -3,14 +3,18 @@ package Main.Organisms.Plants;
 import java.awt.*;
 
 public class Grass extends Plant {
-    public static final double ENERGY_FACTOR = 10;             //the factor that the eating of a Grass gives
-    public static final double BASE_ENERGY_PROVIDED = 0;       //base energy that eating a Grass gives
+    public static final double ENERGY_FACTOR = 10;              //the factor that the eating of a Grass gives
+    public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Grass gives
+    public static final double GROWTH_INTERVAL = 50;            //Interval at which Growth happens
+    public static final double GROWTH_RATE = .1;                //Rate at which a Grass grows
+    public static final double BASE_SIZE = 3;                   //Base size of a Grass
+    public Color col = new Color(150, 200, 20 ,125);
 
 
     //Constructor
     public Grass(){
         super();
-        this.growthInterval = 50;
+        this.growthInterval = GROWTH_INTERVAL;
         this.decodeDNA();
     }
 
@@ -19,7 +23,7 @@ public class Grass extends Plant {
      */
     @Override
     public void decodeDNA() {
-        this.transform.size = this.dna.genes[0]+3;
+        this.transform.size = this.dna.genes[0]+BASE_SIZE;
     }
 
     //Behavior
@@ -38,13 +42,12 @@ public class Grass extends Plant {
 
     @Override
     public void grow() {
-        this.transform.size += .1;
+        this.transform.size += GROWTH_RATE;
     }
 
     @Override
     public void paint(Graphics2D g) {
-        Color c = new Color(150, 200, 20 ,125);
-        g.setColor(Color.GREEN.darker());
+        g.setColor(this.col);
         g.fillOval((int)(this.transform.location.x-this.transform.size/2),(int)(this.transform.location.y-this.transform.size/2),(int)this.transform.size,(int)this.transform.size);
     }
 }
