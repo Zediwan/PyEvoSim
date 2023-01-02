@@ -1,5 +1,7 @@
 package Main.Organisms.Plants;
 
+import Main.Helper.Vector2D;
+
 import java.awt.*;
 
 public class Grass extends Plant {
@@ -8,6 +10,8 @@ public class Grass extends Plant {
     public static final double GROWTH_INTERVAL = 50;            //Interval at which Growth happens
     public static final double GROWTH_RATE = .1;                //Rate at which a Grass grows
     public static final double BASE_SIZE = 3;                   //Base size of a Grass
+    public static final double HEALTH_REGENERATION = .1;        //Amount that is regenerated at once
+    public static final double MAX_HEALTH = 100;                //Maximum health of a plant
     public Color col = new Color(150, 200, 20 ,125);
 
 
@@ -16,6 +20,8 @@ public class Grass extends Plant {
         super();
         this.growthInterval = GROWTH_INTERVAL;
         this.decodeDNA();
+
+        this.health = MAX_HEALTH;
     }
 
     /**
@@ -28,11 +34,17 @@ public class Grass extends Plant {
 
     //Behavior
     public void update(){
-        this.growthTimer--;
-        if(this.growthTimer <= 0){
-            this.grow();
-            this.growthTimer = this.growthInterval;
+        //if the plant is damaged use energy to regenerate, else to grow
+        if(this.health < MAX_HEALTH){
+            this.health += HEALTH_REGENERATION;
+        }else{
+            this.growthTimer--;
+            if(this.growthTimer <= 0){
+                this.grow();
+                this.growthTimer = this.growthInterval;
+            }
         }
+        this.transform.size = Vector2D.map(this.health, 0, MAX_HEALTH, 0, this.transform.size);
     }
 
     @Override

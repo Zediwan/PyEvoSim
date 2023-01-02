@@ -16,18 +16,11 @@ public abstract class Animal extends Organism {
     public double desiredSepDist, desiredAliDist, desiredCohDist;
     public double sepWeight, aliWeight, cohWeight, fleeWeight;
     public Organism target = null;
-    public NeuralNetwork nn;
-    //float reproductiveUrge = 0;
-    //float hunger = 0;
-    //float viewDistance;
 
 
     //Constructors
     public Animal(Transform transform, float health, DNA dna){
         super(transform,health,dna);
-        //this.gender = gender;
-        //this.maxSpeed = maxSpeed;
-        //this.maxForce = maxForce;
     }
     public Animal(){
         super();
