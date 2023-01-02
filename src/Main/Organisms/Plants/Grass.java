@@ -3,6 +3,10 @@ package Main.Organisms.Plants;
 import java.awt.*;
 
 public class Grass extends Plant {
+    public static final double ENERGY_FACTOR = 10;             //the factor that the eating of a Grass gives
+    public static final double BASE_ENERGY_PROVIDED = 0;       //base energy that eating a Grass gives
+
+
     //Constructor
     public Grass(){
         super();

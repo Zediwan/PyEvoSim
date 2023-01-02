@@ -36,6 +36,11 @@ public class Fox extends Animal {
     public Color col = new Color(237, 150, 11, 200);
     public static final double DMG_PER_TICK = 5;                //Damage each Fox takes each tick
 
+    public static final double ENERGY_FACTOR = 100;             //the factor that the eating of a Fox gives
+    public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Fox gives
+
+
+
     //Constructors
     public Fox(Transform transform, float health, DNA dna){
         super(transform, health, dna);
@@ -77,18 +82,17 @@ public class Fox extends Animal {
     public void decodeDNA() {
         if(Math.random() <= .5) this.gender = Gender.MALE;
         else this.gender = Gender.FEMALE;
-        //Define size
-        this.transform.size = this.dna.genes[1]+BASE_SIZE;
-        //Define maxSpeed
-        this.maxSpeed = this.dna.genes[2];
-        //Define maxForce
-        this.maxForce = this.dna.genes[3];
-        //Define viewDistance
-        this.viewDistance = this.dna.genes[4] * this.transform.size;
+
+        this.transform.size = this.dna.genes[1]+BASE_SIZE;              //Define size
+        this.maxSpeed = this.dna.genes[2];                              //Define maxSpeed
+        this.maxForce = this.dna.genes[3];                              //Define maxForce
+        this.viewDistance = this.dna.genes[4] + this.transform.size;    //Define viewDistance
+
         //Define separation, alignment, cohesion distances
         this.desiredSepDist = this.dna.genes[5] * this.transform.size;
         this.desiredAliDist = this.dna.genes[6] * this.transform.size;
         this.desiredCohDist = this.dna.genes[7] * this.transform.size;
+
         //Define separation, alignment, cohesion weights
         this.sepWeight = this.dna.genes[8];
         this.aliWeight = this.dna.genes[9];
@@ -96,8 +100,6 @@ public class Fox extends Animal {
 
         assert this.invariant(): "Invariant is broken";
     }
-
-    //Behavior
 
     /**
      * Updates the position of the Fox
@@ -177,7 +179,7 @@ public class Fox extends Animal {
             //TODO: rework so that once an animal is dead it leaves a corpse that then can be consumed
             //TODO: make damaged animals walk slower for a short period of time
             if(Prey.health <= 0) {                                                      //if the prey is dead
-                this.health += Prey.transform.size * 100;                               //adds health if the rabbit is dead
+                this.health += (Prey.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;                               //adds health if the rabbit is dead
                 target = null;                                                          //remove target
             }
         }
@@ -233,10 +235,10 @@ public class Fox extends Animal {
 
     //Visualization
     @Override
-    //TODO: make each animal have a variable Color
     public void paint(Graphics2D g) {
         g.setColor(this.col);
         g.fill(this.transform.getRectangle());
+
         assert this.invariant(): "Invariant is broken";
     }
 }
