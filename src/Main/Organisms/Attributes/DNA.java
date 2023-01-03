@@ -3,6 +3,7 @@ package Main.Organisms.Attributes;
 import Main.Helper.Vector2D;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Random;
 
 public class DNA {
@@ -12,7 +13,7 @@ public class DNA {
 
     public DNA(int num){
         this.genes = new double[num];
-        for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(4)-2;
+        for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(2)-.9;
     }
     public DNA(){
         this(1);
@@ -29,13 +30,13 @@ public class DNA {
 
     public DNA copy(){
         double[] newGenes = new double[this.genes.length];
-        for(int i = 0; i < this.genes.length; i++) newGenes[i] = this.genes[i];
+        System.arraycopy(this.genes, 0, newGenes, 0, this.genes.length);    //copy all elements
         return new DNA(newGenes);
     }
 
     public void mutate(double mutationChance) {
         for(int i = 0; i < this.genes.length; i++){
-            if(Math.random() < mutationChance) this.genes[i] += this.rand.nextDouble(1)-.5;
+            if(Math.random() < mutationChance) this.genes[i] += this.rand.nextDouble(1)-.49;
         }
     }
 
@@ -43,7 +44,7 @@ public class DNA {
         assert names.length <= num: "more names given than genes";
         DNA dna = new DNA();
         dna.genes = new double[num];
-        for(int i = 0; i < dna.genes.length; i++) dna.genes[i] = 0;
+        Arrays.fill(dna.genes, 0);      //fill the Array with 0
         dna.names = names;
         return dna;
     }
@@ -70,9 +71,9 @@ public class DNA {
 
     public String toString(){
         String s = "[ ";
-        for(int i = 0; i< this.genes.length; i++){
-            if(genes[i] >= 0) s += "+";
-            s += String.format("%.2f",genes[i]) + ", ";
+        for (double gene : this.genes) {
+            if (gene >= 0) s += "+";
+            s += String.format("%.2f", gene) + ", ";
         }
         s += "]";
         return s;
