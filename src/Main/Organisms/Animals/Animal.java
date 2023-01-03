@@ -1,7 +1,6 @@
 package Main.Organisms.Animals;
 
 import Main.CFrame;
-import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;

@@ -8,7 +8,7 @@ public class Grass extends Plant {
     public static final double ENERGY_FACTOR = 10;              //the factor that the eating of a Grass gives
     public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Grass gives
     public static final double GROWTH_INTERVAL = 50;            //Interval at which Growth happens
-    public static final double GROWTH_RATE = .1;                //Rate at which a Grass grows
+    public static final double GROWTH_RATE = .01;               //Rate at which a Grass grows
     public static final double BASE_SIZE = 3;                   //Base size of a Grass
     public static final double HEALTH_REGENERATION = .1;        //Amount that is regenerated at once
     public static final double MAX_HEALTH = 100;                //Maximum health of a plant
@@ -59,6 +59,7 @@ public class Grass extends Plant {
 
     @Override
     public void paint(Graphics2D g) {
+        this.col = new Color(150, 200, 20 ,55+(int)this.health*2);
         g.setColor(this.col);
         g.fillOval((int)(this.transform.location.x-this.transform.size/2),(int)(this.transform.location.y-this.transform.size/2),(int)this.transform.size,(int)this.transform.size);
     }
