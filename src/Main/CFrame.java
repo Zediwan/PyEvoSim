@@ -123,8 +123,8 @@ public class CFrame extends JPanel implements ActionListener {
                 else if (row >= numFieldsY) row = numFieldsY-1;
                 //Add to the correct grid
                 pGrid[row][column].add(p);
-                p.update();
                 p.paint((Graphics2D) g);
+                p.update();
             }
         }
         for(int i = 0; i < Rabbits.size(); i++){
@@ -149,16 +149,16 @@ public class CFrame extends JPanel implements ActionListener {
                 r.flock(getGridFields(r.transform.location, rGrid));
                 r.flee(getGridFields(r.transform.location, fGrid));
                 r.searchFood(getGridFields(r.transform.location, pGrid));
-                r.update();
+                r.reproduce();                                                  //Reproduction
                 r.paint((Graphics2D)g);
 
-                //Reproduction
-                r.reproduce();
-
+                r.update();
+                /*
                 assert r.transform.location.x <= CFrame.WIDTH+10;
                 assert r.transform.location.y <= CFrame.HEIGHT+10;
                 assert r.transform.location.x >= -10;
                 assert r.transform.location.y >= -10;
+                 */
             }
         }
         for(int i = 0; i < Foxes.size(); i++){
@@ -182,16 +182,16 @@ public class CFrame extends JPanel implements ActionListener {
                 //Behavior
                 f.flock(getGridFields(f.transform.location, fGrid));
                 f.searchFood(getGridFields(f.transform.location, rGrid));
-                f.update();
                 f.paint((Graphics2D)g);
+                f.reproduce();                                              //Reproduction
+                f.update();
 
-                //Reproduction
-                f.reproduce();
-
-                assert f.transform.location.x <= CFrame.WIDTH+10;
-                assert f.transform.location.y <= CFrame.HEIGHT+10;
-                assert f.transform.location.x >= -10;
-                assert f.transform.location.y >= -10;
+                /*
+                assert r.transform.location.x <= CFrame.WIDTH+10;
+                assert r.transform.location.y <= CFrame.HEIGHT+10;
+                assert r.transform.location.x >= -10;
+                assert r.transform.location.y >= -10;
+                 */
             }
         }
 

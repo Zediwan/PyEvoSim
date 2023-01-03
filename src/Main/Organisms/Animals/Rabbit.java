@@ -50,7 +50,7 @@ public class Rabbit extends Animal {
         this.decodeDNA();                                               //initialize DNA
 
         this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
-                (Math.random()-.5)*5);                            //start with a random velocity
+                (Math.random()-.5)*5).limit(this.maxSpeed);       //start with a random velocity
 
         sumDNA.addToAVG(this.sumDNA,totalAmountOfRabbits, this.dna);    //add this DNA to the collection
         totalAmountOfRabbits++;                                         //increase counter
@@ -62,7 +62,7 @@ public class Rabbit extends Animal {
 
         this.health = STARTING_HEALTH;
         this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
-                (Math.random()-.5)*5);                    //start with a random velocity
+                (Math.random()-.5)*5).limit(this.maxSpeed);        //start with a random velocity
     }
 
     /**
@@ -114,7 +114,7 @@ public class Rabbit extends Animal {
      */
     //TODO: an Animal moving slower than maxSpeed should take less tick-DMG
     public void update(){
-        assert this.dead() : "This is dead";
+        assert !this.dead() : "This is dead";
 
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
@@ -124,7 +124,7 @@ public class Rabbit extends Animal {
         this.borders1();
         this.health -= DMG_PER_TICK;
 
-        assert this.invariant(): "Invariant is broken";
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
     }
 
     /**
@@ -136,7 +136,7 @@ public class Rabbit extends Animal {
     //TODO: consider health of an animal too, if a Prey is lower health it should get prioritized
     @Override
     public Organism searchFood(ArrayList<Organism> organisms) {
-        assert this.dead() : "This is dead";
+        assert !this.dead() : "This is dead";
 
         Organism closestFood = null;
 
@@ -163,7 +163,7 @@ public class Rabbit extends Animal {
             this.target = closestFood;
         }
 
-        assert this.invariant(): "Invariant is broken";
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return closestFood;
     }
 
@@ -176,7 +176,7 @@ public class Rabbit extends Animal {
     @Override
     public boolean collision(Organism grass) {
         //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
-        assert this.dead() : "This is dead";                //check if this is dead
+        assert !this.dead() : "This is dead";                //check if this is dead
         assert grass.getClass() == Grass.class;            //check if the target is a Rabbit
 
         //check if the two collide
@@ -187,7 +187,7 @@ public class Rabbit extends Animal {
             if(grass.health <= 0) target = null;            //remove target
         }
 
-        assert this.invariant(): "Invariant is broken";
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return target == null;
     }
 
@@ -198,7 +198,7 @@ public class Rabbit extends Animal {
      */
     @Override
     public void reproduce(){
-        assert this.dead() : "This is dead";
+        assert !this.dead() : "This is dead";
 
         double birthChance = BASE_REPRODUCTION_CHANCE;
         //Adds all Boni that for each threshold that has been met
@@ -212,7 +212,7 @@ public class Rabbit extends Animal {
             CFrame.Rabbits.add(new Rabbit(t,MAX_HEALTH, childDNA)); //Add a new Rabbit
         }
 
-        assert this.invariant(): "Invariant is broken";
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
     }
 
     /**
@@ -250,7 +250,7 @@ public class Rabbit extends Animal {
         steer.mult(this.fleeWeight);
         this.transform.applyForce(steer);
 
-        assert this.invariant() : "Invariant is broken";
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
     }
 
     //right now this isn't implemented
@@ -267,15 +267,20 @@ public class Rabbit extends Animal {
      */
     public boolean invariant(){
         if(this.health >= MAX_HEALTH) this.health = MAX_HEALTH;
-        return this.transform.velocity.magSq() <= this.maxSpeed*this.maxSpeed;
+        return (this.transform.velocity.magSq() <= (this.maxSpeed*this.maxSpeed) + .01) ||
+                (this.transform.velocity.magSq() >= (this.maxSpeed*this.maxSpeed) - .01);
     }
 
     //Visualization
     @Override
     public void paint(Graphics2D g) {
+        assert !this.dead() : "This is dead";
+
+        this.col = new Color(121, 83, 71,55+(int)Vector2D.map(this.health,0,MAX_HEALTH,0,200));
+
         g.setColor(this.col);
         g.fill(this.transform.getRectangle());
 
-        assert this.invariant(): "Invariant is broken";
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
     }
 }

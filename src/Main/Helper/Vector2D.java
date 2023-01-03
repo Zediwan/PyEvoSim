@@ -20,7 +20,6 @@ public class Vector2D {
     /**
      * Transforms a "negative vector" into the null vector
      */
-
     public Vector2D negVectorCheck(){
         if(this.x < 0){
             this.x = 0;
@@ -224,7 +223,7 @@ public class Vector2D {
      * @return the squared length of a vector
      */
     public double magSq(){
-        double magSq = Math.round(this.x*this.x + this.y*this.y);
+        double magSq = this.x*this.x + this.y*this.y;
         assert magSq >= 0 : "Magnitude is negative (" + this.magSq()+")";
         return magSq;
     }

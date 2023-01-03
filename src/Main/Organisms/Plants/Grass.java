@@ -59,7 +59,9 @@ public class Grass extends Plant {
 
     @Override
     public void paint(Graphics2D g) {
-        this.col = new Color(150, 200, 20 ,55+(int)this.health*2);
+        assert !this.dead() : "This is dead";
+
+        this.col = new Color(150, 200, 20 ,55+(int)Vector2D.map(this.health,0,MAX_HEALTH,0,200));
         g.setColor(this.col);
         g.fillOval((int)(this.transform.location.x-this.transform.size/2),(int)(this.transform.location.y-this.transform.size/2),(int)this.transform.size,(int)this.transform.size);
     }
