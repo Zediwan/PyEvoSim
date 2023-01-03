@@ -4,17 +4,19 @@ import java.awt.*;
 
 public class Transform {
     //TODO: change variables to private
-    public Vector2D location;          //location vector
-    public Vector2D velocity;          //direction vector
-    public Vector2D acceleration;      //speed at which is being moved
+    public Vector2D location;           //location vector
+    public Vector2D velocity;           //direction vector
+    public Vector2D acceleration;       //speed at which is being moved
     public double size;                 //size of the object
+    public Shape shape;                 //shape of the object
 
     //Constructors
-    public Transform(Vector2D location, Vector2D velocity, Vector2D acceleration, float size){
+    public Transform(Vector2D location, Vector2D velocity, Vector2D acceleration, float size, Shape shape){
         this.location = location;
         this.velocity = velocity;
         this.acceleration = acceleration;
         this.size = size;
+        this.shape = shape;
     }
     public Transform(Vector2D location, float size){
         this(location);
