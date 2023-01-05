@@ -27,7 +27,7 @@ public class CFrame extends JPanel implements ActionListener {
     static int time = 0;
 
     //FRAME SIZES
-    public static final int WIDTH = 600; //width of the frame
+    public static final int WIDTH = 800; //width of the frame
     public static final int HEIGHT = 800; //height of the frame
 
     //GRID HANDLING
@@ -54,7 +54,7 @@ public class CFrame extends JPanel implements ActionListener {
 
     private final int MIN_NUM_RABBITS = 0;          //The amount at which the system starts spawning new Rabbits
     private final int MIN_NUM_FOXES = 0;            //The amount at which the system starts spawning new Foxes
-    private final int MAX_NUM_PLANTS = 10000;       //The maximum amount of Plants allowed in the simulation at once
+    private final int MAX_NUM_PLANTS = WIDTH*HEIGHT;//The maximum amount of Plants allowed in the simulation at once
 
     private final int NUM_NEW_PLANTS = 10;          //The amount of new Plants being spawned each tick
     private final int NUM_NEW_RABBITS = 5;          //The amount of new Rabbits being spawned each tick
