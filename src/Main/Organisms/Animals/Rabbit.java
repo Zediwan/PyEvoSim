@@ -147,7 +147,7 @@ public class Rabbit extends Animal {
 
         this.think();
 
-        this.collision(this.target);
+        if(this.target != null) this.collision(this.target);
 
         /*
         for(Plant p : Plants) {
@@ -329,7 +329,7 @@ public class Rabbit extends Animal {
             //NN
             NeuralNetwork childNN = this.nn.copy();
             //if(Math.random() <= MUTATION_CHANCE*)
-            childNN.mutate(e -> e + (Math.random() - .5));
+            childNN.mutate();
 
             Transform t = this.transform.clone();                           //Copy this transform
             Rabbit child = new Rabbit(t,MAX_HEALTH, childDNA,childNN);

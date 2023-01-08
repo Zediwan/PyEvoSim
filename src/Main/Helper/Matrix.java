@@ -52,7 +52,7 @@ public class Matrix {
     public Matrix randomize(){
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){
-                this.data[r][c] = Math.floor(Math.random()*2 -1);
+                this.data[r][c] = Math.floor(Math.random()-.5);
             }
         }
         return this;
@@ -62,7 +62,7 @@ public class Matrix {
 
         for(int r = 0 ; r < m1.rows; r++){
             for(int c = 0; c < m1.cols; c++){
-                m1.data[r][c] = Math.floor(Math.random()*2 -1);
+                m1.data[r][c] = Math.floor(Math.random()-.5);
             }
         }
         return m1;

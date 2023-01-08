@@ -155,6 +155,12 @@ public class NeuralNetwork{
         this.bias_h.map(func);
         this.bias_o.map(func);
     }
+    public void mutate(){
+        this.weights_ih.add(new Matrix(this.hidden_nodes, this.input_nodes).randomize());
+        this.weights_ho.add(new Matrix(this.output_nodes, this.hidden_nodes).randomize());
+        this.bias_h.add(new Matrix(this.hidden_nodes, 1).randomize());
+        this.bias_o.add(new Matrix(this.output_nodes,1).randomize());
+    }
 
     public void initializeVisualNetwork() {
         n = new Network(0,0);
