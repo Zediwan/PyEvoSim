@@ -19,8 +19,9 @@ import java.util.Random;
 
 public class CFrame extends JPanel implements ActionListener {
     public static Random random = new Random();
-    NeuralNetwork nn1 = new NeuralNetwork(2,3,1);
-    NeuralNetwork nn2 = new NeuralNetwork(2,4,1);
+    //NeuralNetwork nn1 = new NeuralNetwork(2,12,1);
+    public static Animal currentTrackedR;
+    //NeuralNetwork nn2 = new NeuralNetwork(2,12,1);
 
     //TODO: find out what this is for
     static final int TIME_PERIOD = 24;
@@ -48,13 +49,13 @@ public class CFrame extends JPanel implements ActionListener {
 
     //SIMULATION VARIABLES
     //AMOUNT OF STARTING ENTITIES
-    private final int STARTING_RABBITS = 2000;
-    private final int STARTING_FOXES = 10;
-    private final int STARTING_PLANTS = 15000;
+    private final int STARTING_RABBITS = 100;
+    private final int STARTING_FOXES = 0;
+    private final int STARTING_PLANTS = 1000;
 
-    private final int MIN_NUM_RABBITS = 0;          //The amount at which the system starts spawning new Rabbits
-    private final int MIN_NUM_FOXES = 0;            //The amount at which the system starts spawning new Foxes
-    private final int MAX_NUM_PLANTS = WIDTH*HEIGHT;//The maximum amount of Plants allowed in the simulation at once
+    private final int MIN_NUM_RABBITS = 20;          //The amount at which the system starts spawning new Rabbits
+    private final int MIN_NUM_FOXES = 2;            //The amount at which the system starts spawning new Foxes
+    private final int MAX_NUM_PLANTS = WIDTH*4;//The maximum amount of Plants allowed in the simulation at once
 
     private final int NUM_NEW_PLANTS = 10;          //The amount of new Plants being spawned each tick
     private final int NUM_NEW_RABBITS = 5;          //The amount of new Rabbits being spawned each tick
@@ -88,6 +89,7 @@ public class CFrame extends JPanel implements ActionListener {
         for(int i = 0; i < STARTING_RABBITS; i++) Rabbits.add(new Rabbit());
         for(int i = 0; i < STARTING_FOXES; i++) Foxes.add(new Fox());
         for(int j = 0; j < STARTING_PLANTS; j++) Plants.add(new Grass());
+        this.currentTrackedR = Rabbits.get(random.nextInt(Rabbits.size()));
     }
 
     /**
@@ -97,6 +99,7 @@ public class CFrame extends JPanel implements ActionListener {
     public void paint(Graphics g) {
         time += TIME_PERIOD;
         super.paintComponent(g);
+        if(currentTrackedR.dead()) Rabbits.get(random.nextInt(Rabbits.size()));
 
         //clear all the grids
         for(int i = 0; i < numFieldsY; i++){
@@ -112,17 +115,12 @@ public class CFrame extends JPanel implements ActionListener {
             Plant p = Plants.get(j);
             if(p.dead()) Plants.remove(p);
             else{
-                //int column = (int)(p.getLocX() / resolution);
-                int column = (int) Vector2D.map(p.getLocX(),0, WIDTH,0,numFieldsX);
-                //int row = (int)(p.getLocY() / resolution);
-                int row = (int)Vector2D.map(p.getLocY(), 0, HEIGHT, 0, numFieldsY);
-                //Check for border cases
-                if (column < 0) column = 0;
-                else if (column >= numFieldsX) column = numFieldsX-1;
-                if (row < 0) row = 0;
-                else if (row >= numFieldsY) row = numFieldsY-1;
+                //Define Grid position
+                int[] grid = getGrid(p.transform.location);
+
                 //Add to the correct grid
-                pGrid[row][column].add(p);
+                pGrid[grid[1]][grid[0]].add(p);
+
                 p.paint((Graphics2D) g);
                 p.update();
             }
@@ -133,51 +131,25 @@ public class CFrame extends JPanel implements ActionListener {
             if(r.dead()) Rabbits.remove(i);
             else{
                 //Define Grid position
-                //int column = (int)(r.getLocX() / resolution);
-                int column = (int)Vector2D.map(r.getLocX(),0,WIDTH,0,numFieldsX);
-                //int row = (int)(r.getLocY() / resolution);
-                int row = (int)Vector2D.map(r.getLocY(), 0, HEIGHT, 0, numFieldsY);
-                //Check for border cases
-                if (column < 0) column = 0;
-                else if (column >= numFieldsX) column = numFieldsX-1;
-                if (row < 0) row = 0;
-                else if (row >= numFieldsY) row = numFieldsY-1;
+                int[] grid = getGrid(r.transform.location);
                 //Add to the correct grid
-                rGrid[row][column].add(r);
+                rGrid[grid[1]][grid[0]].add(r);
 
-                //Behavior
-                r.flock(getGridFields(r.transform.location, rGrid));
-                r.flee(getGridFields(r.transform.location, fGrid));
-                r.searchFood(getGridFields(r.transform.location, pGrid));
-                r.reproduce();                                                  //Reproduction
                 r.paint((Graphics2D)g);
-
                 r.update();
-                /*
-                assert r.transform.location.x <= CFrame.WIDTH+10;
-                assert r.transform.location.y <= CFrame.HEIGHT+10;
-                assert r.transform.location.x >= -10;
-                assert r.transform.location.y >= -10;
-                 */
             }
         }
+
         for(int i = 0; i < Foxes.size(); i++){
             Animal f = Foxes.get(i);
             //Remove if rabbit is dead
             if(f.dead()) Foxes.remove(i);
             else{
                 //Define Grid position
-                //int column = (int)(f.getLocX() / resolution);
-                int column = (int)Vector2D.map(f.getLocX(),0,WIDTH,0,numFieldsX);
-                //int row = (int)(f.getLocY() / resolution);
-                int row = (int)Vector2D.map(f.getLocY(), 0, HEIGHT, 0, numFieldsY);
-                //Check for border cases
-                if (column < 0) column = 0;
-                else if (column >= numFieldsX) column = numFieldsX-1;
-                if (row < 0) row = 0;
-                else if (row >= numFieldsY) row = numFieldsY-1;
+                int[] grid = getGrid(f.transform.location);
+
                 //Add to the correct grid
-                fGrid[row][column].add(f);
+                fGrid[grid[1]][grid[0]].add(f);
 
                 //Behavior
                 f.flock(getGridFields(f.transform.location, fGrid));
@@ -185,13 +157,6 @@ public class CFrame extends JPanel implements ActionListener {
                 f.paint((Graphics2D)g);
                 f.reproduce();                                              //Reproduction
                 f.update();
-
-                /*
-                assert r.transform.location.x <= CFrame.WIDTH+10;
-                assert r.transform.location.y <= CFrame.HEIGHT+10;
-                assert r.transform.location.x >= -10;
-                assert r.transform.location.y >= -10;
-                 */
             }
         }
 
@@ -206,6 +171,8 @@ public class CFrame extends JPanel implements ActionListener {
 
         //NN
         //Generate inputs and targets
+        currentTrackedR.nn.paint((Graphics2D) g,-200,400);
+        /*
         double[] input = new double[2];
         double[] target = new double[1];
         input[0] = random.nextDouble(1);
@@ -213,9 +180,12 @@ public class CFrame extends JPanel implements ActionListener {
         target[0] = input[0] + input[1];
         //Train and paint
         nn1.train(input, target);
-        nn1.paint((Graphics2D) g,1000,500, input, target);
+        nn1.paint((Graphics2D) g,-200,400, input, target);
         nn2.train(input,target);
-        nn2.paint((Graphics2D) g,0,200, input, target);
+        nn2.paint((Graphics2D) g,-200,400, input, target);x
+         */
+
+
     }
 
     public void paintStats(Graphics g){
@@ -235,7 +205,7 @@ public class CFrame extends JPanel implements ActionListener {
         //Summary of Amount
         g.drawString("Amount of Foxes", 0, 0);
         g.drawString(": "+Foxes.size(), 150, 0);
-        g.drawString("Tot num of born Foxes", 0, 15);
+        g.drawString("Total num of Foxes", 0, 15);
         g.drawString(": "+Fox.totalAmountOfFoxes,150,15);
 
         //Rabbit information
@@ -253,7 +223,7 @@ public class CFrame extends JPanel implements ActionListener {
         //Summary of Amount
         g.drawString("Amount of Rabbits", 0, 0);
         g.drawString(": "+Rabbits.size(), 150, 0);
-        g.drawString("Tot num of born Rabbits", 0, 15);
+        g.drawString("Total num of Rabbits", 0, 15);
         g.drawString(": "+Rabbit.totalAmountOfRabbits,150,15);
 
         //Plant information
@@ -264,7 +234,22 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString(": "+Plants.size(), 150, 0);
     }
 
-    public ArrayList getGridFields(Vector2D location, ArrayList[][] grid){
+    public int[] getGrid(Vector2D loc){
+        //Define Grid position
+
+        int column = (int)Vector2D.map(loc.x,0,WIDTH,0,numFieldsX);
+        int row = (int)Vector2D.map(loc.y, 0, HEIGHT, 0, numFieldsY);
+
+        //Check for border cases
+        if (column < 0) column = 0;
+        else if (column >= numFieldsX) column = numFieldsX-1;
+        if (row < 0) row = 0;
+        else if (row >= numFieldsY) row = numFieldsY-1;
+        int[] grid = new int[]{column,row};
+        return grid;
+    }
+
+    public static ArrayList getGridFields(Vector2D location, ArrayList[][] grid){
         ArrayList list = new ArrayList();
 
         //int column = (int)(location.x / resolution);

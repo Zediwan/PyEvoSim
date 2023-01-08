@@ -1,18 +1,19 @@
 package Main.Organisms.Animals;
 
 import Main.CFrame;
+import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
 import Main.Organisms.Plants.Grass;
+import Main.Organisms.Plants.Plant;
 
 import java.awt.*;
 import java.util.ArrayList;
 
-import static Main.CFrame.Foxes;
-import static Main.CFrame.Rabbits;
+import static Main.CFrame.*;
 
 public class Rabbit extends Animal {
     public static DNA sumDNA = DNA.initiateSumDNA(12,
@@ -25,7 +26,7 @@ public class Rabbit extends Animal {
     public static int totalAmountOfRabbits = 0;                 //total amount of Rabbits naturally born
 
     public static final int MAX_HEALTH = 300;                   //maximum health for all Rabbits
-    public static final int STARTING_HEALTH = 150;              //starting health of a Rabbit
+    public static final int STARTING_HEALTH = 200;              //starting health of a Rabbit
     public static final int MAX_HUNTING_HEALTH = 250;           //above this threshold the Rabbit will stop looking food
     public static final double[][] HEALTH_REPRODUCTION_BONUS = new double[][]{
             new double[]{MAX_HEALTH*.75, MAX_HEALTH*.5, MAX_HEALTH*.25},    //health threshold at which there is a reproduction bonus
@@ -35,34 +36,51 @@ public class Rabbit extends Animal {
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
     public static final double MUTATION_CHANCE = .1;            //Chance for mutation of a Gene
 
-    public static final double DAMAGE = 10;                     //damage an attack of a Rabbit does
+    public static final double DAMAGE = 200;                     //damage an attack of a Rabbit does
 
-    public static final double BASE_SIZE = 2;                   //Base size of a Rabbit
+    public static final double BASE_SIZE = 5;                   //Base size of a Rabbit
     public Color col = new Color(121, 83, 71, 200);
-    public static final double DMG_PER_TICK = 5;                //Damage each Fox takes each tick
+    public static final double DMG_PER_TICK = 3;                //Damage each Rabbit takes each tick
 
     public static final double ENERGY_FACTOR = 100;             //the factor that the eating of a Rabbit gives
     public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Rabbit gives
 
+    //Neural Network
+    /** Input Node Description
+     * 1: this.x
+     * 2: this.y
+     * 3: closestPlant.x
+     * 4: closestPlant.y
+     * 5: closestHunter.x
+     * 6: closestHunter.y
+     * 7: this.health
+     */
+    public static final int input_nodes = 7;
+    public static final int hidden_nodes = 12;
+    public static final int output_nodes = 3;                   //two output nodes with the steer coordinates (x,y)
+
     //Constructors
-    public Rabbit(Transform transform, float health, DNA dna){
+    public Rabbit(Transform transform, float health, DNA dna, NeuralNetwork nn){
         super(transform, health, dna);
         this.decodeDNA();                                               //initialize DNA
 
-        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
-                (Math.random()-.5)*5).limit(this.maxSpeed);       //start with a random velocity
-
         sumDNA.addToAVG(this.sumDNA,totalAmountOfRabbits, this.dna);    //add this DNA to the collection
         totalAmountOfRabbits++;                                         //increase counter
+
+        //NN
+        this.nn = nn;
     }
     public Rabbit(){
         super();
         this.dna = new DNA(12);
         this.decodeDNA();
-
         this.health = STARTING_HEALTH;
-        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
-                (Math.random()-.5)*5).limit(this.maxSpeed);        //start with a random velocity
+
+        sumDNA.addToAVG(this.sumDNA,totalAmountOfRabbits, this.dna);    //add this DNA to the collection
+        totalAmountOfRabbits++;                                         //increase counter
+
+        //NN
+        this.nn = new NeuralNetwork(this.input_nodes, this.hidden_nodes,this.output_nodes);
     }
 
     /**
@@ -88,10 +106,17 @@ public class Rabbit extends Animal {
         else this.gender = Gender.FEMALE;
 
         this.transform.size = this.dna.genes[1] + BASE_SIZE;            //Define size
-        this.maxSpeed = this.dna.genes[2];                              //Define maxSpeed
-        this.maxForce = this.dna.genes[3];                              //Define maxForce
-        this.viewDistance = this.dna.genes[4] + this.transform.size;    //Define viewDistance
 
+        this.maxSpeed = this.dna.genes[2];                              //Define maxSpeed
+        if(this.maxSpeed < 0) this.maxSpeed = 0;
+
+        this.maxForce = this.dna.genes[3];                              //Define maxForce
+        if(this.maxForce < 0) this.maxForce = 0;
+
+        this.viewDistance = this.dna.genes[4] * this.transform.size;    //Define viewDistance
+        if(this.viewDistance < 0) this.viewDistance = 0;
+
+        /*
         //Define separation, alignment, cohesion distances
         this.desiredSepDist = this.dna.genes[5] * this.transform.size;
         this.desiredAliDist = this.dna.genes[6] * this.transform.size;
@@ -106,6 +131,7 @@ public class Rabbit extends Animal {
         }else{
         this.cohWeight = this.dna.genes[10] * Math.sqrt(10*Foxes.size()/ Rabbits.size());}
         this.fleeWeight = this.dna.genes[11];                           //Define flee weight
+         */
     }
 
     /**
@@ -116,15 +142,50 @@ public class Rabbit extends Animal {
     public void update(){
         assert !this.dead() : "This is dead";
 
+        this.think();
+        //ArrayList<Organism> plants = CFrame.getGridFields(this.transform.location,pGrid);
+        //for(Organism o : plants) o.transform.getRectangle().intersects(this.transform.getRectangle());
+        for(Plant p : Plants) {
+            if(this.transform.getRectangle().intersects(p.transform.getRectangle())){
+                p.health -= DAMAGE;                         //reduce plants health to 0
+                this.health += (p.transform.size * Grass.ENERGY_FACTOR) + Grass.BASE_ENERGY_PROVIDED;     //gain health
+            }
+
+        }
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
         this.transform.location.add(this.transform.velocity);
         this.transform.acceleration.mult(0);
 
-        this.borders1();
+        reproduce();
+
+        this.borders2();
         this.health -= DMG_PER_TICK;
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+    }
+
+    public void think(){
+        //Organism closestFood = this.searchFood(CFrame.getGridFields(this.transform.location, CFrame.pGrid));
+        Organism closestFood = searchPlant(Plants);
+        Vector2D closestFoodPos;
+        if(closestFood == null) closestFoodPos = new Vector2D();
+        else closestFoodPos = closestFood.transform.location;
+
+        //Organism closesHunter = this.searchFood(CFrame.getGridFields(this.transform.location, CFrame.fGrid));
+        Organism closesHunter = searchHunter(Foxes);
+        Vector2D closestHunterPos;
+        if(closesHunter == null) closestHunterPos = new Vector2D();
+        else closestHunterPos = closesHunter.transform.location;
+
+        double[] inputs = new double[]{
+                this.transform.getLocX(), this.transform.getLocY(),
+                closestFoodPos.x, closestFoodPos.y,
+                closestHunterPos.x, closestHunterPos.y,
+                this.health
+        };
+        double[] outputs = this.nn.predict(inputs);
+        this.transform.applyForce(new Vector2D(outputs[0], outputs[1]).setMag(outputs[2]).limit(this.maxForce));
     }
 
     /**
@@ -162,6 +223,52 @@ public class Rabbit extends Animal {
             if(closestFood != null) assert closestFood.getClass() == Grass.class;   //check if the target is a Grass
             this.target = closestFood;
         }
+
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+        return closestFood;
+    }
+
+    public Organism searchPlant(ArrayList<Plant> plants) {
+        assert !this.dead() : "This is dead";
+
+        Organism closestFood = null;
+
+        double closestDistance = Double.POSITIVE_INFINITY;
+        for(Organism o : plants){
+            //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
+            assert o.getClass() == Grass.class;             //check if the target is a Grass
+
+            double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();                //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
+                closestDistance = distance;
+                closestFood = o;
+            }
+        }
+        if(closestFood != null) assert closestFood.getClass() == Grass.class;   //check if the target is a Grass
+        this.target = closestFood;
+
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+        return closestFood;
+    }
+
+    public Organism searchHunter(ArrayList<Animal> hunters) {
+        assert !this.dead() : "This is dead";
+
+        Organism closestFood = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+        for(Organism o : hunters){
+            //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
+            assert o.getClass() == Fox.class;             //check if the target is a Grass
+            double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();                //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
+                closestDistance = distance;
+                closestFood = o;
+            }
+        }
+        if(closestFood != null) assert closestFood.getClass() == Fox.class;   //check if the target is a Grass
+        this.target = closestFood;
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return closestFood;
@@ -206,10 +313,19 @@ public class Rabbit extends Animal {
             if(this.health >= HEALTH_REPRODUCTION_BONUS[0][i]) birthChance += HEALTH_REPRODUCTION_BONUS[1][i];
         }
         if(Math.random() <= birthChance){
+            //DNA
             DNA childDNA = dna.copy();                              //copy this DNA
             childDNA.mutate(MUTATION_CHANCE);                       //mutate DNA if MUTATION_CHANCE occurs
-            Transform t = this.transform.clone();                   //Copy this transform
-            CFrame.Rabbits.add(new Rabbit(t,MAX_HEALTH, childDNA)); //Add a new Rabbit
+
+            //NN
+            NeuralNetwork childNN = this.nn.copy();
+            //if(Math.random() <= MUTATION_CHANCE*)
+            childNN.mutate(e -> e + (Math.random() - .5));
+
+            Transform t = this.transform.clone();                           //Copy this transform
+            Rabbit child = new Rabbit(t,MAX_HEALTH, childDNA,childNN);
+            CFrame.Rabbits.add(child); //Add a new Rabbit
+            CFrame.currentTrackedR = child;
         }
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);

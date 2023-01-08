@@ -1,12 +1,12 @@
 package Main.Organisms.Animals;
 
 import Main.CFrame;
+import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
-
 import java.util.ArrayList;
 
 public abstract class Animal extends Organism {
@@ -15,6 +15,7 @@ public abstract class Animal extends Organism {
     public double desiredSepDist, desiredAliDist, desiredCohDist;
     public double sepWeight, aliWeight, cohWeight, fleeWeight;
     public Organism target = null;
+    public NeuralNetwork nn;
 
 
     //Constructors
@@ -107,8 +108,7 @@ public abstract class Animal extends Organism {
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return steer;
     }
-    
-    
+
     public Vector2D seek(Vector2D target, int groupRatio){
         Vector2D desired = Vector2D.sub(target,this.transform.location);
 
@@ -133,6 +133,7 @@ public abstract class Animal extends Organism {
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return steer;
     }
+
     public void flock(ArrayList<Animal> animals){
         this.transform.acceleration.mult(0);
         //flocking rules

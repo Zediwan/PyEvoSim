@@ -6,6 +6,8 @@ import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
+import Main.Organisms.Plants.Grass;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -30,11 +32,11 @@ public class Fox extends Animal {
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
     public static final double MUTATION_CHANCE = .5;            //Chance for mutation of a Gene
 
-    public static final double DAMAGE = 300;                    //damage an attack of a Fox does
+    public static final double DAMAGE = Rabbit.MAX_HEALTH;                    //damage an attack of a Fox does
 
     public static final double BASE_SIZE = 7;                   //Base size of a Fox
     public Color col = new Color(237, 150, 11, 200);
-    public static final double DMG_PER_TICK = 5;                //Damage each Fox takes each tick
+    public static final double DMG_PER_TICK = 3;                //Damage each Fox takes each tick
 
     public static final double ENERGY_FACTOR = 100;             //the factor that the eating of a Fox gives
     public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Fox gives
@@ -56,10 +58,13 @@ public class Fox extends Animal {
         super();
         this.dna = new DNA(11);
         this.decodeDNA();                                           //initialize DNA
-
         this.health = STARTING_HEALTH;
+
         this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
                 (Math.random()-.5)*5).limit(this.maxSpeed);   //start with a random velocity
+
+        sumDNA.addToAVG(this.sumDNA,totalAmountOfFoxes, this.dna);  //add this DNA to the collection
+        totalAmountOfFoxes++;                                       //increase counter
     }
 
     /**
@@ -86,7 +91,8 @@ public class Fox extends Animal {
         this.transform.size = this.dna.genes[1]+BASE_SIZE;              //Define size
         this.maxSpeed = this.dna.genes[2];                              //Define maxSpeed
         this.maxForce = this.dna.genes[3];                              //Define maxForce
-        this.viewDistance = this.dna.genes[4] + this.transform.size;    //Define viewDistance
+        this.viewDistance = this.dna.genes[4] * this.transform.size;    //Define viewDistance
+        if(this.viewDistance < 0) this.viewDistance = 0;
 
         //Define separation, alignment, cohesion distances
         this.desiredSepDist = this.dna.genes[5] * this.transform.size;
@@ -114,7 +120,7 @@ public class Fox extends Animal {
         this.transform.location.add(this.transform.velocity);
         this.transform.acceleration.mult(0);
 
-        this.borders1();
+        this.borders2();
         this.health -= DMG_PER_TICK;
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
@@ -173,6 +179,12 @@ public class Fox extends Animal {
         assert Prey.getClass() == Rabbit.class;                                         //check if the target is a Rabbit
 
         //check if the two collide
+        if(this.transform.getRectangle().intersects(Prey.transform.getRectangle())){
+            Prey.health -= DAMAGE;                         //reduce plants health to 0
+            this.health += (Prey.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;     //gain health
+            if(Prey.health <= 0) target = null;            //remove target
+        }
+        /*
         if(this.transform.location.dist(Prey.transform.location) <= this.transform.getR() + Prey.transform.getR()){
             //TODO: maybe make this dependant on attributes of the Fox (size, ect)
             Prey.health -= DAMAGE;                                                      //reduce Preys health by dmg
@@ -183,6 +195,8 @@ public class Fox extends Animal {
                 target = null;                                                          //remove target
             }
         }
+         */
+
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return target == null;                                                          //return true if the prey has been killed

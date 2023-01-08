@@ -59,6 +59,9 @@ public class NeuralNetwork{
 
         this.bias_h = nn.bias_h.copy();
         this.bias_o = nn.bias_o.copy();
+
+        this.setLearning_rate(nn.learning_rate);
+        this.setActivation_function(nn.activation_function);
     }
 
     private void setActivation_function(ActivationFunction af) {
@@ -156,8 +159,9 @@ public class NeuralNetwork{
     public void initializeVisualNetwork() {
         n = new Network(0,0);
         //TODO: add biases to the nodes
+        //TODO: idea jsut use an offset to place the nodes centred (look up the highest amount of nodes and just offset according to that)
         //add input Neurons
-        n.generateCentralizedNodes(-100, this.input_nodes);
+        n.generateCentralizedNodes(-200, this.input_nodes);
         //for(int i = 0; i < this.input_nodes; i++) n.addNeuron(new Neuron(-50,i * 50));
 
         //add hidden Neurons
@@ -165,7 +169,7 @@ public class NeuralNetwork{
         //for(int i = 0; i < this.hidden_nodes; i++) n.addNeuron(new Neuron(0,  i * 50, this.bias_h.data[i][0]));
 
         //add output Neurons
-        n.generateCentralizedNodes(100, this.output_nodes, this.bias_o.toArray());
+        n.generateCentralizedNodes(200, this.output_nodes, this.bias_o.toArray());
         //for(int i = 0; i < this.output_nodes; i++) n.addNeuron(new Neuron(50 * 2,i * 50, this.bias_o.data[i][0]));
 
         //add all weights
