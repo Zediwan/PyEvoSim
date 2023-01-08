@@ -45,7 +45,8 @@ public class Rabbit extends Animal {
     public static final double ENERGY_FACTOR = 100;             //the factor that the eating of a Rabbit gives
     public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Rabbit gives
 
-    public static Organism food = new Grass();
+    public static Organism typeOfFood = new Grass();
+    public static Organism typeOfHunter = new Fox();
 
     //Neural Network
     /** Input Node Description
@@ -145,8 +146,10 @@ public class Rabbit extends Animal {
         assert !this.dead() : "This is dead";
 
         this.think();
-        //ArrayList<Organism> plants = CFrame.getGridFields(this.transform.location,pGrid);
-        //for(Organism o : plants) o.transform.getRectangle().intersects(this.transform.getRectangle());
+
+        this.collision(this.target);
+
+        /*
         for(Plant p : Plants) {
             if(this.transform.getRectangle().intersects(p.transform.getRectangle())){
                 p.health -= DAMAGE;                         //reduce plants health to 0
@@ -154,12 +157,14 @@ public class Rabbit extends Animal {
             }
 
         }
+         */
+
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
         this.transform.location.add(this.transform.velocity);
         this.transform.acceleration.mult(0);
 
-        reproduce();
+        this.reproduce();
 
         this.borders2();
         this.health -= DMG_PER_TICK;
@@ -196,7 +201,7 @@ public class Rabbit extends Animal {
         else closestHunterPos = closesHunter.transform.location;
          */
 
-
+        //set inputs
         double[] inputs = new double[]{
                 this.transform.getLocX(), this.transform.getLocY(),
                 closestFoodPosition.x, closestFoodPosition.y,
@@ -208,7 +213,7 @@ public class Rabbit extends Animal {
     }
 
     /**
-     * Searches for possible Food if the Rabbit is hungry enough and doesn't already have a target
+     * Searches for possible Food
      * PRE-CONDITION: this mustn't be dead
      * @param organisms that can be eaten
      * @return the Food
@@ -219,7 +224,7 @@ public class Rabbit extends Animal {
         assert !this.dead() : "This is dead";
 
         Organism closestFood = null;
-
+        /*
         //if there is a target and the Rabbit is hungry enough to look for food
         if(target != null && this.health <= MAX_HUNTING_HEALTH) {
             this.transform.applyForce(seek(target.getLocation()));
@@ -242,30 +247,41 @@ public class Rabbit extends Animal {
             if(closestFood != null) assert closestFood.getClass() == Grass.class;   //check if the target is a Grass
             this.target = closestFood;
         }
-
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return closestFood;
-    }
-    public Organism searchHunter(ArrayList<Animal> hunters) {
-        assert !this.dead() : "This is dead";
-
-        Organism closestFood = null;
+         */
         double closestDistance = Double.POSITIVE_INFINITY;
-        for(Organism o : hunters){
-            //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
-            assert o.getClass() == Fox.class;             //check if the target is a Grass
-            double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();                //if the distance is smaller than the current closest distance and smaller than the viewDistance
+        for(Organism o : organisms){
+            assert o.getClass() == typeOfFood.getClass();         //check if the target is possible food
+
+            double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
             if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
                 closestDistance = distance;
                 closestFood = o;
             }
         }
-        if(closestFood != null) assert closestFood.getClass() == Fox.class;   //check if the target is a Grass
         this.target = closestFood;
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return closestFood;
+    }
+    public Organism searchHunter(ArrayList<Organism> hunters) {
+        assert !this.dead() : "This is dead";
+
+        Organism closestHunter = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+        for(Organism o : hunters){
+            assert o.getClass() == typeOfHunter.getClass();             //check if the organism is a possible hunter
+
+            double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();
+            //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
+                closestDistance = distance;
+                closestHunter = o;
+            }
+        }
+
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+        return closestHunter;
     }
 
     /**
@@ -276,9 +292,8 @@ public class Rabbit extends Animal {
      */
     @Override
     public boolean collision(Organism food) {
-        //TODO: create a Food variable that holds the class of all eatable / fightable organisms
         assert !this.dead() : "This is dead";               //check if this is dead
-        assert food.getClass() == Rabbit.food.getClass();   //check if the target is eatable
+        assert food.getClass() == typeOfFood.getClass();   //check if the target is eatable
 
         //check if the two collide
         if(this.transform.location.dist(food.transform.location) <= this.transform.getR() + food.transform.getR()){

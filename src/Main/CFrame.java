@@ -139,7 +139,6 @@ public class CFrame extends JPanel implements ActionListener {
                 r.update();
             }
         }
-
         for(int i = 0; i < Foxes.size(); i++){
             Animal f = Foxes.get(i);
             //Remove if rabbit is dead
