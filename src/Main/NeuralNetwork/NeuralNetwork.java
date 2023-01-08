@@ -21,6 +21,7 @@ public class NeuralNetwork{
     public double learning_rate;
     public ActivationFunction activation_function;
     private Matrix output_errors;
+    private static double visualLayerOffset = 200;
 
     //Painting
     Network n;
@@ -167,7 +168,7 @@ public class NeuralNetwork{
         //TODO: add biases to the nodes
         //TODO: idea jsut use an offset to place the nodes centred (look up the highest amount of nodes and just offset according to that)
         //add input Neurons
-        n.generateCentralizedNodes(-200, this.input_nodes);
+        n.generateCentralizedNodes(-visualLayerOffset, this.input_nodes);
         //for(int i = 0; i < this.input_nodes; i++) n.addNeuron(new Neuron(-50,i * 50));
 
         //add hidden Neurons
@@ -175,7 +176,7 @@ public class NeuralNetwork{
         //for(int i = 0; i < this.hidden_nodes; i++) n.addNeuron(new Neuron(0,  i * 50, this.bias_h.data[i][0]));
 
         //add output Neurons
-        n.generateCentralizedNodes(200, this.output_nodes, this.bias_o.toArray());
+        n.generateCentralizedNodes(visualLayerOffset, this.output_nodes, this.bias_o.toArray());
         //for(int i = 0; i < this.output_nodes; i++) n.addNeuron(new Neuron(50 * 2,i * 50, this.bias_o.data[i][0]));
 
         //add all weights

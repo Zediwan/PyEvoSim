@@ -8,6 +8,8 @@ public class Neuron {
     ArrayList<Connection> connections;
     double sum = 0;
     double bias = 0;
+    private static double baseSize = 10;
+    private static double biaseSizeFactor = 3;
 
     public Neuron(double x, double y){
         this.location = new Vector2D(x,y);
@@ -40,7 +42,7 @@ public class Neuron {
         for(Connection con : connections) con.paint(g);
         if(this.bias >= 0) g.setColor(Color.BLACK);
         else g.setColor(Color.RED);
-        int size = (int)Math.round(15+4*Math.abs(this.bias));
+        int size = (int)Math.round(baseSize+biaseSizeFactor*Math.abs(this.bias));
         g.fillOval((int)Math.round(this.location.x-size/2),(int)Math.round(this.location.y-size/2),size,size);
     }
 

@@ -57,9 +57,11 @@ public class Rabbit extends Animal {
      * 5: closestHunter.x
      * 6: closestHunter.y
      * 7: this.health
+     * 8: amount of food in sensory radius
+     * 9: amount of hunters in sensory radius
      */
-    public static final int input_nodes = 7;
-    public static final int hidden_nodes = 12;
+    public static final int input_nodes = 9;
+    public static final int hidden_nodes = 20;
     public static final int output_nodes = 3;                   //two output nodes with the steer coordinates (x,y)
 
     //Constructors
@@ -174,14 +176,16 @@ public class Rabbit extends Animal {
 
     public void think(){
         //search the closest Food
-        Organism closestFood = this.searchFood(CFrame.getGridFields(this.transform.location, pGrid));
+        ArrayList foods = CFrame.getGridFields(this.transform.location, pGrid);
+        Organism closestFood = this.searchFood(foods);
         //TODO: think of a better solution / placeholder when there is no food in sensory radius
         Vector2D closestFoodPosition = new Vector2D();      //if there is no food in sensory radius just return the null vector
         //put the vector in relation to the position
         if (closestFood != null)  closestFoodPosition = closestFood.transform.location.sub(this.transform.location);
 
         //search the closest Food
-        Organism closestHunter = this.searchHunter(CFrame.getGridFields(this.transform.location, fGrid));
+        ArrayList hunters = CFrame.getGridFields(this.transform.location, fGrid);
+        Organism closestHunter = this.searchHunter(hunters);
         //TODO: think of a better solution / placeholder when there is no hunter in sensory radius
         Vector2D closestHunterPosition = new Vector2D(); //if there is no hunter in sensory radius just return the null vector
         //put the vector in relation to the position
@@ -206,7 +210,9 @@ public class Rabbit extends Animal {
                 this.transform.getLocX(), this.transform.getLocY(),
                 closestFoodPosition.x, closestFoodPosition.y,
                 closestHunterPosition.x, closestHunterPosition.y,
-                this.health
+                this.health,
+                foods.size(),
+                hunters.size()
         };
         double[] outputs = this.nn.predict(inputs);
         this.transform.applyForce(new Vector2D(outputs[0], outputs[1]).setMag(outputs[2]).limit(this.maxForce));

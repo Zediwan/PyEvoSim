@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Network {
     ArrayList<Neuron> neurons;
+    private static double visualOffsetBetweenNodes = 20;
 
     public Network(double x, double y){
         this.neurons = new ArrayList();
@@ -29,16 +30,16 @@ public class Network {
         if(amountOfNodes % 2 == 0){
             for(int i = 0; i < amountOfNodes/2 ; i++){
                 //Add the alternating Nodes
-                addNeuron(new Neuron(rowPos, 25 + 50 * i));
-                addNeuron(new Neuron(rowPos, -25 - 50 * i));
+                addNeuron(new Neuron(rowPos, (visualOffsetBetweenNodes/2) + visualOffsetBetweenNodes * i));
+                addNeuron(new Neuron(rowPos, -(visualOffsetBetweenNodes/2) - visualOffsetBetweenNodes * i));
             }
         }else{
             //Adding the centre Node
             addNeuron(new Neuron(rowPos, 0));
             for(int i = 1; i <= amountOfNodes/2; i++){
                 //Add the alternating Nodes
-                addNeuron(new Neuron(rowPos, 50 * i));
-                addNeuron(new Neuron(rowPos, -50 * i));
+                addNeuron(new Neuron(rowPos, visualOffsetBetweenNodes * i));
+                addNeuron(new Neuron(rowPos, -visualOffsetBetweenNodes * i));
             }
         }
     }
@@ -49,16 +50,16 @@ public class Network {
         if(amountOfNodes % 2 == 0){
             for(int i = 0; i < amountOfNodes/2 ; i++){
                 //Add the alternating Nodes
-                addNeuron(new Neuron(rowPos, 25 + 50 * i));
-                addNeuron(new Neuron(rowPos, -25 - 50 * i));
+                addNeuron(new Neuron(rowPos, (visualOffsetBetweenNodes/2) + visualOffsetBetweenNodes * i));
+                addNeuron(new Neuron(rowPos, -(visualOffsetBetweenNodes/2) - visualOffsetBetweenNodes * i));
             }
         }else{
             //Adding the centre Node
             addNeuron(new Neuron(rowPos, 0));
             for(int i = 1; i <= amountOfNodes/2; i++){
                 //Add the alternating Nodes
-                addNeuron(new Neuron(rowPos, 50 * i));
-                addNeuron(new Neuron(rowPos, -50 * i));
+                addNeuron(new Neuron(rowPos, visualOffsetBetweenNodes * i));
+                addNeuron(new Neuron(rowPos, -visualOffsetBetweenNodes * i));
             }
         }
     }
