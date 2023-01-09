@@ -5,7 +5,7 @@ import Main.Helper.Vector2D;
 import java.awt.*;
 
 public class Grass extends Plant {
-    public static final double ENERGY_FACTOR = 20;              //the factor that the eating of a Grass gives
+    public static final double ENERGY_FACTOR = 100;              //the factor that the eating of a Grass gives
     public static final double BASE_ENERGY_PROVIDED = 50;        //base energy that eating a Grass gives
     public static final double GROWTH_INTERVAL = 50;            //Interval at which Growth happens
     public static final double GROWTH = .1;                     //Rate at which a Grass grows
@@ -44,7 +44,7 @@ public class Grass extends Plant {
                 this.growthTimer = this.growthInterval;
             }
         }
-        this.transform.size = Vector2D.map(this.health, 0, MAX_HEALTH, 0, this.transform.size);
+        //this.transform.size = Vector2D.map(this.health, 0, MAX_HEALTH, 0, this.transform.size);
     }
 
     @Override

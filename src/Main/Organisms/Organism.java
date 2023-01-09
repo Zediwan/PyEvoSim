@@ -8,7 +8,7 @@ import Main.Helper.Vector2D;
 import java.awt.*;
 
 public abstract class Organism {
-    public double health;
+    protected double health;
     public DNA dna;
     public Transform transform;
     //TODO: change variables to private
@@ -52,7 +52,8 @@ public abstract class Organism {
     public double getHealth() {
         return this.health;
     }
-    public void setHealth(float health) {
-        this.health = health;
+    public void setHealth(double health){this.health = health;}
+    public void takeDamage(double damage) {
+        this.health -= damage;
     }
 }

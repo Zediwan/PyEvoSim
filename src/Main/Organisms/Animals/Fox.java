@@ -180,9 +180,9 @@ public class Fox extends Animal {
 
         //check if the two collide
         if(this.transform.getRectangle().intersects(Prey.transform.getRectangle())){
-            Prey.health -= DAMAGE;                         //reduce plants health to 0
+            Prey.takeDamage(DAMAGE);                       //reduce plants health to 0
             this.health += (Prey.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;     //gain health
-            if(Prey.health <= 0) target = null;            //remove target
+            if(Prey.dead()) target = null;            //remove target
         }
         /*
         if(this.transform.location.dist(Prey.transform.location) <= this.transform.getR() + Prey.transform.getR()){

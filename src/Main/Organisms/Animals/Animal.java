@@ -32,6 +32,7 @@ public abstract class Animal extends Organism {
 
     //Search for food
     public abstract Organism searchFood(ArrayList<Organism> organisms);
+
     public abstract void reproduce();
 
     //Border handling
@@ -108,7 +109,6 @@ public abstract class Animal extends Organism {
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return steer;
     }
-
     public Vector2D seek(Vector2D target, int groupRatio){
         Vector2D desired = Vector2D.sub(target,this.transform.location);
 

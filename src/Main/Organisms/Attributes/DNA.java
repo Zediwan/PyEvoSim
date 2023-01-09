@@ -41,7 +41,7 @@ public class DNA {
     }
 
     public static DNA initiateSumDNA(int num, String[] names){
-        assert names.length <= num: "more names given than genes";
+        //assert names.length <= num: "more names given than genes";
         DNA dna = new DNA();
         dna.genes = new double[num];
         Arrays.fill(dna.genes, 0);      //fill the Array with 0

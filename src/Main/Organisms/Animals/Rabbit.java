@@ -8,15 +8,12 @@ import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
 import Main.Organisms.Plants.Grass;
-import Main.Organisms.Plants.Plant;
-
 import java.awt.*;
 import java.util.ArrayList;
-
 import static Main.CFrame.*;
 
 public class Rabbit extends Animal {
-    public static DNA sumDNA = DNA.initiateSumDNA(12,
+    public static DNA sumDNA = DNA.initiateSumDNA(5,
             new String[]{
             "NA","size", "maxSpeed", "maxForce", "viewDistance",
                     "desiredSepDist", "desiredAliDist", "desiredCohDist",
@@ -25,9 +22,9 @@ public class Rabbit extends Animal {
     );
     public static int totalAmountOfRabbits = 0;                 //total amount of Rabbits naturally born
 
-    public static final int MAX_HEALTH = 300;                   //maximum health for all Rabbits
-    public static final int STARTING_HEALTH = 200;              //starting health of a Rabbit
-    public static final int MAX_HUNTING_HEALTH = 250;           //above this threshold the Rabbit will stop looking food
+    public static final int MAX_HEALTH = 400;                   //maximum health for all Rabbits
+    public static final int STARTING_HEALTH = MAX_HEALTH/2;              //starting health of a Rabbit
+    public static final int MAX_HUNTING_HEALTH = MAX_HEALTH;           //above this threshold the Rabbit will stop looking food
     public static final double[][] HEALTH_REPRODUCTION_BONUS = new double[][]{
             new double[]{MAX_HEALTH*.75, MAX_HEALTH*.5, MAX_HEALTH*.25},    //health threshold at which there is a reproduction bonus
             new double[]{.01,.005,.0025}                                    //bonus to reproduction
@@ -36,14 +33,14 @@ public class Rabbit extends Animal {
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
     public static final double MUTATION_CHANCE = .1;            //Chance for mutation of a Gene
 
-    public static final double DAMAGE = 200;                     //damage an attack of a Rabbit does
+    public static final double DAMAGE = 10;                     //damage an attack of a Rabbit does
 
     public static final double BASE_SIZE = 5;                   //Base size of a Rabbit
     public Color col = new Color(121, 83, 71, 200);
     public static final double DMG_PER_TICK = 3;                //Damage each Rabbit takes each tick
 
-    public static final double ENERGY_FACTOR = 100;             //the factor that the eating of a Rabbit gives
-    public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Rabbit gives
+    public static final double ENERGY_FACTOR = 300;             //the factor that the eating of a Rabbit gives
+    public static final double BASE_ENERGY_PROVIDED = 100;        //base energy that eating a Rabbit gives
 
     public static Organism typeOfFood = new Grass();
     public static Organism typeOfHunter = new Fox();
@@ -59,9 +56,12 @@ public class Rabbit extends Animal {
      * 7: this.health
      * 8: amount of food in sensory radius
      * 9: amount of hunters in sensory radius
+     * 10: this.size
+     * 11: distance to closest food
+     * 12: distance to closest hunter
      */
-    public static final int input_nodes = 9;
-    public static final int hidden_nodes = 20;
+    public static final int input_nodes = 12;
+    public static final int hidden_nodes = 40;
     public static final int output_nodes = 3;                   //two output nodes with the steer coordinates (x,y)
 
     //Constructors
@@ -77,7 +77,10 @@ public class Rabbit extends Animal {
     }
     public Rabbit(){
         super();
-        this.dna = new DNA(12);
+        this.dna = new DNA(5);
+        this.dna.genes[2] += 1;
+        this.dna.genes[3] += 1;
+        this.dna.genes[4] += 1;
         this.decodeDNA();
         this.health = STARTING_HEALTH;
 
@@ -149,25 +152,16 @@ public class Rabbit extends Animal {
 
         this.think();
 
-        if(this.target != null) this.collision(this.target);
-
-        /*
-        for(Plant p : Plants) {
-            if(this.transform.getRectangle().intersects(p.transform.getRectangle())){
-                p.health -= DAMAGE;                         //reduce plants health to 0
-                this.health += (p.transform.size * Grass.ENERGY_FACTOR) + Grass.BASE_ENERGY_PROVIDED;     //gain health
-            }
-
-        }
-         */
-
         this.transform.velocity.add(this.transform.acceleration);
         this.transform.velocity.limit(maxSpeed);
         this.transform.location.add(this.transform.velocity);
         this.transform.acceleration.mult(0);
 
+        if(this.target != null) this.collision(this.target);
+
         this.reproduce();
 
+        //TODO: remove and add an input to the NN with the closest border distance
         this.borders2();
         this.health -= DMG_PER_TICK;
 
@@ -178,18 +172,28 @@ public class Rabbit extends Animal {
         //search the closest Food
         ArrayList foods = CFrame.getGridFields(this.transform.location, pGrid);
         Organism closestFood = this.searchFood(foods);
+
         //TODO: think of a better solution / placeholder when there is no food in sensory radius
         Vector2D closestFoodPosition = new Vector2D();      //if there is no food in sensory radius just return the null vector
-        //put the vector in relation to the position
-        if (closestFood != null)  closestFoodPosition = closestFood.transform.location.sub(this.transform.location);
+        double distanceClosestFood = 0;                     //if there is no food set distance to 0
+
+        if (closestFood != null)  {
+            closestFoodPosition = closestFood.transform.location.sub(this.transform.location); //put the vector in relation to the position
+            distanceClosestFood = closestFoodPosition.mag();
+        }
 
         //search the closest Food
         ArrayList hunters = CFrame.getGridFields(this.transform.location, fGrid);
         Organism closestHunter = this.searchHunter(hunters);
+
         //TODO: think of a better solution / placeholder when there is no hunter in sensory radius
-        Vector2D closestHunterPosition = new Vector2D(); //if there is no hunter in sensory radius just return the null vector
-        //put the vector in relation to the position
-        if (closestHunter != null)  closestHunterPosition = closestFood.transform.location.sub(this.transform.location);
+        Vector2D closestHunterPosition = new Vector2D();    //if there is no hunter in sensory radius just return the null vector
+        double distanceClosestHunter = 0;                   //if there is no hunter distance is 0
+
+        if (closestHunter != null)  {
+            closestHunterPosition = closestHunter.transform.location.sub(this.transform.location); //put the vector in relation to the position
+            distanceClosestHunter = closestHunterPosition.mag();
+        }
 
         /*
         //Organism closestFood = this.searchFood(CFrame.getGridFields(this.transform.location, CFrame.pGrid));
@@ -212,10 +216,13 @@ public class Rabbit extends Animal {
                 closestHunterPosition.x, closestHunterPosition.y,
                 this.health,
                 foods.size(),
-                hunters.size()
+                hunters.size(),
+                this.transform.size,
+                distanceClosestFood,
+                distanceClosestHunter
         };
         double[] outputs = this.nn.predict(inputs);
-        this.transform.applyForce(new Vector2D(outputs[0], outputs[1]).setMag(outputs[2]).limit(this.maxForce));
+        this.transform.applyForce(new Vector2D(outputs[0], outputs[1]).setMag(outputs[2]*this.maxForce).limit(this.maxForce));
     }
 
     /**
@@ -304,9 +311,11 @@ public class Rabbit extends Animal {
         //check if the two collide
         if(this.transform.location.dist(food.transform.location) <= this.transform.getR() + food.transform.getR()){
             //TODO: maybe make this dependant on attributes of the Rabbit (size, ect)
-            food.health -= DAMAGE;                         //reduce plants health to 0
+            //food.takeDamage(DAMAGE);                     //reduce plants health to 0
             this.health += (food.transform.size * Grass.ENERGY_FACTOR) + Grass.BASE_ENERGY_PROVIDED;     //gain health
-            if(food.health <= 0) target = null;            //remove target
+            if(food.dead()){
+                target = null;            //remove target
+            }
         }
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
