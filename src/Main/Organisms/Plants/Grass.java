@@ -5,8 +5,8 @@ import Main.Helper.Vector2D;
 import java.awt.*;
 
 public class Grass extends Plant {
-    public static final double ENERGY_FACTOR = 100;              //the factor that the eating of a Grass gives
-    public static final double BASE_ENERGY_PROVIDED = 50;        //base energy that eating a Grass gives
+    public static final double ENERGY_FACTOR = 10;              //the factor that the eating of a Grass gives
+    public static final double BASE_ENERGY_PROVIDED = 20;        //base energy that eating a Grass gives
     public static final double GROWTH_INTERVAL = 50;            //Interval at which Growth happens
     public static final double GROWTH = .1;                     //Rate at which a Grass grows
     public static final double BASE_SIZE = 3;                   //Base size of a Grass

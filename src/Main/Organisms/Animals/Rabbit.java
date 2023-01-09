@@ -22,7 +22,7 @@ public class Rabbit extends Animal {
     );
     public static int totalAmountOfRabbits = 0;                 //total amount of Rabbits naturally born
 
-    public static final int MAX_HEALTH = 400;                   //maximum health for all Rabbits
+    public static final int MAX_HEALTH = 300;                   //maximum health for all Rabbits
     public static final int STARTING_HEALTH = MAX_HEALTH/2;              //starting health of a Rabbit
     public static final int MAX_HUNTING_HEALTH = MAX_HEALTH;           //above this threshold the Rabbit will stop looking food
     public static final double[][] HEALTH_REPRODUCTION_BONUS = new double[][]{
@@ -37,7 +37,7 @@ public class Rabbit extends Animal {
 
     public static final double BASE_SIZE = 5;                   //Base size of a Rabbit
     public Color col = new Color(121, 83, 71, 200);
-    public static final double DMG_PER_TICK = 3;                //Damage each Rabbit takes each tick
+    public static final double DMG_PER_TICK = 5;                //Damage each Rabbit takes each tick
 
     public static final double ENERGY_FACTOR = 300;             //the factor that the eating of a Rabbit gives
     public static final double BASE_ENERGY_PROVIDED = 100;        //base energy that eating a Rabbit gives
@@ -178,7 +178,7 @@ public class Rabbit extends Animal {
         double distanceClosestFood = 0;                     //if there is no food set distance to 0
 
         if (closestFood != null)  {
-            closestFoodPosition = closestFood.transform.location.sub(this.transform.location); //put the vector in relation to the position
+            closestFoodPosition = Vector2D.sub(closestFood.transform.location,this.transform.location); //put the vector in relation to the position
             distanceClosestFood = closestFoodPosition.mag();
         }
 
@@ -191,23 +191,9 @@ public class Rabbit extends Animal {
         double distanceClosestHunter = 0;                   //if there is no hunter distance is 0
 
         if (closestHunter != null)  {
-            closestHunterPosition = closestHunter.transform.location.sub(this.transform.location); //put the vector in relation to the position
+            closestHunterPosition = Vector2D.sub(closestHunter.transform.location,this.transform.location); //put the vector in relation to the position
             distanceClosestHunter = closestHunterPosition.mag();
         }
-
-        /*
-        //Organism closestFood = this.searchFood(CFrame.getGridFields(this.transform.location, CFrame.pGrid));
-        Organism closestFood = searchPlant(Plants);
-        Vector2D closestFoodPos;
-        if(closestFood == null) closestFoodPos = new Vector2D();
-        else closestFoodPos = closestFood.transform.location;
-
-        //Organism closesHunter = this.searchFood(CFrame.getGridFields(this.transform.location, CFrame.fGrid));
-        Organism closesHunter = searchHunter(Foxes);
-        Vector2D closestHunterPos;
-        if(closesHunter == null) closestHunterPos = new Vector2D();
-        else closestHunterPos = closesHunter.transform.location;
-         */
 
         //set inputs
         double[] inputs = new double[]{
@@ -237,30 +223,6 @@ public class Rabbit extends Animal {
         assert !this.dead() : "This is dead";
 
         Organism closestFood = null;
-        /*
-        //if there is a target and the Rabbit is hungry enough to look for food
-        if(target != null && this.health <= MAX_HUNTING_HEALTH) {
-            this.transform.applyForce(seek(target.getLocation()));
-            if (collision(target)) target = searchFood(organisms);
-        }
-        //else look for food
-        else{
-            double closestDistance = Double.POSITIVE_INFINITY;
-            for(Organism o : organisms){
-                //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
-                assert o.getClass() == Grass.class;             //check if the target is a Grass
-
-                double distance = Vector2D.sub(o.transform.location, this.transform.location).magSq();                //if the distance is smaller than the current closest distance and smaller than the viewDistance
-                //if the distance is smaller than the current closest distance and smaller than the viewDistance
-                if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
-                    closestDistance = distance;
-                    closestFood = o;
-                }
-            }
-            if(closestFood != null) assert closestFood.getClass() == Grass.class;   //check if the target is a Grass
-            this.target = closestFood;
-        }
-         */
         double closestDistance = Double.POSITIVE_INFINITY;
         for(Organism o : organisms){
             assert o.getClass() == typeOfFood.getClass();         //check if the target is possible food
@@ -311,7 +273,7 @@ public class Rabbit extends Animal {
         //check if the two collide
         if(this.transform.location.dist(food.transform.location) <= this.transform.getR() + food.transform.getR()){
             //TODO: maybe make this dependant on attributes of the Rabbit (size, ect)
-            //food.takeDamage(DAMAGE);                     //reduce plants health to 0
+            food.takeDamage(DAMAGE);                     //reduce plants health to 0
             this.health += (food.transform.size * Grass.ENERGY_FACTOR) + Grass.BASE_ENERGY_PROVIDED;     //gain health
             if(food.dead()){
                 target = null;            //remove target

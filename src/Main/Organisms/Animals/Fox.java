@@ -169,20 +169,20 @@ public class Fox extends Animal {
     /**
      * This method checks if a Fox collides with his Prey and if so deal damage and gain health if the prey is dead
      * PRE-CONDITION: the Prey needs to be of the correct class, this mustn't be dead
-     * @param Prey the target that should be checked for a collision with
+     * @param prey the target that should be checked for a collision with
      * @return true if the prey is dead
      */
     @Override
-    public boolean collision(Organism Prey) {
+    public boolean collision(Organism prey) {
         //TODO: create a Prey variable that holds the class of all huntable / eatable / fightable organisms
         assert !this.dead() : "This is dead";                                            //check if this is dead
-        assert Prey.getClass() == Rabbit.class;                                         //check if the target is a Rabbit
+        assert prey.getClass() == Rabbit.class;                                         //check if the target is a Rabbit
 
         //check if the two collide
-        if(this.transform.getRectangle().intersects(Prey.transform.getRectangle())){
-            Prey.takeDamage(DAMAGE);                       //reduce plants health to 0
-            this.health += (Prey.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;     //gain health
-            if(Prey.dead()) target = null;            //remove target
+        if(this.transform.getRectangle().intersects(prey.transform.getRectangle())){
+            prey.takeDamage(DAMAGE);                       //reduce plants health to 0
+            this.health += (prey.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;     //gain health
+            if(prey.dead()) target = null;            //remove target
         }
         /*
         if(this.transform.location.dist(Prey.transform.location) <= this.transform.getR() + Prey.transform.getR()){

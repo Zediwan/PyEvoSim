@@ -78,11 +78,11 @@ public class CFrame extends JPanel implements ActionListener {
 
     public void initiate(){
         //initiate the grids
-        for(int i=0;i<numFieldsY;i++) {
+        for(int i1=0;i1<numFieldsY;i1++) {
             for (int i2 = 0; i2 < numFieldsX; i2++) {
-                rGrid[i][i2] = new ArrayList<>();
-                pGrid[i][i2] = new ArrayList<>();
-                fGrid[i][i2] = new ArrayList<>();
+                rGrid[i1][i2] = new ArrayList<>();
+                pGrid[i1][i2] = new ArrayList<>();
+                fGrid[i1][i2] = new ArrayList<>();
             }
         }
         //initiate the organisms
@@ -113,7 +113,9 @@ public class CFrame extends JPanel implements ActionListener {
         //TODO: refactor these into a method or something
         for(int i = Plants.size()-1; i >= 0; i--){
             Plant p = Plants.get(i);
-            if(p.dead()) Plants.remove(p);
+            if(p.dead()) {
+                Plants.remove(i);
+            }
             else{
                 //Define Grid position
                 int[] grid = getGrid(p.transform.location);
