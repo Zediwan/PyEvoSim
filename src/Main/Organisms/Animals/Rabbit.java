@@ -47,8 +47,8 @@ public class Rabbit extends Animal {
 
     //Neural Network
     /** Input Node Description
-     * 1: this.x
-     * 2: this.y
+     * 1: (this.x)
+     * 2: (this.y)
      * 3: closestPlant.x
      * 4: closestPlant.y
      * 5: closestHunter.x
@@ -59,8 +59,11 @@ public class Rabbit extends Animal {
      * 10: this.size
      * 11: distance to closest food
      * 12: distance to closest hunter
+     * 13: distance to closest x-Axis border
+     * 14: distance to closest y-Axis border
+     * 15: distance to centre
      */
-    public static final int input_nodes = 12;
+    public static final int input_nodes = 13;
     public static final int hidden_nodes = 40;
     public static final int output_nodes = 3;                   //two output nodes with the steer coordinates (x,y)
 
@@ -162,7 +165,7 @@ public class Rabbit extends Animal {
         this.reproduce();
 
         //TODO: remove and add an input to the NN with the closest border distance
-        this.borders2();
+        //this.borders2();
         this.health -= DMG_PER_TICK;
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
@@ -195,9 +198,20 @@ public class Rabbit extends Animal {
             distanceClosestHunter = closestHunterPosition.mag();
         }
 
+        //calculate distance to borders
+        //calculate closest x Border
+        double distanceXB = Double.POSITIVE_INFINITY;
+        if(this.transform.location.x >= WIDTH/2) distanceXB = WIDTH-this.transform.location.x;
+        else distanceXB = this.transform.location.x;
+        //calculate closest y Border
+        double distanceYB = Double.POSITIVE_INFINITY;
+        if(this.transform.location.y >= HEIGHT/2) distanceXB = HEIGHT-this.transform.location.y;
+        else distanceXB = this.transform.location.y;
+
+
         //set inputs
         double[] inputs = new double[]{
-                this.transform.getLocX(), this.transform.getLocY(),
+                //this.transform.getLocX(), this.transform.getLocY(),
                 closestFoodPosition.x, closestFoodPosition.y,
                 closestHunterPosition.x, closestHunterPosition.y,
                 this.health,
@@ -205,10 +219,12 @@ public class Rabbit extends Animal {
                 hunters.size(),
                 this.transform.size,
                 distanceClosestFood,
-                distanceClosestHunter
+                distanceClosestHunter,
+                distanceXB,distanceYB,
+                Vector2D.sub(this.transform.location, new Vector2D(WIDTH,HEIGHT)).mag()
         };
         double[] outputs = this.nn.predict(inputs);
-        this.transform.applyForce(new Vector2D(outputs[0], outputs[1]).setMag(outputs[2]*this.maxForce).limit(this.maxForce));
+        this.transform.applyForce(new Vector2D(outputs[0]-.5, outputs[1]-.5).setMag(outputs[2]*this.maxForce).limit(this.maxForce));
     }
 
     /**

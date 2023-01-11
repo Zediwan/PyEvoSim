@@ -50,16 +50,16 @@ public class CFrame extends JPanel implements ActionListener {
     //SIMULATION VARIABLES
     //AMOUNT OF STARTING ENTITIES
     private final int STARTING_RABBITS = 10;
-    private final int STARTING_FOXES = 0;
+    private final int STARTING_FOXES = 2;
     private final int STARTING_PLANTS = 10000;
 
-    private final int MIN_NUM_RABBITS = 20;          //The amount at which the system starts spawning new Rabbits
-    private final int MIN_NUM_FOXES = 0;            //The amount at which the system starts spawning new Foxes
+    private final int MIN_NUM_RABBITS = 2;          //The amount at which the system starts spawning new Rabbits
+    private final int MIN_NUM_FOXES = 2;            //The amount at which the system starts spawning new Foxes
     private final int MAX_NUM_PLANTS = WIDTH*HEIGHT/40;//The maximum amount of Plants allowed in the simulation at once
 
     private final int NUM_NEW_PLANTS = 10;          //The amount of new Plants being spawned each tick
     private final int NUM_NEW_RABBITS = 5;          //The amount of new Rabbits being spawned each tick
-    private final int NUM_NEW_FOXES = 0;            //The amount of new Foxes being spawned each tick
+    private final int NUM_NEW_FOXES = 2;            //The amount of new Foxes being spawned each tick
 
 
     public CFrame(){
