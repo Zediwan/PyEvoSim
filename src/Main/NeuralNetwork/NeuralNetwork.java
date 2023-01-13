@@ -6,6 +6,7 @@ import java.util.function.Function;
 public class NeuralNetwork{
     //TODO: add toString method
     //TODO: add paint visualization
+    //TODO: remove the activation function (as it should not be needed for this?)
 
     //Amount of nodes
     public final int output_nodes;

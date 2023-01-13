@@ -259,6 +259,27 @@ public class Vector2D {
     }
 
     /**
+     * Calculates the distance squared between two vectors
+     * Used for better performance
+     * @param v the other vector
+     * @return the distance
+     */
+    public double distSq(Vector2D v){
+        return Vector2D.sub(v,this).magSq();
+    }
+
+    /**
+     * Calculates the distance squared between two vectors
+     * Used for better performance
+     * @param v1 first vector
+     * @param v2 second vector
+     * @return the distance between the vectors
+     */
+    public static double distSq(Vector2D v1, Vector2D v2){
+        return Vector2D.sub(v1,v2).magSq();
+    }
+
+    /**
      * Limit the magnitude of this vector to the value used for the max parameter.
      * NOTE: Changes the vector on which this method is called
      * @param max magnitude of the vector
