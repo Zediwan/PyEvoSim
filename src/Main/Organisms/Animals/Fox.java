@@ -7,7 +7,6 @@ import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
-import Main.Organisms.Plants.Grass;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -23,19 +22,19 @@ public class Fox extends Animal {
             "size", "maxSpeed", "maxForce", "viewDistance"
             }
     );
-    public static int totalAmountOfFoxes = 0;                       //total amount of Foxes ever born
+    public static int totalAmount = 0;                       //total amount of Foxes ever born
 
     //Physical attributes
     public Color col = new Color(237, 150, 11, 200);    //Standard color
     public static final double BASE_SIZE = 7;                       //Base size
     public static final double BASE_MAX_SPEED = 2;                  //Base max speed
     public static final double BASE_MAX_FORCE = 1;                  //Base max force
-    public static final double BASE_VIEW_DISTANCE_FACTOR = 1;       //Base view Distance
+    public static final double BASE_VIEW_DISTANCE_FACTOR = 3;       //Base view Distance
 
     //Health
-    public static final int MAX_HEALTH = 300;                      //maximum health for all Foxes
-    public static final int STARTING_HEALTH = MAX_HEALTH / 2;       //starting health of a Fox
-    public static final int MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the animal will stop hunting food
+    public static final double MAX_HEALTH = 2000;                      //maximum health for all Foxes
+    public static final double STARTING_HEALTH = MAX_HEALTH / 2;       //starting health of a Fox
+    public static final double MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the animal will stop hunting food
     public static final double DMG_PER_TICK = 3;                    //Damage each Fox takes each tick
 
     //Reproduction
@@ -88,16 +87,16 @@ public class Fox extends Animal {
 
     //Constructors
     //this is being used when a fox is born by its parent
-    public Fox(Transform transform, float health, DNA dna, NeuralNetwork nn){
+    public Fox(Transform transform, double health, DNA dna, NeuralNetwork nn){
         super(transform, health, dna);
-        this.decodeDNA();                                           //initialize DNA
+        this.decodeDNA();                                       //initialize DNA
 
         //start with a random velocity
         this.transform.velocity = Vector2D.randLimVec((Math.random()-.5),
                 (Math.random()-.5)).setMag(this.maxSpeed);
 
-        sumDNA.addToAVG(this.sumDNA,totalAmountOfFoxes, this.dna);  //add this DNA to the collection
-        totalAmountOfFoxes++;                                       //increase counter
+        sumDNA.addToAVG(this.sumDNA, totalAmount, this.dna);    //add this DNA to the collection
+        totalAmount++;                                          //increase counter
 
         //NN
         this.nn = nn;
@@ -107,21 +106,20 @@ public class Fox extends Animal {
     public Fox(){
         super();
         this.dna = new DNA(4);
-        this.decodeDNA();                                           //initialize DNA
-
         this.dna.genes[0] += BASE_SIZE;
         this.dna.genes[1] += BASE_MAX_SPEED;
         this.dna.genes[2] += BASE_MAX_FORCE;
         this.dna.genes[3] += BASE_VIEW_DISTANCE_FACTOR;
+        this.decodeDNA();                                       //initialize DNA
 
-        this.health = STARTING_HEALTH;                              //set starting health
+        this.health = STARTING_HEALTH;                          //set starting health
 
         //start with a random velocity
         this.transform.velocity = Vector2D.randLimVec((Math.random()-.5),
                 (Math.random()-.5)).setMag(this.maxSpeed);
 
-        sumDNA.addToAVG(this.sumDNA,totalAmountOfFoxes, this.dna);  //add this DNA to the collection
-        totalAmountOfFoxes++;                                       //increase counter
+        sumDNA.addToAVG(this.sumDNA, totalAmount, this.dna);    //add this DNA to the collection
+        totalAmount++;                                          //increase counter
 
         //NN
         this.nn = new NeuralNetwork(this.input_nodes, this.hidden_nodes,this.output_nodes);
@@ -319,9 +317,9 @@ public class Fox extends Animal {
         if(this.transform.location.distSq(food.transform.location) <= Math.pow(this.transform.getR() + food.transform.getR(), 2)){
             //TODO: maybe make the damage dependant on attributes of the Fox (size, ect)
             food.takeDamage(DAMAGE);                    //reduce plants health to 0
-            this.health += (food.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;     //gain health
             //remove target if it is dead
             if(food.dead()){
+                this.health += (food.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;     //gain health
                 target = null;
             }
         }
@@ -358,7 +356,7 @@ public class Fox extends Animal {
             if(Math.random() <= NN_MUTATION_CHANCE) childNN.mutate();   //mutate NN if chance occurs
 
             Transform t = this.transform.clone();                       //Copy this transform
-            Fox child = new Fox(t,MAX_HEALTH, childDNA,childNN);        //Create child
+            Fox child = new Fox(t,STARTING_HEALTH, childDNA,childNN);        //Create child
             Foxes.add(child);                                           //Add a new organism
             CFrame.currentTrackedF = child;                             //make this the tracked organism
         }

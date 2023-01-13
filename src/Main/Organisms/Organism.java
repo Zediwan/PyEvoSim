@@ -16,7 +16,7 @@ public abstract class Organism {
     //TODO: set a timescale for the age according to sys-time
     //float age = 0;
 
-    public Organism(Transform transform, float health, DNA dna){
+    public Organism(Transform transform, double health, DNA dna){
         this.transform = transform;
         this.health = health;
         this.dna = dna;

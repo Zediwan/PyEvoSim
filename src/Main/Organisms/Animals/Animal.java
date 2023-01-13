@@ -19,7 +19,7 @@ public abstract class Animal extends Organism {
 
 
     //Constructors
-    public Animal(Transform transform, float health, DNA dna){
+    public Animal(Transform transform, double health, DNA dna){
         super(transform,health,dna);
     }
     public Animal(){

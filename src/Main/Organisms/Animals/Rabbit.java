@@ -21,7 +21,7 @@ public class Rabbit extends Animal {
             "size", "maxSpeed", "maxForce", "viewDistance",
             }
     );
-    public static int totalAmountOfRabbits = 0;                 //total amount of Rabbits ever born
+    public static int totalAmount = 0;                 //total amount of Rabbits ever born
 
     //Physical attributes
     public Color col = new Color(121, 83, 71, 200); //standard color
@@ -31,9 +31,9 @@ public class Rabbit extends Animal {
     public static final double BASE_VIEW_DISTANCE_FACTOR = 1;   //Base view Distance
 
     //Health
-    public static final int MAX_HEALTH = 300;                   //maximum health for all Rabbits
-    public static final int STARTING_HEALTH = MAX_HEALTH/2;     //starting health of a Rabbit
-    public static final int MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the Rabbit will stop looking food
+    public static final double MAX_HEALTH = 300;                   //maximum health for all Rabbits
+    public static final double STARTING_HEALTH = MAX_HEALTH/2;     //starting health of a Rabbit
+    public static final double MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the Rabbit will stop looking food
     public static final double DMG_PER_TICK = 5;                //Damage taken each tick
 
     //Reproduction
@@ -55,7 +55,7 @@ public class Rabbit extends Animal {
     //Nutrition
     //TODO: transform into a list to allow multiple hunters
     public static Organism typeOfHunter = new Fox();            //animals this is hunted by
-    public static final double ENERGY_FACTOR = 300;             //the factor that the eating of a Rabbit gives
+    public static final double ENERGY_FACTOR = 500;             //the factor that the eating of a Rabbit gives
     public static final double BASE_ENERGY_PROVIDED = 500;      //base energy that eating a Rabbit gives
 
     //Neural Network
@@ -90,12 +90,12 @@ public class Rabbit extends Animal {
 
     //Constructors
     //this is being used when a rabbit is born by its parent
-    public Rabbit(Transform transform, float health, DNA dna, NeuralNetwork nn){
+    public Rabbit(Transform transform, double health, DNA dna, NeuralNetwork nn){
         super(transform, health, dna);
-        this.decodeDNA();                                               //initialize DNA
+        this.decodeDNA();                                       //initialize DNA
 
-        sumDNA.addToAVG(this.sumDNA,totalAmountOfRabbits, this.dna);    //add this DNA to the collection
-        totalAmountOfRabbits++;                                         //increase counter
+        sumDNA.addToAVG(this.sumDNA, totalAmount, this.dna);    //add this DNA to the collection
+        totalAmount++;                                          //increase counter
 
         //NN
         this.nn = nn;
@@ -105,17 +105,16 @@ public class Rabbit extends Animal {
     public Rabbit(){
         super();
         this.dna = new DNA(4);
-        this.decodeDNA();                                               //initialize DNA
-
         this.dna.genes[0] += BASE_SIZE;
         this.dna.genes[1] += BASE_MAX_SPEED;
         this.dna.genes[2] += BASE_MAX_FORCE;
         this.dna.genes[3] += BASE_VIEW_DISTANCE_FACTOR;
+        this.decodeDNA();                                       //initialize DNA
 
-        this.health = STARTING_HEALTH;                                  //set starting health
+        this.health = STARTING_HEALTH;                          //set starting health
 
-        sumDNA.addToAVG(this.sumDNA,totalAmountOfRabbits, this.dna);    //add this DNA to the collection
-        totalAmountOfRabbits++;                                         //increase counter
+        sumDNA.addToAVG(this.sumDNA, totalAmount, this.dna);    //add this DNA to the collection
+        totalAmount++;                                          //increase counter
 
         //NN
         this.nn = new NeuralNetwork(this.input_nodes, this.hidden_nodes,this.output_nodes);
@@ -355,7 +354,7 @@ public class Rabbit extends Animal {
             if(Math.random() <= NN_MUTATION_CHANCE) childNN.mutate();   //mutate NN if chance occurs
 
             Transform t = this.transform.clone();                       //Copy this transform
-            Rabbit child = new Rabbit(t,MAX_HEALTH, childDNA,childNN);  //Create child
+            Rabbit child = new Rabbit(t,STARTING_HEALTH, childDNA,childNN);  //Create child
             CFrame.Rabbits.add(child);                                  //Add a new organism
             CFrame.currentTrackedR = child;                             //make this the tracked organism
         }

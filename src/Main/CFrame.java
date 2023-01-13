@@ -1,10 +1,8 @@
 package Main;
 import Main.Helper.Vector2D;
-import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Animals.Animal;
 import Main.Organisms.Animals.Fox;
 import Main.Organisms.Animals.Rabbit;
-import Main.Organisms.Attributes.DNA;
 import Main.Organisms.Plants.Grass;
 import Main.Organisms.Plants.Plant;
 import javax.swing.*;
@@ -20,9 +18,11 @@ import java.util.Random;
 public class CFrame extends JPanel implements ActionListener {
     public static Random random = new Random();
     //NeuralNetwork nn1 = new NeuralNetwork(2,12,1);
-    public static Animal currentTrackedR;
-    public static Fox currentTrackedF;
     //NeuralNetwork nn2 = new NeuralNetwork(2,12,1);
+    public static Animal currentTrackedR;
+    public static double avgRHealth = 0;
+    public static Animal currentTrackedF;
+    public static double avgFHealth = 0;
 
     //TODO: find out what this is for
     static final int TIME_PERIOD = 24;
@@ -50,12 +50,12 @@ public class CFrame extends JPanel implements ActionListener {
 
     //SIMULATION VARIABLES
     //AMOUNT OF STARTING ENTITIES
-    private final int STARTING_RABBITS = 10;
-    private final int STARTING_FOXES = 2;
+    private final int STARTING_RABBITS = 100;
+    private final int STARTING_FOXES = 0;
     private final int STARTING_PLANTS = 10000;
 
-    private final int MIN_NUM_RABBITS = 2;          //The amount at which the system starts spawning new Rabbits
-    private final int MIN_NUM_FOXES = 2;            //The amount at which the system starts spawning new Foxes
+    private final int MIN_NUM_RABBITS = 10;         //The amount at which the system starts spawning new Rabbits
+    private final int MIN_NUM_FOXES = 5;            //The amount at which the system starts spawning new Foxes
     private final int MAX_NUM_PLANTS = WIDTH*HEIGHT/40;//The maximum amount of Plants allowed in the simulation at once
 
     private final int NUM_NEW_PLANTS = 10;          //The amount of new Plants being spawned each tick
@@ -100,7 +100,10 @@ public class CFrame extends JPanel implements ActionListener {
     public void paint(Graphics g) {
         time += TIME_PERIOD;
         super.paintComponent(g);
+
+        //update tracked organisms if needed
         if(currentTrackedR.dead()) Rabbits.get(random.nextInt(Rabbits.size()));
+        //if(currentTrackedF.dead()) Foxes.get(random.nextInt(Foxes.size()));
 
         //clear all the grids
         for(int i = 0; i < numFieldsY; i++){
@@ -128,11 +131,15 @@ public class CFrame extends JPanel implements ActionListener {
                 p.update();
             }
         }
+
+        avgRHealth = 0;                 //Reset avg
         for(int i = Rabbits.size()-1; i >= 0; i--){
             Animal r = Rabbits.get(i);
             //Remove if rabbit is dead
             if(r.dead()) Rabbits.remove(i);
             else{
+                avgRHealth += r.getHealth();
+
                 //Define Grid position
                 int[] grid = getGrid(r.transform.location);
                 //Add to the correct grid
@@ -142,11 +149,16 @@ public class CFrame extends JPanel implements ActionListener {
                 r.update();
             }
         }
+        avgRHealth /= Rabbits.size();   //calc avg
+
+        avgFHealth = 0;                 //Reset avg
         for(int i = Foxes.size()-1; i >= 0; i--){
             Animal f = Foxes.get(i);
             //Remove if rabbit is dead
             if(f.dead()) Foxes.remove(i);
             else{
+                avgFHealth += f.getHealth();
+
                 //Define Grid position
                 int[] grid = getGrid(f.transform.location);
 
@@ -158,6 +170,7 @@ public class CFrame extends JPanel implements ActionListener {
                 f.update();
             }
         }
+        avgFHealth /= Foxes.size();     //calc avg
 
         //Spawning Foxes and Rabbits if less than the MIN are alive
         if(Foxes.size() <= MIN_NUM_FOXES) for(int i = 0; i< NUM_NEW_FOXES; i++) Foxes.add(new Fox());
@@ -194,36 +207,37 @@ public class CFrame extends JPanel implements ActionListener {
         //AVG DNA
         g.setColor(Color.BLACK);
         g.translate(CFrame.WIDTH, 15);
-        if(Fox.totalAmountOfFoxes > 0) {
-            g.setColor(Color.BLACK);
-            g.drawString("Avg F:  ", 0,0);
-            Fox.sumDNA.paint((Graphics2D) g, 50, 0);
-        }
+        g.drawString("Avg F:  ", 0,0);
+        Fox.sumDNA.paint((Graphics2D) g, 50, 0);
+
         g.setColor(Color.BLACK);
         g.translate(0,200);
         //Summary of Amount
         g.drawString("Amount of Foxes", 0, 0);
         g.drawString(": "+Foxes.size(), 150, 0);
         g.drawString("Total num of Foxes", 0, 15);
-        g.drawString(": "+Fox.totalAmountOfFoxes,150,15);
+        g.drawString(": "+Fox.totalAmount,150,15);
+        g.drawString("Average Health", 0, 30);
+        g.drawString(": "+Math.round(avgFHealth),150,30);
+
 
         //Rabbit information
         //DNA
         //AVG DNA
         g.setColor(Color.BLACK);
         g.translate(200,-200);
-        if(Rabbit.totalAmountOfRabbits > 0){
-            g.setColor(Color.BLACK);
-            g.drawString("Avg R:  ", 0,0);
-            Rabbit.sumDNA.paint((Graphics2D) g, 50, 0);
-        }
+        g.drawString("Avg R:  ", 0,0);
+        Rabbit.sumDNA.paint((Graphics2D) g, 50, 0);
+
         g.setColor(Color.BLACK);
         g.translate(0,200);
         //Summary of Amount
         g.drawString("Amount of Rabbits", 0, 0);
         g.drawString(": "+Rabbits.size(), 150, 0);
         g.drawString("Total num of Rabbits", 0, 15);
-        g.drawString(": "+Rabbit.totalAmountOfRabbits,150,15);
+        g.drawString(": "+Rabbit.totalAmount,150,15);
+        g.drawString("Average Health", 0, 30);
+        g.drawString(": "+Math.round(avgRHealth),150,30);
 
         //Plant information
         g.setColor(Color.BLACK);
