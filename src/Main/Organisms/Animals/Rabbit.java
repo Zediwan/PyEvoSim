@@ -26,8 +26,8 @@ public class Rabbit extends Animal {
     //Physical attributes
     public Color col = new Color(121, 83, 71, 200); //standard color
     public static final double BASE_SIZE = 5;                   //Base size
-    public static final double BASE_MAX_SPEED = 1;              //Base max speed
-    public static final double BASE_MAX_FORCE = 1;              //Base max force
+    public static final double BASE_MAX_SPEED = .1;              //Base max speed
+    public static final double BASE_MAX_FORCE = .1;              //Base max force
     public static final double BASE_VIEW_DISTANCE_FACTOR = 1;   //Base view Distance
 
     //Health
@@ -45,6 +45,7 @@ public class Rabbit extends Animal {
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
     public static final double DNA_MUTATION_CHANCE = .1;        //Chance for mutation of a single gene
+    public static double MUTATION_RANGE = .1;
     public static final double NN_MUTATION_CHANCE = .75;          //Chance for the whole NN to mutate
 
     //Hunting
@@ -78,7 +79,7 @@ public class Rabbit extends Animal {
      * distance to centre
      */
     public static final int input_nodes = 11;
-    public static final int hidden_nodes = 36;
+    public static final int hidden_nodes = 60;
     /**
      * Output Node Description
      * 1: x coodrinate steer
@@ -243,7 +244,6 @@ public class Rabbit extends Animal {
      * @return the Food
      */
     //TODO: consider health of an animal too, if a Prey is lower health it should get prioritized
-    //TODO: check if these methods cannot be refactored
     @Override
     public Organism searchFood(ArrayList<Organism> organisms) {
         assert !this.dead() : "This is dead";
@@ -347,7 +347,7 @@ public class Rabbit extends Animal {
         if(Math.random() <= birthChance){
             //DNA
             DNA childDNA = dna.copy();                                  //copy this DNA
-            childDNA.mutate(DNA_MUTATION_CHANCE);                       //mutate DNA if chance occurs
+            childDNA.mutate(DNA_MUTATION_CHANCE, MUTATION_RANGE);       //mutate DNA if chance occurs
 
             //NN
             NeuralNetwork childNN = this.nn.copy();                     //copy this NN

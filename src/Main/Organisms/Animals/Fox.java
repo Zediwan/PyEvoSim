@@ -27,15 +27,15 @@ public class Fox extends Animal {
     //Physical attributes
     public Color col = new Color(237, 150, 11, 200);    //Standard color
     public static final double BASE_SIZE = 7;                       //Base size
-    public static final double BASE_MAX_SPEED = 2;                  //Base max speed
-    public static final double BASE_MAX_FORCE = 1;                  //Base max force
+    public static double baseMaxSpeed = .4;                  //Base max speed
+    public static double baseMaxForce = .2;                  //Base max force
     public static final double BASE_VIEW_DISTANCE_FACTOR = 3;       //Base view Distance
 
     //Health
     public static final double MAX_HEALTH = 2000;                      //maximum health for all Foxes
     public static final double STARTING_HEALTH = MAX_HEALTH / 2;       //starting health of a Fox
     public static final double MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the animal will stop hunting food
-    public static final double DMG_PER_TICK = 3;                    //Damage each Fox takes each tick
+    public static final double DMG_PER_TICK = 10;                    //Damage each Fox takes each tick
 
     //Reproduction
     /** Holds the health amounts and the according reproduction bonuses gained by them (being added up) */
@@ -46,6 +46,7 @@ public class Fox extends Animal {
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;        //Base reproduction chance
     public static final double DNA_MUTATION_CHANCE = .5;            //Chance for mutation of a Gene
+    public static double MUTATION_RANGE = .5;
     public static final double NN_MUTATION_CHANCE = .75;            //Chance for the whole NN to mutate
 
     //Hunting
@@ -76,7 +77,7 @@ public class Fox extends Animal {
      * distance to centre
      */
     public static final int input_nodes = 8;
-    public static final int hidden_nodes = 40;
+    public static final int hidden_nodes = 60;
     /**
      * Output Node Description
      * 1: x coodrinate steer
@@ -107,8 +108,8 @@ public class Fox extends Animal {
         super();
         this.dna = new DNA(4);
         this.dna.genes[0] += BASE_SIZE;
-        this.dna.genes[1] += BASE_MAX_SPEED;
-        this.dna.genes[2] += BASE_MAX_FORCE;
+        this.dna.genes[1] += baseMaxSpeed;
+        this.dna.genes[2] += baseMaxForce;
         this.dna.genes[3] += BASE_VIEW_DISTANCE_FACTOR;
         this.decodeDNA();                                       //initialize DNA
 
@@ -349,7 +350,7 @@ public class Fox extends Animal {
         if(Math.random() <= birthChance){
             //DNA
             DNA childDNA = dna.copy();                                  //copy this DNA
-            childDNA.mutate(DNA_MUTATION_CHANCE);                       //mutate DNA if chance occurs
+            childDNA.mutate(DNA_MUTATION_CHANCE, MUTATION_RANGE);       //mutate DNA if chance occurs
 
             //NN
             NeuralNetwork childNN = this.nn.copy();                     //copy this NN

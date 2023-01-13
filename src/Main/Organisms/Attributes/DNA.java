@@ -40,6 +40,12 @@ public class DNA {
         }
     }
 
+    public void mutate(double mutationChance, double range) {
+        for(int i = 0; i < this.genes.length; i++){
+            if(Math.random() < mutationChance) this.genes[i] += this.rand.nextDouble(range)-range/2;
+        }
+    }
+
     public static DNA initiateSumDNA(int num, String[] names){
         //assert names.length <= num: "more names given than genes";
         DNA dna = new DNA();
