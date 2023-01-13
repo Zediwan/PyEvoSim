@@ -27,16 +27,16 @@ public class Fox extends Animal {
 
     //Physical attributes
     public Color col = new Color(237, 150, 11, 200);    //Standard color
-    public static final double BASE_SIZE = 7;                       //Base size
-    public static double baseMaxSpeed = .4;                  //Base max speed
-    public static double baseMaxForce = .2;                  //Base max force
+    public static final double BASE_SIZE = 5;                       //Base size
+    public static double baseMaxSpeed = .2;                  //Base max speed
+    public static double baseMaxForce = .1;                  //Base max force
     public static final double BASE_VIEW_DISTANCE_FACTOR = 3;       //Base view Distance
 
     //Health
-    public static final double MAX_HEALTH = 2000;                      //maximum health for all Foxes
+    public static final double MAX_HEALTH = 50;                      //maximum health for all Foxes
     public static final double STARTING_HEALTH = MAX_HEALTH / 2;       //starting health of a Fox
     public static final double MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the animal will stop hunting food
-    public static final double DMG_PER_TICK = 10;                    //Damage each Fox takes each tick
+    public static final double DMG_PER_TICK = .1;                    //Damage each Fox takes each tick
 
     //Reproduction
     /** Holds the health amounts and the according reproduction bonuses gained by them (being added up) */
@@ -46,12 +46,13 @@ public class Fox extends Animal {
             new double[]{.002,.001,.0005}                                   //bonus to reproduction
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;        //Base reproduction chance
-    public static final double DNA_MUTATION_CHANCE = .5;            //Chance for mutation of a Gene
+    public static final double DNA_MUTATION_CHANCE = .25;            //Chance for mutation of a Gene
     public static double MUTATION_RANGE = .5;
-    public static final double NN_MUTATION_CHANCE = .75;            //Chance for the whole NN to mutate
+    public static double STARTING_MUTATION_RANGE = .1;
+    public static final double NN_MUTATION_CHANCE = .5;            //Chance for the whole NN to mutate
 
     //Hunting
-    public static final double DAMAGE = Rabbit.MAX_HEALTH/2;        //damage an attack of a Fox does
+    public static final double DAMAGE = Rabbit.MAX_HEALTH/4;        //damage an attack of a Fox does
     //TODO: transform this into a list to allow multiple food types
     public static Organism typeOfFood = new Rabbit();               //eatable Organisms
 
@@ -107,7 +108,7 @@ public class Fox extends Animal {
     //TODO: maybe refactor this to just take in a parent?
     public Fox(){
         super();
-        this.dna = new DNA(4);
+        this.dna = new DNA(4, STARTING_MUTATION_RANGE);
         this.dna.genes[0] += BASE_SIZE;
         this.dna.genes[1] += baseMaxSpeed;
         this.dna.genes[2] += baseMaxForce;

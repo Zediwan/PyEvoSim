@@ -11,6 +11,10 @@ public class DNA {
     public double[] genes;
     public String[] names;
 
+    public DNA(int num, double range){
+        this.genes = new double[num];
+        for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(range)-(range/2);
+    }
     public DNA(int num){
         this.genes = new double[num];
         for(int i = 0; i < this.genes.length; i++) this.genes[i] = this.rand.nextDouble(2)-.9;

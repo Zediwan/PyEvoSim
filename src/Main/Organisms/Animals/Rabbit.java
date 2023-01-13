@@ -26,16 +26,16 @@ public class Rabbit extends Animal {
 
     //Physical attributes
     public Color col = new Color(121, 83, 71, 200); //standard color
-    public static final double BASE_SIZE = 5;                   //Base size
-    public static final double BASE_MAX_SPEED = .1;              //Base max speed
-    public static final double BASE_MAX_FORCE = .1;              //Base max force
+    public static final double BASE_SIZE = 3;                   //Base size
+    public static final double BASE_MAX_SPEED = .05;              //Base max speed
+    public static final double BASE_MAX_FORCE = .025;              //Base max force
     public static final double BASE_VIEW_DISTANCE_FACTOR = 1;   //Base view Distance
 
     //Health
-    public static final double MAX_HEALTH = 300;                   //maximum health for all Rabbits
+    public static final double MAX_HEALTH = 20;                   //maximum health for all Rabbits
     public static final double STARTING_HEALTH = MAX_HEALTH/2;     //starting health of a Rabbit
     public static final double MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the Rabbit will stop looking food
-    public static final double DMG_PER_TICK = 5;                //Damage taken each tick
+    public static final double DMG_PER_TICK = .1;                //Damage taken each tick
 
     //Reproduction
     /** Holds the health amounts and the according reproduction bonuses gained by them (being added up) */
@@ -45,9 +45,10 @@ public class Rabbit extends Animal {
             new double[]{.01,.005,.0025}                                    //bonus to reproduction
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
-    public static final double DNA_MUTATION_CHANCE = .1;        //Chance for mutation of a single gene
-    public static double MUTATION_RANGE = .1;
-    public static final double NN_MUTATION_CHANCE = .75;        //Chance for the whole NN to mutate
+    public static final double DNA_MUTATION_CHANCE = .05;        //Chance for mutation of a single gene
+    public static double MUTATION_RANGE = .01;
+    public static double STARTING_MUTATION_RANGE = .1;
+    public static final double NN_MUTATION_CHANCE = .5;        //Chance for the whole NN to mutate
 
     //Hunting
     public static final double DAMAGE = 10;                     //damage an attack of a Rabbit does
@@ -57,8 +58,8 @@ public class Rabbit extends Animal {
     //Nutrition
     //TODO: transform into a list to allow multiple hunters
     public static Organism typeOfHunter = new Fox();            //animals this is hunted by
-    public static final double ENERGY_FACTOR = 500;             //the factor that the eating of a Rabbit gives
-    public static final double BASE_ENERGY_PROVIDED = 500;      //base energy that eating a Rabbit gives
+    public static final double ENERGY_FACTOR = 10;             //the factor that the eating of a Rabbit gives
+    public static final double BASE_ENERGY_PROVIDED = 10;      //base energy that eating a Rabbit gives
 
     //Neural Network
     //TODO: reorder
@@ -106,7 +107,7 @@ public class Rabbit extends Animal {
     //TODO: maybe refactor this to just take in a parent?
     public Rabbit(){
         super();
-        this.dna = new DNA(4);
+        this.dna = new DNA(4, STARTING_MUTATION_RANGE);
         this.dna.genes[0] += BASE_SIZE;
         this.dna.genes[1] += BASE_MAX_SPEED;
         this.dna.genes[2] += BASE_MAX_FORCE;
@@ -316,7 +317,7 @@ public class Rabbit extends Animal {
         if(this.transform.location.distSq(food.transform.location) <= Math.pow(this.transform.getR() + food.transform.getR(), 2)){
             //TODO: maybe make the damage dependant on attributes of the Rabbit (size, ect)
             food.takeDamage(DAMAGE);                    //reduce plants health to 0
-            this.health += (food.transform.size * Grass.ENERGY_FACTOR) + Grass.BASE_ENERGY_PROVIDED;     //gain health
+            this.health += ((food.transform.size * Grass.ENERGY_FACTOR) + Grass.BASE_ENERGY_PROVIDED)*(DAMAGE/Grass.MAX_HEALTH);     //gain health
             //remove target if it is dead
             if(food.dead()){
                 target = null;
