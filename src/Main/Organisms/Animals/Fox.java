@@ -22,7 +22,8 @@ public class Fox extends Animal {
             "size", "maxSpeed", "maxForce", "viewDistance"
             }
     );
-    public static int totalAmount = 0;                       //total amount of Foxes ever born
+    public static int totalAmount = 0;                      //total amount of Foxes ever born
+    public static double totalAvgAge = 0;                     //total avg age
 
     //Physical attributes
     public Color col = new Color(237, 150, 11, 200);    //Standard color

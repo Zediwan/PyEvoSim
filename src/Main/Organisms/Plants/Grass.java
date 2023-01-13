@@ -12,6 +12,8 @@ public class Grass extends Plant {
     public static final double BASE_SIZE = 3;                   //Base size of a Grass
     public static final double HEALTH_REGENERATION = .1;        //Amount that is regenerated at once
     public static final double MAX_HEALTH = 100;                //Maximum health of a plant
+    public static int totalAmount = 0;                          //total amount of Rabbits ever born
+    public static double totalAvgAge = 0;                         //total avg age
     public Color col = new Color(150, 200, 20 ,125);
 
 
@@ -20,6 +22,8 @@ public class Grass extends Plant {
         super();
         this.growthInterval = GROWTH_INTERVAL;
         this.decodeDNA();
+
+        totalAmount++;
 
         this.health = MAX_HEALTH;
     }

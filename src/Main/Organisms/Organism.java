@@ -39,8 +39,11 @@ public abstract class Organism {
         return health <= 0 || this.transform.size <= 0;
     }
 
-    public long age(){
-        return (System.currentTimeMillis()-this.birt)/1000;
+    /**
+     * @return age in seconds
+     */
+    public double age(){
+        return ((double)System.currentTimeMillis()-(double)this.birt)/1000;
     }
 
     public Transform getTransform() {

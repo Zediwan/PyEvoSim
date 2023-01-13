@@ -20,9 +20,15 @@ public class CFrame extends JPanel implements ActionListener {
     //NeuralNetwork nn1 = new NeuralNetwork(2,12,1);
     //NeuralNetwork nn2 = new NeuralNetwork(2,12,1);
     public static Animal currentTrackedR;
-    public static double avgRHealth = 0;
     public static Animal currentTrackedF;
-    public static double avgFHealth = 0;
+
+    public double avgPHealth = 0;
+    public double avgRHealth = 0;
+    public double avgFHealth = 0;
+
+    public double avgPAge;
+    public double avgRAge = 0;
+    public double avgFAge = 0;
 
     //TODO: find out what this is for
     static final int TIME_PERIOD = 24;
@@ -114,13 +120,27 @@ public class CFrame extends JPanel implements ActionListener {
             }
         }
 
+        //Reset avg
+        avgPHealth = 0;
+        avgRHealth = 0;
+        avgFHealth = 0;
+
+        avgPAge = 0;
+        avgRAge = 0;
+        avgFAge = 0;
+
         //TODO: refactor these into a method or something
         for(int i = Plants.size()-1; i >= 0; i--){
             Plant p = Plants.get(i);
             if(p.dead()) {
+                Grass.totalAvgAge = (Grass.totalAmount*Grass.totalAvgAge + p.age())/(Grass.totalAmount+1);
                 Plants.remove(i);
             }
             else{
+                //add to avg
+                avgPHealth += p.getHealth();
+                avgPAge += p.age();
+
                 //Define Grid position
                 int[] grid = getGrid(p.transform.location);
 
@@ -131,14 +151,21 @@ public class CFrame extends JPanel implements ActionListener {
                 p.update();
             }
         }
+        //calc avg
+        avgPAge /= Plants.size();
+        avgPHealth /= Plants.size();
 
-        avgRHealth = 0;                 //Reset avg
         for(int i = Rabbits.size()-1; i >= 0; i--){
             Animal r = Rabbits.get(i);
             //Remove if rabbit is dead
-            if(r.dead()) Rabbits.remove(i);
+            if(r.dead()) {
+                Rabbit.totalAvgAge = (Rabbit.totalAmount*Rabbit.totalAvgAge + r.age())/(Rabbit.totalAmount+1);
+                Rabbits.remove(i);
+            }
             else{
+                //add to avg
                 avgRHealth += r.getHealth();
+                avgRAge += r.age();
 
                 //Define Grid position
                 int[] grid = getGrid(r.transform.location);
@@ -149,15 +176,22 @@ public class CFrame extends JPanel implements ActionListener {
                 r.update();
             }
         }
-        avgRHealth /= Rabbits.size();   //calc avg
+        //calc avg
+        avgRAge /= Rabbits.size();
+        avgRHealth /= Rabbits.size();
 
-        avgFHealth = 0;                 //Reset avg
+
         for(int i = Foxes.size()-1; i >= 0; i--){
             Animal f = Foxes.get(i);
             //Remove if rabbit is dead
-            if(f.dead()) Foxes.remove(i);
+            if(f.dead()) {
+                Fox.totalAvgAge = (Fox.totalAmount*Fox.totalAvgAge + f.age())/(Fox.totalAmount+1);
+                Foxes.remove(i);
+            }
             else{
+                //add to avg
                 avgFHealth += f.getHealth();
+                avgFAge += f.age();
 
                 //Define Grid position
                 int[] grid = getGrid(f.transform.location);
@@ -170,7 +204,9 @@ public class CFrame extends JPanel implements ActionListener {
                 f.update();
             }
         }
-        avgFHealth /= Foxes.size();     //calc avg
+        //calc avg
+        avgFAge /= Foxes.size();
+        avgFHealth /= Foxes.size();
 
         //Spawning Foxes and Rabbits if less than the MIN are alive
         if(Foxes.size() <= MIN_NUM_FOXES) {
@@ -211,8 +247,6 @@ public class CFrame extends JPanel implements ActionListener {
         nn2.train(input,target);
         nn2.paint((Graphics2D) g,-200,400, input, target);x
          */
-
-
     }
 
     public void paintStats(Graphics g){
@@ -228,12 +262,16 @@ public class CFrame extends JPanel implements ActionListener {
         g.setColor(Color.BLACK);
         g.translate(0,200);
         //Summary of Amount
-        g.drawString("Amount of Foxes", 0, 0);
+        g.drawString("Amount of Foxes", 0, 0);          //amount of foxes
         g.drawString(": "+Foxes.size(), 150, 0);
-        g.drawString("Total num of Foxes", 0, 15);
+        g.drawString("Total num of Foxes", 0, 15);      //total amount of foxes
         g.drawString(": "+Fox.totalAmount,150,15);
-        g.drawString("Average Health", 0, 30);
-        g.drawString(": "+Math.round(avgFHealth),150,30);
+        g.drawString("Average current Age", 0, 30);     //avg current age
+        g.drawString(": "+Math.round(avgFAge),150,30);
+        g.drawString("Average total Age", 0, 45);       //avg total age
+        g.drawString(": "+Math.round(Fox.totalAvgAge),150,45);
+        g.drawString("Average Health", 0, 60);          //avg health
+        g.drawString(": "+Math.round(avgFHealth),150,60);
 
 
         //Rabbit information
@@ -247,19 +285,31 @@ public class CFrame extends JPanel implements ActionListener {
         g.setColor(Color.BLACK);
         g.translate(0,200);
         //Summary of Amount
-        g.drawString("Amount of Rabbits", 0, 0);
+        g.drawString("Amount of Rabbits", 0, 0);        //amt of rabbits
         g.drawString(": "+Rabbits.size(), 150, 0);
-        g.drawString("Total num of Rabbits", 0, 15);
+        g.drawString("Total num of Rabbits", 0, 15);    //tot amt of rabbits
         g.drawString(": "+Rabbit.totalAmount,150,15);
-        g.drawString("Average Health", 0, 30);
-        g.drawString(": "+Math.round(avgRHealth),150,30);
+        g.drawString("Average current Age", 0, 30);     //avg current age
+        g.drawString(": "+Math.round(avgRAge),150,30);
+        g.drawString("Average total Age", 0, 45);       //avg total age
+        g.drawString(": "+Math.round(Rabbit.totalAvgAge),150,45);
+        g.drawString("Average Health", 0, 60);          //avg health
+        g.drawString(": "+Math.round(avgRHealth),150,60);
 
         //Plant information
         g.setColor(Color.BLACK);
         g.translate(200,0);
         //Summary of Amount
-        g.drawString("Amount of Plants", 0, 0);
+        g.drawString("Amount of Plants", 0, 0);         //amt of plants
         g.drawString(": "+Plants.size(), 150, 0);
+        g.drawString("Total num of Rabbits", 0, 15);    //tot amt of plants
+        g.drawString(": "+Grass.totalAmount,150,15);
+        g.drawString("Average current Age", 0, 30);     //avg current age
+        g.drawString(": "+Math.round(avgPAge),150,30);
+        g.drawString("Average total Age", 0, 45);       //avg total age
+        g.drawString(": "+Math.round(Grass.totalAvgAge),150,45);
+        g.drawString("Average Health", 0, 60);          //avg health
+        g.drawString(": "+Math.round(avgPHealth),150,60);
     }
 
     public int[] getGrid(Vector2D loc){
