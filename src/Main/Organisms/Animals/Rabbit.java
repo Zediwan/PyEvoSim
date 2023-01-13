@@ -64,7 +64,7 @@ public class Rabbit extends Animal {
      * 15: distance to centre
      */
     public static final int input_nodes = 13;
-    public static final int hidden_nodes = 40;
+    public static final int hidden_nodes = 36;
     public static final int output_nodes = 3;                   //two output nodes with the steer coordinates (x,y)
 
     //Constructors
