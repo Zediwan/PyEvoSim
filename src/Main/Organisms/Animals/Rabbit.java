@@ -33,7 +33,7 @@ public class Rabbit extends Animal {
     //Health
     public static final int MAX_HEALTH = 300;                   //maximum health for all Rabbits
     public static final int STARTING_HEALTH = MAX_HEALTH/2;     //starting health of a Rabbit
-    public static final int MAX_HUNTING_HEALTH = MAX_HEALTH;    //above this threshold the Rabbit will stop looking food
+    public static final int MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the Rabbit will stop looking food
     public static final double DMG_PER_TICK = 5;                //Damage taken each tick
 
     //Reproduction
@@ -50,7 +50,7 @@ public class Rabbit extends Animal {
     //Hunting
     public static final double DAMAGE = 10;                     //damage an attack of a Rabbit does
     //TODO: transform this into a list to allow multiple food types
-    public static Organism typeOfFood = new Grass();            //Plants this can eat
+    public static Organism typeOfFood = new Grass();            //eatable Organisms
 
     //Nutrition
     //TODO: transform into a list to allow multiple hunters
@@ -61,23 +61,21 @@ public class Rabbit extends Animal {
     //Neural Network
     //TODO: reorder
     /** Input Node Description
-     * 1: (this.x)
-     * 2: (this.y)
      * In relation to this position:
-     * 3: closestPlant.x
-     * 4: closestPlant.y
-     * 5: closestHunter.x
-     * 6: closestHunter.y
+     * closestPlant.x
+     * closestPlant.y
+     * closestHunter.x
+     * closestHunter.y
      * -------------------------------------
-     * 7: this.health
-     * 8: amount of food in sensory radius
-     * 9: amount of hunters in sensory radius
-     * 10: this.size
-     * 11: distance to closest food
-     * 12: distance to closest hunter
-     * 13: distance to closest x-Axis border
-     * 14: distance to closest y-Axis border
-     * 15: distance to centre
+     * this.health
+     * amount of food in sensory radius
+     * amount of hunters in sensory radius
+     * this.size
+     * distance to closest food
+     * distance to closest hunter
+     * distance to closest x-Axis border
+     * distance to closest y-Axis border
+     * distance to centre
      */
     public static final int input_nodes = 13;
     public static final int hidden_nodes = 36;

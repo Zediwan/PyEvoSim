@@ -6,12 +6,13 @@ import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
-import Main.Organisms.Plants.Grass;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class Fox extends Animal {
+    //TODO: maybe make food view distance and hunter viewDistance different?
+    //Summary
     public static DNA sumDNA = DNA.initiateSumDNA(11,
             new String[]{
             "NA","size", "maxSpeed", "maxForce", "viewDistance",
@@ -19,49 +20,93 @@ public class Fox extends Animal {
             "sepWeight", "aliWeight", "cohWeight"
             }
     );
-    public static int totalAmountOfFoxes = 0;                   //total amount of Foxes naturally born
+    public static int totalAmountOfFoxes = 0;                       //total amount of Foxes ever born
 
-    public static final int MAX_HEALTH = 1000;                  //maximum health for all Foxes
-    public static final int STARTING_HEALTH = 500;              //starting health of a Fox
-    public static final int MAX_HUNTING_HEALTH = 800;           //above this threshold the animal will stop hunting food
+    //Physical attributes
+    public Color col = new Color(237, 150, 11, 200);    //Standard color
+    public static final double BASE_SIZE = 7;                       //Base size
+    public static final double BASE_MAX_SPEED = 1;                  //Base max speed
+    public static final double BASE_MAX_FORCE = 1;                  //Base max force
+    public static final double BASE_VIEW_DISTANCE_FACTOR = 1;       //Base view Distance
+
+    //Health
+    public static final int MAX_HEALTH = 1000;                      //maximum health for all Foxes
+    public static final int STARTING_HEALTH = MAX_HEALTH / 2;       //starting health of a Fox
+    public static final int MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the animal will stop hunting food
+    public static final double DMG_PER_TICK = 3;                    //Damage each Fox takes each tick
+
+    //Reproduction
+    /** Holds the health amounts and the according reproduction bonuses gained by them (being added up) */
+    //TODO: make this a new class
     public static final double[][] HEALTH_REPRODUCTION_BONUS = new double[][]{
             new double[]{MAX_HEALTH*.75, MAX_HEALTH*.5, MAX_HEALTH*.25},    //health threshold at which there is a reproduction bonus
             new double[]{.002,.001,.0005}                                   //bonus to reproduction
     };
+    public static final double BASE_REPRODUCTION_CHANCE = 0;        //Base reproduction chance
+    public static final double DNA_MUTATION_CHANCE = .5;            //Chance for mutation of a Gene
+    public static final double NN_MUTATION_CHANCE = .75;            //Chance for the whole NN to mutate
 
-    public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
-    public static final double MUTATION_CHANCE = .5;            //Chance for mutation of a Gene
+    //Hunting
+    public static final double DAMAGE = Rabbit.MAX_HEALTH/2;        //damage an attack of a Fox does
+    //TODO: transform this into a list to allow multiple food types
+    public static Organism typeOfFood = new Rabbit();               //eatable Organisms
 
-    public static final double DAMAGE = Rabbit.MAX_HEALTH;                    //damage an attack of a Fox does
+    //Nutrition
+    //TODO: transform into a list to allow multiple hunters
+    public static Organism typeOfHunter = null;                     //animals this is hunted by
+    public static final double ENERGY_FACTOR = 100;                 //the factor that the eating of a Fox gives
+    public static final double BASE_ENERGY_PROVIDED = 0;            //base energy that eating a Fox gives
 
-    public static final double BASE_SIZE = 7;                   //Base size of a Fox
-    public Color col = new Color(237, 150, 11, 200);
-    public static final double DMG_PER_TICK = 3;                //Damage each Fox takes each tick
-
-    public static final double ENERGY_FACTOR = 100;             //the factor that the eating of a Fox gives
-    public static final double BASE_ENERGY_PROVIDED = 0;        //base energy that eating a Fox gives
-
-
+    //Neural Network
+    //TODO: reorder
+    /** Input Node Description
+     * In relation to this position:
+     * closestRabbit.x
+     * closestRabbit.y
+     * -------------------------------------
+     * this.health
+     * amount of food in sensory radius
+     * amount of other foxes in sensory radius
+     * this.size
+     * distance to closest food
+     * distance to closest x-Axis border
+     * distance to closest y-Axis border
+     * distance to centre
+     */
+    public static final int input_nodes = 10;
+    public static final int hidden_nodes = 40;
+    /**
+     * Output Node Description
+     * 1: x coodrinate steer
+     * 2: y coordinate steer
+     * 3: strength of steer
+     */
+    public static final int output_nodes = 3;
 
     //Constructors
+    //this is being used for repopulation by the system
     public Fox(Transform transform, float health, DNA dna){
         super(transform, health, dna);
         this.decodeDNA();                                           //initialize DNA
 
-        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
-                (Math.random()-.5)*5).limit(this.maxSpeed);   //start with a random velocity
+        //start with a random velocity
+        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5),
+                (Math.random()-.5)).setMag(this.maxSpeed);
 
         sumDNA.addToAVG(this.sumDNA,totalAmountOfFoxes, this.dna);  //add this DNA to the collection
         totalAmountOfFoxes++;                                       //increase counter
     }
+    //this is being used when a fox is born by its parent
     public Fox(){
         super();
         this.dna = new DNA(11);
         this.decodeDNA();                                           //initialize DNA
-        this.health = STARTING_HEALTH;
 
-        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5)*5,
-                (Math.random()-.5)*5).limit(this.maxSpeed);   //start with a random velocity
+        this.health = STARTING_HEALTH;                              //set starting health
+
+        //start with a random velocity
+        this.transform.velocity = Vector2D.randLimVec((Math.random()-.5),
+                (Math.random()-.5)).setMag(this.maxSpeed);
 
         sumDNA.addToAVG(this.sumDNA,totalAmountOfFoxes, this.dna);  //add this DNA to the collection
         totalAmountOfFoxes++;                                       //increase counter
@@ -218,7 +263,7 @@ public class Fox extends Animal {
         }
         if(Math.random() <= birthChance){
             DNA childDNA = dna.copy();                              //copy this DNA
-            childDNA.mutate(MUTATION_CHANCE);                       //mutate DNA if MUTATION_CHANCE occurs
+            childDNA.mutate(DNA_MUTATION_CHANCE);                       //mutate DNA if MUTATION_CHANCE occurs
             Transform t = this.transform.clone();                   //Copy this transform
             CFrame.Foxes.add(new Fox(t,MAX_HEALTH, childDNA));      //Add a new Fox
         }
