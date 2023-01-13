@@ -21,6 +21,7 @@ public class CFrame extends JPanel implements ActionListener {
     public static Random random = new Random();
     //NeuralNetwork nn1 = new NeuralNetwork(2,12,1);
     public static Animal currentTrackedR;
+    public static Fox currentTrackedF;
     //NeuralNetwork nn2 = new NeuralNetwork(2,12,1);
 
     //TODO: find out what this is for
@@ -153,10 +154,7 @@ public class CFrame extends JPanel implements ActionListener {
                 fGrid[grid[1]][grid[0]].add(f);
 
                 //Behavior
-                f.flock(getGridFields(f.transform.location, fGrid));
-                f.searchFood(getGridFields(f.transform.location, rGrid));
                 f.paint((Graphics2D)g);
-                f.reproduce();                                              //Reproduction
                 f.update();
             }
         }

@@ -16,9 +16,9 @@ public class Rabbit extends Animal {
     //TODO: maybe make food view distance and hunter viewDistance different?
     //Summary
     /** The summary DNA representing the average DNA of all Rabbits to ever exist during this run */
-    public static DNA sumDNA = DNA.initiateSumDNA(5,
+    public static DNA sumDNA = DNA.initiateSumDNA(4,
             new String[]{
-            "NA","size", "maxSpeed", "maxForce", "viewDistance",
+            "size", "maxSpeed", "maxForce", "viewDistance",
             }
     );
     public static int totalAmountOfRabbits = 0;                 //total amount of Rabbits ever born
@@ -56,7 +56,7 @@ public class Rabbit extends Animal {
     //TODO: transform into a list to allow multiple hunters
     public static Organism typeOfHunter = new Fox();            //animals this is hunted by
     public static final double ENERGY_FACTOR = 300;             //the factor that the eating of a Rabbit gives
-    public static final double BASE_ENERGY_PROVIDED = 100;      //base energy that eating a Rabbit gives
+    public static final double BASE_ENERGY_PROVIDED = 500;      //base energy that eating a Rabbit gives
 
     //Neural Network
     //TODO: reorder
@@ -77,7 +77,7 @@ public class Rabbit extends Animal {
      * distance to closest y-Axis border
      * distance to centre
      */
-    public static final int input_nodes = 13;
+    public static final int input_nodes = 11;
     public static final int hidden_nodes = 36;
     /**
      * Output Node Description
@@ -89,7 +89,7 @@ public class Rabbit extends Animal {
 
 
     //Constructors
-    //this is being used for repopulation by the system
+    //this is being used when a rabbit is born by its parent
     public Rabbit(Transform transform, float health, DNA dna, NeuralNetwork nn){
         super(transform, health, dna);
         this.decodeDNA();                                               //initialize DNA
@@ -100,11 +100,17 @@ public class Rabbit extends Animal {
         //NN
         this.nn = nn;
     }
-    //this is being used when a rabbit is born by its parent
+    //this is being used for repopulation by the system
+    //TODO: maybe refactor this to just take in a parent?
     public Rabbit(){
         super();
-        this.dna = new DNA(5);
+        this.dna = new DNA(4);
         this.decodeDNA();                                               //initialize DNA
+
+        this.dna.genes[0] += BASE_SIZE;
+        this.dna.genes[1] += BASE_MAX_SPEED;
+        this.dna.genes[2] += BASE_MAX_FORCE;
+        this.dna.genes[3] += BASE_VIEW_DISTANCE_FACTOR;
 
         this.health = STARTING_HEALTH;                                  //set starting health
 
@@ -116,29 +122,33 @@ public class Rabbit extends Animal {
     }
 
     /**
-     * genes[0] =
-     * genes[1] = size
-     * genes[2] = maxSpeed
-     * genes[3] = maxForce
-     * genes[4] = viewDistance
+     * Gene order:
+     * size
+     * maxSpeed
+     * maxForce
+     * viewDistance
+     *
      * Decodes the DNA and sets the attributes according to it.
      * If any values are below 0 they will just be put to 0
      */
+    //TODO: check what happens when values here are negative
     @Override
     public void decodeDNA() {
         if(Math.random() <= .5) this.gender = Gender.MALE;              //Define Gender
         else this.gender = Gender.FEMALE;
 
-        this.transform.size = this.dna.genes[1] + BASE_SIZE;            //Define size
+        this.transform.size = this.dna.genes[0];                        //Define size
 
-        this.maxSpeed = this.dna.genes[2] + BASE_MAX_SPEED;             //Define maxSpeed
+        this.maxSpeed = this.dna.genes[1];                              //Define maxSpeed
         if(this.maxSpeed < 0) this.maxSpeed = 0;
 
-        this.maxForce = this.dna.genes[3] + BASE_MAX_FORCE;             //Define maxForce
+        this.maxForce = this.dna.genes[2];                              //Define maxForce
         if(this.maxForce < 0) this.maxForce = 0;
 
-        this.viewDistance = (this.dna.genes[4] + BASE_VIEW_DISTANCE_FACTOR) * this.transform.size;    //Define viewDistance
+        this.viewDistance = this.dna.genes[3] * this.transform.size;    //Define viewDistance
         if(this.viewDistance < 0) this.viewDistance = 0;
+
+        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
     }
 
     /**
@@ -174,8 +184,7 @@ public class Rabbit extends Animal {
         //search the closest Food
         //TODO: maybe refactor the two search parts?
         ArrayList foods = CFrame.getGridFields(this.transform.location, pGrid);     //get all food in view Distance
-        //Organism closestFood = this.searchFood(foods);                              //choose the closest if any
-        Organism closestFood = this.searchClosestOrganism(foods,typeOfFood);
+        Organism closestFood = this.searchClosestOrganism(foods,typeOfFood);        //choose the closest if any
         //TODO: think of a better solution / placeholder when there is no food in sensory radius
         Vector2D closestFoodPosition = new Vector2D();      //if there is no food in sensory radius just return the null vector
         double distanceClosestFood = 0;                     //if there is no food set distance to 0
@@ -188,8 +197,7 @@ public class Rabbit extends Animal {
 
         //search the closest hunter
         ArrayList hunters = CFrame.getGridFields(this.transform.location, fGrid);   //get all hunters in viewDistance
-        //Organism closestHunter = this.searchHunter(hunters);                        //choose the closest if any
-        Organism closestHunter = this.searchClosestOrganism(hunters, typeOfHunter);
+        Organism closestHunter = this.searchClosestOrganism(hunters, typeOfHunter); //choose the closest if any
         //TODO: think of a better solution / placeholder when there is no hunter in sensory radius
         Vector2D closestHunterPosition = new Vector2D();    //if there is no hunter in sensory radius just return the null vector
         double distanceClosestHunter = 0;                   //if there is no hunter distance is 0
@@ -222,8 +230,8 @@ public class Rabbit extends Animal {
                 this.transform.size,
                 distanceClosestFood,
                 distanceClosestHunter,
-                distanceXB,distanceYB,
-                Vector2D.sub(this.transform.location, new Vector2D(WIDTH,HEIGHT)).mag()
+                //distanceXB,distanceYB,
+                this.transform.location.distSq(new Vector2D(WIDTH,HEIGHT))
         };
         double[] outputs = this.nn.predict(inputs);
         this.transform.applyForce(new Vector2D(outputs[0]-.5, outputs[1]-.5).setMag(outputs[2]*this.maxForce).limit(this.maxForce));
