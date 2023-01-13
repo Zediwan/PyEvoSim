@@ -211,8 +211,8 @@ public class CFrame extends JPanel implements ActionListener {
         //Spawning Foxes and Rabbits if less than the MIN are alive
         if(Foxes.size() <= MIN_NUM_FOXES) {
             //improve the base Foxes if all have died to give them a better chance of survival
-            Fox.baseMaxSpeed += .1;
-            Fox.baseMaxForce += .1;
+            //Fox.baseMaxSpeed += .1;
+            //Fox.baseMaxForce += .1;
             for(int i = 0; i< NUM_NEW_FOXES; i++) {
                 Foxes.add(new Fox());
             }
@@ -272,6 +272,7 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString(": "+Math.round(Fox.totalAvgAge),150,45);
         g.drawString("Average Health", 0, 60);          //avg health
         g.drawString(": "+Math.round(avgFHealth),150,60);
+        g.drawString(": "+Math.round(avgFHealth/Fox.MAX_HEALTH*100) + "%",150,75);
 
 
         //Rabbit information
@@ -295,6 +296,7 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString(": "+Math.round(Rabbit.totalAvgAge),150,45);
         g.drawString("Average Health", 0, 60);          //avg health
         g.drawString(": "+Math.round(avgRHealth),150,60);
+        g.drawString(": "+Math.round(avgRHealth/Rabbit.MAX_HEALTH*100) + "%",150,75);
 
         //Plant information
         g.setColor(Color.BLACK);
@@ -310,6 +312,7 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString(": "+Math.round(Grass.totalAvgAge),150,45);
         g.drawString("Average Health", 0, 60);          //avg health
         g.drawString(": "+Math.round(avgPHealth),150,60);
+        g.drawString(": "+Math.round(avgPHealth/Grass.MAX_HEALTH*100) + "%",150,75);
     }
 
     public int[] getGrid(Vector2D loc){
