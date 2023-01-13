@@ -4,22 +4,24 @@ import Main.CFrame;
 import Main.Organisms.Attributes.DNA;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
-
 import java.awt.*;
+import java.util.Date;
+import java.util.Timer;
 
 public abstract class Organism {
     protected double health;
     public DNA dna;
     public Transform transform;
+    public long birt = 0;
     //TODO: change variables to private
     //TODO: implement age via sys-time
     //TODO: set a timescale for the age according to sys-time
-    //float age = 0;
 
     public Organism(Transform transform, double health, DNA dna){
         this.transform = transform;
         this.health = health;
         this.dna = dna;
+        this.birt = System.currentTimeMillis();
     }
     public Organism(){
         this(new Transform(Vector2D.randLimVec(CFrame.WIDTH,CFrame.HEIGHT)), 100, new DNA());
@@ -35,6 +37,10 @@ public abstract class Organism {
 
     public boolean dead(){
         return health <= 0 || this.transform.size <= 0;
+    }
+
+    public long age(){
+        return (System.currentTimeMillis()-this.birt)/1000;
     }
 
     public Transform getTransform() {

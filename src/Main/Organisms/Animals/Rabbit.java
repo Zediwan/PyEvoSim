@@ -46,7 +46,7 @@ public class Rabbit extends Animal {
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
     public static final double DNA_MUTATION_CHANCE = .1;        //Chance for mutation of a single gene
     public static double MUTATION_RANGE = .1;
-    public static final double NN_MUTATION_CHANCE = .75;          //Chance for the whole NN to mutate
+    public static final double NN_MUTATION_CHANCE = .75;        //Chance for the whole NN to mutate
 
     //Hunting
     public static final double DAMAGE = 10;                     //damage an attack of a Rabbit does
