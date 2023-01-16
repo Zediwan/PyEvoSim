@@ -32,34 +32,35 @@ public class Rabbit extends Animal {
     public static final double BASE_VIEW_DISTANCE_FACTOR = 1;   //Base view Distance
 
     //Health
-    public static final double MAX_HEALTH = 20;                   //maximum health for all Rabbits
+    public static final double MAX_HEALTH = 40 *scale;                   //maximum health for all Rabbits
     public static final double STARTING_HEALTH = MAX_HEALTH/2;     //starting health of a Rabbit
     public static final double MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the Rabbit will stop looking food
-    public static final double DMG_PER_TICK = .1;                //Damage taken each tick
+    public static final double DMG_PER_TICK = .1 *scale;                //Damage taken each tick
 
     //Reproduction
     /** Holds the health amounts and the according reproduction bonuses gained by them (being added up) */
     //TODO: make this a new class
     public static final double[][] HEALTH_REPRODUCTION_BONUS = new double[][]{
             new double[]{MAX_HEALTH*.75, MAX_HEALTH*.5, MAX_HEALTH*.25},    //health threshold at which there is a reproduction bonus
-            new double[]{.01,.005,.0025}                                    //bonus to reproduction
+            new double[]{.001,.0005,.00025}                                    //bonus to reproduction
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
     public static final double DNA_MUTATION_CHANCE = .05;        //Chance for mutation of a single gene
-    public static double MUTATION_RANGE = .01;
-    public static double STARTING_MUTATION_RANGE = .1;
+    public static double DNA_MUTATION_RANGE = .5;
+    public static double DNA_STARTING_MUTATION_RANGE = .1;
+    public static double NN_MUTATION_RANGE = .1;
     public static final double NN_MUTATION_CHANCE = .5;        //Chance for the whole NN to mutate
 
     //Hunting
-    public static final double DAMAGE = 10;                     //damage an attack of a Rabbit does
+    public static final double DAMAGE = 10*scale;                     //damage an attack of a Rabbit does
     //TODO: transform this into a list to allow multiple food types
     public static Organism typeOfFood = new Grass();            //eatable Organisms
 
     //Nutrition
     //TODO: transform into a list to allow multiple hunters
     public static Organism typeOfHunter = new Fox();            //animals this is hunted by
-    public static final double ENERGY_FACTOR = 10;             //the factor that the eating of a Rabbit gives
-    public static final double BASE_ENERGY_PROVIDED = 10;      //base energy that eating a Rabbit gives
+    public static final double ENERGY_FACTOR = 10 *scale;             //the factor that the eating of a Rabbit gives
+    public static final double BASE_ENERGY_PROVIDED = 10*scale;      //base energy that eating a Rabbit gives
 
     //Neural Network
     //TODO: reorder
@@ -81,7 +82,7 @@ public class Rabbit extends Animal {
      * distance to centre
      */
     public static final int input_nodes = 11;
-    public static final int hidden_nodes = 60;
+    public static final int hidden_nodes = 30;
     /**
      * Output Node Description
      * 1: x coodrinate steer
@@ -107,7 +108,7 @@ public class Rabbit extends Animal {
     //TODO: maybe refactor this to just take in a parent?
     public Rabbit(){
         super();
-        this.dna = new DNA(4, STARTING_MUTATION_RANGE);
+        this.dna = new DNA(4, DNA_STARTING_MUTATION_RANGE);
         this.dna.genes[0] += BASE_SIZE;
         this.dna.genes[1] += BASE_MAX_SPEED;
         this.dna.genes[2] += BASE_MAX_FORCE;
@@ -349,11 +350,11 @@ public class Rabbit extends Animal {
         if(Math.random() <= birthChance){
             //DNA
             DNA childDNA = dna.copy();                                  //copy this DNA
-            childDNA.mutate(DNA_MUTATION_CHANCE, MUTATION_RANGE);       //mutate DNA if chance occurs
+            childDNA.mutate(DNA_MUTATION_CHANCE, DNA_MUTATION_RANGE);       //mutate DNA if chance occurs
 
             //NN
             NeuralNetwork childNN = this.nn.copy();                     //copy this NN
-            if(Math.random() <= NN_MUTATION_CHANCE) childNN.mutate();   //mutate NN if chance occurs
+            if(Math.random() <= NN_MUTATION_CHANCE) childNN.mutate(NN_MUTATION_RANGE);   //mutate NN if chance occurs
 
             Transform t = this.transform.clone();                       //Copy this transform
             Rabbit child = new Rabbit(t,STARTING_HEALTH, childDNA,childNN);  //Create child

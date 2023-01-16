@@ -5,13 +5,13 @@ import Main.Helper.Vector2D;
 import java.awt.*;
 
 public class Grass extends Plant {
-    public static final double ENERGY_FACTOR = 4;              //the factor that the eating of a Grass gives
-    public static final double BASE_ENERGY_PROVIDED = 10;        //base energy that eating a Grass gives
-    public static final double GROWTH_INTERVAL = 50;            //Interval at which Growth happens
-    public static final double GROWTH = .1;                     //Rate at which a Grass grows
+    public static final double ENERGY_FACTOR = 4*scale;              //the factor that the eating of a Grass gives
+    public static final double BASE_ENERGY_PROVIDED = 10*scale;        //base energy that eating a Grass gives
+    public static final double GROWTH_INTERVAL = 5*scale;            //Interval at which Growth happens
+    public static final double GROWTH = .01*scale;                     //Rate at which a Grass grows
     public static final double BASE_SIZE = 1;                   //Base size of a Grass
-    public static final double HEALTH_REGENERATION = .1;        //Amount that is regenerated at once
-    public static final double MAX_HEALTH = 100;                //Maximum health of a plant
+    public static final double HEALTH_REGENERATION = .01*scale;        //Amount that is regenerated at once
+    public static final double MAX_HEALTH = 100*scale;                //Maximum health of a plant
     public static int totalAmount = 0;                          //total amount of Rabbits ever born
     public static double totalAvgAge = 0;                         //total avg age
     public Color col = new Color(150, 200, 20 ,125);

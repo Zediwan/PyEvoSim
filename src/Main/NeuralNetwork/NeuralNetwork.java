@@ -164,6 +164,13 @@ public class NeuralNetwork{
         this.bias_o.add(new Matrix(this.output_nodes,1).randomize());
     }
 
+    public void mutate(double range){
+        this.weights_ih.add(new Matrix(this.hidden_nodes, this.input_nodes).randomize(range));
+        this.weights_ho.add(new Matrix(this.output_nodes, this.hidden_nodes).randomize(range));
+        this.bias_h.add(new Matrix(this.hidden_nodes, 1).randomize(range));
+        this.bias_o.add(new Matrix(this.output_nodes,1).randomize(range));
+    }
+
     public void initializeVisualNetwork() {
         n = new Network(0,0);
         //TODO: add biases to the nodes

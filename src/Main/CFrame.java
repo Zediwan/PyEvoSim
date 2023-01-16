@@ -60,8 +60,8 @@ public class CFrame extends JPanel implements ActionListener {
     private final int STARTING_FOXES = 50;
     private final int STARTING_PLANTS = 16000;
 
-    private final int MIN_NUM_RABBITS = 100;         //The amount at which the system starts spawning new Rabbits
-    private final int MIN_NUM_FOXES = 5;            //The amount at which the system starts spawning new Foxes
+    private final int MIN_NUM_RABBITS = 500;         //The amount at which the system starts spawning new Rabbits
+    private final int MIN_NUM_FOXES = 50;            //The amount at which the system starts spawning new Foxes
     private final int MAX_NUM_PLANTS = WIDTH*HEIGHT/40;//The maximum amount of Plants allowed in the simulation at once
 
     private final int NUM_NEW_PLANTS = 10;          //The amount of new Plants being spawned each tick
@@ -234,7 +234,7 @@ public class CFrame extends JPanel implements ActionListener {
 
         //NN
         //Generate inputs and targets
-        //currentTrackedR.nn.paint((Graphics2D) g,0,400);
+        currentTrackedR.nn.paint((Graphics2D) g,0,400);
         /*
         double[] input = new double[2];
         double[] target = new double[1];

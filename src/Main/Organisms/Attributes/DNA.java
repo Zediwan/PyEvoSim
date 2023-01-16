@@ -97,11 +97,11 @@ public class DNA {
                 g.drawString(names[i], x, y + i * 15);
                 if(genes[i] < 0) g.setColor(Color.RED);
                 //TODO: for some weird reason the last number isn't painted
-                g.drawString(": "+String.format("%.2f",Math.abs(genes[i])), x+100, i * 15);
+                g.drawString(": "+String.format("%.3f",Math.abs(genes[i])), x+100, i * 15);
             }
             else {
                 g.setColor(Color.BLACK);
-                g.drawString(String.format("%.2f",genes[i]), x+100, i * 15);
+                g.drawString(String.format("%.3f",genes[i]), x+100, i * 15);
             }
         }
     }

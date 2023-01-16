@@ -10,6 +10,7 @@ import java.util.Timer;
 
 public abstract class Organism {
     protected double health;
+    public static double scale = 1; //scale of speed of the simulation
     public DNA dna;
     public Transform transform;
     public long birt = 0;

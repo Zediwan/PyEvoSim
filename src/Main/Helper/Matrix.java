@@ -57,6 +57,14 @@ public class Matrix {
         }
         return this;
     }
+    public Matrix randomize(double range){
+        for(int r = 0 ; r < this.rows; r++){
+            for(int c = 0; c < this.cols; c++){
+                this.data[r][c] = (Math.random()*range)-(range/2);
+            }
+        }
+        return this;
+    }
     public static Matrix randomize(Matrix m1){
         assert m1.data != null : "Main.Main.NeuralNetwork.NeuralNetwork.Matrix is null";
 
