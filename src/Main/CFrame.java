@@ -16,6 +16,9 @@ import java.util.Random;
 //TODO: add graphs
 
 public class CFrame extends JPanel implements ActionListener {
+    //display variables
+    boolean paintNN = true;
+
     public static Random random = new Random();
     //NeuralNetwork nn1 = new NeuralNetwork(2,12,1);
     //NeuralNetwork nn2 = new NeuralNetwork(2,12,1);
@@ -56,17 +59,17 @@ public class CFrame extends JPanel implements ActionListener {
 
     //SIMULATION VARIABLES
     //AMOUNT OF STARTING ENTITIES
-    private final int STARTING_RABBITS = 1000;
-    private final int STARTING_FOXES = 50;
-    private final int STARTING_PLANTS = 16000;
+    private final int STARTING_RABBITS = 10;
+    private final int STARTING_FOXES = 2;
+    private final int STARTING_PLANTS = 32000;
 
-    private final int MIN_NUM_RABBITS = 500;         //The amount at which the system starts spawning new Rabbits
-    private final int MIN_NUM_FOXES = 50;            //The amount at which the system starts spawning new Foxes
-    private final int MAX_NUM_PLANTS = WIDTH*HEIGHT/40;//The maximum amount of Plants allowed in the simulation at once
+    private int MIN_NUM_RABBITS = 0;         //The amount at which the system starts spawning new Rabbits
+    private int MIN_NUM_FOXES = 0;            //The amount at which the system starts spawning new Foxes
+    private int MAX_NUM_PLANTS = WIDTH*HEIGHT/20;//The maximum amount of Plants allowed in the simulation at once
 
-    private final int NUM_NEW_PLANTS = 10;          //The amount of new Plants being spawned each tick
-    private final int NUM_NEW_RABBITS = 20;          //The amount of new Rabbits being spawned each tick
-    private final int NUM_NEW_FOXES = 5;            //The amount of new Foxes being spawned each tick
+    private final int NUM_NEW_PLANTS = 5;          //The amount of new Plants being spawned each tick
+    private final int NUM_NEW_RABBITS = 0;          //The amount of new Rabbits being spawned each tick
+    private final int NUM_NEW_FOXES = 2;            //The amount of new Foxes being spawned each tick
 
 
     public CFrame(){
@@ -74,6 +77,22 @@ public class CFrame extends JPanel implements ActionListener {
         frame.setSize(WIDTH, HEIGHT);                    //frame size
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        this.initiate();
+
+        Timer t = new Timer(TIME_PERIOD,this);
+        t.start();
+
+        frame.add(this);
+        frame.setVisible(true);
+    }
+    public CFrame(int maxPlants, int minRabbits, int minFoxes){
+        JFrame frame = new JFrame("Ecosystem");     //title of the frame
+        frame.setSize(WIDTH, HEIGHT);                    //frame size
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        this.MAX_NUM_PLANTS = maxPlants;
+        this.MIN_NUM_RABBITS = minRabbits;
+        this.MIN_NUM_FOXES = minFoxes;
         this.initiate();
 
         Timer t = new Timer(TIME_PERIOD,this);
@@ -108,7 +127,7 @@ public class CFrame extends JPanel implements ActionListener {
         super.paintComponent(g);
 
         //update tracked organisms if needed
-        if(currentTrackedR.dead()) Rabbits.get(random.nextInt(Rabbits.size()));
+        if(currentTrackedR.dead() && !Rabbits.isEmpty()) Rabbits.get(random.nextInt(Rabbits.size()));
         //if(currentTrackedF.dead()) Foxes.get(random.nextInt(Foxes.size()));
 
         //clear all the grids
@@ -209,7 +228,7 @@ public class CFrame extends JPanel implements ActionListener {
         avgFHealth /= Foxes.size();
 
         //Spawning Foxes and Rabbits if less than the MIN are alive
-        if(Foxes.size() <= MIN_NUM_FOXES) {
+        if(Foxes.size() < MIN_NUM_FOXES) {
             //improve the base Foxes if all have died to give them a better chance of survival
             //Fox.baseMaxSpeed += .1;
             //Fox.baseMaxForce += .1;
@@ -217,13 +236,14 @@ public class CFrame extends JPanel implements ActionListener {
                 Foxes.add(new Fox());
             }
         }
-        if(Rabbits.size() <= MIN_NUM_RABBITS) {
+        if(Math.random()< .00001) Foxes.add(new Fox());
+        if(Rabbits.size() < MIN_NUM_RABBITS) {
             for(int i = 0; i< NUM_NEW_RABBITS; i++) {
                 Rabbits.add(new Rabbit());
             }
         }
         //Spawns new plants if there are less than MAX_NUM_PLANTS
-        if(Plants.size()<= MAX_NUM_PLANTS){
+        if(Plants.size()< MAX_NUM_PLANTS){
             for(int i = 0; i< NUM_NEW_PLANTS; i++) {
                 Plants.add(new Grass());
             }
@@ -234,7 +254,9 @@ public class CFrame extends JPanel implements ActionListener {
 
         //NN
         //Generate inputs and targets
-        currentTrackedR.nn.paint((Graphics2D) g,0,400);
+        if(paintNN){
+            currentTrackedR.nn.paint((Graphics2D) g,0,400);
+        }
         /*
         double[] input = new double[2];
         double[] target = new double[1];
@@ -265,7 +287,14 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString("Amount of Foxes", 0, 0);          //amount of foxes
         g.drawString(": "+Foxes.size(), 150, 0);
         g.drawString("Total num of Foxes", 0, 15);      //total amount of foxes
-        g.drawString(": "+Fox.totalAmount,150,15);
+        //shortens the number if it gets to big
+        if(Fox.totalAmount < 1000){
+            g.drawString(": "+Fox.totalAmount,150,15);
+        } else if (Fox.totalAmount < 1000000){
+            g.drawString(": "+Fox.totalAmount/1000 + "k",150,15);
+        } else {
+            g.drawString(": "+Fox.totalAmount/1000000 + "m",150,15);
+        }
         g.drawString("Average current Age", 0, 30);     //avg current age
         g.drawString(": "+Math.round(avgFAge),150,30);
         g.drawString("Average total Age", 0, 45);       //avg total age
@@ -289,7 +318,14 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString("Amount of Rabbits", 0, 0);        //amt of rabbits
         g.drawString(": "+Rabbits.size(), 150, 0);
         g.drawString("Total num of Rabbits", 0, 15);    //tot amt of rabbits
-        g.drawString(": "+Rabbit.totalAmount,150,15);
+        //shortens the number if it gets to big
+        if(Rabbit.totalAmount < 1000){
+            g.drawString(": "+Rabbit.totalAmount,150,15);
+        } else if (Rabbit.totalAmount < 1000000){
+            g.drawString(": "+Rabbit.totalAmount/1000 + "k",150,15);
+        } else {
+            g.drawString(": "+Rabbit.totalAmount/1000000 + "m",150,15);
+        }
         g.drawString("Average current Age", 0, 30);     //avg current age
         g.drawString(": "+Math.round(avgRAge),150,30);
         g.drawString("Average total Age", 0, 45);       //avg total age
@@ -305,7 +341,14 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString("Amount of Plants", 0, 0);         //amt of plants
         g.drawString(": "+Plants.size(), 150, 0);
         g.drawString("Total num of Rabbits", 0, 15);    //tot amt of plants
-        g.drawString(": "+Grass.totalAmount,150,15);
+        //shortens the number if it gets to big
+        if(Grass.totalAmount < 1000){
+            g.drawString(": "+Grass.totalAmount,150,15);
+        } else if (Grass.totalAmount < 1000000){
+            g.drawString(": "+Grass.totalAmount/1000 + "k",150,15);
+        } else {
+            g.drawString(": "+Grass.totalAmount/1000000 + "m",150,15);
+        }
         g.drawString("Average current Age", 0, 30);     //avg current age
         g.drawString(": "+Math.round(avgPAge),150,30);
         g.drawString("Average total Age", 0, 45);       //avg total age
@@ -315,7 +358,7 @@ public class CFrame extends JPanel implements ActionListener {
         g.drawString(": "+Math.round(avgPHealth/Grass.MAX_HEALTH*100) + "%",150,75);
     }
 
-    public int[] getGrid(Vector2D loc){
+    public static int[] getGrid(Vector2D loc){
         //Define Grid position
 
         int column = (int)Vector2D.map(loc.x,0,WIDTH,0,numFieldsX);

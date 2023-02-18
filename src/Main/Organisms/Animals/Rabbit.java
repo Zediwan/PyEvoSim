@@ -27,26 +27,26 @@ public class Rabbit extends Animal {
     //Physical attributes
     public Color col = new Color(121, 83, 71, 200); //standard color
     public static final double BASE_SIZE = 3;                   //Base size
-    public static final double BASE_MAX_SPEED = .05;              //Base max speed
-    public static final double BASE_MAX_FORCE = .025;              //Base max force
+    public static final double BASE_MAX_SPEED = .5;              //Base max speed
+    public static final double BASE_MAX_FORCE = .25;              //Base max force
     public static final double BASE_VIEW_DISTANCE_FACTOR = 1;   //Base view Distance
 
     //Health
     public static final double MAX_HEALTH = 40 *scale;                   //maximum health for all Rabbits
     public static final double STARTING_HEALTH = MAX_HEALTH/2;     //starting health of a Rabbit
     public static final double MAX_HUNTING_HEALTH = (MAX_HEALTH * 2)/3;//above this threshold the Rabbit will stop looking food
-    public static final double DMG_PER_TICK = .1 *scale;                //Damage taken each tick
+    public static final double DMG_PER_TICK = .2 *scale;                //Damage taken each tick
 
     //Reproduction
     /** Holds the health amounts and the according reproduction bonuses gained by them (being added up) */
     //TODO: make this a new class
     public static final double[][] HEALTH_REPRODUCTION_BONUS = new double[][]{
             new double[]{MAX_HEALTH*.75, MAX_HEALTH*.5, MAX_HEALTH*.25},    //health threshold at which there is a reproduction bonus
-            new double[]{.001,.0005,.00025}                                    //bonus to reproduction
+            new double[]{.005,.0005,.00025}                                    //bonus to reproduction
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
     public static final double DNA_MUTATION_CHANCE = .05;        //Chance for mutation of a single gene
-    public static double DNA_MUTATION_RANGE = .5;
+    public static double DNA_MUTATION_RANGE = 1;
     public static double DNA_STARTING_MUTATION_RANGE = .1;
     public static double NN_MUTATION_RANGE = .1;
     public static final double NN_MUTATION_CHANCE = .5;        //Chance for the whole NN to mutate
@@ -59,8 +59,8 @@ public class Rabbit extends Animal {
     //Nutrition
     //TODO: transform into a list to allow multiple hunters
     public static Organism typeOfHunter = new Fox();            //animals this is hunted by
-    public static final double ENERGY_FACTOR = 10 *scale;             //the factor that the eating of a Rabbit gives
-    public static final double BASE_ENERGY_PROVIDED = 10*scale;      //base energy that eating a Rabbit gives
+    public static final double ENERGY_FACTOR = 12 *scale;             //the factor that the eating of a Rabbit gives
+    public static final double BASE_ENERGY_PROVIDED = 30*scale;      //base energy that eating a Rabbit gives
 
     //Neural Network
     //TODO: reorder
@@ -141,6 +141,7 @@ public class Rabbit extends Animal {
         else this.gender = Gender.FEMALE;
 
         this.transform.size = this.dna.genes[0];                        //Define size
+        this.desiredSepDist = this.transform.size;
 
         this.maxSpeed = this.dna.genes[1];                              //Define maxSpeed
         if(this.maxSpeed < 0) this.maxSpeed = 0;
@@ -163,6 +164,7 @@ public class Rabbit extends Animal {
         assert !this.dead() : "This is dead";
 
         this.think();                                           //make a decision where to move (by the NN)
+        this.transform.applyForce(this.separate(CFrame.getGridFields(this.getLocation(), rGrid)));
 
         //Movement
         //TODO: maybe refactor this?
@@ -212,6 +214,7 @@ public class Rabbit extends Animal {
 
         //calculate distance to borders
         //calculate closest x Border
+        /*
         double distanceXB = Double.POSITIVE_INFINITY;
         if(this.transform.location.x >= WIDTH/2) distanceXB = WIDTH-this.transform.location.x;
         else distanceXB = this.transform.location.x;
@@ -220,7 +223,7 @@ public class Rabbit extends Animal {
         double distanceYB = Double.POSITIVE_INFINITY;
         if(this.transform.location.y >= HEIGHT/2) distanceXB = HEIGHT-this.transform.location.y;
         else distanceXB = this.transform.location.y;
-
+         */
 
         //set inputs
         double[] inputs = new double[]{
@@ -237,6 +240,7 @@ public class Rabbit extends Animal {
                 this.transform.location.distSq(new Vector2D(WIDTH,HEIGHT))
         };
         double[] outputs = this.nn.predict(inputs);
+
         this.transform.applyForce(new Vector2D(outputs[0]-.5, outputs[1]-.5).setMag(outputs[2]*this.maxForce).limit(this.maxForce));
     }
 
@@ -354,7 +358,8 @@ public class Rabbit extends Animal {
 
             //NN
             NeuralNetwork childNN = this.nn.copy();                     //copy this NN
-            if(Math.random() <= NN_MUTATION_CHANCE) childNN.mutate(NN_MUTATION_RANGE);   //mutate NN if chance occurs
+            //if(Math.random() <= NN_MUTATION_CHANCE) childNN.mutate(NN_MUTATION_RANGE);   //mutate NN if chance occurs
+            childNN.mutate(NN_MUTATION_RANGE,NN_MUTATION_CHANCE);       //mutate NN if chance occurs
 
             Transform t = this.transform.clone();                       //Copy this transform
             Rabbit child = new Rabbit(t,STARTING_HEALTH, childDNA,childNN);  //Create child

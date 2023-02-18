@@ -60,7 +60,17 @@ public class Matrix {
     public Matrix randomize(double range){
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){
-                this.data[r][c] = (Math.random()*range)-(range/2);
+                this.data[r][c] += (Math.random()*range)-(range/2);
+            }
+        }
+        return this;
+    }
+    public Matrix randomize(double range, double chance){
+        for(int r = 0 ; r < this.rows; r++){
+            for(int c = 0; c < this.cols; c++){
+                if(Math.random()< chance){
+                    this.data[r][c] += (Math.random()*range)-(range/2);
+                }
             }
         }
         return this;
