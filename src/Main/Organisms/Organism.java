@@ -5,8 +5,6 @@ import Main.Organisms.Attributes.DNA;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import java.awt.*;
-import java.util.Date;
-import java.util.Timer;
 
 public abstract class Organism {
     protected double health;
@@ -43,7 +41,7 @@ public abstract class Organism {
     /**
      * @return age in seconds
      */
-    public double age(){
+    public double getAge(){
         return ((double)System.currentTimeMillis()-(double)this.birt)/1000;
     }
 
