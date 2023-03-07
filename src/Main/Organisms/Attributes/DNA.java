@@ -3,7 +3,7 @@ package Main.Organisms.Attributes;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-
+//TODO: Test
 public class DNA {
     private Map<String, Double> phenotypeDict;
 
