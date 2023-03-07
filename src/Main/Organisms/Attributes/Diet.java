@@ -1,15 +1,9 @@
 package Main.Organisms.Attributes;
 
 public enum Diet {
-    OMNIVORE{
-
-    },
-    CARNIVORE{
-
-    },
-    HERBIVORE{
-
-    };
+    OMNIVORE,
+    CARNIVORE,
+    HERBIVORE;
 
     /**
      * @return a random Diet
