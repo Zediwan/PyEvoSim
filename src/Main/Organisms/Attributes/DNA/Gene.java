@@ -13,14 +13,7 @@ public class Gene implements mutable {
 
     @Override
     public void mutate() {
-        this.value += Math.random() -.5;
-    }
-
-    @Override
-    public void mutate(double mutationChance) {
-        if(Math.random() < mutationChance){
-            this.mutate();
-        }
+        this.mutate(1,1);
     }
 
     @Override
