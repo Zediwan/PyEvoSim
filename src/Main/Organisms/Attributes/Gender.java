@@ -2,8 +2,12 @@ package Main.Organisms.Attributes;
 
 public enum Gender {
     //TODO: implement methods that come with being female f.e. getPregnant and giveBirth
-    MALE,
-    FEMALE;
+    MALE{
+
+    },
+    FEMALE{
+
+    };
 
     /**
      * @return a random Gender

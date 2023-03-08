@@ -1,12 +1,9 @@
 package Main.Organisms.Plants;
 
-import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
-import Main.Organisms.Attributes.DNA.Gene;
+import Main.Helper.Transform;
 import Main.Organisms.Organism;
-import Main.Simulation;
-
 import java.awt.*;
 
 public class Plant extends Organism {
@@ -14,17 +11,12 @@ public class Plant extends Organism {
 
     public static double nutritionFactor;
     public static double growthFactor;
-    public static double allMaxSize;
-    private static Plant blueprint;
-    private static double bodyEnergyRatio = 1;
-    private static int healthBodyRatio = 1;
-    private double generation = 0;
     protected double growthTimer = 0;
 
     //------------------------------------------------DNA Variables----------------------------------------------------
 
     protected double spreadingRange;
-    protected long growthInterval;
+    protected double growthInterval;
 
     //-----------------------------------------------------------------------------------------------------------------
 
@@ -35,65 +27,10 @@ public class Plant extends Organism {
         this.id = Plant.plaCount;
     }
 
-    public Plant(Plant ancestor){
-        super(ancestor);
-
-        this.dna = ancestor.dna;
-        this.dna.mutate(ancestor.getDna().getGene(5).getValue(), ancestor.getDna().getGene(4).getValue());
-
-        Plant.plaCount++;
-        this.id = Plant.plaCount;
-        this.generation += ancestor.generation + 1;
-        this.maturity = 1;
-
-        this.expressGenes();
-    }
-
-    public Plant(){
-        this(Plant.blueprint());
-    }
-
-    /*
     public Plant(){
         super();
         this.plaCount++;
         this.id = Plant.plaCount;
-    }
-     */
-
-    //TODO Test
-    //TODO write documentation
-    //this is a singleton pattern
-    public static Plant blueprint(){
-        if(Plant.blueprint == null) {
-            Transform t = new Transform();  //location is at (0,0)
-
-            Gene[] genes = {
-                    //TODO: set default parameters
-                    new Gene(1, "sizeRatio"),
-                    new Gene(128, "colorRed"),
-                    new Gene(180, "colorGreen"),
-                    new Gene(128, "colorBlue"),
-                    new Gene(.1, "mutSizeDNA"),
-                    new Gene(.01, "mutProbDNA"),
-                    new Gene(.1, "mutSizeNN"),
-                    new Gene(.01, "mutProbNN"),
-                    new Gene(1, "attractiveness"),
-                    new Gene(.5, "growthScaleFactor"),
-                    new Gene(.5, "growthMaturityFactor"),
-                    new Gene(.5, "growthMaturityExponent"),
-                    new Gene(10, "spreadingRange"),
-                    new Gene(10*1000, "growthInterval")
-            };
-            DNA dna = new DNA(genes);
-
-            Plant blueprint = new Plant(t,dna);
-            Plant.plaCount--;  //to not increase the counter when not needed
-            blueprint.id = 0;
-
-            Plant.blueprint = blueprint;
-        }
-        return Plant.blueprint;
     }
 
     @Override
@@ -102,42 +39,39 @@ public class Plant extends Organism {
         int shift = Organism.numberOrganismGenes;
         this.spreadingRange = (int)Math.round(this.dna.getGene(shift+0).getValue());
         this.growthInterval = (int)Math.round(this.dna.getGene(shift+1).getValue());
-
-        this.transform.size = Plant.allMaxSize * this.sizeRatio * this.maturity +3;
-        this.transform.setShape(this.transform.getRectangle());
     }
 
     @Override
-    public void update(Simulation s) {
+    public void update() {
         if(this.growthTimer <= 0){
-            //this.grow(1);
-            //this.growthTimer = this.growthInterval;
+            this.grow();
+            this.growthTimer = this.growthInterval;
         }else{
-            //this.growthTimer--;
+            this.growthTimer--;
         }
     }
 
     @Override
-    public void grow(double factor) {
-        double growth = this.growthRate()*factor;
-        this.maturity += growth;
-        double BPIncrease = 100 * growth * Math.pow(this.sizeRatio,2);
-        this.useEnergy(BPIncrease * Plant.bodyEnergyRatio * (1+(1/Plant.healthBodyRatio)));
+    public void grow() {
+        this.transform.size *= Plant.growthFactor;
     }
 
-    public Organism reproduce(Simulation s){
+    public Organism reproduce(DNA mateDNA){
+        return this.reproduce();
+    }
+
+    public Organism reproduce(){
         Transform transform = this.transform.clone();
 
         //displace around the seed by the spreading range
-        transform.getLocation().add(Vector2D.randSurroundingVec(this.spreadingRange));
+        Vector2D displacement = Vector2D.randLimVec(this.spreadingRange,this.spreadingRange);
+        displacement.sub(Vector2D.randLimVec(-this.spreadingRange,-this.spreadingRange).div(2));
+        transform.getLocation().add(displacement);
 
         DNA newDNA = this.dna.copy();
-        newDNA.mutate(this.mutProbDNA,this.mutSizeDNA);
+        newDNA.mutate(this.mutationChancesDNA,this.mutationSizeDNA);
 
-        Plant p = new Plant(transform, newDNA);
-        s.addPlant(p);
-
-        return p;
+        return new Plant(transform, newDNA);
     }
 
     //------------------------------------------------Getter and Setter------------------------------------------------
@@ -162,7 +96,7 @@ public class Plant extends Organism {
         return growthInterval;
     }
 
-    public void setGrowthInterval(long growthInterval) {
+    public void setGrowthInterval(double growthInterval) {
         this.growthInterval = growthInterval;
     }
 
@@ -178,9 +112,6 @@ public class Plant extends Organism {
 
     @Override
     public void paint(Graphics2D g) {
-        g.setColor(this.color);
-        g.fillOval((int)(this.getLocX()-(this.getR())),
-                (int)(this.getLocY()-(this.getR())),
-                (int)this.transform.size, (int)this.transform.size);
+
     }
 }
