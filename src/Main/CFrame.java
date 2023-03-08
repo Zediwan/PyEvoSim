@@ -128,7 +128,7 @@ public class CFrame extends JPanel implements ActionListener {
         super.paintComponent(g);
 
         //update tracked organisms if needed
-        if(currentTrackedR.dead() && !Rabbits.isEmpty()) Rabbits.get(random.nextInt(Rabbits.size()));
+        if(currentTrackedR.isDead() && !Rabbits.isEmpty()) Rabbits.get(random.nextInt(Rabbits.size()));
         //if(currentTrackedF.dead()) Foxes.get(random.nextInt(Foxes.size()));
 
         //clear all the grids
@@ -152,7 +152,7 @@ public class CFrame extends JPanel implements ActionListener {
         //TODO: refactor these into a method or something
         for(int i = Plants.size()-1; i >= 0; i--){
             Plant p = Plants.get(i);
-            if(p.dead()) {
+            if(p.isDead()) {
                 Grass.totalAvgAge = (Grass.totalAmount*Grass.totalAvgAge + p.getAge())/(Grass.totalAmount+1);
                 Plants.remove(i);
             }
@@ -178,7 +178,7 @@ public class CFrame extends JPanel implements ActionListener {
         for(int i = Rabbits.size()-1; i >= 0; i--){
             Animal r = Rabbits.get(i);
             //Remove if rabbit is dead
-            if(r.dead()) {
+            if(r.isDead()) {
                 Rabbit.totalAvgAge = (Rabbit.totalAmount*Rabbit.totalAvgAge + r.getAge())/(Rabbit.totalAmount+1);
                 Rabbits.remove(i);
             }
@@ -204,7 +204,7 @@ public class CFrame extends JPanel implements ActionListener {
         for(int i = Foxes.size()-1; i >= 0; i--){
             Animal f = Foxes.get(i);
             //Remove if rabbit is dead
-            if(f.dead()) {
+            if(f.isDead()) {
                 Fox.totalAvgAge = (Fox.totalAmount*Fox.totalAvgAge + f.getAge())/(Fox.totalAmount+1);
                 Foxes.remove(i);
             }

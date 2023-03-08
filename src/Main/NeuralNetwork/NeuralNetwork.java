@@ -1,9 +1,11 @@
 package Main.NeuralNetwork;
 import Main.Helper.Matrix;
+import Main.Helper.mutable;
+
 import java.awt.*;
 import java.util.function.Function;
 
-public class NeuralNetwork{
+public class NeuralNetwork implements mutable {
     //TODO: add toString method
     //TODO: add paint visualization
     //TODO: remove the activation function (as it should not be needed for this?)

@@ -149,7 +149,7 @@ public class Simulation extends JPanel {
     private void updatePlants(Graphics g) {
         for(int i = this.plants.size()-1; i >= 0; i--){
             Organism o = this.plants.get(i);
-            if(o.dead()) {
+            if(o.isDead()) {
                 this.plants.remove(o);      //if the plant is dead, then remove it
             }
             else{
@@ -167,7 +167,7 @@ public class Simulation extends JPanel {
     private void updateRabbits(Graphics g) {
         for(int i = this.rabbits.size()-1; i >= 0; i--){
             Organism o = this.rabbits.get(i);
-            if(o.dead()) {
+            if(o.isDead()) {
                 this.rabbits.remove(o);      //if the plant is dead, then remove it
             }
             else{
@@ -185,7 +185,7 @@ public class Simulation extends JPanel {
     private void updateFoxes(Graphics g) {
         for(int i = this.foxes.size()-1; i >= 0; i--){
             Organism o = this.foxes.get(i);
-            if(o.dead()) {
+            if(o.isDead()) {
                 this.foxes.remove(o);      //if the plant is dead, then remove it
             }
             else{

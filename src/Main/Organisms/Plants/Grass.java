@@ -1,7 +1,6 @@
 package Main.Organisms.Plants;
 
 import Main.Helper.Vector2D;
-
 import java.awt.*;
 
 public class Grass extends Plant {
@@ -22,7 +21,7 @@ public class Grass extends Plant {
     public Grass(){
         super();
         this.growthInterval = GROWTH_INTERVAL;
-        this.decodeDNA();
+        this.expressGenes();
 
         totalAmount++;
 
@@ -33,7 +32,7 @@ public class Grass extends Plant {
      * genes[0] = size
      */
     @Override
-    public void decodeDNA() {
+    public void expressGenes() {
         this.transform.size = this.dna.genes[0]+BASE_SIZE;
     }
 
@@ -64,7 +63,7 @@ public class Grass extends Plant {
 
     @Override
     public void paint(Graphics2D g) {
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         this.col = new Color(150, 200, 20 ,55+(int)Vector2D.map(this.health,0,MAX_HEALTH,0,200));
         g.setColor(this.col);

@@ -2,7 +2,7 @@ package Main.Organisms.Animals;
 
 import Main.CFrame;
 import Main.NeuralNetwork.NeuralNetwork;
-import Main.Organisms.Attributes.DNA;
+import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
@@ -96,7 +96,7 @@ public class Rabbit extends Animal {
     //this is being used when a rabbit is born by its parent
     public Rabbit(Transform transform, double health, DNA dna, NeuralNetwork nn){
         super(transform, health, dna);
-        this.decodeDNA();                                       //initialize DNA
+        this.expressGenes();                                       //initialize DNA
 
         sumDNA.addToAVG(this.sumDNA, totalAmount, this.dna);    //add this DNA to the collection
         totalAmount++;                                          //increase counter
@@ -113,7 +113,7 @@ public class Rabbit extends Animal {
         this.dna.genes[1] += BASE_MAX_SPEED;
         this.dna.genes[2] += BASE_MAX_FORCE;
         this.dna.genes[3] += BASE_VIEW_DISTANCE_FACTOR;
-        this.decodeDNA();                                       //initialize DNA
+        this.expressGenes();                                       //initialize DNA
 
         this.health = STARTING_HEALTH;                          //set starting health
 
@@ -136,7 +136,7 @@ public class Rabbit extends Animal {
      */
     //TODO: check what happens when values here are negative
     @Override
-    public void decodeDNA() {
+    public void expressGenes() {
         if(Math.random() <= .5) this.gender = Gender.MALE;              //Define Gender
         else this.gender = Gender.FEMALE;
 
@@ -161,7 +161,7 @@ public class Rabbit extends Animal {
      */
     //TODO: an Animal moving slower than maxSpeed should take less tick-DMG
     public void update(){
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         this.think();                                           //make a decision where to move (by the NN)
         this.transform.applyForce(this.separate(CFrame.getGridFields(this.getLocation(), rGrid)));
@@ -253,7 +253,7 @@ public class Rabbit extends Animal {
     //TODO: consider health of an animal too, if a Prey is lower health it should get prioritized
     @Override
     public Organism searchFood(ArrayList<Organism> organisms) {
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         Organism closestFood = null;
         double closestDistance = Double.POSITIVE_INFINITY;
@@ -285,7 +285,7 @@ public class Rabbit extends Animal {
      */
     //TODO: consider health of an animal too, if a Prey is lower health it should get prioritized
     public Organism searchClosestOrganism(ArrayList<Organism> organisms, Organism typeOfOrganism){
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         Organism closestOrganism = null;
         double closestDistance = Double.POSITIVE_INFINITY;
@@ -315,7 +315,7 @@ public class Rabbit extends Animal {
     //TODO: check if this really only returns true if the target is dead
     @Override
     public boolean collision(Organism food) {
-        assert !this.dead() : "This is dead";           //check if this is dead
+        assert !this.isDead() : "This is dead";           //check if this is dead
         assert food.getClass() == typeOfFood.getClass();//check if the target is eatable
 
         //check if the two collide
@@ -324,7 +324,7 @@ public class Rabbit extends Animal {
             food.takeDamage(DAMAGE);                    //reduce plants health to 0
             this.health += ((food.transform.size * Grass.ENERGY_FACTOR) + Grass.BASE_ENERGY_PROVIDED)*(DAMAGE/Grass.MAX_HEALTH);     //gain health
             //remove target if it is dead
-            if(food.dead()){
+            if(food.isDead()){
                 target = null;
             }
         }
@@ -340,7 +340,7 @@ public class Rabbit extends Animal {
      */
     @Override
     public void reproduce(){
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         double birthChance = BASE_REPRODUCTION_CHANCE;
         //Adds all bonuses that for each threshold that has been met
@@ -376,7 +376,7 @@ public class Rabbit extends Animal {
      * @param organisms that the Animal should consider fleeing from
      */
     public void flee(ArrayList<Organism> organisms) {
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         Vector2D sum = new Vector2D();
         Vector2D steer = new Vector2D();
@@ -430,7 +430,7 @@ public class Rabbit extends Animal {
     //Visualization
     @Override
     public void paint(Graphics2D g) {
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         //set opacity according to the health of this
         this.col = new Color(121, 83, 71,55+(int)Vector2D.map(this.health,0,MAX_HEALTH,0,200));

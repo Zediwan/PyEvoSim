@@ -2,7 +2,7 @@ package Main.Organisms.Animals;
 
 import Main.CFrame;
 import Main.NeuralNetwork.NeuralNetwork;
-import Main.Organisms.Attributes.DNA;
+import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
@@ -93,7 +93,7 @@ public class Fox extends Animal {
     //this is being used when a fox is born by its parent
     public Fox(Transform transform, double health, DNA dna, NeuralNetwork nn){
         super(transform, health, dna);
-        this.decodeDNA();                                       //initialize DNA
+        this.expressGenes();                                       //initialize DNA
 
         //start with a random velocity
         this.transform.velocity = Vector2D.randLimVec((Math.random()-.5),
@@ -114,7 +114,7 @@ public class Fox extends Animal {
         this.dna.genes[1] += baseMaxSpeed;
         this.dna.genes[2] += baseMaxForce;
         this.dna.genes[3] += BASE_VIEW_DISTANCE_FACTOR;
-        this.decodeDNA();                                       //initialize DNA
+        this.expressGenes();                                       //initialize DNA
 
         this.health = STARTING_HEALTH;                          //set starting health
 
@@ -141,7 +141,7 @@ public class Fox extends Animal {
      */
     //TODO: check what happens when values here are negative
     @Override
-    public void decodeDNA() {
+    public void expressGenes() {
         if(Math.random() <= .5) this.gender = Gender.MALE;              //Define Gender
         else this.gender = Gender.FEMALE;
 
@@ -166,7 +166,7 @@ public class Fox extends Animal {
      */
     //TODO: an Animal moving slower than maxSpeed should take less tick-DMG
     public void update(){
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         this.think();                                           //make a decision where to move (by the NN)
         this.transform.applyForce(this.separate(CFrame.getGridFields(this.getLocation(), fGrid)));
@@ -248,7 +248,7 @@ public class Fox extends Animal {
     //TODO: check if these methods cannot be refactored
     @Override
     public Organism searchFood(ArrayList<Organism> organisms) {
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         Organism closestFood = null;
 
@@ -287,7 +287,7 @@ public class Fox extends Animal {
      */
     //TODO: consider health of an animal too, if a Prey is lower health it should get prioritized
     public Organism searchClosestOrganism(ArrayList<Organism> organisms, Organism typeOfOrganism){
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         Organism closestOrganism = null;
         double closestDistance = Double.POSITIVE_INFINITY;
@@ -317,7 +317,7 @@ public class Fox extends Animal {
     //TODO: check if this really only returns true if the target is dead
     @Override
     public boolean collision(Organism food) {
-        assert !this.dead() : "This is dead";           //check if this is dead
+        assert !this.isDead() : "This is dead";           //check if this is dead
         assert food.getClass() == typeOfFood.getClass();//check if the target is eatable
 
         //check if the two collide
@@ -325,7 +325,7 @@ public class Fox extends Animal {
             //TODO: maybe make the damage dependant on attributes of the Fox (size, ect)
             food.takeDamage(DAMAGE);                    //reduce plants health to 0
             //remove target if it is dead
-            if(food.dead()){
+            if(food.isDead()){
                 this.health += (food.transform.size * Rabbit.ENERGY_FACTOR) + Rabbit.BASE_ENERGY_PROVIDED;     //gain health
                 target = null;
             }
@@ -342,7 +342,7 @@ public class Fox extends Animal {
      */
     @Override
     public void reproduce(){
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         double birthChance = BASE_REPRODUCTION_CHANCE;
         //Adds all bonuses that for each threshold that has been met
@@ -399,7 +399,7 @@ public class Fox extends Animal {
     //Visualization
     @Override
     public void paint(Graphics2D g) {
-        assert !this.dead() : "This is dead";
+        assert !this.isDead() : "This is dead";
 
         //set opacity according to the health of this
         int alpha = 55+(int)Vector2D.map(this.health,0,MAX_HEALTH,0,200);

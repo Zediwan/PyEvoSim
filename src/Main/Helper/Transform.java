@@ -3,6 +3,8 @@ package Main.Helper;
 import java.awt.*;
 
 public class Transform {
+    //TODO: add scale everywhere for zooming functions
+    public static double scale = 1;
     //TODO: change variables to private
     public Vector2D location;           //location vector
     public Vector2D velocity;           //direction vector
