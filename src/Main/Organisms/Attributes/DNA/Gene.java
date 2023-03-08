@@ -13,32 +13,20 @@ public class Gene implements mutable {
 
     @Override
     public void mutate() {
-        this.mutate(1,1);
+        this.value += Math.random() -.5;
+    }
+
+    @Override
+    public void mutate(double mutationChance) {
+        if(Math.random() < mutationChance){
+            this.mutate();
+        }
     }
 
     @Override
     public void mutate(double mutationChance, double range) {
         if(Math.random() < mutationChance){
             this.value += Math.random()*range - (range/2);
-        }
-    }
-
-    public void gene0to1Check(){
-        this.geneBoundCheck(0,1);
-    }
-
-    public void genePositiveCheck(){
-        if(this.value < 0){
-            this.value = 0;
-        }
-    }
-
-    public void geneBoundCheck(double lowerBound, double upperBound){
-        if(this.value < lowerBound){
-            this.value = lowerBound;
-        }
-        else if(this.value > upperBound){
-            this.value = upperBound;
         }
     }
 
