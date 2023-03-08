@@ -2,38 +2,124 @@ package Main.Organisms.Animals;
 
 import Main.CFrame;
 import Main.NeuralNetwork.NeuralNetwork;
-import Main.Organisms.Attributes.DNA;
+import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
+
+import java.awt.*;
 import java.util.ArrayList;
 
-public abstract class Animal extends Organism {
-    public Gender gender;
-    public double maxSpeed, maxForce, viewDistance;
-    public double desiredSepDist, desiredAliDist, desiredCohDist;
-    public double sepWeight, aliWeight, cohWeight, fleeWeight;
-    public Organism target = null;
-    public NeuralNetwork nn;
+public class Animal extends Organism {
+    public static long aniCount = 0;
 
+    protected Gender gender;
+    protected double maxSpeed, maxForce;
+    protected NeuralNetwork nn;
+
+    //------------------------------------------------DNA Variables----------------------------------------------------
+
+    protected double speedRatio;                    //[9]
+    protected double strength;                      //[10]  //TODO: make this depend on size, via a ration or something
+    protected double layTime;                       //[11]
+    protected double incubationTime;                //[12]
+    protected double hatchTime;                     //[13]
+    protected double viewAngle;                     //[14]
+    protected double viewDistance;                  //[15]
+    protected double timerFrequency;                //[16]
+    protected double pheromoneSensibility;          //[17]
+    protected static int numberAnimalGenes = 11;
+
+    //-----------------------------------------------------------------------------------------------------------------
 
     //Constructors
-    public Animal(Transform transform, double health, DNA dna){
-        super(transform,health,dna);
+    public Animal(Transform transform, DNA dna){
+        super(transform,dna);
+
+        Animal.aniCount++;
+        this.id = Animal.aniCount;
+
+        this.expressGenes();
     }
+
     public Animal(){
         super();
+
+        Animal.aniCount++;
+        this.id = Animal.aniCount;
+
+        this.dna = new DNA();
+        this.expressGenes();
+
         this.invariant();
     }
 
+    @Override
+    public void expressGenes() {
+        super.expressGenes();
+        int shift = Organism.numberOrganismGenes;
+        this.gender = Gender.getRandomGender();
+        this.speedRatio = (int)Math.round(this.dna.getGene(shift+0).getValue());
+        this.strength = (int)Math.round(this.dna.getGene(shift+1).getValue());
+        this.layTime = (int)Math.round(this.dna.getGene(shift+2).getValue());
+        this.incubationTime = (int)Math.round(this.dna.getGene(shift+3).getValue());
+        this.hatchTime = (int)Math.round(this.dna.getGene(shift+4).getValue());
+        this.viewAngle = (int)Math.round(this.dna.getGene(shift+5).getValue());
+        this.viewDistance = (int)Math.round(this.dna.getGene(shift+6).getValue());
+        this.timerFrequency = (int)Math.round(this.dna.getGene(shift+7).getValue());
+        this.pheromoneSensibility = (int)Math.round(this.dna.getGene(shift+8).getValue());
+    }
+
+    @Override
+    public void update() {
+        //update position
+        //update variables and states
+    }
+
+    public void think(){
+        //collect input for nn
+        //think
+    }
+
+    @Override
+    public void grow() {
+        //when should an animal be able to grow? what does grow actually mean?
+    }
+
+    public boolean mate(Organism mate){
+        boolean doMate = false; //TODO: when do two organisms mate?
+        if(doMate){
+            if(this.gender == Gender.FEMALE){
+                //what happens if female
+            }else{
+                //what happens if male
+            }
+        }
+        return doMate;
+    }
+
+    @Override
+    public Organism reproduce(DNA mateDNA) {
+        Organism child = null;
+        if(this.gender == Gender.FEMALE){
+            //what happens if female
+        }else{
+            //what happens if male
+        }
+        return child;
+    }
+
     //Collision registration
-    public abstract boolean collision(Organism o);
+    public boolean collision(Organism o){
+        //check if this collides with something
+        return false;
+    }
 
     //Search for food
-    public abstract Organism searchFood(ArrayList<Organism> organisms);
-
-    public abstract void reproduce();
+    public Organism searchFood(ArrayList<Organism> organisms){
+        return null;
+    }
 
     //Border handling
     public void borders1(){
@@ -78,185 +164,69 @@ public abstract class Animal extends Organism {
         if(this.transform.location.y > CFrame.HEIGHT + this.transform.getR()) this.transform.location.y = CFrame.HEIGHT;
     }
 
-    //movement types
-    /**
-     * A method that calculates a steering force towards a target and slows down when being close
-     * @param target that should be moved towards
-     */
-    public Vector2D arrive(Vector2D target){
-        Vector2D desired = Vector2D.sub(target,this.transform.location);        //Vector from target to this
-        double distance = desired.magSq();                                       //calculate the distance
-
-        //if this is close to the target slow down
-        if(distance <= Math.pow(this.transform.getR(),2)){
-            double m = Vector2D.map(distance,0,Math.pow(this.transform.getR(),2),0,this.maxSpeed);
-            desired.setMag(m);
-        }else desired.setMag(this.maxSpeed);
-
-        //Steering = Desired minus Velocity
-        Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
-        steer.limit(this.maxForce);                                         //Limit to maximum steering
-
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return steer;
-    }
-    /**
-     * A method that calculates a steering force towards a target
-     * @param target that should be moved towards
-     */
-    public Vector2D seek(Vector2D target){
-        Vector2D desired = Vector2D.sub(target,this.transform.location);
-
-        desired.setMag(this.maxSpeed);
-
-        Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
-        steer.limit(this.maxForce);
-
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return steer;
-    }
-    public Vector2D seek(Vector2D target, int groupRatio){
-        Vector2D desired = Vector2D.sub(target,this.transform.location);
-
-        desired.setMag(this.maxSpeed * groupRatio);
-
-        Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
-        steer.limit(this.maxForce);
-
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" +Math.pow(this.maxSpeed,2);
-        return steer;
+    public double metabolismCost(){
+        return this.speed() / (2*this.size());
     }
 
-    public Vector2D flee(Vector2D target){
-        Vector2D desired = Vector2D.sub(target,this.transform.location);
-        desired = desired.mult(-1);
+    //------------------------------------------------Getter and Setter------------------------------------------------
 
-        desired.setMag(this.maxSpeed);
-
-        Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
-        steer.limit(this.maxForce);
-        //this.transform.applyForce(steer);
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return steer;
+    public Gender getGender() {
+        return gender;
     }
 
-    public void flock(ArrayList<Animal> animals){
-        this.transform.acceleration.mult(0);
-        //flocking rules
-        Vector2D sep = separate(animals);
-        Vector2D ali = align(animals);
-        Vector2D coh = cohesion(animals);
-
-
-        //weights for the forces
-        sep.mult(this.sepWeight).limit(this.maxForce);
-        ali.mult(this.aliWeight).limit(this.maxForce);
-        coh.mult(this.cohWeight).limit(this.maxForce);
-
-
-        //apply forces
-        this.transform.applyForce(sep);
-        this.transform.applyForce(ali);
-        this.transform.applyForce(coh);
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
-    //environmental effects
-    /**
-     * Steer to avoid colliding with your neighbors
-     * @param animals in the system
-     * @return the steering vector
-     */
-    public Vector2D separate(ArrayList<Animal> animals){
-        Vector2D sum = new Vector2D();
-        Vector2D steer = new Vector2D();
-        int count = 0; //of animals being too close
-
-        for(Animal a : animals){
-            //calculate distance of the two animals
-            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
-
-            //here check distance > 0 to avoid an animal separation from itself
-            if((distance>0) && (distance<this.desiredSepDist)){
-                Vector2D difference = Vector2D.sub(this.getLocation(), a.getLocation());
-                difference.normalize();
-                //the closer an animal the more we should flee
-                difference.div(distance);
-                //add all the vectors together
-                sum.add(difference);
-                count++;
-            }
-        }
-        //avoid division by zero
-        if(count > 0){
-            sum.div(count);
-            sum.setMag(this.maxSpeed);
-            steer = Vector2D.sub(sum,this.transform.getVelocity());
-            steer.limit(this.maxForce);
-        }
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return steer;
-    }
-    /**
-     * Steer towards the center of your neighbors (stay within the group)
-     * @param animals in the system
-     * @return the steering vector
-     */
-    public Vector2D cohesion(ArrayList<Animal> animals){
-        Vector2D sum = new Vector2D();
-        int count = 0;
-        int ratio = 0;
-
-        for(Animal a : animals){
-            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
-            if((distance > 0) && (distance < this.desiredCohDist)){
-                if(distance < 0.5 * this.desiredCohDist) {
-                    ratio++;
-                }
-                ratio++;
-                sum.add(a.getLocation().negVectorCheck());
-                count++;
-            }
-        }
-        if(count > 0){
-            sum.div(count);
-            ratio/= count * 2;
-            assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-            return seek(sum,ratio);
-        }else {
-            assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-            return new Vector2D();
-        }
-    }
-    /**
-     * Steer in the same direction as your neighbors
-     * @param animals in the system
-     * @return the steering vector
-     */
-    public Vector2D align(ArrayList<Animal> animals){
-        Vector2D sum = new Vector2D();
-        Vector2D steer = new Vector2D();
-        int count = 0;
-
-        for(Animal a : animals){
-            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
-            if((distance > 0) && (distance < this.desiredAliDist)){
-                sum.add(a.getTransform().getVelocity());
-                count++;
-            }
-        }
-        if(count > 0){
-            sum.div(count);
-            sum.normalize();
-            sum.mult(this.maxSpeed);
-            steer = Vector2D.sub(sum,this.transform.getVelocity());
-            steer.limit(this.maxForce);
-        }
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return steer;
+    public double getMaxSpeed() {
+        return maxSpeed;
     }
 
-    public abstract void flee(ArrayList<Organism> organisms);
+    public void setMaxSpeed(double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    public double getMaxForce() {
+        return maxForce;
+    }
+
+    public void setMaxForce(double maxForce) {
+        this.maxForce = maxForce;
+    }
+
+    public double getViewDistance() {
+        return viewDistance;
+    }
+
+    public void setViewDistance(double viewDistance) {
+        this.viewDistance = viewDistance;
+    }
+
+    public NeuralNetwork getNn() {
+        return nn;
+    }
+
+    public void setNn(NeuralNetwork nn) {
+        this.nn = nn;
+    }
+
+    public double size(){
+        return this.transform.size;
+    }
+
+    public double speed(){
+        //TODO: check if velocity changes when no acceleration is applied
+        return this.transform.acceleration.mag();
+    }
+
+    //------------------------------------------------toString and paint-----------------------------------------------
+
+    @Override
+    public void paint(Graphics2D g) {
+
+    }
+
+    //------------------------------------------------invariant--------------------------------------------------------
 
     /**
      * @return if the current speed is bigger than the maxSpeed

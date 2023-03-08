@@ -16,7 +16,7 @@ public class DNA implements mutable {
     }
 
     public DNA(double[] values, String[] names){
-        this(values.length);
+        this.genes = new Gene[values.length];
         assert names.length == values.length: "more names given than genes";
         for(int i = 0; i < this.genes.length; i++){
             this.genes[i] = new Gene(values[i], names[i]);
@@ -48,8 +48,35 @@ public class DNA implements mutable {
         }
     }
 
+    public void crossover(DNA father, DNA mother){
+        this.genes = new Gene[father.genes.length];
+        for(int i = 0; i < father.genes.length; i++){
+            //select randomly genes from the father or the mother
+            if(Math.random() < .5){
+                this.genes[i] = father.getGene(i);
+            }else{
+                this.genes[i] = mother.getGene(i);;
+            }
+        }
+    }
+
     //------------------------------------------------Getter and Setter------------------------------------------------
 
+    public Gene[] getGenes() {
+        return genes;
+    }
+
+    public void setGenes(Gene[] genes) {
+        this.genes = genes;
+    }
+
+    public Gene getGene(int i){
+        return this.genes[i];
+    }
+
+    public void setGene(int i, double value){
+        this.genes[i].setValue(value);
+    }
 
     //------------------------------------------------toString and paint-----------------------------------------------
 
