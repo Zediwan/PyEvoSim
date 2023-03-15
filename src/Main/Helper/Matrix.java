@@ -57,6 +57,7 @@ public class Matrix {
         }
         return this;
     }
+
     public Matrix randomize(double range){
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){
@@ -65,6 +66,7 @@ public class Matrix {
         }
         return this;
     }
+
     public Matrix randomize(double range, double chance){
         for(int r = 0 ; r < this.rows; r++){
             for(int c = 0; c < this.cols; c++){

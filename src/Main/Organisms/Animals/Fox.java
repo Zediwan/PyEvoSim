@@ -12,7 +12,6 @@ import java.awt.*;
 import java.util.ArrayList;
 
 import static Main.CFrame.*;
-import static Main.CFrame.HEIGHT;
 
 public class Fox extends Animal {
     //TODO: maybe make food view distance and hunter viewDistance different?
@@ -27,10 +26,10 @@ public class Fox extends Animal {
 
     //Physical attributes
     public Color col = new Color(237, 150, 11, 200);    //Standard color
-    public static final double BASE_SIZE = 5;                       //Base size
-    public static double baseMaxSpeed = 1;                  //Base max speed
-    public static double baseMaxForce = 1;                  //Base max force
-    public static final double BASE_VIEW_DISTANCE_FACTOR = 10;       //Base view Distance
+    public static double baseSize = 3;                       //Base size
+    public static double baseMaxSpeed = .5;                  //Base max speed
+    public static double baseMaxForce = .5;                  //Base max force
+    public static double baseViewDistanceFactor = 10;       //Base view Distance
 
     //Health
     public static final double MAX_HEALTH = 180 * scale;                      //maximum health for all Foxes
@@ -43,13 +42,13 @@ public class Fox extends Animal {
     //TODO: make this a new class
     public static final double[][] HEALTH_REPRODUCTION_BONUS = new double[][]{
             new double[]{MAX_HEALTH*.75, MAX_HEALTH*.5, MAX_HEALTH*.25},    //health threshold at which there is a reproduction bonus
-            new double[]{.01,.005,.0025}                                   //bonus to reproduction
+            new double[]{.001,.00025,.00005}                                   //bonus to reproduction
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;        //Base reproduction chance
     public static final double DNA_MUTATION_CHANCE = .25;            //Chance for mutation of a Gene
     public static double DNA_MUTATION_RANGE = 1;
-    public static double DNA_STARTING_MUTATION_RANGE = .1;
-    public static double NN_MUTATION_RANGE = .1;
+    public static double DNA_STARTING_MUTATION_RANGE = .25;
+    public static double NN_MUTATION_RANGE = 1;
     public static final double NN_MUTATION_CHANCE = .5;            //Chance for the whole NN to mutate
 
     //Hunting
@@ -79,7 +78,7 @@ public class Fox extends Animal {
      * distance to closest y-Axis border
      * distance to centre
      */
-    public static final int input_nodes = 8;
+    public static final int input_nodes = 9;
     public static final int hidden_nodes = 40;
     /**
      * Output Node Description
@@ -110,10 +109,10 @@ public class Fox extends Animal {
     public Fox(){
         super();
         this.dna = new DNA(4, DNA_STARTING_MUTATION_RANGE);
-        this.dna.genes[0] += BASE_SIZE;
+        this.dna.genes[0] += baseSize;
         this.dna.genes[1] += baseMaxSpeed;
         this.dna.genes[2] += baseMaxForce;
-        this.dna.genes[3] += BASE_VIEW_DISTANCE_FACTOR;
+        this.dna.genes[3] += baseViewDistanceFactor;
         this.decodeDNA();                                       //initialize DNA
 
         this.health = STARTING_HEALTH;                          //set starting health
@@ -183,10 +182,12 @@ public class Fox extends Animal {
 
         this.reproduce();                                       //handle reproduction if necessary
 
-        //TODO: check if the rabbits can learn when to move back to not die in the no mans land and if so then remove this
-        //this.borders2();
-
         this.health -= DMG_PER_TICK;                            //take damage
+
+        //TODO: check if the rabbits can learn when to move back to not die in the no mans land and if so then remove this
+        //this.borders1();
+        //this.borders2();
+        this.borders3();
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
     }
@@ -204,38 +205,39 @@ public class Fox extends Animal {
             this.target = closestFood;
             closestFoodPosition = Vector2D.sub(closestFood.transform.location,this.transform.location); //put the vector in relation to the position
             distanceClosestFood = closestFoodPosition.mag();
+            if(distanceClosestFood != 0) distanceClosestFood = 1/distanceClosestFood;
         }
 
         //Get the amount of foxes around this
         ArrayList foxes = CFrame.getGridFields(this.transform.location, fGrid);   //get all foxes in viewDistance
-
-
 
         //calculate distance to borders
         //calculate closest x Border
         double distanceXB = Double.POSITIVE_INFINITY;
         if(this.transform.location.x >= WIDTH/2) distanceXB = WIDTH-this.transform.location.x;
         else distanceXB = this.transform.location.x;
+        //if(distanceXB != 0) distanceXB = 1/distanceXB;
 
         //calculate closest y Border
         double distanceYB = Double.POSITIVE_INFINITY;
-        if(this.transform.location.y >= HEIGHT/2) distanceXB = HEIGHT-this.transform.location.y;
-        else distanceXB = this.transform.location.y;
+        if(this.transform.location.y >= HEIGHT/2) distanceYB = HEIGHT-this.transform.location.y;
+        else distanceYB = this.transform.location.y;
+        //if(distanceYB != 0) distanceYB = 1/distanceYB;
 
 
         //set inputs
         double[] inputs = new double[]{
                 closestFoodPosition.x, closestFoodPosition.y,
-                this.health,
+                1/this.health,
                 foods.size(),
                 foxes.size(),
-                this.transform.size,
+                1/this.transform.size,
                 distanceClosestFood,
-                //distanceXB,distanceYB,
-                this.transform.location.distSq(new Vector2D(WIDTH,HEIGHT))
+                distanceXB,distanceYB,
+                //this.transform.location.distSq(new Vector2D(WIDTH,HEIGHT))
         };
         double[] outputs = this.nn.predict(inputs);
-        this.transform.applyForce(new Vector2D(outputs[0]-.5, outputs[1]-.5).setMag(outputs[2]*this.maxForce).limit(this.maxForce));
+        this.transform.applyForce(new Vector2D(outputs[0]-.5, outputs[1]-.5).setMag(outputs[2]*this.maxForce));
     }
 
     /**
@@ -353,7 +355,7 @@ public class Fox extends Animal {
 
         //if chance occurs give birth and mutate
         //TODO: maybe make this a separate method? (refactor)
-        if(Math.random() <= birthChance){
+        if(Math.random() <= birthChance && Foxes.size() < 2000){
             //DNA
             DNA childDNA = dna.copy();                                  //copy this DNA
             childDNA.mutate(DNA_MUTATION_CHANCE, DNA_MUTATION_RANGE);       //mutate DNA if chance occurs

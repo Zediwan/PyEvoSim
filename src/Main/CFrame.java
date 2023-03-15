@@ -36,6 +36,8 @@ public class CFrame extends JPanel implements ActionListener {
     //TODO: find out what this is for
     static final int TIME_PERIOD = 24;
     static int time = 0;
+    public static double cosValPlantMax = 0;
+    public static double cosValPlantNum = 0;
 
     //FRAME SIZES
     public static final int WIDTH = 800; //width of the frame
@@ -59,16 +61,16 @@ public class CFrame extends JPanel implements ActionListener {
 
     //SIMULATION VARIABLES
     //AMOUNT OF STARTING ENTITIES
-    private final int STARTING_RABBITS = 10;
-    private final int STARTING_FOXES = 2;
-    private final int STARTING_PLANTS = 32000;
+    private final int STARTING_RABBITS = 3000;
+    private final int STARTING_FOXES = 10;
+    private final int STARTING_PLANTS = 40000;
 
-    private int MIN_NUM_RABBITS = 0;         //The amount at which the system starts spawning new Rabbits
-    private int MIN_NUM_FOXES = 0;            //The amount at which the system starts spawning new Foxes
+    private int MIN_NUM_RABBITS = 5;         //The amount at which the system starts spawning new Rabbits
+    private int MIN_NUM_FOXES = 2;            //The amount at which the system starts spawning new Foxes
     private int MAX_NUM_PLANTS = WIDTH*HEIGHT/20;//The maximum amount of Plants allowed in the simulation at once
 
-    private final int NUM_NEW_PLANTS = 5;          //The amount of new Plants being spawned each tick
-    private final int NUM_NEW_RABBITS = 0;          //The amount of new Rabbits being spawned each tick
+    private final int NUM_NEW_PLANTS = 50;          //The amount of new Plants being spawned each tick
+    private final int NUM_NEW_RABBITS = 1;          //The amount of new Rabbits being spawned each tick
     private final int NUM_NEW_FOXES = 2;            //The amount of new Foxes being spawned each tick
 
 
@@ -235,6 +237,9 @@ public class CFrame extends JPanel implements ActionListener {
             for(int i = 0; i< NUM_NEW_FOXES; i++) {
                 Foxes.add(new Fox());
             }
+            Fox.baseMaxSpeed += .1;
+            Fox.baseMaxForce += .1;
+            Fox.baseViewDistanceFactor += .01;
         }
         if(Math.random()< .00001) Foxes.add(new Fox());
         if(Rabbits.size() < MIN_NUM_RABBITS) {
@@ -243,11 +248,13 @@ public class CFrame extends JPanel implements ActionListener {
             }
         }
         //Spawns new plants if there are less than MAX_NUM_PLANTS
-        if(Plants.size()< MAX_NUM_PLANTS){
-            for(int i = 0; i< NUM_NEW_PLANTS; i++) {
+        if(Plants.size()< Math.abs(Math.cos(cosValPlantMax)) * MAX_NUM_PLANTS + 1000){
+            for(int i = 0; i< Math.abs(Math.cos(cosValPlantNum))* NUM_NEW_PLANTS; i++) {
                 Plants.add(new Grass());
             }
         }
+        cosValPlantMax += .001;
+        cosValPlantNum += .002;
 
         //Interface
         paintStats(g);
@@ -338,9 +345,13 @@ public class CFrame extends JPanel implements ActionListener {
         g.setColor(Color.BLACK);
         g.translate(200,0);
         //Summary of Amount
+        g.drawString("Current max Num of Plants", 0,-15);
+        g.drawString(": "  + Math.abs(Math.cos(cosValPlantMax))*MAX_NUM_PLANTS+1000, 150, -15);
+        g.drawString("Current Num of new Plants", 0,-30);
+        g.drawString(": "  + Math.abs(Math.cos(cosValPlantNum))*NUM_NEW_PLANTS, 150, -30);
         g.drawString("Amount of Plants", 0, 0);         //amt of plants
         g.drawString(": "+Plants.size(), 150, 0);
-        g.drawString("Total num of Rabbits", 0, 15);    //tot amt of plants
+        g.drawString("Total num of Plants", 0, 15);    //tot amt of plants
         //shortens the number if it gets to big
         if(Grass.totalAmount < 1000){
             g.drawString(": "+Grass.totalAmount,150,15);

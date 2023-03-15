@@ -71,6 +71,12 @@ public abstract class Animal extends Organism {
         steer.limit(this.maxForce);
         this.transform.applyForce(steer);
     }
+    public void borders3(){
+        if(this.transform.location.x < -this.transform.getR()) this.transform.location.x = 0;
+        if(this.transform.location.y < -this.transform.getR()) this.transform.location.y = 0;
+        if(this.transform.location.x > CFrame.WIDTH + this.transform.getR()) this.transform.location.x = CFrame.WIDTH;
+        if(this.transform.location.y > CFrame.HEIGHT + this.transform.getR()) this.transform.location.y = CFrame.HEIGHT;
+    }
 
     //movement types
     /**

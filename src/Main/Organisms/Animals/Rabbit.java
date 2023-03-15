@@ -26,9 +26,9 @@ public class Rabbit extends Animal {
 
     //Physical attributes
     public Color col = new Color(121, 83, 71, 200); //standard color
-    public static final double BASE_SIZE = 3;                   //Base size
-    public static final double BASE_MAX_SPEED = .5;              //Base max speed
-    public static final double BASE_MAX_FORCE = .25;              //Base max force
+    public static final double BASE_SIZE = 1;                   //Base size
+    public static final double BASE_MAX_SPEED = .3;              //Base max speed
+    public static final double BASE_MAX_FORCE = .15;              //Base max force
     public static final double BASE_VIEW_DISTANCE_FACTOR = 1;   //Base view Distance
 
     //Health
@@ -45,10 +45,10 @@ public class Rabbit extends Animal {
             new double[]{.005,.0005,.00025}                                    //bonus to reproduction
     };
     public static final double BASE_REPRODUCTION_CHANCE = 0;    //Base reproduction chance
-    public static final double DNA_MUTATION_CHANCE = .05;        //Chance for mutation of a single gene
-    public static double DNA_MUTATION_RANGE = 1;
-    public static double DNA_STARTING_MUTATION_RANGE = .1;
-    public static double NN_MUTATION_RANGE = .1;
+    public static final double DNA_MUTATION_CHANCE = .1;        //Chance for mutation of a single gene
+    public static double DNA_MUTATION_RANGE = .5;
+    public static double DNA_STARTING_MUTATION_RANGE = .25;
+    public static double NN_MUTATION_RANGE = 1;
     public static final double NN_MUTATION_CHANCE = .5;        //Chance for the whole NN to mutate
 
     //Hunting
@@ -81,8 +81,8 @@ public class Rabbit extends Animal {
      * distance to closest y-Axis border
      * distance to centre
      */
-    public static final int input_nodes = 11;
-    public static final int hidden_nodes = 30;
+    public static final int input_nodes = 12;
+    public static final int hidden_nodes = 20;
     /**
      * Output Node Description
      * 1: x coodrinate steer
@@ -177,10 +177,12 @@ public class Rabbit extends Animal {
 
         this.reproduce();                                       //handle reproduction if necessary
 
-        //TODO: check if the rabbits can learn when to move back to not die in the no mans land and if so then remove this
-        //this.borders2();
-
         this.health -= DMG_PER_TICK;                            //take damage
+
+        //TODO: check if the rabbits can learn when to move back to not die in the no mans land and if so then remove this
+        //this.borders1();
+        //this.borders2();
+        this.borders3();
 
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
     }
@@ -198,6 +200,7 @@ public class Rabbit extends Animal {
             this.target = closestFood;
             closestFoodPosition = Vector2D.sub(closestFood.transform.location,this.transform.location); //put the vector in relation to the position
             distanceClosestFood = closestFoodPosition.mag();
+            if(distanceClosestFood != 0) distanceClosestFood = 1/distanceClosestFood;
         }
 
         //search the closest hunter
@@ -209,6 +212,7 @@ public class Rabbit extends Animal {
         if (closestHunter != null)  {
             closestHunterPosition = Vector2D.sub(closestHunter.transform.location,this.transform.location); //put the vector in relation to the position
             distanceClosestHunter = closestHunterPosition.mag();
+            if(distanceClosestHunter != 0) distanceClosestHunter = 1/distanceClosestHunter;
         }
 
 
@@ -224,24 +228,36 @@ public class Rabbit extends Animal {
         if(this.transform.location.y >= HEIGHT/2) distanceXB = HEIGHT-this.transform.location.y;
         else distanceXB = this.transform.location.y;
          */
+        //calculate distance to borders
+        //calculate closest x Border
+        double distanceXB = Double.POSITIVE_INFINITY;
+        if(this.transform.location.x >= WIDTH/2) distanceXB = WIDTH-this.transform.location.x;
+        else distanceXB = this.transform.location.x;
+        //if(distanceXB != 0) distanceXB = 1/distanceXB;
+
+        //calculate closest y Border
+        double distanceYB = Double.POSITIVE_INFINITY;
+        if(this.transform.location.y >= HEIGHT/2) distanceYB = HEIGHT-this.transform.location.y;
+        else distanceYB = this.transform.location.y;
+        //if(distanceYB != 0) distanceYB = 1/distanceYB;
 
         //set inputs
         double[] inputs = new double[]{
                 //this.transform.getLocX(), this.transform.getLocY(),
                 closestFoodPosition.x, closestFoodPosition.y,
                 closestHunterPosition.x, closestHunterPosition.y,
-                this.health,
+                1/this.health,
                 foods.size(),
                 hunters.size(),
-                this.transform.size,
+                1/this.transform.size,
                 distanceClosestFood,
                 distanceClosestHunter,
-                //distanceXB,distanceYB,
-                this.transform.location.distSq(new Vector2D(WIDTH,HEIGHT))
+                distanceXB,distanceYB,
+                //this.transform.location.distSq(new Vector2D(WIDTH,HEIGHT))
         };
         double[] outputs = this.nn.predict(inputs);
 
-        this.transform.applyForce(new Vector2D(outputs[0]-.5, outputs[1]-.5).setMag(outputs[2]*this.maxForce).limit(this.maxForce));
+        this.transform.applyForce(new Vector2D(outputs[0]-.5, outputs[1]-.5).setMag(outputs[2]*this.maxForce));
     }
 
     /**
@@ -351,7 +367,7 @@ public class Rabbit extends Animal {
 
         //if chance occurs give birth and mutate
         //TODO: maybe make this a separate method? (refactor)
-        if(Math.random() <= birthChance){
+        if(Math.random() <= birthChance && Rabbits.size() < 10000){
             //DNA
             DNA childDNA = dna.copy();                                  //copy this DNA
             childDNA.mutate(DNA_MUTATION_CHANCE, DNA_MUTATION_RANGE);       //mutate DNA if chance occurs

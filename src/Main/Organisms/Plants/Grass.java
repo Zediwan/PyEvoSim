@@ -10,7 +10,7 @@ public class Grass extends Plant {
     public static final double GROWTH_INTERVAL = 10*scale;            //Interval at which Growth happens
     public static final double GROWTH = .001*scale;                     //Rate at which a Grass grows
     public static final double GROWTH_CHANCE = 5.;
-    public static final double BASE_SIZE = 2;                   //Base size of a Grass
+    public static final double BASE_SIZE = 1;                   //Base size of a Grass
     public static final double HEALTH_REGENERATION = .001*scale;        //Amount that is regenerated at once
     public static final double MAX_HEALTH = 100*scale;                //Maximum health of a plant
     public static int totalAmount = 0;                          //total amount of Rabbits ever born
