@@ -23,6 +23,14 @@ public class Gene implements mutable {
         }
     }
 
+    public void gene1to0Check(){
+        if(this.value < 0){
+            this.value = 0;
+        }
+        else if(this.value > 1){
+            this.value = 1;
+        }
+    }
     //------------------------------------------------Getter and Setter------------------------------------------------
     public double getValue() {
         return value;
