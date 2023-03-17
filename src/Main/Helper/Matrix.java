@@ -1,5 +1,8 @@
 package Main.Helper;
 
+import Main.NeuralNetwork.NeuralNetwork;
+import Main.Organisms.Attributes.DNA.DNA;
+
 import java.util.function.Function;
 
 public class Matrix implements mutable {
@@ -245,6 +248,26 @@ public class Matrix implements mutable {
     public void mutate(double mutationChance, double range) {
         Matrix mutation = new Matrix(this.rows,this.cols).randomize(mutationChance,range);
         this.add(mutation);
+    }
+
+    //TODO should this only be done with same size matrices? or how would different sized matrices be handled?
+    public static Matrix crossover(Matrix m1, Matrix m2){
+        assert(m1.rows == m2.rows) : "Different amount of Rows";
+        assert(m1.cols == m2.cols) : "Different amount of Cols";
+
+        Matrix m3 = m1.copy();
+        for(int r = 0; r < m1.rows; r++){
+            for(int c = 0; c < m1.cols; c++){
+                /*
+                Select randomly one of the two matrices values
+                Here as we start with m1's values we only need to choose m2's values 50% of the time
+                 */
+                if(Math.random() < .5) {
+                    m3.data[r][c] = m2.data[r][c];
+                }
+            }
+        }
+        return m3;
     }
 
     public Matrix map(Function<Double, Double> f){
