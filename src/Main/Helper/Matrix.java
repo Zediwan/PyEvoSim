@@ -2,7 +2,7 @@ package Main.Helper;
 
 import java.util.function.Function;
 
-public class Matrix {
+public class Matrix implements mutable {
     //TODO: write Test cases
     //TODO: couldn't we remove the rows and cols indicator and jsut use .length()
     private final int rows;
@@ -236,6 +236,16 @@ public class Matrix {
         return result;
     }
 
+    @Override
+    public void mutate() {
+        this.mutate(1,1);
+    }
+
+    @Override
+    public void mutate(double mutationChance, double range) {
+        Matrix mutation = new Matrix(this.rows,this.cols).randomize(mutationChance,range);
+        this.add(mutation);
+    }
 
     public Matrix map(Function<Double, Double> f){
         assert this.data != null : "Main.Main.NeuralNetwork.NeuralNetwork.Matrix is null";
