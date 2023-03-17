@@ -24,13 +24,18 @@ public class Gene implements mutable {
     }
 
     public void gene1to0Check(){
-        if(this.value < 0){
-            this.value = 0;
+        this.geneBoundCheck(0,1);
+    }
+
+    public void geneBoundCheck(double lowerBound, double upperBound){
+        if(this.value < lowerBound){
+            this.value = lowerBound;
         }
-        else if(this.value > 1){
-            this.value = 1;
+        else if(this.value > upperBound){
+            this.value = upperBound;
         }
     }
+
     //------------------------------------------------Getter and Setter------------------------------------------------
     public double getValue() {
         return value;
