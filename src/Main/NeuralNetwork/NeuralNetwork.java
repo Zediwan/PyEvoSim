@@ -1,6 +1,7 @@
 package Main.NeuralNetwork;
 import Main.Helper.Matrix;
 import Main.Helper.mutable;
+import Main.Organisms.Attributes.DNA.DNA;
 
 import java.awt.*;
 import java.util.function.Function;
@@ -11,9 +12,9 @@ public class NeuralNetwork implements mutable {
     //TODO: remove the activation function (as it should not be needed for this?)
 
     //Amount of nodes
-    public final int output_nodes;
-    public final int input_nodes;
-    public final int hidden_nodes;
+    public final int OUTPUT_NODES;
+    public final int INPUT_NODES;
+    public final int HIDDEN_NODES;
     //Weights
     public Matrix weights_ih;
     public Matrix weights_ho;
@@ -31,20 +32,20 @@ public class NeuralNetwork implements mutable {
 
     public NeuralNetwork(int input_nodes, int hidden_nodes, int output_nodes){
         //Amount of notes in each part
-        this.input_nodes = input_nodes;
-        this.hidden_nodes = hidden_nodes;
-        this.output_nodes = output_nodes;
+        this.INPUT_NODES = input_nodes;
+        this.HIDDEN_NODES = hidden_nodes;
+        this.OUTPUT_NODES = output_nodes;
 
         //Weights
-        this.weights_ih = new Matrix(this.hidden_nodes, this.input_nodes);
-        this.weights_ho = new Matrix(this.output_nodes, this.hidden_nodes);
+        this.weights_ih = new Matrix(this.HIDDEN_NODES, this.INPUT_NODES);
+        this.weights_ho = new Matrix(this.OUTPUT_NODES, this.HIDDEN_NODES);
         //Use random weights at the start
         this.weights_ih.randomize();
         this.weights_ho.randomize();
 
         //Biases
-        this.bias_h = new Matrix(this.hidden_nodes, 1);
-        this.bias_o = new Matrix(this.output_nodes,1);
+        this.bias_h = new Matrix(this.HIDDEN_NODES, 1);
+        this.bias_o = new Matrix(this.OUTPUT_NODES,1);
         //Use random biases at the start
         this.bias_h.randomize();
         this.bias_o.randomize();
@@ -53,10 +54,32 @@ public class NeuralNetwork implements mutable {
         this.setActivation_function(new ActivationFunction(ActivationFunction.sigmoid, ActivationFunction.dSigmoid));
     }
 
+    public NeuralNetwork(Matrix wih, Matrix who, Matrix bh, Matrix bo){
+        assert bh.getROWS() == wih.getROWS() : "Sizes of hidden layer don't match (bias and weights)";
+        assert bo.getROWS() == who.getROWS() : "Sizes of output layer don't match (bias and weights)";
+        assert wih.getROWS() == who.getCOLS() : "Sizes of hidden layer don't match (weights)";
+
+        //Amount of notes in each part
+        this.INPUT_NODES = wih.getCOLS();
+        this.HIDDEN_NODES = wih.getROWS();
+        this.OUTPUT_NODES = who.getROWS();
+
+        //Weights
+        this.weights_ih = wih;
+        this.weights_ho = who;
+
+        //Biases
+        this.bias_h = bh;
+        this.bias_o = bo;
+
+        this.setLearning_rate(.1);
+        this.setActivation_function(new ActivationFunction(ActivationFunction.sigmoid, ActivationFunction.dSigmoid));
+    }
+
     public NeuralNetwork(NeuralNetwork nn) {
-        this.input_nodes = nn.input_nodes;
-        this.hidden_nodes = nn.hidden_nodes;
-        this.output_nodes = nn.output_nodes;
+        this.INPUT_NODES = nn.INPUT_NODES;
+        this.HIDDEN_NODES = nn.HIDDEN_NODES;
+        this.OUTPUT_NODES = nn.OUTPUT_NODES;
 
         this.weights_ih = nn.weights_ih.copy();
         this.weights_ho = nn.weights_ho.copy();
@@ -66,13 +89,6 @@ public class NeuralNetwork implements mutable {
 
         this.setLearning_rate(nn.learning_rate);
         this.setActivation_function(nn.activation_function);
-    }
-
-    private void setActivation_function(ActivationFunction af) {
-        this.activation_function = af;
-    }
-    private void setLearning_rate(double lr) {
-        this.learning_rate = lr;
     }
 
     public double[] predict(double[] input_array) {
@@ -159,25 +175,31 @@ public class NeuralNetwork implements mutable {
         this.bias_h.map(func);
         this.bias_o.map(func);
     }
+
     public void mutate(){
-        this.weights_ih.add(new Matrix(this.hidden_nodes, this.input_nodes).randomize());
-        this.weights_ho.add(new Matrix(this.output_nodes, this.hidden_nodes).randomize());
-        this.bias_h.add(new Matrix(this.hidden_nodes, 1).randomize());
-        this.bias_o.add(new Matrix(this.output_nodes,1).randomize());
+        this.mutate(1,1);
     }
 
     public void mutate(double range){
-        this.weights_ih.add(new Matrix(this.hidden_nodes, this.input_nodes).randomize(range));
-        this.weights_ho.add(new Matrix(this.output_nodes, this.hidden_nodes).randomize(range));
-        this.bias_h.add(new Matrix(this.hidden_nodes, 1).randomize(range));
-        this.bias_o.add(new Matrix(this.output_nodes,1).randomize(range));
+        this.mutate(range, 1);
     }
 
     public void mutate(double range, double chance){
-        this.weights_ih.add(new Matrix(this.hidden_nodes, this.input_nodes).randomize(range,chance));
-        this.weights_ho.add(new Matrix(this.output_nodes, this.hidden_nodes).randomize(range,chance));
-        this.bias_h.add(new Matrix(this.hidden_nodes, 1).randomize(range,chance));
-        this.bias_o.add(new Matrix(this.output_nodes,1).randomize(range,chance));
+        this.weights_ih.mutate(range, chance);
+        this.weights_ho.mutate(range, chance);
+        this.bias_h.mutate(range, chance);
+        this.bias_o.mutate(range, chance);
+    }
+
+    public static NeuralNetwork crossover(NeuralNetwork n1, NeuralNetwork n2){
+        Matrix wih = Matrix.crossover(n1.weights_ih,n2.weights_ih);
+        Matrix who = Matrix.crossover(n1.weights_ho,n2.weights_ho);
+        Matrix bh = Matrix.crossover(n1.bias_h,n2.bias_h);
+        Matrix bo = Matrix.crossover(n1.bias_o,n2.bias_o);
+
+        NeuralNetwork n3 = new NeuralNetwork(wih,who,bh,bo);
+
+        return n3;
     }
 
     public void initializeVisualNetwork() {
@@ -185,35 +207,42 @@ public class NeuralNetwork implements mutable {
         //TODO: add biases to the nodes
         //TODO: idea jsut use an offset to place the nodes centred (look up the highest amount of nodes and just offset according to that)
         //add input Neurons
-        n.generateCentralizedNodes(-visualLayerOffset, this.input_nodes);
+        n.generateCentralizedNodes(-visualLayerOffset, this.INPUT_NODES);
         //for(int i = 0; i < this.input_nodes; i++) n.addNeuron(new Neuron(-50,i * 50));
 
         //add hidden Neurons
-        n.generateCentralizedNodes(0, this.hidden_nodes, this.bias_h.toArray());
+        n.generateCentralizedNodes(0, this.HIDDEN_NODES, this.bias_h.toArray());
         //for(int i = 0; i < this.hidden_nodes; i++) n.addNeuron(new Neuron(0,  i * 50, this.bias_h.data[i][0]));
 
         //add output Neurons
-        n.generateCentralizedNodes(visualLayerOffset, this.output_nodes, this.bias_o.toArray());
+        n.generateCentralizedNodes(visualLayerOffset, this.OUTPUT_NODES, this.bias_o.toArray());
         //for(int i = 0; i < this.output_nodes; i++) n.addNeuron(new Neuron(50 * 2,i * 50, this.bias_o.data[i][0]));
 
         //add all weights
 
         //connect input to hidden Neurons
-        for(int i = 0; i < this.input_nodes; i++){
-            for(int j = 0; j < this.hidden_nodes; j++){
-                n.connect(n.neurons.get(i), n.neurons.get(j+this.input_nodes), weights_ih.data[j][i]);
+        for(int i = 0; i < this.INPUT_NODES; i++){
+            for(int j = 0; j < this.HIDDEN_NODES; j++){
+                n.connect(n.neurons.get(i), n.neurons.get(j+this.INPUT_NODES), weights_ih.data[j][i]);
             }
         }
         //connect hidden to output Neurons
-        for(int i = 0; i < this.hidden_nodes; i++) {
-            for (int j = 0; j < this.output_nodes; j++) {
-                n.connect(n.neurons.get(i+this.input_nodes), n.neurons.get(j+this.hidden_nodes+this.input_nodes), weights_ho.data[j][i]);
+        for(int i = 0; i < this.HIDDEN_NODES; i++) {
+            for (int j = 0; j < this.OUTPUT_NODES; j++) {
+                n.connect(n.neurons.get(i+this.INPUT_NODES), n.neurons.get(j+this.HIDDEN_NODES +this.INPUT_NODES), weights_ho.data[j][i]);
             }
         }
     }
 
     public void update() {
         for(Neuron n : n.neurons) n.update();
+    }
+
+    private void setActivation_function(ActivationFunction af) {
+        this.activation_function = af;
+    }
+    private void setLearning_rate(double lr) {
+        this.learning_rate = lr;
     }
 
     public void paint(Graphics2D g, double x, double y) {
