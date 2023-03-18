@@ -292,6 +292,35 @@ public class Vector2D {
     }
 
     /**
+     * Calculates and returns the angle (in radians) between two vectors.
+     *
+     * @param v1 the x, y components of a Vector
+     * @param v2 the x, y components of a Vector
+     * @brief Calculate and return the angle between two vectors
+     */
+    static public double angleBetween(Vector2D v1, Vector2D v2) {
+
+        // We get NaN if we pass in a zero vector which can cause problems
+        // Zero seems like a reasonable angle between a (0,0,0) vector and something else
+        if (v1.x == 0 && v1.y == 0) return 0.0f;
+        if (v2.x == 0 && v2.y == 0) return 0.0f;
+
+        double dot = v1.x * v2.x + v1.y * v2.y;
+        double v1mag = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+        double v2mag = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+        // This should be a number between -1 and 1, since it's "normalized"
+        double amt = dot / (v1mag * v2mag);
+        // But if it's not due to rounding error, then we need to fix it
+        // Otherwise if outside the range, acos() will return NaN
+        if (amt <= -1) {
+            return Math.PI;
+        } else if (amt >= 1) {
+            return 0;
+        }
+        return Math.acos(amt);
+    }
+
+    /**
      * Make a new 2D unit vector from an angle
      * @param target the target vector (if null, a new vector will be created)
      * @return the vector
@@ -314,6 +343,31 @@ public class Vector2D {
      */
     static public Vector2D fromAngle(double angle) {
         return fromAngle(angle,null);
+    }
+
+    /**
+     * Rotate the vector by an angle (only 2D vectors), magnitude remains the same
+     *
+     * @brief Rotate the vector by an angle (2D only)
+     * @param theta the angle of rotation
+     */
+    public Vector2D rotate(double theta) {
+        double temp = x;
+        // Might need to check for rounding errors like with angleBetween function?
+        x = x*Math.cos(theta) - y*Math.sin(theta);
+        y = temp*Math.sin(theta) + y*Math.cos(theta);
+        return this;
+    }
+
+    /**
+     * Calculate the angle of rotation for this vector (only 2D vectors)
+     *
+     * @return the angle of rotation
+     * @brief Calculate the angle of rotation for this vector
+     */
+    public float heading() {
+        float angle = (float) Math.atan2(y, x);
+        return angle;
     }
 
     /**
