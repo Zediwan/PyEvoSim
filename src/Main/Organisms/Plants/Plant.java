@@ -69,7 +69,7 @@ public class Plant extends Organism {
         transform.getLocation().add(displacement);
 
         DNA newDNA = this.dna.copy();
-        newDNA.mutate(this.mutationChancesDNA,this.mutationSizeDNA);
+        newDNA.mutate(this.mutProbDNA,this.mutSizeDNA);
 
         return new Plant(transform, newDNA);
     }
