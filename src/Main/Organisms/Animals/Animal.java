@@ -3,6 +3,7 @@ package Main.Organisms.Animals;
 import Main.CFrame;
 import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA.DNA;
+import Main.Organisms.Attributes.DNA.Gene;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
@@ -10,19 +11,28 @@ import Main.Organisms.Organism;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Animal extends Organism {
     public static long aniCount = 0;
+    private static Animal blueprint;
+    private static double baseExhaustDmg = 1;
+    private static double allMaxSize = 4;
+    private static double allMaxSpeed = 4;
 
+    //TODO how should generations be handled when there are two parents?
+    protected int generation = 0;
     protected Gender gender;
     protected double maxSpeed, maxForce;
     protected NeuralNetwork nn;
+    protected double reproductiveUrge = 0;
 
     //------------------------------------------------DNA Variables----------------------------------------------------
 
     protected double speedRatio;                    //[9]
     protected double strength;                      //[10]  //TODO: make this depend on size, via a ration or something
-    protected double layTime;                       //[11]
+    protected long gestationDuration;               //[11]
     protected double incubationTime;                //[12]
     protected double hatchTime;                     //[13]
     protected double viewAngle;                     //[14]
@@ -34,16 +44,8 @@ public class Animal extends Organism {
     //-----------------------------------------------------------------------------------------------------------------
 
     //Constructors
-    public Animal(Transform transform, DNA dna){
-        super(transform,dna);
-
-        Animal.aniCount++;
-        this.id = Animal.aniCount;
-
-        this.expressGenes();
-    }
-
-    public Animal(){
+    //Used for population by system
+    public Animal() {
         super();
 
         Animal.aniCount++;
@@ -51,76 +53,246 @@ public class Animal extends Organism {
 
         this.dna = new DNA();
         this.expressGenes();
-
-        this.invariant();
     }
 
+    //Used for population by reproduction
+    public Animal(Animal father, Animal mother){
+        super(father,mother);
+
+        this.dna = DNA.crossover(father.getDna(), mother.getDna());
+        this.dna.mutate(mother.getDna().getGene(5).getValue(), mother.getDna().getGene(4).getValue());
+
+        this.nn = NeuralNetwork.crossover(father.getNn(), mother.getNn());
+        this.nn.mutate(mother.getDna().getGene(7).getValue(), mother.getDna().getGene(6).getValue());
+
+        Animal.aniCount++;
+        this.id = Animal.aniCount;
+        this.generation += Math.max(father.generation,mother.generation) + 1;
+
+        this.expressGenes();
+    }
+
+    //Used for explicit creation
+    public Animal(Transform transform, DNA dna, NeuralNetwork nn){
+        super(transform,dna);
+
+        Animal.aniCount++;
+        this.id = Animal.aniCount;
+
+        this.expressGenes();
+        this.nn = nn;
+    }
+
+    //TODO Test
+    //TODO write documentation
+    //this is a singleton pattern
+    public static Animal blueprint(){
+        if(Animal.blueprint == null) {
+            Transform t = new Transform();  //location is at (0,0)
+
+            Gene[] genes = {
+                    //TODO: set default parameters
+                    new Gene(.1, "sizeRatio"),
+                    new Gene(128, "colorRed"),
+                    new Gene(128, "colorGreen"),
+                    new Gene(128, "colorBlue"),
+                    new Gene(.1, "mutSizeDNA"),
+                    new Gene(.01, "mutProbDNA"),
+                    new Gene(.1, "mutSizeNN"),
+                    new Gene(.01, "mutProbNN"),
+                    new Gene(1, "attractiveness"),
+                    new Gene(.1, "speedRatio"),
+                    new Gene(1, "strength"),
+                    new Gene(5*1000, "gestationDuration"),
+                    new Gene(1, "incubationTime"),
+                    new Gene(1, "hatchTime"),
+                    new Gene(45, "viewAngle"),
+                    new Gene(4, "viewDistance"),
+                    new Gene(1, "timerFrequency"),
+                    new Gene(1, "pheromoneSensibility")
+            };
+            DNA dna = new DNA(genes);
+
+            //TODO: check if these are the correct default amount of inputs
+            NeuralNetwork nn = new NeuralNetwork(12, 36, 3);
+
+            Animal blueprint = new Animal(t,dna,nn);
+            Animal.aniCount--;  //to not increase the counter when not needed
+            blueprint.id = 0;
+
+            Animal.blueprint = blueprint;
+        }
+        return Animal.blueprint;
+    }
+
+    //TODO Test
+    //TODO write documentation
     @Override
     public void expressGenes() {
         super.expressGenes();
         int shift = Organism.numberOrganismGenes;
+
         this.gender = Gender.getRandomGender();
-        this.speedRatio = (int)Math.round(this.dna.getGene(shift+0).getValue());
-        this.strength = (int)Math.round(this.dna.getGene(shift+1).getValue());
-        this.layTime = (int)Math.round(this.dna.getGene(shift+2).getValue());
-        this.incubationTime = (int)Math.round(this.dna.getGene(shift+3).getValue());
-        this.hatchTime = (int)Math.round(this.dna.getGene(shift+4).getValue());
-        this.viewAngle = (int)Math.round(this.dna.getGene(shift+5).getValue());
-        this.viewDistance = (int)Math.round(this.dna.getGene(shift+6).getValue());
-        this.timerFrequency = (int)Math.round(this.dna.getGene(shift+7).getValue());
-        this.pheromoneSensibility = (int)Math.round(this.dna.getGene(shift+8).getValue());
+
+        this.dna.getGene(shift+0).gene0to1Check();
+        this.speedRatio = this.dna.getGene(shift+0).getValue();
+
+        this.strength = this.dna.getGene(shift+1).getValue();
+
+        this.gestationDuration = Math.round(this.dna.getGene(shift+2).getValue());
+
+        //TODO this may be deleted
+        this.incubationTime = this.dna.getGene(shift+3).getValue();
+        //TODO this may be delete
+        this.hatchTime = this.dna.getGene(shift+4).getValue();
+
+        this.viewAngle = this.dna.getGene(shift+5).getValue();
+
+        this.viewDistance = this.dna.getGene(shift+6).getValue();
+
+        this.timerFrequency = this.dna.getGene(shift+7).getValue();
+
+        this.pheromoneSensibility = this.dna.getGene(shift+8).getValue();
+
+        this.transform.size = Animal.allMaxSize * this.sizeRatio;
+        this.maxSpeed = Animal.allMaxSpeed * this.speedRatio;
     }
 
+    //TODO Test
+    //TODO write documentation
     @Override
     public void update() {
-        //update position
+        assert !this.isDead() : "this is dead";
+        //TODO add physics so they can't run through into another and don't clip
+
+        this.think();
+            //use energy for thinking
+
+        //Movement
+        //TODO: maybe refactor this?
+        //TODO check if this should be tweaked (relation to size, resistance, slipperiness, etc.)
+        this.transform.velocity.add(this.transform.acceleration);
+        this.transform.velocity.limit(maxSpeed);
+        this.transform.location.add(this.transform.velocity);
+        this.transform.acceleration.mult(0);
+
         //update variables and states
+            //this.energy -= this.metabolismCost();   //use energy to move
+            //use energy for existing
+            //use energy for moving
+        if(this.energy <= 0){
+            this.takeDamage(this.energy - Animal.baseExhaustDmg);
+        }
+
+        this.borders1();
     }
 
+    //TODO Test
+    //TODO write documentation
     public void think(){
         //collect input for nn
+            //variables
+        double healthRatio;
+        double energyRatio;
+        this.speed();
+            //TODO challenge how to animals detect what animals are hunter and prey?
+            //search closest food
+                //get coordinates
+                //get angle
+                //amount of food visable
+            //search closest animal
+                //get coordinates
+                //get angle
+                //amount of animals visable
         //think
+
+        /*
+        ----OUTPUS----
+        Accelerate
+        Rotate
+        Herding Desire
+        Mate Desire
+        Eat Desire
+        Growth
+        Healing Strength
+        Want to Attack (aggressiveness)
+         */
     }
 
+    //TODO Test
+    //TODO write documentation
     @Override
     public void grow() {
         //when should an animal be able to grow? what does grow actually mean?
     }
 
-    public boolean mate(Organism mate){
-        boolean doMate = false; //TODO: when do two organisms mate?
+    //TODO Test
+    //TODO write documentation
+    public boolean mate(Animal mate){
+        Animal self = this;
+        //TODO: when do two organisms mate?
+        boolean doMate = this.attractiveness <= mate.getAttractiveness() * this.reproductiveUrge;
         if(doMate){
-            if(this.gender == Gender.FEMALE){
+            if(gender.canBirth()){
                 //what happens if female
-            }else{
-                //what happens if male
+                this.gender.setMate(mate);
+
+                new Timer().schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                self.reproduce();
+                            }
+                        },
+                        this.gestationDuration
+                );
             }
         }
         return doMate;
     }
 
+    //TODO Test
+    //TODO write documentation
     @Override
-    public Organism reproduce(DNA mateDNA) {
+    public Organism reproduce() {
         Organism child = null;
-        if(this.gender == Gender.FEMALE){
-            //what happens if female
-        }else{
-            //what happens if male
+        if(this.gender.canBirth()) {
+            child = new Animal(this, gender.getMate());
         }
         return child;
     }
 
+    //TODO Test
+    //TODO write documentation
     //Collision registration
     public boolean collision(Organism o){
         //check if this collides with something
-        return false;
+        return this.getLocation().distSq(o.getLocation()) <= Math.pow(this.getR() + o.getR(), 2);
     }
 
+    //TODO Test
+    //TODO write documentation
     //Search for food
-    public Organism searchFood(ArrayList<Organism> organisms){
-        return null;
+    public Organism searchClosest(ArrayList<Organism> organisms){
+        assert !this.isDead() : "This is dead";
+
+        Organism closestOrganism = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+
+        //calculate the closest organism
+        for(Organism o : organisms){
+            double distance = this.getLocation().distSq(o.getLocation());
+            //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
+                closestDistance = distance;
+                closestOrganism = o;
+            }
+        }
+        return closestOrganism;
     }
 
+    //TODO Test
+    //TODO write documentation
     //Border handling
     public void borders1(){
         if(this.transform.location.x < -this.transform.getR())this.transform.location.x = CFrame.WIDTH;
@@ -128,6 +300,9 @@ public class Animal extends Organism {
         if(this.transform.location.x > CFrame.WIDTH + this.transform.getR())this.transform.location.x = 0;
         if(this.transform.location.y > CFrame.HEIGHT + this.transform.getR())this.transform.location.y = 0;
     }
+
+    //TODO Test
+    //TODO write documentation
     public void borders2(){
         Vector2D desired = new Vector2D();
 
@@ -159,6 +334,7 @@ public class Animal extends Organism {
     }
 
     public double metabolismCost(){
+        //TODO does this make sense? shouldn't more energy be used when bigger?
         return this.speed() / (2*this.size());
     }
 
