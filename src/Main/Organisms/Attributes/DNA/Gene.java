@@ -23,7 +23,7 @@ public class Gene implements mutable {
         }
     }
 
-    public void gene1to0Check(){
+    public void gene0to1Check(){
         this.geneBoundCheck(0,1);
     }
 
