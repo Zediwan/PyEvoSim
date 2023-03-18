@@ -30,6 +30,7 @@ public class Transform {
         this.acceleration = new Vector2D();
     }
     public Transform(float x, float y){this(new Vector2D(x,y));}
+
     public Transform(){
         this(new Vector2D());
     }
