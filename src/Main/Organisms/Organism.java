@@ -1,32 +1,21 @@
 package Main.Organisms;
 
-import Main.CFrame;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
-import Main.Organisms.Attributes.DNA.Gene;
-import Main.Organisms.Attributes.Gender;
 
 import java.awt.*;
 
 public abstract class Organism {
     public static long orgCount = 0;
-    /*
-    public static DNA generalDNA = new DNA(
-            new double[]{
-
-            },
-            new String[]{
-
-            }
-    );
-     */
 
     protected Transform transform;
     protected DNA dna;
     protected long birt = 0;
     protected double id;
     protected double health = 100;
+    protected double energy = 100;
+    protected Color color;                  //color of the organism
 
     //------------------------------------------------DNA Variables----------------------------------------------------
 
@@ -34,15 +23,36 @@ public abstract class Organism {
     protected int colorRed;                 //[1]   0.0-1.0
     protected int colorGreen;               //[2]   0.0-1.0
     protected int colorBlue;                //[3]   0.0-1.0
-    protected Color color;                  //      color of the organism
-    protected double mutationSizeDNA;       //[4]   how much
-    protected double mutationChancesDNA;    //[5]   how likely
-    protected double mutationSizeNN;        //[6]   how much
-    protected double mutationChancesNN;     //[7]   how likely
+    protected double mutSizeDNA;            //[4]   how much
+    protected double mutProbDNA;            //[5]   how likely
+    protected double mutSizeNN;             //[6]   how much
+    protected double mutProbNN;             //[7]   how likely
     protected double attractiveness;        //[8]
     protected static int numberOrganismGenes = 9;
 
     //-----------------------------------------------------------------------------------------------------------------
+
+    public Organism(){
+        this(new Transform(), new DNA());
+        Organism.orgCount++;
+    }
+
+    public Organism(Organism father, Organism mother){
+        this.transform = new Transform(mother.getLocation());
+
+        this.birt = System.currentTimeMillis();
+
+        Organism.orgCount++;
+    }
+
+    public Organism(Organism ancestor){
+        this(ancestor,ancestor);
+    }
+
+    public Organism(double width, double height){
+        this(new Transform(Vector2D.randLimVec(width,height)), new DNA());
+        Organism.orgCount++;
+    }
 
     public Organism(Transform transform, DNA dna){
         this.transform = transform.clone();
@@ -52,30 +62,36 @@ public abstract class Organism {
         Organism.orgCount++;
     }
 
-    public Organism(){
-        //TODO: change this so it doesn't need the CFrame class
-        this(new Transform(Vector2D.randLimVec(CFrame.WIDTH,CFrame.HEIGHT)), new DNA());
-        Organism.orgCount++;
-    }
-
     public void expressGenes(){
+        this.dna.getGene(0).gene0to1Check();
         this.sizeRatio = this.dna.getGene(0).getValue();
+
+        this.dna.getGene(1).geneBoundCheck(0,255);
         this.colorRed = (int)Math.round(this.dna.getGene(1).getValue());
+        this.dna.getGene(2).geneBoundCheck(0,255);
         this.colorGreen = (int)Math.round(this.dna.getGene(2).getValue());
+        this.dna.getGene(3).geneBoundCheck(0,255);
         this.colorBlue = (int)Math.round(this.dna.getGene(3).getValue());
-        this.color = new Color(this.colorRed,this.colorGreen,this.colorBlue);
-        this.mutationSizeDNA = this.dna.getGene(4).getValue();
-        this.mutationChancesDNA = this.dna.getGene(5).getValue();
-        this.mutationSizeNN = this.dna.getGene(6).getValue();
-        this.mutationChancesNN = this.dna.getGene(7).getValue();
+
+        this.mutSizeDNA = this.dna.getGene(4).getValue();
+        this.dna.getGene(5).gene0to1Check();
+        this.mutProbDNA = this.dna.getGene(5).getValue();
+        this.mutSizeNN = this.dna.getGene(6).getValue();
+        this.dna.getGene(6).gene0to1Check();
+        this.mutProbNN = this.dna.getGene(7).getValue();
         this.attractiveness = this.dna.getGene(8).getValue();
+
+        assert this.colorRed < 255 && this.colorRed > 0 : "R Value is not in range " + this.colorRed;
+        assert this.colorGreen < 255 && this.colorGreen > 0 : "G Value is not in range " + this.colorGreen;
+        assert this.colorBlue < 255 && this.colorBlue > 0 : "B Value is not in range " + this.colorBlue;
+        this.color = new Color(this.colorRed,this.colorGreen,this.colorBlue);
     }
 
     public abstract void update();
 
     public abstract void grow();
 
-    public abstract Organism reproduce(DNA mateDNA);
+    public abstract Organism reproduce();
 
     //------------------------------------------------Getter and Setter------------------------------------------------
 
@@ -96,6 +112,10 @@ public abstract class Organism {
 
     public void setTransform(Transform transform) {
         this.transform = transform;
+    }
+
+    public double getR() {
+        return this.transform.getR();
     }
 
     public Vector2D getLocation(){return this.transform.getLocation();}
@@ -168,36 +188,36 @@ public abstract class Organism {
         this.color = color;
     }
 
-    public double getMutationSizeDNA() {
-        return mutationSizeDNA;
+    public double getMutSizeDNA() {
+        return mutSizeDNA;
     }
 
-    public void setMutationSizeDNA(double mutationSizeDNA) {
-        this.mutationSizeDNA = mutationSizeDNA;
+    public void setMutSizeDNA(double mutSizeDNA) {
+        this.mutSizeDNA = mutSizeDNA;
     }
 
-    public double getMutationChancesDNA() {
-        return mutationChancesDNA;
+    public double getMutProbDNA() {
+        return mutProbDNA;
     }
 
-    public void setMutationChancesDNA(double mutationChancesDNA) {
-        this.mutationChancesDNA = mutationChancesDNA;
+    public void setMutProbDNA(double mutProbDNA) {
+        this.mutProbDNA = mutProbDNA;
     }
 
-    public double getMutationSizeNN() {
-        return mutationSizeNN;
+    public double getMutSizeNN() {
+        return mutSizeNN;
     }
 
-    public void setMutationSizeNN(double mutationSizeNN) {
-        this.mutationSizeNN = mutationSizeNN;
+    public void setMutSizeNN(double mutSizeNN) {
+        this.mutSizeNN = mutSizeNN;
     }
 
-    public double getMutationChancesNN() {
-        return mutationChancesNN;
+    public double getMutProbNN() {
+        return mutProbNN;
     }
 
-    public void setMutationChancesNN(double mutationChancesNN) {
-        this.mutationChancesNN = mutationChancesNN;
+    public void setMutProbNN(double mutProbNN) {
+        this.mutProbNN = mutProbNN;
     }
 
     public double getAttractiveness() {
@@ -212,14 +232,30 @@ public abstract class Organism {
         return this.health;
     }
     public void setHealth(double health){this.health = health;}
-
     public void takeDamage(double damage) {
-        this.health -= damage;
+        //if the damage is negative it should be added to remove the right amount and not add to the health
+        if(damage <= 0){
+            this.health += damage;
+        }
+        //if the damage is positive the amount should be subtracted
+        else{
+            this.health -= damage;
+        }
+
     }
+
+    public double getEnergy(){return this.energy;}
+    public void setEnergy(double energy){this.energy = energy;}
+    public void useEnergy(double energyUsed){
+        this.energy -= energyUsed;
+        //TODO should energy be set to 0 as a minimum or not?
+        //public void takeDamage(double damage) {
+        //        this.health -= damage;
+        //    }
+    }
+
 
     //------------------------------------------------toString and paint-----------------------------------------------
 
     public abstract void paint(Graphics2D g);
-
-
 }
