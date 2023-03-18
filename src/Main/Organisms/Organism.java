@@ -13,7 +13,8 @@ public abstract class Organism {
     protected DNA dna;
     protected long birt = 0;
     protected double id;
-    protected double health = 100;
+    protected double maxHealth = 100;
+    protected double health = maxHealth;
     protected double energy = 100;
     protected Color color;                  //color of the organism
 
@@ -241,17 +242,25 @@ public abstract class Organism {
         else{
             this.health -= damage;
         }
+    }
+    public void restoreHealth(double restoredHealth) {
+        assert restoredHealth >= 0 : "restored amount is negative";
 
+        this.health += restoredHealth;
+        if(this.health > maxHealth){
+            this.health = maxHealth;
+        }
     }
 
     public double getEnergy(){return this.energy;}
     public void setEnergy(double energy){this.energy = energy;}
     public void useEnergy(double energyUsed){
-        this.energy -= energyUsed;
-        //TODO should energy be set to 0 as a minimum or not?
-        //public void takeDamage(double damage) {
-        //        this.health -= damage;
-        //    }
+        if(this.energy >= energyUsed){
+            this.energy -= energyUsed;
+        }
+        else{
+            this.takeDamage(energyUsed);
+        }
     }
 
 
