@@ -1,5 +1,7 @@
 package Main.Organisms.Attributes;
 
+import Main.Organisms.Animals.Animal;
+
 public enum Gender {
     //TODO: implement methods that come with being female f.e. getPregnant and giveBirth
     MALE{
@@ -8,6 +10,20 @@ public enum Gender {
     FEMALE{
 
     };
+
+    private Animal mate;
+
+    public boolean canBirth(){
+        return this == FEMALE;
+    }
+
+    public Animal getMate(){
+        return mate;
+    }
+
+    public void setMate(Animal mate){
+        this.mate = mate;
+    }
 
     /**
      * @return a random Gender
