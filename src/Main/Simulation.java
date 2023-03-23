@@ -1,8 +1,6 @@
 package Main;
 
 import Main.Organisms.Animals.Animal;
-import Main.Organisms.Animals.Fox;
-import Main.Organisms.Animals.Rabbit;
 import Main.Organisms.Organism;
 import Main.Organisms.Plants.Grass;
 import Main.Organisms.Plants.Plant;
@@ -20,51 +18,49 @@ public class Simulation extends JPanel {
     private boolean paintNN = true;                 //enables displaying a NN
 
     //TODO: this should be chosen by clicking an organism and then displaying their stats
-    private Animal currentTrackedR;   //the currently tracked Rabbit
-    private Animal currentTrackedF;   //the currently tracked Fox
+    private Animal currentTrackedA;   //the currently tracked Animal
 
     //Lists containing the organisms
     //TODO: think if there is a better way to handle these organisms
-    private ArrayList<Rabbit> rabbits = new ArrayList<>();
-    private ArrayList<Fox> foxes = new ArrayList<>();
+    private ArrayList<Animal> animals = new ArrayList<>();
     private ArrayList<Plant> plants = new ArrayList<>();
 
     //SIMULATION VARIABLES-------------------------------------------------------
     //amount of stating organisms
     //TODO: make these choose-able in a menu before starting a simulation
     private int startingPlants;
-    private int startingRabbits;
-    private int startingFoxes;
+    private int startingAnimals;
 
     //TODO: implement a slider to control this during the simulation
     private int maxNumPlants;           //The maximum amount of Plants allowed in the simulation at once
-    private int minNumRabbits;          //The amount at which the system starts spawning new Rabbits
-    private int minNumFoxes;            //The amount at which the system starts spawning new Foxes
+    private int minNumPlants;
+    private int maxNumAnimals;
+    private int minNumAnimals;          //The amount at which the system starts spawning new Animals
 
     //TODO: implement a slider to control this during the simulation
     private int numNewPlants;          //The amount of new Plants being spawned each tick
-    private int numNewRabbits;         //The amount of new Rabbits being spawned each tick
-    private int numNewFoxes;           //The amount of new Foxes being spawned each tick
+    private int numNewAnimals;         //The amount of new animals being spawned each tick
 
-    private World world;
     private static int simNum = 0;
     private int simID;
 
-    public Simulation(int stP, int stR, int stF,
-                      int maxP, int minR, int minF,
-                      int newP, int newR, int newF,
+    private World world;
+
+
+    public Simulation(int stP, int stA,
+                      int maxP, int minP, int maxA, int minA,
+                      int newP, int newA,
                       World w){
         this.startingPlants = stP;
-        this.startingRabbits = stR;
-        this.startingFoxes = stF;
+        this.startingAnimals = stA;
 
         this.maxNumPlants = maxP;
-        this.minNumRabbits = minR;
-        this.minNumFoxes = minF;
+        this.minNumPlants = minP;
+        this.maxNumAnimals = maxA;
+        this.minNumAnimals = minA;
 
         this.numNewPlants = newP;
-        this.numNewRabbits = newR;
-        this.numNewFoxes = newF;
+        this.numNewAnimals = newA;
 
         this.world = w;
 
@@ -85,8 +81,7 @@ public class Simulation extends JPanel {
         super.paintComponent(g);
 
         this.updatePlants(g);
-        this.updateRabbits(g);
-        this.updateFoxes(g);
+        this.updateAnimals(g);
         this.controlPops();
     }
 
@@ -108,11 +103,8 @@ public class Simulation extends JPanel {
         for(int i = 0; i < this.startingPlants; i++){
             this.plants.add(new Grass());
         }
-        for(int i = 0; i < this.startingRabbits; i++){
-            this.rabbits.add(new Rabbit());
-        }
-        for(int i = 0; i < this.startingFoxes; i++){
-            this.foxes.add(new Fox());
+        for(int i = 0; i < this.startingAnimals; i++){
+            this.animals.add(new Animal());
         }
     }
 
@@ -127,16 +119,10 @@ public class Simulation extends JPanel {
                 this.plants.add(new Grass());
             }
         }
-        //control rabbit pop
-        if(this.rabbits.size() < minNumRabbits){
-            for(int i = 0; i < numNewRabbits; i++){
-                this.rabbits.add(new Rabbit());
-            }
-        }
-        //control fox pop
-        if(this.foxes.size() < minNumFoxes){
-            for(int i = 0; i < numNewFoxes; i++){
-                this.foxes.add(new Fox());
+        //control animal pop
+        if(this.animals.size() < minNumAnimals){
+            for(int i = 0; i < numNewAnimals; i++){
+                this.animals.add(new Animal());
             }
         }
     }
@@ -148,14 +134,14 @@ public class Simulation extends JPanel {
      */
     private void updatePlants(Graphics g) {
         for(int i = this.plants.size()-1; i >= 0; i--){
-            Organism o = this.plants.get(i);
-            if(o.isDead()) {
-                this.plants.remove(o);      //if the plant is dead, then remove it
+            Plant p = this.plants.get(i);
+            if(p.isDead()) {
+                this.plants.remove(p);      //if the plant is dead, then remove it
             }
             else{
-                this.world.updatePlant(o);
-                o.paint((Graphics2D) g);
-                o.update();
+                this.world.updatePlant(p);
+                p.paint((Graphics2D) g);
+                p.update();
             }
         }
     }
@@ -164,34 +150,16 @@ public class Simulation extends JPanel {
     /**
      * Updates all the Rabbits in the simulation, removing any dead, updating and painting any that are not
      */
-    private void updateRabbits(Graphics g) {
-        for(int i = this.rabbits.size()-1; i >= 0; i--){
-            Organism o = this.rabbits.get(i);
-            if(o.isDead()) {
-                this.rabbits.remove(o);      //if the plant is dead, then remove it
+    private void updateAnimals(Graphics g) {
+        for(int i = this.animals.size()-1; i >= 0; i--){
+            Animal a = this.animals.get(i);
+            if(a.isDead()) {
+                this.animals.remove(a);      //if the plant is dead, then remove it
             }
             else{
-                this.world.updateRabbit(o);
-                o.paint((Graphics2D) g);
-                o.update();
-            }
-        }
-    }
-
-    //TODO: Test
-    /**
-     * Updates all the Foxes in the simulation, removing any dead, updating and painting any that are not
-     */
-    private void updateFoxes(Graphics g) {
-        for(int i = this.foxes.size()-1; i >= 0; i--){
-            Organism o = this.foxes.get(i);
-            if(o.isDead()) {
-                this.foxes.remove(o);      //if the plant is dead, then remove it
-            }
-            else{
-                this.world.updateFox(o);
-                o.paint((Graphics2D) g);
-                o.update();
+                this.world.updateAnimal(a);
+                a.paint((Graphics2D) g);
+                a.update();
             }
         }
     }
@@ -219,28 +187,10 @@ public class Simulation extends JPanel {
      * Maybe this can be refactored, so it is one method for all organisms and arguments can be given to choose.
      * @return the average health of all living Rabbits.
      */
-    public double getAVGHealthRabbits(){
+    public double getAVGHealthAnimals(){
         double count = 0;
         double avg = 0;
-        for(Organism o : this.rabbits){
-            count++;
-            avg += o.getHealth();
-        }
-        if(count != 0){
-            avg /= count;
-        }
-        return avg;
-    }
-
-    /**
-     * A method to calculate the current average Health of all Foxes.
-     * Maybe this can be refactored, so it is one method for all organisms and arguments can be given to choose.
-     * @return the average health of all living Foxes.
-     */
-    public double getAVGHealthFoxes(){
-        double count = 0;
-        double avg = 0;
-        for(Organism o : this.foxes){
+        for(Organism o : this.animals){
             count++;
             avg += o.getHealth();
         }
@@ -273,28 +223,10 @@ public class Simulation extends JPanel {
      * Maybe this can be refactored, so it is one method for all organisms and arguments can be given to choose.
      * @return the average age of all living Rabbits.
      */
-    public double getAVGAgeRabbits(){
+    public double getAVGAgeAnimals(){
         double count = 0;
         double avg = 0;
-        for(Organism o : this.rabbits){
-            count++;
-            avg += o.getAge();
-        }
-        if(count != 0){
-            avg /= count;
-        }
-        return avg;
-    }
-
-    /**
-     * A method to calculate the current average Age of all Foxes.
-     * Maybe this can be refactored, so it is one method for all organisms and arguments can be given to choose.
-     * @return the average age of all living Foxes.
-     */
-    public double getAVGAgeFoxes(){
-        double count = 0;
-        double avg = 0;
-        for(Organism o : this.foxes){
+        for(Organism o : this.animals){
             count++;
             avg += o.getAge();
         }
@@ -322,20 +254,12 @@ public class Simulation extends JPanel {
         this.paintNN = paintNN;
     }
 
-    public Animal getCurrentTrackedR() {
-        return this.currentTrackedR;
+    public Animal getCurrentTrackedA() {
+        return this.currentTrackedA;
     }
 
-    public void setCurrentTrackedR(Animal currentTrackedR) {
-        this.currentTrackedR = currentTrackedR;
-    }
-
-    public Animal getCurrentTrackedF() {
-        return this.currentTrackedF;
-    }
-
-    public void setCurrentTrackedF(Animal currentTrackedF) {
-        this.currentTrackedF = currentTrackedF;
+    public void setCurrentTrackedA(Animal currentTrackedA) {
+        this.currentTrackedA = currentTrackedA;
     }
 
     public int getStartingPlants() {
@@ -346,20 +270,12 @@ public class Simulation extends JPanel {
         this.startingPlants = startingPlants;
     }
 
-    public int getStartingRabbits() {
-        return startingRabbits;
+    public int getStartingAnimals() {
+        return startingAnimals;
     }
 
-    public void setStartingRabbits(int startingRabbits) {
-        this.startingRabbits = startingRabbits;
-    }
-
-    public int getStartingFoxes() {
-        return startingFoxes;
-    }
-
-    public void setStartingFoxes(int startingFoxes) {
-        this.startingFoxes = startingFoxes;
+    public void setStartingAnimals(int startingAnimals) {
+        this.startingAnimals = startingAnimals;
     }
 
     public int getMaxNumPlants() {
@@ -370,20 +286,12 @@ public class Simulation extends JPanel {
         this.maxNumPlants = maxNumPlants;
     }
 
-    public int getMinNumRabbits() {
-        return minNumRabbits;
+    public int getMinNumAnimals() {
+        return minNumAnimals;
     }
 
-    public void setMinNumRabbits(int minNumRabbits) {
-        this.minNumRabbits = minNumRabbits;
-    }
-
-    public int getMinNumFoxes() {
-        return minNumFoxes;
-    }
-
-    public void setMinNumFoxes(int minNumFoxes) {
-        this.minNumFoxes = minNumFoxes;
+    public void setMinNumAnimals(int minNumAnimals) {
+        this.minNumAnimals = minNumAnimals;
     }
 
     public int getNumNewPlants() {
@@ -394,19 +302,11 @@ public class Simulation extends JPanel {
         this.numNewPlants = numNewPlants;
     }
 
-    public int getNumNewRabbits() {
-        return numNewRabbits;
+    public int getNumNewAnimals() {
+        return numNewAnimals;
     }
 
-    public void setNumNewRabbits(int numNewRabbits) {
-        this.numNewRabbits = numNewRabbits;
-    }
-
-    public int getNumNewFoxes() {
-        return numNewFoxes;
-    }
-
-    public void setNumNewFoxes(int numNewFoxes) {
-        this.numNewFoxes = numNewFoxes;
+    public void setNumNewAnimals(int numNewAnimals) {
+        this.numNewAnimals = numNewAnimals;
     }
 }
