@@ -1,12 +1,10 @@
 package Main.Organisms.Animals;
 
-import Main.CFrame;
 import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
 import Main.Organisms.Attributes.Gender;
 import Main.Helper.Transform;
-import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
 
 import java.awt.*;
@@ -51,7 +49,8 @@ public class Animal extends Organism {
         Animal.aniCount++;
         this.id = Animal.aniCount;
 
-        this.dna = new DNA();
+        this.dna = Animal.blueprint().getDna();
+        this.dna.mutate();
         this.expressGenes();
     }
 
@@ -155,6 +154,7 @@ public class Animal extends Organism {
         this.pheromoneSensibility = this.dna.getGene(shift+8).getValue();
 
         this.transform.size = Animal.allMaxSize * this.sizeRatio;
+        this.transform.setShape(this.transform.getRectangle());
         this.maxSpeed = Animal.allMaxSpeed * this.speedRatio;
     }
 
@@ -162,6 +162,7 @@ public class Animal extends Organism {
     //TODO write documentation
     @Override
     public void update() {
+        //System.out.println(this.getLocation());
         assert !this.isDead() : "this is dead";
         //TODO add physics so they can't run through into another and don't clip
 
@@ -169,12 +170,8 @@ public class Animal extends Organism {
             //use energy for thinking
 
         //Movement
-        //TODO: maybe refactor this?
         //TODO check if this should be tweaked (relation to size, resistance, slipperiness, etc.)
-        this.transform.velocity.add(this.transform.acceleration);
-        this.transform.velocity.limit(maxSpeed);
-        this.transform.location.add(this.transform.velocity);
-        this.transform.acceleration.mult(0);
+        this.transform.move(this.maxSpeed);
 
         //update variables and states
             //this.energy -= this.metabolismCost();   //use energy to move
@@ -183,8 +180,6 @@ public class Animal extends Organism {
         if(this.energy <= 0){
             this.takeDamage(this.energy - Animal.baseExhaustDmg);
         }
-
-        this.borders1();
     }
 
     //TODO Test
@@ -291,6 +286,7 @@ public class Animal extends Organism {
         return closestOrganism;
     }
 
+    /*
     //TODO Test
     //TODO write documentation
     //Border handling
@@ -332,12 +328,7 @@ public class Animal extends Organism {
         steer.limit(this.maxForce);
         this.transform.applyForce(steer);
     }
-    public void borders3(){
-        if(this.transform.location.x < -this.transform.getR()) this.transform.location.x = 0;
-        if(this.transform.location.y < -this.transform.getR()) this.transform.location.y = 0;
-        if(this.transform.location.x > CFrame.WIDTH + this.transform.getR()) this.transform.location.x = CFrame.WIDTH;
-        if(this.transform.location.y > CFrame.HEIGHT + this.transform.getR()) this.transform.location.y = CFrame.HEIGHT;
-    }
+     */
 
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
@@ -399,7 +390,9 @@ public class Animal extends Organism {
 
     @Override
     public void paint(Graphics2D g) {
-
+        g.setColor(this.color);
+        //g.fillOval((int)this.getLocX(), (int)this.getLocY(), (int)this.transform.size, (int)this.transform.size);
+        g.fill(this.transform.getRectangle());
     }
 
     //------------------------------------------------invariant--------------------------------------------------------
