@@ -4,6 +4,8 @@ import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Helper.Transform;
 import Main.Organisms.Organism;
+import Main.World;
+
 import java.awt.*;
 
 public class Plant extends Organism {
@@ -46,9 +48,9 @@ public class Plant extends Organism {
     }
 
     @Override
-    public void update() {
+    public void update(World w) {
         if(this.growthTimer <= 0){
-            this.grow();
+            this.grow(1);
             this.growthTimer = this.growthInterval;
         }else{
             this.growthTimer--;
@@ -56,8 +58,8 @@ public class Plant extends Organism {
     }
 
     @Override
-    public void grow() {
-        this.transform.size *= Plant.growthFactor;
+    public void grow(double factor) {
+        this.transform.size *= (Plant.growthFactor*factor);
     }
 
     public Organism reproduce(DNA mateDNA){
