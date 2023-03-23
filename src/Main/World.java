@@ -17,12 +17,8 @@ public class World {
         this.grid.updateGridP(o);
     }
 
-    public void updateRabbit(Organism o) {
-        this.grid.updateGridR(o);
-    }
-
-    public void updateFox(Organism o) {
-        this.grid.updateGridF(o);
+    public void updateAnimal(Organism o) {
+        this.grid.updateGridA(o);
     }
 
     public Dimension getWorldDimension() {
