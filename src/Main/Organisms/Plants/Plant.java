@@ -11,6 +11,7 @@ public class Plant extends Organism {
 
     public static double nutritionFactor;
     public static double growthFactor;
+    public static double allMaxSize;
     protected double growthTimer = 0;
 
     //------------------------------------------------DNA Variables----------------------------------------------------
@@ -39,6 +40,9 @@ public class Plant extends Organism {
         int shift = Organism.numberOrganismGenes;
         this.spreadingRange = (int)Math.round(this.dna.getGene(shift+0).getValue());
         this.growthInterval = (int)Math.round(this.dna.getGene(shift+1).getValue());
+
+        this.transform.size = Plant.allMaxSize * this.sizeRatio;
+        this.transform.setShape(this.transform.getRectangle());
     }
 
     @Override
@@ -112,6 +116,9 @@ public class Plant extends Organism {
 
     @Override
     public void paint(Graphics2D g) {
-
+        g.setColor(this.color);
+        g.fillOval((int)(this.getLocX()-(this.getR())),
+                (int)(this.getLocY()-(this.getR())),
+                (int)this.transform.size, (int)this.transform.size);
     }
 }
