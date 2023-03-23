@@ -153,7 +153,7 @@ public class Simulation extends JPanel {
             else{
                 this.world.updatePlant(p);
                 p.paint((Graphics2D) g);
-                p.update();
+                p.update(this.world);
             }
         }
     }
@@ -171,7 +171,7 @@ public class Simulation extends JPanel {
             else{
                 this.world.updateAnimal(a);
                 a.paint((Graphics2D) g);
-                a.update();
+                a.update(this.world);
                 this.borders1(a);
             }
         }
