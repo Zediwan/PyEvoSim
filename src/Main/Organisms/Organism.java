@@ -121,13 +121,15 @@ public abstract class Organism {
 
     public Vector2D getLocation(){return this.transform.getLocation();}
 
+    public void setLocation(Vector2D location) {this.transform.location = location;}
+
     public double getLocX(){return this.transform.getLocX();}
 
     public void setLocX(float x) {this.transform.setLocX(x);}
 
     public double getLocY(){return this.transform.getLocY();}
 
-    public void setLockY(float y){this.transform.setLocY(y);}
+    public void setLocY(float y){this.transform.setLocY(y);}
 
     public DNA getDna() {
         return dna;
