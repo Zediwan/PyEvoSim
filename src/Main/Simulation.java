@@ -1,8 +1,8 @@
 package Main;
 
+import Main.Helper.Vector2D;
 import Main.Organisms.Animals.Animal;
 import Main.Organisms.Organism;
-import Main.Organisms.Plants.Grass;
 import Main.Organisms.Plants.Plant;
 
 import javax.swing.*;
@@ -45,6 +45,7 @@ public class Simulation extends JPanel {
     private int simID;
 
     private World world;
+    public JFrame simFrame;
 
 
     public Simulation(int stP, int stA,
@@ -67,7 +68,7 @@ public class Simulation extends JPanel {
         this.simID = simNum;    //set this simulations ID
         simNum++;               //increment simulation counter
 
-        JFrame simFrame = new JFrame("Simulation " + this.simID);
+        this.simFrame = new JFrame("Simulation " + this.simID);
         simFrame.setSize(this.world.getWorldDimension());
         simFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         simFrame.add(this);
@@ -80,8 +81,11 @@ public class Simulation extends JPanel {
     public void paint(Graphics g){
         super.paintComponent(g);
 
+        this.world.getGrid().clearGrid();
+
         this.updatePlants(g);
         this.updateAnimals(g);
+
         this.controlPops();
     }
 
@@ -101,10 +105,18 @@ public class Simulation extends JPanel {
      */
     public void initiatePopulation(){
         for(int i = 0; i < this.startingPlants; i++){
-            this.plants.add(new Grass());
+            Plant p = new Plant();
+
+            p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
+
+            this.plants.add(p);
         }
         for(int i = 0; i < this.startingAnimals; i++){
-            this.animals.add(new Animal());
+            Animal a = new Animal();
+
+            a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
+
+            this.animals.add(a);
         }
     }
 
@@ -116,7 +128,7 @@ public class Simulation extends JPanel {
         //control plant pop
         if(this.plants.size() < maxNumPlants){
             for(int i = 0; i < numNewPlants; i++){
-                this.plants.add(new Grass());
+                this.plants.add(new Plant());
             }
         }
         //control animal pop
@@ -160,7 +172,29 @@ public class Simulation extends JPanel {
                 this.world.updateAnimal(a);
                 a.paint((Graphics2D) g);
                 a.update();
+                this.borders1(a);
             }
+        }
+    }
+
+    //Border handling
+    public void borders1(Animal a){
+        //TODO implement the needed methods in the world and animal classes
+        double locX = a.getLocX();
+        double locY = a.getLocY();
+        double rad = a.getR();
+        double worldWidth = this.world.getWorldDimension().width;
+        double worldHeight = this.world.getWorldDimension().height;
+
+        if(locX < -rad){
+            a.setLocY(Math.round(worldWidth));
+        }else if(locX > worldWidth + rad){
+            a.setLocX(0);
+        }
+        if(locY < -rad){
+            a.setLocY(Math.round(worldHeight));
+        }else if(locY > worldHeight + rad){
+            a.setLocY(0);
         }
     }
 
