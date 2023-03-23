@@ -96,4 +96,24 @@ public class Transform {
     public void setSize(float size) {
         this.size = size;
     }
+
+    public static double getScale() {
+        return scale;
+    }
+
+    public static void setScale(double scale) {
+        Transform.scale = scale;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
+    }
+
+    public Shape getShape() {
+        return shape;
+    }
+
+    public void setShape(Shape shape) {
+        this.shape = shape;
+    }
 }
