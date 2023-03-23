@@ -3,6 +3,7 @@ package Main.Organisms;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
+import Main.World;
 
 import java.awt.*;
 
@@ -39,7 +40,7 @@ public abstract class Organism {
     }
 
     public Organism(Organism father, Organism mother){
-        this.transform = new Transform(mother.getLocation());
+        this.transform = new Transform(mother.getLoc());
 
         this.birt = System.currentTimeMillis();
 
@@ -88,9 +89,9 @@ public abstract class Organism {
         this.color = new Color(this.colorRed,this.colorGreen,this.colorBlue);
     }
 
-    public abstract void update();
+    public abstract void update(World w);
 
-    public abstract void grow();
+    public abstract void grow(double factor);
 
     public abstract Organism reproduce();
 
@@ -119,7 +120,7 @@ public abstract class Organism {
         return this.transform.getR();
     }
 
-    public Vector2D getLocation(){return this.transform.getLocation();}
+    public Vector2D getLoc(){return this.transform.getLocation();}
 
     public void setLocation(Vector2D location) {this.transform.location = location;}
 
