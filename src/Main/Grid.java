@@ -2,10 +2,7 @@ package Main;
 
 import Main.Helper.Vector2D;
 import Main.Organisms.Animals.Animal;
-import Main.Organisms.Animals.Fox;
-import Main.Organisms.Animals.Rabbit;
 import Main.Organisms.Organism;
-import Main.Organisms.Plants.Plant;
 import java.util.ArrayList;
 
 public class Grid {
@@ -18,8 +15,7 @@ public class Grid {
     private World world;
 
     private ArrayList<Organism>[][] pGrid; //Plants
-    private ArrayList<Organism>[][] rGrid;//Rabbits
-    private ArrayList<Organism>[][] fGrid;//Foxes
+    private ArrayList<Organism>[][] aGrid;  //Animals
 
     public Grid(int gridCellWidth, int gridCellHeight, World w){
         this.world = w;
@@ -31,14 +27,12 @@ public class Grid {
 
         //initiate the grids
         this.pGrid = new ArrayList[numCellsY][numCellsX];
-        this.rGrid = new ArrayList[numCellsY][numCellsX];
-        this.fGrid = new ArrayList[numCellsY][numCellsX];
+        this.aGrid = new ArrayList[numCellsY][numCellsX];
 
         for(int i1=0;i1<numCellsY;i1++) {
             for (int i2 = 0; i2 < numCellsX; i2++) {
-                this.rGrid[i1][i2] = new ArrayList<>();
+                this.aGrid[i1][i2] = new ArrayList<>();
                 this.pGrid[i1][i2] = new ArrayList<>();
-                this.fGrid[i1][i2] = new ArrayList<>();
             }
         }
     }
@@ -48,8 +42,7 @@ public class Grid {
         for(int i = 0; i < numCellsY; i++){
             for(int j = 0; j < numCellsX; j++){
                 pGrid[i][j].clear();
-                rGrid[i][j].clear();
-                fGrid[i][j].clear();
+                aGrid[i][j].clear();
             }
         }
     }
@@ -63,19 +56,11 @@ public class Grid {
     }
 
     //TODO: Test
-    public void updateGridR(Organism o){
-        assert o.getClass().equals(Rabbit.class);
+    public void updateGridA(Organism o){
+        assert o.getClass().equals(Animal.class);
 
         int[] gridCell = this.getGrid(o.getLocation());
-        this.rGrid[gridCell[1]][gridCell[0]].add(o);
-    }
-
-    //TODO: Test
-    public void updateGridF(Organism o){
-        assert o.getClass().equals(Fox.class);
-
-        int[] gridCell = this.getGrid(o.getLocation());
-        this.fGrid[gridCell[1]][gridCell[0]].add(o);
+        this.aGrid[gridCell[1]][gridCell[0]].add(o);
     }
 
     //TODO: Test
@@ -118,7 +103,7 @@ public class Grid {
     }
 
     //TODO: Test
-    public ArrayList getGridFieldsR(Vector2D location, double range){
+    public ArrayList getGridFieldsA(Vector2D location, double range){
         if(range <= 0) return new ArrayList();  //if the range is <= 0 then return an empty list
         ArrayList list = new ArrayList();       //the list containing the plants in range
 
@@ -130,26 +115,7 @@ public class Grid {
             for(double y = location.y - range; y <= location.y + range; y += this.gridCellHeight){
                 int[] gridCell = this.getGrid(new Vector2D(x,y));
                 //TODO: check if the values are the right way around
-                list.addAll(this.rGrid[gridCell[1]][gridCell[0]]);
-            }
-        }
-        return list;
-    }
-
-    //TODO: Test
-    public ArrayList getGridFieldsF(Vector2D location, double range){
-        if(range <= 0) return new ArrayList();  //if the range is <= 0 then return an empty list
-        ArrayList list = new ArrayList();       //the list containing the plants in range
-
-        //int[] gridPosition = this.getGrid(location);
-        //int column = gridPosition[0];
-        //int row =  gridPosition[1];
-
-        for(double x = location.x - range; x <= location.x +range; x += this.gridCellWidth){
-            for(double y = location.y - range; y <= location.y + range; y += this.gridCellHeight){
-                int[] gridCell = this.getGrid(new Vector2D(x,y));
-                //TODO: check if the values are the right way around
-                list.addAll(this.fGrid[gridCell[1]][gridCell[0]]);
+                list.addAll(this.aGrid[gridCell[1]][gridCell[0]]);
             }
         }
         return list;
