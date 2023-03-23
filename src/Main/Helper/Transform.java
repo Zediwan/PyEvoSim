@@ -35,7 +35,7 @@ public class Transform {
         this(new Vector2D());
     }
 
-    public void move(float maxSpeed){
+    public void move(double maxSpeed){
         this.velocity.add(this.acceleration);
         this.velocity.limit(maxSpeed);
         this.location.add(this.velocity);
