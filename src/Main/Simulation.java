@@ -78,7 +78,7 @@ public class Simulation extends JPanel implements ActionListener {
 
         this.initiatePopulation();
         this.repaintTimer = new Timer(10, this);
-        repaintTimer.start();
+        this.repaintTimer.start();
     }
 
     /**
@@ -393,5 +393,9 @@ public class Simulation extends JPanel implements ActionListener {
 
     public void setMaxNumAnimals(int maxNumAnimals) {
         this.maxNumAnimals = maxNumAnimals;
+    }
+
+    public void setTimerDelay(int simulationSpeed) {
+        this.repaintTimer.setDelay(simulationSpeed);
     }
 }
