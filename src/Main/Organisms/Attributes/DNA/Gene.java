@@ -27,6 +27,12 @@ public class Gene implements mutable {
         this.geneBoundCheck(0,1);
     }
 
+    public void genePositiveCheck(){
+        if(this.value < 0){
+            this.value = 0;
+        }
+    }
+
     public void geneBoundCheck(double lowerBound, double upperBound){
         if(this.value < lowerBound){
             this.value = lowerBound;
