@@ -21,7 +21,7 @@ public class Animal extends Organism {
     private static Animal blueprint;
 
     private static double baseExhaustDmg = 1;
-    private static double baseSize = 2;
+    private static double baseSize = 4;
     private static double allMaxSpeed = 4;
     private static double healthBodyRatio = 2;
     private static double bodyEnergyRatio = 2;
@@ -32,7 +32,7 @@ public class Animal extends Organism {
     private static double healingThreshold = .5;
     private static double attackThreshold = .5;
     private static double reproductiveUrgeFactor = 10;
-    private static double damageFactor = 10;
+    private static double damageFactor = 30;
     private static double healingFactor = 2;
     private static double healingCostFactor = 2;
     private static double metabolismFactor = 1;
