@@ -1,23 +1,31 @@
 package Main.Organisms;
 
-import Main.Organisms.Attributes.DNA.DNA;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
-import Main.World;
+import Main.Organisms.Attributes.DNA.DNA;
+import Main.Simulation;
 
 import java.awt.*;
 
 public abstract class Organism {
     public static long orgCount = 0;
+    private static double maxEnergyToBodyRatio = 2;
 
     protected Transform transform;
     protected DNA dna;
+
+    //stats
     protected long birt = 0;
     protected double id;
-    protected double maxHealth = 100;
-    protected double health = maxHealth;
-    protected double energy = 100;
+    protected int animalsKilled = 0;
+    protected int plantsKilled = 0;
+    protected int offspringBirthed = 0;
+
+    //general variables
+    protected double health;
+    protected double energy;
     protected Color color;                  //color of the organism
+    protected double maturity;
 
     //------------------------------------------------DNA Variables----------------------------------------------------
 
@@ -30,17 +38,22 @@ public abstract class Organism {
     protected double mutSizeNN;             //[6]   how much
     protected double mutProbNN;             //[7]   how likely
     protected double attractiveness;        //[8]
-    protected static int numberOrganismGenes = 9;
+    protected double growthScaleFactor;     //[9]
+    protected double growthMaturityFactor;  //[10]
+    protected double growthMaturityExponent;//[11]
+    protected static int numberOrganismGenes = 12;
 
     //-----------------------------------------------------------------------------------------------------------------
 
+    /*
     public Organism(){
         this(new Transform(), new DNA());
         Organism.orgCount++;
     }
+     */
 
     public Organism(Organism father, Organism mother){
-        this.transform = new Transform(mother.getLoc());
+        this.transform = new Transform(mother.getLoc().add(Vector2D.randSurroundingVec(mother.transform.size*2)));
 
         this.birt = System.currentTimeMillis();
 
@@ -51,10 +64,12 @@ public abstract class Organism {
         this(ancestor,ancestor);
     }
 
+    /*
     public Organism(double width, double height){
         this(new Transform(Vector2D.randLimVec(width,height)), new DNA());
         Organism.orgCount++;
     }
+     */
 
     public Organism(Transform transform, DNA dna){
         this.transform = transform.clone();
@@ -65,7 +80,7 @@ public abstract class Organism {
     }
 
     public void expressGenes(){
-        this.dna.getGene(0).gene0to1Check();
+        this.dna.getGene(0).genePositiveCheck();
         this.sizeRatio = this.dna.getGene(0).getValue();
 
         this.dna.getGene(1).geneBoundCheck(0,255);
@@ -83,22 +98,47 @@ public abstract class Organism {
         this.mutProbNN = this.dna.getGene(7).getValue();
         this.attractiveness = this.dna.getGene(8).getValue();
 
+        this.dna.getGene(9).genePositiveCheck();
+        this.growthScaleFactor = this.dna.getGene(9).getValue();
+        this.dna.getGene(10).genePositiveCheck();
+        this.growthMaturityFactor = this.dna.getGene(10).getValue();
+        this.growthMaturityExponent = this.dna.getGene(11).getValue();
+
+        this.health = this.maxHealth();
+        this.energy = this.maxEnergy();
+
         assert this.colorRed < 255 && this.colorRed > 0 : "R Value is not in range " + this.colorRed;
         assert this.colorGreen < 255 && this.colorGreen > 0 : "G Value is not in range " + this.colorGreen;
         assert this.colorBlue < 255 && this.colorBlue > 0 : "B Value is not in range " + this.colorBlue;
         this.color = new Color(this.colorRed,this.colorGreen,this.colorBlue);
     }
 
-    public abstract void update(World w);
+    public abstract void update(Simulation s);
 
     public abstract void grow(double factor);
 
-    public abstract Organism reproduce();
+    public abstract Organism reproduce(Simulation s);
+
+    public double maxHealth() {
+        return 100 * this.maturity * Math.pow(this.sizeRatio,2);
+    }
+
+    public double maxEnergy(){
+        return this.maxHealth() * Organism.maxEnergyToBodyRatio;
+    }
+
+    public double growthRate(){
+        return this.growthScaleFactor/(1+this.growthMaturityFactor*Math.pow(this.maturity,this.growthMaturityExponent));
+    }
 
     //------------------------------------------------Getter and Setter------------------------------------------------
 
     public boolean isDead(){
         return health <= 0;
+    }
+
+    public void refreshColor() {
+        this.color = new Color(this.colorRed,this.colorGreen,this.colorBlue);
     }
 
     /**
@@ -235,7 +275,10 @@ public abstract class Organism {
     public double getHealth() {
         return this.health;
     }
-    public void setHealth(double health){this.health = health;}
+    public void setHealth(double health){
+        this.health = health;
+        assert this.health <= this.maxHealth();
+    }
     public void takeDamage(double damage) {
         //if the damage is negative it should be added to remove the right amount and not add to the health
         if(damage <= 0){
@@ -245,14 +288,16 @@ public abstract class Organism {
         else{
             this.health -= damage;
         }
+        assert this.health <= this.maxHealth();
     }
     public void restoreHealth(double restoredHealth) {
         assert restoredHealth >= 0 : "restored amount is negative";
 
         this.health += restoredHealth;
-        if(this.health > maxHealth){
-            this.health = maxHealth;
+        if(this.health > maxHealth()){
+            this.health = maxHealth();
         }
+        assert this.health <= this.maxHealth();
     }
 
     public double getEnergy(){return this.energy;}
@@ -262,12 +307,24 @@ public abstract class Organism {
             this.energy -= energyUsed;
         }
         else{
-            this.takeDamage(energyUsed);
+            double rest = energyUsed-this.energy;
+            this.energy = 0;
+            this.takeDamage(rest);
+        }
+    }
+    public void restoreEnergy(double restoreEnergy) {
+        assert restoreEnergy >= 0 : "restored amount is negative";
+
+        this.energy += restoreEnergy;
+        if(this.energy > 100){
+            this.energy = 100;
         }
     }
 
 
     //------------------------------------------------toString and paint-----------------------------------------------
 
-    public abstract void paint(Graphics2D g);
+    public void paint(Graphics2D g){
+        g.setColor(this.color);
+    }
 }
