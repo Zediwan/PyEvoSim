@@ -8,9 +8,10 @@ import Main.Organisms.Plants.Plant;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class Simulation extends JPanel {
+public class Simulation extends JPanel implements ActionListener {
     //static final int TIME_PERIOD = 24;  //TODO: find out what this is for
     //private int time = 0;
 
@@ -45,8 +46,7 @@ public class Simulation extends JPanel {
     private int simID;
 
     private World world;
-    public JFrame simFrame;
-
+    public Timer repaintTimer;
 
     public Simulation(int stP, int stA,
                       int maxP, int minP, int maxA, int minA,
@@ -68,11 +68,17 @@ public class Simulation extends JPanel {
         this.simID = simNum;    //set this simulations ID
         simNum++;               //increment simulation counter
 
-        this.simFrame = new JFrame("Simulation " + this.simID);
-        simFrame.setSize(this.world.getWorldDimension());
-        simFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        simFrame.add(this);
-        simFrame.setVisible(true);
+        /*
+        JFrame frame = new JFrame("Simulation " + this.simID);
+        frame.setSize(this.world.getWorldDimension());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(this);
+        frame.setVisible(true);
+         */
+
+        this.initiatePopulation();
+        this.repaintTimer = new Timer(10, this);
+        repaintTimer.start();
     }
 
     /**
@@ -81,10 +87,10 @@ public class Simulation extends JPanel {
     public void paint(Graphics g){
         super.paintComponent(g);
 
-        this.world.getGrid().clearGrid();
-
         this.updatePlants(g);
         this.updateAnimals(g);
+
+        this.world.getGrid().clearGrid();
 
         this.controlPops();
     }
@@ -106,16 +112,17 @@ public class Simulation extends JPanel {
     public void initiatePopulation(){
         for(int i = 0; i < this.startingPlants; i++){
             Plant p = new Plant();
-
             p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
-
             this.plants.add(p);
         }
+
         for(int i = 0; i < this.startingAnimals; i++){
             Animal a = new Animal();
-
             a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
-
+            a.setColorRed((int)Math.round(Math.random() * 255));
+            a.setColorGreen((int)Math.round(Math.random() * 255));
+            a.setColorBlue((int)Math.round(Math.random() * 255));
+            a.refreshColor();
             this.animals.add(a);
         }
     }
@@ -128,13 +135,21 @@ public class Simulation extends JPanel {
         //control plant pop
         if(this.plants.size() < maxNumPlants){
             for(int i = 0; i < numNewPlants; i++){
-                this.plants.add(new Plant());
+                Plant p = new Plant();
+                p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
+                this.plants.add(p);
             }
         }
         //control animal pop
         if(this.animals.size() < minNumAnimals){
             for(int i = 0; i < numNewAnimals; i++){
-                this.animals.add(new Animal());
+                Animal a = new Animal();
+                a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
+                a.setColorRed((int)Math.round(Math.random() * 255));
+                a.setColorGreen((int)Math.round(Math.random() * 255));
+                a.setColorBlue((int)Math.round(Math.random() * 255));
+                a.refreshColor();
+                this.animals.add(a);
             }
         }
     }
@@ -153,7 +168,7 @@ public class Simulation extends JPanel {
             else{
                 this.world.updatePlant(p);
                 p.paint((Graphics2D) g);
-                p.update(this.world);
+                p.update(this);
             }
         }
     }
@@ -171,7 +186,7 @@ public class Simulation extends JPanel {
             else{
                 this.world.updateAnimal(a);
                 a.paint((Graphics2D) g);
-                a.update(this.world);
+                a.update(this);
                 this.borders1(a);
             }
         }
@@ -187,7 +202,7 @@ public class Simulation extends JPanel {
         double worldHeight = this.world.getWorldDimension().height;
 
         if(locX < -rad){
-            a.setLocY(Math.round(worldWidth));
+            a.setLocX(Math.round(worldWidth));
         }else if(locX > worldWidth + rad){
             a.setLocX(0);
         }
@@ -275,7 +290,7 @@ public class Simulation extends JPanel {
      * @param e
      */
     public void actionPerformed(ActionEvent e){
-        repaint();
+        this.repaint();
     }
 
     //Getter and Setter--------------------------------------------------------------------------
@@ -342,5 +357,21 @@ public class Simulation extends JPanel {
 
     public void setNumNewAnimals(int numNewAnimals) {
         this.numNewAnimals = numNewAnimals;
+    }
+
+    public World getWorld() {
+        return this.world;
+    }
+
+    public void addPlant(Plant p) {
+        this.plants.add(p);
+    }
+
+    public void addAnimal(Animal child) {
+        this.animals.add(child);
+    }
+
+    public void setMaxPlants(int maxPlants) {
+        this.maxNumPlants = maxPlants;
     }
 }
