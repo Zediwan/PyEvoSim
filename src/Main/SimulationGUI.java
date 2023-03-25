@@ -24,9 +24,26 @@ public class SimulationGUI extends JFrame {
     private final JPanel organismStatPanel;
     private final JPanel worldStatPanel;
 
+    private JCheckBox showHealthCheckBox;
+    private JCheckBox showEnergyCheckBox;
+
+    private JPanel maxPlantsPanel;
+    private JSlider maxPlantsSlider;
+    private JLabel maxPlantsLabel;
+    private JPanel minPlantsPanel;
+    private JSlider minPlantsSlider;
+    private JLabel minPlantsLabel;
+
+    private JPanel maxAnimalsPanel;
+    private JSlider maxAnimalsSlider;
+    private JLabel maxAnimalsLabel;
+    private JPanel minAnimalsPanel;
+    private JSlider minAnimalsSlider;
+    private JLabel minAnimalsLabel;
+
     public static boolean showHealth = false;
     public static boolean showEnergy = false;
-    private int simulationSpeed = 10;
+    public static int simulationSpeed = 10;
 
     public SimulationGUI() {
         // Set up main frame
@@ -41,9 +58,9 @@ public class SimulationGUI extends JFrame {
                 8000,5000,100,
                 100,10,
                 w);
-        simPanel = s;
-        simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
-        scrollPane = new JScrollPane(simPanel);
+        this.simPanel = s;
+        this.simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
+        this.scrollPane = new JScrollPane(this.simPanel);
         /*
         scrollPane.addMouseWheelListener(new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) {
@@ -58,16 +75,16 @@ public class SimulationGUI extends JFrame {
             }
         });
          */
-        scrollPane.setPreferredSize(new Dimension(800, 600)); // Set initial viewport size
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        add(scrollPane, BorderLayout.CENTER);
+        this.scrollPane.setPreferredSize(new Dimension(800, 600)); // Set initial viewport size
+        this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        this.add(scrollPane, BorderLayout.CENTER);
 
         // Set up bottom panel
-        graphPanel = new JPanel();
-        graphPanel.setLayout(new BoxLayout(graphPanel, BoxLayout.Y_AXIS));
-        graphPanel.add(new JLabel("Simulation Statistics"));
-        add(graphPanel, BorderLayout.SOUTH);
+        this.graphPanel = new JPanel();
+        this.graphPanel.setLayout(new BoxLayout(graphPanel, BoxLayout.Y_AXIS));
+        this.graphPanel.add(new JLabel("Simulation Statistics"));
+        this.add(this.graphPanel, BorderLayout.SOUTH);
 
         // Set up right panel
         this.controlPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -76,7 +93,7 @@ public class SimulationGUI extends JFrame {
         this.animalSettingsPanel = new JPanel();
         this.plantSettingPanel = new JPanel();
         this.organismSettingPanel = new JPanel();
-        this.worldSettingPanel = new JPanel();
+        this.worldSettingPanel = new JPanel(new GridLayout(0, 2));
         this.settingsPane.addTab("Animals", this.animalSettingsPanel);
         this.settingsPane.addTab("Plants", this.plantSettingPanel);
         this.settingsPane.addTab("Organisms", this.organismSettingPanel);
@@ -93,8 +110,9 @@ public class SimulationGUI extends JFrame {
         this.statPanel.addTab("World", this.worldStatPanel);
 
         //Show health checkbox
-        JCheckBox showHealthCheckBox = new JCheckBox("Show Health");
-        showHealthCheckBox.addActionListener(new ActionListener() {
+        this.showHealthCheckBox = new JCheckBox("Show Health");
+        this.showHealthCheckBox.setToolTipText("Toggle the visualization of the current Health");
+        this.showHealthCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showHealth = showHealthCheckBox.isSelected();
@@ -102,36 +120,103 @@ public class SimulationGUI extends JFrame {
         });
 
         //Show energy checkbox
-        JCheckBox showEnergyCheckBox = new JCheckBox("Show Energy");
-        showEnergyCheckBox.addActionListener(new ActionListener() {
+        this.showEnergyCheckBox = new JCheckBox("Show Energy");
+        this.showEnergyCheckBox.setToolTipText("Toggle the visualization of the current Energy");
+        this.showEnergyCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showEnergy = showEnergyCheckBox.isSelected();
             }
         });
 
+        //TODO create rangeSliders
         //Slider for maxPlants
-        JSlider maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 1000, 100000, 10000);
-        maxPlantsSlider.setMajorTickSpacing(10000);
-        maxPlantsSlider.setMinorTickSpacing(1000);
-        maxPlantsSlider.setSize(new Dimension(controlPane.getWidth(), 50));
-        maxPlantsSlider.setPaintTicks(true);
-        maxPlantsSlider.setPaintLabels(true);
-        JLabel maxPlantsLabel = new JLabel("Max Plants: " + 10000);
-        maxPlantsSlider.addChangeListener(e -> {
+        this.maxPlantsPanel = new JPanel(new BorderLayout());
+        this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 10000);
+        this.maxPlantsSlider.setMajorTickSpacing(25000);
+        this.maxPlantsSlider.setMinorTickSpacing(12500);
+        this.maxPlantsSlider.setPaintTicks(true);
+        this.maxPlantsSlider.setPaintTrack(true);
+        this.maxPlantsLabel = new JLabel("Max Plants: " + 10000, JLabel.CENTER);
+        this.maxPlantsSlider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
-            if (!source.getValueIsAdjusting()) {
-                int maxPlants = source.getValue();
-                maxPlantsLabel.setText("Max Plants: " + maxPlants);
-                s.setMaxPlants(maxPlants);
-            }
+            int maxPlants = source.getValue();
+            this.maxPlantsLabel.setText("Max Plants: " + maxPlants);
+            s.setMaxPlants(maxPlants);
+
         });
+        this.maxPlantsPanel.add(this.maxPlantsLabel, BorderLayout.NORTH);
+        this.maxPlantsPanel.add(this.maxPlantsSlider, BorderLayout.CENTER);
+
+        //Slider for minPlants
+        this.minPlantsPanel = new JPanel(new BorderLayout());
+        this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100);
+        this.minPlantsSlider.setMajorTickSpacing(25000);
+        this.minPlantsSlider.setMinorTickSpacing(12500);
+        this.minPlantsSlider.setPaintTicks(true);
+        this.minPlantsSlider.setPaintTrack(true);
+        this.minPlantsLabel = new JLabel("Min Plants: " + 10000, JLabel.CENTER);
+        this.minPlantsSlider.addChangeListener(e -> {
+            JSlider source = (JSlider)e.getSource();
+            int minPlants = source.getValue();
+            int maxPlants = this.maxPlantsSlider.getValue();
+            if(minPlants > maxPlants){
+                this.maxPlantsSlider.setValue(minPlants);
+            }
+            this.minPlantsLabel.setText("Min Plants: " + minPlants);
+            s.setMinNumPlants(minPlants);
+
+        });
+        this.minPlantsPanel.add(this.minPlantsLabel, BorderLayout.NORTH);
+        this.minPlantsPanel.add(this.minPlantsSlider, BorderLayout.CENTER);
+
+        //Slider for maxAnimals
+        this.maxAnimalsPanel = new JPanel(new BorderLayout());
+        this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 10000);
+        this.maxAnimalsSlider.setMajorTickSpacing(25000);
+        this.maxAnimalsSlider.setMinorTickSpacing(12500);
+        this.maxAnimalsSlider.setPaintTicks(true);
+        this.maxAnimalsSlider.setPaintTrack(true);
+        this.maxAnimalsLabel = new JLabel("Max Animals: " + 10000, JLabel.CENTER);
+        this.maxAnimalsSlider.addChangeListener(e -> {
+            JSlider source = (JSlider)e.getSource();
+            int maxAnimals = source.getValue();
+            maxAnimalsLabel.setText("Max Animals: " + maxAnimals);
+            s.setMaxAnimals(maxAnimals);
+
+        });
+        this.maxAnimalsPanel.add(this.maxAnimalsLabel, BorderLayout.NORTH);
+        this.maxAnimalsPanel.add(this.maxAnimalsSlider, BorderLayout.CENTER);
+
+        //Slider for minAnimals
+        this.minAnimalsPanel = new JPanel(new BorderLayout());
+        this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 10000);
+        this.minAnimalsSlider.setMajorTickSpacing(25000);
+        this.minAnimalsSlider.setMinorTickSpacing(12500);
+        this.minAnimalsSlider.setPaintTicks(true);
+        this.minAnimalsSlider.setPaintTrack(true);
+        this.minAnimalsLabel = new JLabel("Min Animals: " + 10000, JLabel.CENTER);
+        this.minAnimalsSlider.addChangeListener(e -> {
+            JSlider source = (JSlider)e.getSource();
+            int minAnimals = source.getValue();
+            int maxAnimals = this.maxAnimalsSlider.getValue();
+            if(minAnimals > maxAnimals){
+                this.maxAnimalsSlider.setValue(minAnimals);
+            }
+            this.minAnimalsLabel.setText("Min Animals: " + minAnimals);
+            s.setMinNumAnimals(minAnimals);
+
+        });
+        this.minAnimalsPanel.add(this.minAnimalsLabel, BorderLayout.NORTH);
+        this.minAnimalsPanel.add(this.minAnimalsSlider, BorderLayout.CENTER);
 
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(showHealthCheckBox);
         this.animalSettingsPanel.add(showEnergyCheckBox);
-        this.worldSettingPanel.add(maxPlantsSlider);
-        this.worldSettingPanel.add(maxPlantsLabel);
+        this.worldSettingPanel.add(maxPlantsPanel);
+        this.worldSettingPanel.add(minPlantsPanel);
+        this.worldSettingPanel.add(maxAnimalsPanel);
+        this.worldSettingPanel.add(minAnimalsPanel);
 
         this.controlPane.setResizeWeight(.5);
         this.controlPane.setTopComponent(settingsPane);
