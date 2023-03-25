@@ -321,6 +321,29 @@ public abstract class Organism {
         }
     }
 
+    public int getAnimalsKilled() {
+        return animalsKilled;
+    }
+
+    public void setAnimalsKilled(int animalsKilled) {
+        this.animalsKilled = animalsKilled;
+    }
+
+    public int getPlantsKilled() {
+        return plantsKilled;
+    }
+
+    public void setPlantsKilled(int plantsKilled) {
+        this.plantsKilled = plantsKilled;
+    }
+
+    public int getOffspringBirthed() {
+        return offspringBirthed;
+    }
+
+    public void setOffspringBirthed(int offspringBirthed) {
+        this.offspringBirthed = offspringBirthed;
+    }
 
     //------------------------------------------------toString and paint-----------------------------------------------
 

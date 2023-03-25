@@ -218,16 +218,68 @@ public class Simulation extends JPanel implements ActionListener {
     }
 
     /**
-     * A method to calculate the current average Health of all Plants.
+     * A method to calculate the current average Age of all Rabbits.
      * Maybe this can be refactored, so it is one method for all organisms and arguments can be given to choose.
-     * @return the average health of all living Plants.
+     * @return the average age of all living Rabbits.
      */
-    public double getAVGHealthPlants(){
+    public double getAVGAgeAnimals(){
         double count = 0;
         double avg = 0;
-        for(Organism o : this.plants){
+        for(Organism o : this.animals){
             count++;
-            avg += o.getHealth();
+            avg += o.getAge();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGAnimalsKilled(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.getAnimalsKilled();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGPlantsKilled(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.getPlantsKilled();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGOffspringBirthed(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.getOffspringBirthed();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGMaxHealthAnimals(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.maxHealth();
         }
         if(count != 0){
             avg /= count;
@@ -266,12 +318,12 @@ public class Simulation extends JPanel implements ActionListener {
         return avg;
     }
 
-    public double getAVGMaxHealthAnimals(){
+    public double getAVGMaxEnergyAnimals(){
         double count = 0;
         double avg = 0;
         for(Animal a : this.animals){
             count++;
-            avg += a.maxHealth();
+            avg += a.maxEnergy();
         }
         if(count != 0){
             avg /= count;
@@ -285,19 +337,6 @@ public class Simulation extends JPanel implements ActionListener {
         for(Animal a : this.animals){
             count++;
             avg += a.getEnergy();
-        }
-        if(count != 0){
-            avg /= count;
-        }
-        return avg;
-    }
-
-    public double getAVGMaxEnergyAnimals(){
-        double count = 0;
-        double avg = 0;
-        for(Animal a : this.animals){
-            count++;
-            avg += a.maxEnergy();
         }
         if(count != 0){
             avg /= count;
@@ -337,16 +376,16 @@ public class Simulation extends JPanel implements ActionListener {
     }
 
     /**
-     * A method to calculate the current average Age of all Rabbits.
+     * A method to calculate the current average Health of all Plants.
      * Maybe this can be refactored, so it is one method for all organisms and arguments can be given to choose.
-     * @return the average age of all living Rabbits.
+     * @return the average health of all living Plants.
      */
-    public double getAVGAgeAnimals(){
+    public double getAVGHealthPlants(){
         double count = 0;
         double avg = 0;
-        for(Organism o : this.animals){
+        for(Organism o : this.plants){
             count++;
-            avg += o.getAge();
+            avg += o.getHealth();
         }
         if(count != 0){
             avg /= count;
