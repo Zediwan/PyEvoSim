@@ -30,6 +30,10 @@ public class Vector2D {
         return this;
     }
 
+    public static Vector2D randSurroundingVec(double surrounding){
+        return new Vector2D(Math.random()*surrounding - (surrounding/2), Math.random()*surrounding- (surrounding/2));
+    }
+
 
     /**
      * Generates a random vector within 0 to the limits
@@ -213,8 +217,8 @@ public class Vector2D {
      * @return the length of the vector
      */
     public double mag(){
-        double mag = Math.sqrt((this.x*this.x) + (this.y*this.y));
-        assert mag >= 0 : "Magnitude is negative (" + this.mag()+")";
+        double mag = Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2));
+        assert mag >= 0 : "Magnitude is negative (" + mag+")";
         return mag;
     }
 
@@ -224,7 +228,7 @@ public class Vector2D {
      */
     public double magSq(){
         double magSq = this.x*this.x + this.y*this.y;
-        assert magSq >= 0 : "Magnitude is negative (" + this.magSq()+")";
+        assert !(magSq < 0) : "Magnitude is negative (" + magSq +")";
         return magSq;
     }
 
@@ -265,6 +269,13 @@ public class Vector2D {
      * @return the distance
      */
     public double distSq(Vector2D v){
+        /*
+        double dist = Vector2D.sub(v,this).magSq();
+        if(dist == Double.POSITIVE_INFINITY || dist == Double.NEGATIVE_INFINITY){
+            dist = 0;
+        }
+        return dist;
+         */
         return Vector2D.sub(v,this).magSq();
     }
 
@@ -406,6 +417,10 @@ public class Vector2D {
 
     public String toString(){
         return this.x + ", " + this.y;
+    }
+
+    public Vector2D copy() {
+        return new Vector2D(this.x, this.y);
     }
 }
 
