@@ -1,5 +1,7 @@
 package Main;
 
+import Main.Organisms.Animals.Animal;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -46,7 +48,8 @@ public class SimulationGUI extends JFrame {
     private JLabel simulationSpeedLabel;
 
     private JLabel fpsLabel;
-    private long lastfpsCheck;
+
+    private Object[][] animalData;
 
     public static boolean showHealth = false;
     public static boolean showEnergy = false;
@@ -60,7 +63,7 @@ public class SimulationGUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Set up simulation panel
-        World w =new World(5000,5000,10,10);
+        World w =new World(3000,3000,10,10);
         Simulation s = new Simulation(50000,2000,80000,
                 8000,5000,100,
                 100,10,
@@ -139,7 +142,7 @@ public class SimulationGUI extends JFrame {
         //TODO create rangeSliders
         //Slider for maxPlants
         this.maxPlantsPanel = new JPanel(new BorderLayout());
-        this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 10000);
+        this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100000);
         this.maxPlantsSlider.setMajorTickSpacing(25000);
         this.maxPlantsSlider.setMinorTickSpacing(12500);
         this.maxPlantsSlider.setPaintTicks(true);
@@ -179,7 +182,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for maxAnimals
         this.maxAnimalsPanel = new JPanel(new BorderLayout());
-        this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 10000);
+        this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100000);
         this.maxAnimalsSlider.setMajorTickSpacing(25000);
         this.maxAnimalsSlider.setMinorTickSpacing(12500);
         this.maxAnimalsSlider.setPaintTicks(true);
@@ -197,7 +200,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minAnimals
         this.minAnimalsPanel = new JPanel(new BorderLayout());
-        this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 10000);
+        this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100);
         this.minAnimalsSlider.setMajorTickSpacing(25000);
         this.minAnimalsSlider.setMinorTickSpacing(12500);
         this.minAnimalsSlider.setPaintTicks(true);
@@ -234,7 +237,6 @@ public class SimulationGUI extends JFrame {
 
         //FPS Label
         this.fpsLabel = new JLabel();
-        this.lastfpsCheck = System.currentTimeMillis();
         Timer timer = new Timer(1000, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 fpsLabel.setText("FPS: " + s.getFps());
@@ -242,7 +244,56 @@ public class SimulationGUI extends JFrame {
         });
         timer.start();
 
+        // Create a 2D array to hold your statistics data
+        this.animalData = new Object[][]{
+                { "Amount of Animals: " , s.getAnimals().size() },
+                { "All-time of Animals: " , Animal.aniCount },
+                { "Average Age: ", s.getAVGAgeAnimals() },
 
+                { "Average Max Health: ", s.getAVGMaxHealthAnimals() },
+                { "Average Health: ", s.getAVGHealthAnimals() },
+                { "Average Health Ratio: ", s.getAVGHealthRatioAnimals() },
+
+                { "Average Max Energy: ", s.getAVGMaxEnergyAnimals() },
+                { "Average Energy: ", s.getAVGEnergyAnimals() },
+                { "Average Energy Ratio: ", s.getAVGEnergyRatioAnimals() },
+                // Add more rows as needed
+        };
+
+        // Create an array of column names
+        String[] columnNames = { "Statistic Name", "Value" };
+
+        // Create the JTable with the data and column names
+        JTable table = new JTable(this.animalData, columnNames);
+
+        // Add the JTable to a JScrollPane
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Add the JScrollPane to your statPanel
+        this.animalStatPanel.add(scrollPane);
+
+        Timer aniStatTimer = new Timer(2000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Update the table data here
+                animalData[0][1] = s.getAnimals().size();
+                animalData[1][1] = Animal.aniCount;
+                animalData[2][1] = s.getAVGAgeAnimals();
+
+                animalData[3][1] = s.getAVGMaxHealthAnimals();
+                animalData[4][1] = s.getAVGHealthAnimals();
+                animalData[5][1] = s.getAVGHealthRatioAnimals();
+
+                animalData[6][1] = s.getAVGMaxEnergyAnimals();
+                animalData[7][1] = s.getAVGEnergyAnimals();
+                animalData[8][1] = s.getAVGEnergyRatioAnimals();
+
+                // Repaint the table
+                statPanel.repaint();
+            }
+        });
+        aniStatTimer.start();
+        
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(this.showHealthCheckBox);
         this.animalSettingsPanel.add(this.showEnergyCheckBox);

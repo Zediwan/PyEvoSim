@@ -253,6 +253,71 @@ public class Simulation extends JPanel implements ActionListener {
         return avg;
     }
 
+    public double getAVGHealthRatioAnimals(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.healthRatio();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGMaxHealthAnimals(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.maxHealth();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGEnergyAnimals(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.getEnergy();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGMaxEnergyAnimals(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.maxEnergy();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
+    public double getAVGEnergyRatioAnimals(){
+        double count = 0;
+        double avg = 0;
+        for(Animal a : this.animals){
+            count++;
+            avg += a.getEnergy()/a.maxEnergy();
+        }
+        if(count != 0){
+            avg /= count;
+        }
+        return avg;
+    }
+
     /**
      * A method to calculate the current average Age of all Plants.
      * Maybe this can be refactored, so it is one method for all organisms and arguments can be given to choose.
@@ -371,11 +436,15 @@ public class Simulation extends JPanel implements ActionListener {
     }
 
     public void addPlant(Plant p) {
-        this.plants.add(p);
+        if(this.plants.size() + 1 >= this.maxNumPlants){
+            this.plants.add(p);
+        }
     }
 
     public void addAnimal(Animal child) {
-        this.animals.add(child);
+        if(this.animals.size() + 1 >= this.maxNumAnimals){
+            this.animals.add(child);
+        }
     }
 
     public void setMaxPlants(int maxPlants) {
@@ -408,5 +477,9 @@ public class Simulation extends JPanel implements ActionListener {
 
     public int getFps() {
         return this.fps;
+    }
+
+    public ArrayList getAnimals() {
+        return this.animals;
     }
 }
