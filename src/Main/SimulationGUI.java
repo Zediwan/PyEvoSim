@@ -41,6 +41,10 @@ public class SimulationGUI extends JFrame {
     private JSlider minAnimalsSlider;
     private JLabel minAnimalsLabel;
 
+    private JPanel simulationSpeedPanel;
+    private JSlider simulationSpeedSlider;
+    private JLabel simulationSpeedLabel;
+
     public static boolean showHealth = false;
     public static boolean showEnergy = false;
     public static int simulationSpeed = 10;
@@ -210,13 +214,29 @@ public class SimulationGUI extends JFrame {
         this.minAnimalsPanel.add(this.minAnimalsLabel, BorderLayout.NORTH);
         this.minAnimalsPanel.add(this.minAnimalsSlider, BorderLayout.CENTER);
 
+        //Simulation Speed Slider
+        this.simulationSpeedPanel = new JPanel(new BorderLayout());
+        this.simulationSpeedSlider = new JSlider(JSlider.HORIZONTAL,1,100,10);
+        this.simulationSpeedSlider.setMajorTickSpacing(10);
+        this.simulationSpeedSlider.setPaintTrack(true);
+        this.simulationSpeedLabel = new JLabel("Frames per Sec: " + 10, JLabel.CENTER);
+        this.simulationSpeedSlider.addChangeListener(e ->{
+            JSlider source = (JSlider)e.getSource();
+            int simulationSpeed = source.getValue();
+            this.simulationSpeedLabel.setText("Frames per Sec: " + simulationSpeed);
+            s.setTimerDelay(1000/simulationSpeed);
+        });
+        this.simulationSpeedPanel.add(this.simulationSpeedLabel, BorderLayout.NORTH);
+        this.simulationSpeedPanel.add(this.simulationSpeedSlider, BorderLayout.CENTER);
+
         //Add the buttons and sliders to the setting panel
-        this.animalSettingsPanel.add(showHealthCheckBox);
-        this.animalSettingsPanel.add(showEnergyCheckBox);
-        this.worldSettingPanel.add(maxPlantsPanel);
-        this.worldSettingPanel.add(minPlantsPanel);
-        this.worldSettingPanel.add(maxAnimalsPanel);
-        this.worldSettingPanel.add(minAnimalsPanel);
+        this.animalSettingsPanel.add(this.showHealthCheckBox);
+        this.animalSettingsPanel.add(this.showEnergyCheckBox);
+        this.worldSettingPanel.add(this.minPlantsPanel);
+        this.worldSettingPanel.add(this.maxPlantsPanel);
+        this.worldSettingPanel.add(this.minAnimalsPanel);
+        this.worldSettingPanel.add(this.maxAnimalsPanel);
+        this.worldSettingPanel.add(this.simulationSpeedPanel);
 
         this.controlPane.setResizeWeight(.5);
         this.controlPane.setTopComponent(settingsPane);
