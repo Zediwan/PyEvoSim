@@ -20,15 +20,18 @@ public class Transform {
         this.size = size;
         this.shape = shape;
     }
+
     public Transform(Vector2D location, float size){
         this(location);
         this.size = size;
     }
+
     public Transform(Vector2D location){
-        this.location = location;
+        this.location = location.copy();
         this.velocity = new Vector2D();
         this.acceleration = new Vector2D();
     }
+
     public Transform(float x, float y){this(new Vector2D(x,y));}
 
     public Transform(){
@@ -41,11 +44,12 @@ public class Transform {
         this.location.add(this.velocity);
         this.acceleration.mult(0);
     }
+
     public void applyForce(Vector2D force) {
         this.acceleration.add(force);
     }
+
     public Transform clone(){
-        Vector2D location = new Vector2D(this.location.x,this.location.y);
         Transform t = new Transform(location);
         return t;
     }
