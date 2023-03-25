@@ -1,13 +1,14 @@
 package Main.Organisms.Animals;
 
-import Main.Grid;
+import Main.Helper.Transform;
+import Main.Helper.Vector2D;
 import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
 import Main.Organisms.Attributes.Gender;
-import Main.Helper.Transform;
-import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
+import Main.Simulation;
+import Main.SimulationGUI;
 import Main.World;
 
 import java.awt.*;
@@ -18,15 +19,28 @@ import java.util.TimerTask;
 public class Animal extends Organism {
     public static long aniCount = 0;
     private static Animal blueprint;
+
     private static double baseExhaustDmg = 1;
-    private static double allMaxSize = 4;
+    private static double baseSize = 2;
     private static double allMaxSpeed = 4;
-    private double maturity;
+    private static double healthBodyRatio = 2;
+    private static double bodyEnergyRatio = 2;
+    private static double herdingThreshold = .5;
+    private static double matingThreshold = .5;
+    private static double eatingThreshold = .2;
+    private static double growthThreshold = .5;
+    private static double healingThreshold = .5;
+    private static double attackThreshold = .5;
+    private static double reproductiveUrgeFactor = 10;
+    private static double damageFactor = 10;
+    private static double healingFactor = 2;
+    private static double healingCostFactor = 2;
+    private static double metabolismFactor = 1;
+    //private static double baseSize = 1;
 
     //TODO how should generations be handled when there are two parents?
     protected int generation = 0;
     protected Gender gender;
-    protected double maxSpeed, maxForce;
     protected NeuralNetwork nn;
     protected double reproductiveUrge = 0;
     //protected double bodyPoints = 0;
@@ -36,8 +50,8 @@ public class Animal extends Organism {
     protected double speedRatio;                    //[9]
     protected double strength;                      //[10]  //TODO: make this depend on size, via a ration or something
     protected long gestationDuration;               //[11]
-    protected double incubationTime;                //[12]
-    protected double hatchTime;                     //[13]
+    protected double maxForce;                      //[12]
+    protected double maxSpeed;                      //[13]
     protected double viewAngle;                     //[14]
     protected double viewDistance;                  //[15]
     protected double timerFrequency;                //[16]
@@ -47,15 +61,13 @@ public class Animal extends Organism {
     protected double cohesionWeight;                //[20]
     protected double velocityWeight;                //[21]
     protected double separationDistance;            //[22]
-    protected double growthScaleFactor;             //[23]
-    protected double growthMaturityFactor;          //[24]
-    protected double growthMaturityExponent;        //[25]
     protected static int numberAnimalGenes = 14;
 
     //-----------------------------------------------------------------------------------------------------------------
 
     //Constructors
     //Used for population by system
+    /*
     public Animal() {
         super();
 
@@ -65,7 +77,7 @@ public class Animal extends Organism {
         this.dna = new DNA();
         this.expressGenes();
     }
-
+     */
     //Used for population by reproduction
     public Animal(Animal father, Animal mother){
         super(father,mother);
@@ -79,9 +91,18 @@ public class Animal extends Organism {
         Animal.aniCount++;
         this.id = Animal.aniCount;
         this.generation += Math.max(father.generation,mother.generation) + 1;
-        this.maturity = 0 + mother.incubationTime / (10*1000);
+
+        this.maturity = 0 + mother.gestationDuration / (10*1000);
 
         this.expressGenes();
+    }
+
+    public Animal(Animal ancestor) {
+        this(ancestor,ancestor);
+    }
+
+    public Animal(){
+        this(Animal.blueprint());
     }
 
     //Used for explicit creation
@@ -104,34 +125,37 @@ public class Animal extends Organism {
 
             Gene[] genes = {
                     //TODO: set default parameters
-                    new Gene(.1, "sizeRatio"),
+                    new Gene(1, "sizeRatio"),
                     new Gene(128, "colorRed"),
                     new Gene(128, "colorGreen"),
                     new Gene(128, "colorBlue"),
                     new Gene(.1, "mutSizeDNA"),
-                    new Gene(.01, "mutProbDNA"),
+                    new Gene(.5, "mutProbDNA"),
                     new Gene(.1, "mutSizeNN"),
-                    new Gene(.01, "mutProbNN"),
-                    new Gene(1, "attractiveness"),
-                    new Gene(.1, "speedRatio"),
-                    new Gene(1, "strength"),
-                    new Gene(5*1000, "gestationDuration"),
-                    new Gene(1, "incubationTime"),
-                    new Gene(1, "hatchTime"),
+                    new Gene(.5, "mutProbNN"),
+                    new Gene(.5, "attractiveness"),
+                    new Gene(.5, "growthScaleFactor"),
+                    new Gene(.5, "growthMaturityFactor"),
+                    new Gene(.5, "growthMaturityExponent"),
+                    new Gene(.05, "speedRatio"),
+                    new Gene(5, "strength"),
+                    new Gene(10*1000, "gestationDuration"),
+                    new Gene(.2, "maxForce"),
+                    new Gene(1, "maxSpeed"),
                     new Gene(45, "viewAngle"),
-                    new Gene(4, "viewDistance"),
+                    new Gene(10, "viewDistance"),
                     new Gene(1, "timerFrequency"),
                     new Gene(1, "pheromoneSensibility"),
-                    new Gene(1, "separationWeight"),
-                    new Gene(1, "alignmentWeight"),
-                    new Gene(1, "cohesionWeight"),
-                    new Gene(1, "velocityWeight"),
-                    new Gene(1, "separationDistance")
+                    new Gene(.1, "separationWeight"),
+                    new Gene(.1, "alignmentWeight"),
+                    new Gene(.1, "cohesionWeight"),
+                    new Gene(.1, "velocityWeight"),
+                    new Gene(4, "separationDistance")
             };
             DNA dna = new DNA(genes);
 
             //TODO: check if these are the correct default amount of inputs
-            NeuralNetwork nn = new NeuralNetwork(12, 36, 3);
+            NeuralNetwork nn = new NeuralNetwork(14, 36, 8);
 
             Animal blueprint = new Animal(t,dna,nn);
             Animal.aniCount--;  //to not increase the counter when not needed
@@ -151,17 +175,15 @@ public class Animal extends Organism {
 
         this.gender = Gender.getRandomGender();
 
-        this.dna.getGene(shift+0).gene0to1Check();
         this.speedRatio = this.dna.getGene(shift+0).getValue();
 
         this.strength = this.dna.getGene(shift+1).getValue();
 
         this.gestationDuration = Math.round(this.dna.getGene(shift+2).getValue());
 
-        //TODO this may be deleted
-        this.incubationTime = this.dna.getGene(shift+3).getValue();
-        //TODO this may be delete
-        this.hatchTime = this.dna.getGene(shift+4).getValue();
+        this.maxForce = this.dna.getGene(shift+3).getValue();
+
+        this.maxSpeed = this.dna.getGene(shift+4).getValue();
 
         this.viewAngle = this.dna.getGene(shift+5).getValue();
 
@@ -177,18 +199,22 @@ public class Animal extends Organism {
         this.velocityWeight = this.dna.getGene(shift+12).getValue();
         this.separationDistance = this.dna.getGene(shift + 13).getValue();
 
-        this.transform.size = Animal.allMaxSize * this.sizeRatio * maturity;
-        this.maxSpeed = Animal.allMaxSpeed * this.speedRatio;
+        this.transform.size = Animal.baseSize * this.sizeRatio * this.maturity+1;
+        if(this.maxSpeed > Animal.allMaxSpeed){
+            this.maxSpeed = Animal.allMaxSpeed;
+        }
     }
 
     //TODO Test
     //TODO write documentation
     @Override
-    public void update(World w) {
+    public void update(Simulation s) {
         assert !this.isDead() : "this is dead";
         //TODO add physics so they can't run through into another and don't clip
 
-        this.think(w);
+        //System.out.println(this.healthRatio());
+
+        this.think(s);
             //use energy for thinking
 
         this.useEnergy(this.metabolismCost());      //use energy for acceleration
@@ -206,14 +232,10 @@ public class Animal extends Organism {
             //use energy for moving
     }
 
-    @Override
-    public void grow(double factor) {
-
-    }
-
     //TODO Test
     //TODO write documentation
-    public void think(World w){
+    public void think(Simulation s){
+        World w = s.getWorld();
         ArrayList<Animal> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);
         Organism cPlant = this.searchClosestPlant(w);
         Organism cAnimal = this.searchClosestAnimal(w);
@@ -224,15 +246,15 @@ public class Animal extends Organism {
                 //Maturity,
                 this.healthRatio(),
                 this.speed(),
-                this.getLoc().distSq(cAnimal.getLoc()),
-                Vector2D.angleBetween(this.getLoc(), cAnimal.getLoc()),
-                this.getLoc().distSq(cPlant.getLoc()),
-                Vector2D.angleBetween(this.getLoc(), cPlant.getLoc()),
+                cAnimal != null && this.getLoc().distSq(cAnimal.getLoc()) != 0 ? 1/this.getLoc().distSq(cAnimal.getLoc()) : 0,
+                cAnimal != null ? Vector2D.angleBetween(this.getLoc(), cAnimal.getLoc()) : 0,
+                cPlant != null && this.getLoc().distSq(cPlant.getLoc()) != 0 ? 1/this.getLoc().distSq(cPlant.getLoc()) : 0,
+                cPlant != null ? Vector2D.angleBetween(this.getLoc(), cPlant.getLoc()) : 0,
                 animals.size(),
                 w.getGrid().getGridFieldsP(this.getLoc(),this.viewDistance).size(),
-                cAnimal.getColorRed(),
-                cAnimal.getColorGreen(),
-                cAnimal.getColorBlue(),
+                cAnimal != null ? cAnimal.getColorRed() : 0,
+                cAnimal != null ? cAnimal.getColorGreen() : 0,
+                cAnimal != null ? cAnimal.getColorBlue() : 0,
                 //clkTic: Internal timer (1s on, 1s off (actual period decided by genes))
                 //clkMinut: kind of like a chronometer, counts time, gets reset by an output neuron
                 this.getAge(),
@@ -240,82 +262,159 @@ public class Animal extends Organism {
 
         double[] outputs = this.nn.predict(inputs);
 
-        /*
-        Accelerate
-        Rotate
-         */
-        this.transform.applyForce(this.transform.acceleration.rotate(outputs[0]-.5).setMag(outputs[1]-.5));
+        //Accelerate, Rotate
+        this.transform.applyForce(Vector2D.fromAngle(outputs[0]-.5, this.transform.acceleration).setMag(outputs[1]-.5).limit(this.maxForce));
 
         //Herding Desire
-        if(outputs[2] > .5){
+        if(outputs[2] > Animal.herdingThreshold){
             this.transform.applyForce(separate(animals).setMag(this.separationWeight).limit(this.maxForce));
             this.transform.applyForce(cohesion(animals).setMag(this.cohesionWeight).limit(this.maxForce));
             this.transform.applyForce(align(animals).setMag(this.alignmentWeight).limit(this.maxForce));
         }
+
         //Mate Desire
-        if(outputs[3] > .5){
-            this.reproductiveUrge = outputs[3];
-            this.mate(this.searchClosestMate(w));
+        if(outputs[3] > Animal.matingThreshold){
+            this.reproductiveUrge = outputs[3] * Animal.reproductiveUrgeFactor;
+            Animal mate = this.searchClosestMate(w);
+            if(this.collision(mate)){
+                this.mate(mate, s);
+            }
+            /*
+            else{
+                this.seek(mate.getLoc(),1);
+            }
+             */
         }
+
         //Eat Desire
-        if(outputs[4] > .5){
+        if(outputs[4] > Animal.eatingThreshold){
             if(collision(cPlant)){
-                cPlant.takeDamage(this.strength);
+                double damage = this.strength * Animal.damageFactor;
+                cPlant.takeDamage(damage);
                 //TODO how much energy gets restored and based on what?
-                //this.restoreEnergy(cPlant.);
+                this.restoreEnergy(damage);
+                if(cPlant.getHealth() <= 0){
+                    this.plantsKilled++;
+                }
             }
         }
+
         //Growth
-        if(outputs[5] > .5){
+        if(outputs[5] > Animal.growthThreshold){
             this.grow(outputs[5]);
         }
+
         //Healing
-        if(outputs[6] > .5){
-            this.restoreHealth(outputs[6] * 2);
+        if(outputs[6] > Animal.healingThreshold){
+            this.useEnergy(outputs[6] * Animal.healingFactor);//Animal.healingCostFactor);
+            this.restoreHealth(outputs[6] * Animal.healingFactor);
         }
+
         //Attack
-        if(outputs[7] > .5){
+        if(outputs[7] > Animal.attackThreshold){
             if(collision(cAnimal)){
                 //TODO consider strength of attacked animal
                 cAnimal.takeDamage(this.strength * this.transform.velocity.magSq());
+                if(cAnimal.getHealth() <= 0){
+                    this.animalsKilled++;
+                }
             }
         }
     }
 
+    @Override
+    public void grow(double factor) {
+        double growth = this.growthRate()*factor;
+        this.maturity += growth;
+        double BPIncrease = 100 * growth * Math.pow(this.sizeRatio,2);
+        this.useEnergy(BPIncrease * Animal.bodyEnergyRatio * (1+(1/Animal.healthBodyRatio)));
+    }
+
+    public Animal searchClosestMate(World w){
+        ArrayList<Animal> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);
+
+        Animal chosenMate = null;
+        double mostAttractive = Double.NEGATIVE_INFINITY;
+
+        for(Animal o : animals){
+            double distance = this.getLoc().distSq(o.getLoc());
+            double attractiveness = (1/distance) * o.getAttractiveness() * this.reproductiveUrge - this.attractiveness;
+
+            if(this.id != o.id
+                    && distance <= Math.pow(this.viewDistance,2)
+                    && this.correctGenderComb(o) && this.canMate() && o.canMate()
+                    && o.wantsToMate(this)
+                    && mostAttractive <= attractiveness
+                )
+            {
+                mostAttractive = attractiveness;
+                chosenMate = o;
+            }
+        }
+        assert (chosenMate != null ? this.correctGenderComb(chosenMate) : true) : "Wrong gender combination";
+        assert this != chosenMate : "Wants to mate with itself";
+
+        return chosenMate;
+    }
+
+    public boolean wantsToMate(Animal a) {
+        assert this != a : "wantsToMate on itself";
+
+        if(this.reproductiveUrge <= 0){
+            return false;
+        }
+        else{
+            return this.attractiveness * (1 / this.reproductiveUrge) <= a.attractiveness;
+        }
+    }
+
+    public boolean correctGenderComb(Animal mate){
+        return this.gender.correctGender(mate.gender);
+    }
+
+    public boolean canMate(){
+        return this.healthRatio() >= .5 && this.maturity >= 1;
+    }
+
     //TODO Test
     //TODO write documentation
-    public void mate(Animal mate){
-        if(this.maturity == 1 && mate.maturity == 1 && this.healthRatio() >= .5 && mate.healthRatio() >= .5){
-            Animal self = this;
-            //TODO: when do two organisms mate?
+    public void mate(Animal mate, Simulation s){
+        assert this.correctGenderComb(mate) : "Wrong gender combination";
+        assert this.canMate();
+        assert mate.canMate();
 
-            if(gender.canBirth()){
-                //what happens if female
-                this.gender.setMate(mate);
+        Animal self = this;
 
-                new Timer().schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                self.reproduce();
-                            }
-                        },
-                        this.gestationDuration
-                );
-            }else{
-                mate.mate(this);
+        if (this.gender == Gender.FEMALE && mate.gender == Gender.MALE) {
+            if (!this.gender.isPregnant()) { // check if not already pregnant
+
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        self.reproduce(s);
+                    }
+                }, this.gestationDuration);
+
+                this.gender.getPregnant(mate); // set pregnant flag
             }
+        }
+        else if (this.gender == Gender.MALE && mate.gender == Gender.FEMALE) {
+            mate.mate(this, s);
         }
     }
 
     //TODO Test
     //TODO write documentation
     @Override
-    public Organism reproduce() {
-        Organism child = null;
-        if(this.gender.canBirth() && this.maturity == 1 && this.health >= .5) {
-            child = new Animal(this, gender.getMate());
-        }
+    public Organism reproduce(Simulation s) {
+        assert this.gender.canBirth() : "this can't birth";
+
+        Animal child = new Animal(this.gender.getMate(),this);
+        s.addAnimal(child);
+
+        this.offspringBirthed++;
+        this.gender.giveBirth();
+
         return child;
     }
 
@@ -324,7 +423,12 @@ public class Animal extends Organism {
     //Collision registration
     public boolean collision(Organism o){
         //check if this collides with something
-        return this.getLoc().distSq(o.getLoc()) <= Math.pow(this.getR() + o.getR(), 2);
+        if(o == null){
+            return false;
+        }
+        else{
+            return this.getLoc().distSq(o.getLoc()) <= Math.pow(this.getR() + o.getR(), 2);
+        }
     }
 
     //TODO Test
@@ -346,24 +450,6 @@ public class Animal extends Organism {
         return this.searchClosest(animals);
     }
 
-    public Animal searchClosestMate(World w){
-        ArrayList<Animal> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);
-
-        Animal chosenMate = null;
-        double mostAttractive = Double.NEGATIVE_INFINITY;
-
-        for(Animal o : animals){
-            double distance = this.getLoc().distSq(o.getLoc());
-            double attractiveness = (1/distance) * o.getAttractiveness() * this.reproductiveUrge - this.attractiveness;
-            //if the distance is smaller than the current closest distance and smaller than the viewDistance
-            if((mostAttractive <= attractiveness) && (distance <= Math.pow(this.viewDistance,2))){
-                mostAttractive = attractiveness;
-                chosenMate = o;
-            }
-        }
-        return chosenMate;
-    }
-
     //TODO Test
     //TODO write documentation
     public Organism searchClosest(ArrayList<Organism> organisms){
@@ -376,7 +462,7 @@ public class Animal extends Organism {
         for(Organism o : organisms){
             double distance = this.getLoc().distSq(o.getLoc());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
-            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))){
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (o.getId() != this.id)){
                 closestDistance = distance;
                 closestOrganism = o;
             }
@@ -386,15 +472,12 @@ public class Animal extends Organism {
 
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
-        return this.speed() / (2*this.size());
-    }
-
-    public double growthRate(){
-        return this.growthScaleFactor/(1+this.growthMaturityFactor*Math.pow(this.maturity,this.growthMaturityExponent));
+        return (this.speed()*Animal.metabolismFactor) / (2*this.size());
     }
 
     public double healthRatio(){
-        return this.maxHealth/this.health;
+        assert this.maxHealth() >= this.health;
+        return this.health/this.maxHealth();
     }
 
     public Vector2D seek(Vector2D target, int groupRatio){
@@ -513,22 +596,6 @@ public class Animal extends Organism {
         this.gender = gender;
     }
 
-    public double getMaxSpeed() {
-        return maxSpeed;
-    }
-
-    public void setMaxSpeed(double maxSpeed) {
-        this.maxSpeed = maxSpeed;
-    }
-
-    public double getMaxForce() {
-        return maxForce;
-    }
-
-    public void setMaxForce(double maxForce) {
-        this.maxForce = maxForce;
-    }
-
     public double getViewDistance() {
         return viewDistance;
     }
@@ -594,20 +661,20 @@ public class Animal extends Organism {
         this.gestationDuration = gestationDuration;
     }
 
-    public double getIncubationTime() {
-        return incubationTime;
+    public double getMaxForce() {
+        return maxForce;
     }
 
-    public void setIncubationTime(double incubationTime) {
-        this.incubationTime = incubationTime;
+    public void setMaxForce(double maxForce) {
+        this.maxForce = maxForce;
     }
 
-    public double getHatchTime() {
-        return hatchTime;
+    public double getMaxSpeed() {
+        return maxSpeed;
     }
 
-    public void setHatchTime(double hatchTime) {
-        this.hatchTime = hatchTime;
+    public void setMaxSpeed(double maxSpeed) {
+        this.maxSpeed = maxSpeed;
     }
 
     public double getViewAngle() {
@@ -710,7 +777,17 @@ public class Animal extends Organism {
 
     @Override
     public void paint(Graphics2D g) {
-
+        super.paint(g);
+        g.fill(this.transform.getRectangle());
+        if(SimulationGUI.showHealth){
+            g.setColor(this.color.darker());
+            g.drawString(String.format("%.2f", this.health), (int)this.getLocX(), (int)this.getLocY());
+        }
+        if(SimulationGUI.showEnergy){
+            g.setColor(this.color.brighter());
+            g.drawString(String.format("%.2f", this.energy), (int)this.getLocX(), (int)this.getLocY()+10);
+        }
+        //g.drawString(String.format("%.2f", this.healthRatio()), (int)this.getLocX(), (int)this.getLocY());
     }
 
     //------------------------------------------------invariant--------------------------------------------------------
