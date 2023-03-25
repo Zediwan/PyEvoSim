@@ -249,6 +249,9 @@ public class SimulationGUI extends JFrame {
                 { "Amount of Animals: " , s.getAnimals().size() },
                 { "All-time of Animals: " , Animal.aniCount },
                 { "Average Age: ", s.getAVGAgeAnimals() },
+                { "Average Animals Killed: ", s.getAVGAnimalsKilled()},
+                { "Average Plants Killed: ", s.getAVGPlantsKilled()},
+                { "Average Offspring Birthed: ", s.getAVGOffspringBirthed()},
 
                 { "Average Max Health: ", s.getAVGMaxHealthAnimals() },
                 { "Average Health: ", s.getAVGHealthAnimals() },
@@ -278,15 +281,18 @@ public class SimulationGUI extends JFrame {
                 // Update the table data here
                 animalData[0][1] = s.getAnimals().size();
                 animalData[1][1] = Animal.aniCount;
-                animalData[2][1] = s.getAVGAgeAnimals();
+                animalData[2][1] = String.format("%.2f", s.getAVGAgeAnimals());
+                animalData[3][1] = Math.round(s.getAVGAnimalsKilled());
+                animalData[4][1] = Math.round(s.getAVGPlantsKilled());
+                animalData[5][1] = Math.round(s.getAVGOffspringBirthed());
 
-                animalData[3][1] = s.getAVGMaxHealthAnimals();
-                animalData[4][1] = s.getAVGHealthAnimals();
-                animalData[5][1] = s.getAVGHealthRatioAnimals();
+                animalData[6][1] = String.format("%.2f", s.getAVGMaxHealthAnimals());
+                animalData[7][1] = String.format("%.2f", s.getAVGHealthAnimals());
+                animalData[8][1] = String.format("%.2f", s.getAVGHealthRatioAnimals());
 
-                animalData[6][1] = s.getAVGMaxEnergyAnimals();
-                animalData[7][1] = s.getAVGEnergyAnimals();
-                animalData[8][1] = s.getAVGEnergyRatioAnimals();
+                animalData[9][1] = String.format("%.2f", s.getAVGMaxEnergyAnimals());
+                animalData[10][1] = String.format("%.2f", s.getAVGEnergyAnimals());
+                animalData[11][1] = String.format("%.2f", s.getAVGEnergyRatioAnimals());
 
                 // Repaint the table
                 statPanel.repaint();
