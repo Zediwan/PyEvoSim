@@ -45,6 +45,9 @@ public class SimulationGUI extends JFrame {
     private JSlider simulationSpeedSlider;
     private JLabel simulationSpeedLabel;
 
+    private JLabel fpsLabel;
+    private long lastfpsCheck;
+
     public static boolean showHealth = false;
     public static boolean showEnergy = false;
     public static int simulationSpeed = 10;
@@ -229,6 +232,17 @@ public class SimulationGUI extends JFrame {
         this.simulationSpeedPanel.add(this.simulationSpeedLabel, BorderLayout.NORTH);
         this.simulationSpeedPanel.add(this.simulationSpeedSlider, BorderLayout.CENTER);
 
+        //FPS Label
+        this.fpsLabel = new JLabel();
+        this.lastfpsCheck = System.currentTimeMillis();
+        Timer timer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                fpsLabel.setText("FPS: " + s.getFps());
+            }
+        });
+        timer.start();
+
+
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(this.showHealthCheckBox);
         this.animalSettingsPanel.add(this.showEnergyCheckBox);
@@ -237,6 +251,9 @@ public class SimulationGUI extends JFrame {
         this.worldSettingPanel.add(this.minAnimalsPanel);
         this.worldSettingPanel.add(this.maxAnimalsPanel);
         this.worldSettingPanel.add(this.simulationSpeedPanel);
+
+        //Add info in the stat panel
+        this.worldStatPanel.add(this.fpsLabel);
 
         this.controlPane.setResizeWeight(.5);
         this.controlPane.setTopComponent(settingsPane);

@@ -48,6 +48,9 @@ public class Simulation extends JPanel implements ActionListener {
     private World world;
     public Timer repaintTimer;
 
+    private long lastFrameTime;
+    private int fps;
+
     public Simulation(int stP, int stA,
                       int maxP, int minP, int maxA, int minA,
                       int newP, int newA,
@@ -78,6 +81,7 @@ public class Simulation extends JPanel implements ActionListener {
 
         this.initiatePopulation();
         this.repaintTimer = new Timer(10, this);
+        this.lastFrameTime = System.currentTimeMillis();
         this.repaintTimer.start();
     }
 
@@ -285,12 +289,15 @@ public class Simulation extends JPanel implements ActionListener {
         return avg;
     }
 
-    /**
-     * don't really know what this does
-     * @param e
-     */
     public void actionPerformed(ActionEvent e){
+        this.updateFPS();
         this.repaint();
+    }
+
+    private void updateFPS() {
+        long currentTime = System.currentTimeMillis();
+        this.fps = (int) (1000/(currentTime-this.lastFrameTime));
+        this.lastFrameTime = currentTime;
     }
 
     //Getter and Setter--------------------------------------------------------------------------
@@ -397,5 +404,9 @@ public class Simulation extends JPanel implements ActionListener {
 
     public void setTimerDelay(int simulationSpeed) {
         this.repaintTimer.setDelay(simulationSpeed);
+    }
+
+    public int getFps() {
+        return this.fps;
     }
 }
