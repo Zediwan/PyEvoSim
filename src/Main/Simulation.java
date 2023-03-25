@@ -374,4 +374,24 @@ public class Simulation extends JPanel implements ActionListener {
     public void setMaxPlants(int maxPlants) {
         this.maxNumPlants = maxPlants;
     }
+
+    public void setMaxAnimals(int maxAnimals) {
+        this.maxNumAnimals = maxAnimals;
+    }
+
+    public int getMinNumPlants() {
+        return minNumPlants;
+    }
+
+    public void setMinNumPlants(int minNumPlants) {
+        this.minNumPlants = minNumPlants;
+    }
+
+    public int getMaxNumAnimals() {
+        return maxNumAnimals;
+    }
+
+    public void setMaxNumAnimals(int maxNumAnimals) {
+        this.maxNumAnimals = maxNumAnimals;
+    }
 }
