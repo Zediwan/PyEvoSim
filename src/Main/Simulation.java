@@ -137,7 +137,7 @@ public class Simulation extends JPanel implements ActionListener {
      */
     private void controlPops() {
         //control plant pop
-        if(this.plants.size() < maxNumPlants){
+        if(this.plants.size() < minNumPlants && this.plants.size() + this.numNewPlants < this.maxNumPlants){
             for(int i = 0; i < numNewPlants; i++){
                 Plant p = new Plant();
                 p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
@@ -145,7 +145,7 @@ public class Simulation extends JPanel implements ActionListener {
             }
         }
         //control animal pop
-        if(this.animals.size() < minNumAnimals){
+        if(this.animals.size() < minNumAnimals && this.animals.size() + this.numNewAnimals < this.maxNumAnimals){
             for(int i = 0; i < numNewAnimals; i++){
                 Animal a = new Animal();
                 a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
@@ -400,7 +400,9 @@ public class Simulation extends JPanel implements ActionListener {
 
     private void updateFPS() {
         long currentTime = System.currentTimeMillis();
-        this.fps = (int) (1000/(currentTime-this.lastFrameTime));
+        if(currentTime-this.lastFrameTime > 0){
+            this.fps = (int) (1000/(currentTime-this.lastFrameTime));
+        }
         this.lastFrameTime = currentTime;
     }
 
@@ -504,10 +506,6 @@ public class Simulation extends JPanel implements ActionListener {
 
     public int getMaxNumAnimals() {
         return maxNumAnimals;
-    }
-
-    public void setMaxNumAnimals(int maxNumAnimals) {
-        this.maxNumAnimals = maxNumAnimals;
     }
 
     public void setTimerDelay(int simulationSpeed) {
