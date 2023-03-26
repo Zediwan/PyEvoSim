@@ -21,9 +21,9 @@ public class SimulationGUI extends JFrame {
     private JPanel worldSettingPanel;
 
     private JTabbedPane statPanel;
-    private final JPanel animalStatPanel;
-    private final JPanel plantStatPanel;
-    private final JPanel organismStatPanel;
+    private final JScrollPane animalStatPanel;
+    private final JScrollPane plantStatPanel;
+    private final JScrollPane organismStatPanel;
     private final JPanel worldStatPanel;
 
     private JCheckBox showHealthCheckBox;
@@ -63,10 +63,10 @@ public class SimulationGUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Set up simulation panel
-        World w =new World(3000,3000,10,10);
+        World w =new World(2000,2000,10,10);
         Simulation s = new Simulation(50000,2000,80000,
                 8000,5000,100,
-                100,10,
+                1000,100,
                 w);
         this.simPanel = s;
         this.simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
@@ -110,11 +110,9 @@ public class SimulationGUI extends JFrame {
         this.settingsPane.addTab("World", this.worldSettingPanel);
 
         this.statPanel =  new JTabbedPane();
-        this.animalStatPanel = new JPanel();
-        this.plantStatPanel = new JPanel();
-        this.organismStatPanel = new JPanel();
+        this.plantStatPanel = new JScrollPane();
+        this.organismStatPanel = new JScrollPane();
         this.worldStatPanel = new JPanel();
-        this.statPanel.addTab("Animals", this.animalStatPanel);
         this.statPanel.addTab("Plants", this.plantStatPanel);
         this.statPanel.addTab("Organisms", this.organismStatPanel);
         this.statPanel.addTab("World", this.worldStatPanel);
@@ -151,6 +149,10 @@ public class SimulationGUI extends JFrame {
         this.maxPlantsSlider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
             int maxPlants = source.getValue();
+            int minPlants = s.getMinNumPlants();
+            if(minPlants > maxPlants){
+                this.minPlantsSlider.setValue(maxPlants);
+            }
             this.maxPlantsLabel.setText("Max Plants: " + maxPlants);
             s.setMaxPlants(maxPlants);
 
@@ -160,7 +162,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minPlants
         this.minPlantsPanel = new JPanel(new BorderLayout());
-        this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100);
+        this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 50000);
         this.minPlantsSlider.setMajorTickSpacing(25000);
         this.minPlantsSlider.setMinorTickSpacing(12500);
         this.minPlantsSlider.setPaintTicks(true);
@@ -182,7 +184,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for maxAnimals
         this.maxAnimalsPanel = new JPanel(new BorderLayout());
-        this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100000);
+        this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 50000);
         this.maxAnimalsSlider.setMajorTickSpacing(25000);
         this.maxAnimalsSlider.setMinorTickSpacing(12500);
         this.maxAnimalsSlider.setPaintTicks(true);
@@ -191,6 +193,10 @@ public class SimulationGUI extends JFrame {
         this.maxAnimalsSlider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
             int maxAnimals = source.getValue();
+            int minAnimals = s.getMinNumAnimals();
+            if(minAnimals > maxAnimals){
+                this.minAnimalsSlider.setValue(maxAnimals);
+            }
             maxAnimalsLabel.setText("Max Animals: " + maxAnimals);
             s.setMaxAnimals(maxAnimals);
 
@@ -260,6 +266,8 @@ public class SimulationGUI extends JFrame {
                 { "Average Max Energy: ", s.getAVGMaxEnergyAnimals() },
                 { "Average Energy: ", s.getAVGEnergyAnimals() },
                 { "Average Energy Ratio: ", s.getAVGEnergyRatioAnimals() },
+
+                { "All-time Animals born: ", Animal.aniBornCount}
                 // Add more rows as needed
         };
 
@@ -270,10 +278,12 @@ public class SimulationGUI extends JFrame {
         JTable table = new JTable(this.animalData, columnNames);
 
         // Add the JTable to a JScrollPane
-        JScrollPane scrollPane = new JScrollPane(table);
+        //JScrollPane scrollPane = new JScrollPane(table);
 
         // Add the JScrollPane to your statPanel
-        this.animalStatPanel.add(scrollPane);
+        this.animalStatPanel = new JScrollPane(table);
+        this.statPanel.addTab("Animals", this.animalStatPanel);
+        //this.animalStatPanel.add(scrollPane);
 
         Timer aniStatTimer = new Timer(2000, new ActionListener() {
             @Override
@@ -293,6 +303,8 @@ public class SimulationGUI extends JFrame {
                 animalData[9][1] = String.format("%.2f", s.getAVGMaxEnergyAnimals());
                 animalData[10][1] = String.format("%.2f", s.getAVGEnergyAnimals());
                 animalData[11][1] = String.format("%.2f", s.getAVGEnergyRatioAnimals());
+
+                animalData[12][1] = Animal.aniBornCount;
 
                 // Repaint the table
                 statPanel.repaint();

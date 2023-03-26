@@ -18,6 +18,7 @@ import java.util.TimerTask;
 
 public class Animal extends Organism {
     public static long aniCount = 0;
+    public static long aniBornCount = 0;
     private static Animal blueprint;
 
     private static double baseExhaustDmg = 1;
@@ -26,7 +27,7 @@ public class Animal extends Organism {
     private static double healthBodyRatio = 2;
     private static double bodyEnergyRatio = 2;
     private static double herdingThreshold = .5;
-    private static double matingThreshold = .5;
+    private static double matingThreshold = .2;
     private static double eatingThreshold = .2;
     private static double growthThreshold = .5;
     private static double healingThreshold = .5;
@@ -92,7 +93,7 @@ public class Animal extends Organism {
         this.id = Animal.aniCount;
         this.generation += Math.max(father.generation,mother.generation) + 1;
 
-        this.maturity = 0 + mother.gestationDuration / (10*1000);
+        this.maturity = 0 + mother.gestationDuration / (5*1000);
 
         this.expressGenes();
     }
@@ -129,21 +130,21 @@ public class Animal extends Organism {
                     new Gene(128, "colorRed"),
                     new Gene(128, "colorGreen"),
                     new Gene(128, "colorBlue"),
-                    new Gene(.1, "mutSizeDNA"),
-                    new Gene(.5, "mutProbDNA"),
+                    new Gene(.5, "mutSizeDNA"),
+                    new Gene(1, "mutProbDNA"),
                     new Gene(.1, "mutSizeNN"),
-                    new Gene(.5, "mutProbNN"),
+                    new Gene(1, "mutProbNN"),
                     new Gene(.5, "attractiveness"),
                     new Gene(.5, "growthScaleFactor"),
                     new Gene(.5, "growthMaturityFactor"),
                     new Gene(.5, "growthMaturityExponent"),
                     new Gene(.05, "speedRatio"),
                     new Gene(5, "strength"),
-                    new Gene(10*1000, "gestationDuration"),
+                    new Gene(5*1000, "gestationDuration"),
                     new Gene(.2, "maxForce"),
                     new Gene(1, "maxSpeed"),
                     new Gene(45, "viewAngle"),
-                    new Gene(10, "viewDistance"),
+                    new Gene(100, "viewDistance"),
                     new Gene(1, "timerFrequency"),
                     new Gene(1, "pheromoneSensibility"),
                     new Gene(.1, "separationWeight"),
@@ -412,6 +413,7 @@ public class Animal extends Organism {
         Animal child = new Animal(this.gender.getMate(),this);
         s.addAnimal(child);
 
+        Animal.aniBornCount++;
         this.offspringBirthed++;
         this.gender.giveBirth();
 
