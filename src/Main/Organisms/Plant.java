@@ -1,10 +1,9 @@
-package Main.Organisms.Plants;
+package Main.Organisms;
 
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
-import Main.Organisms.Organism;
 import Main.Simulation;
 
 import java.awt.*;

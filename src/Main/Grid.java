@@ -1,7 +1,7 @@
 package Main;
 
 import Main.Helper.Vector2D;
-import Main.Organisms.Animals.Animal;
+import Main.Organisms.Animal;
 import Main.Organisms.Organism;
 import java.util.ArrayList;
 

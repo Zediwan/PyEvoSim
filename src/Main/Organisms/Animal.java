@@ -1,4 +1,4 @@
-package Main.Organisms.Animals;
+package Main.Organisms;
 
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
@@ -6,7 +6,6 @@ import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
 import Main.Organisms.Attributes.Gender;
-import Main.Organisms.Organism;
 import Main.Simulation;
 import Main.SimulationGUI;
 import Main.World;

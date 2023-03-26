@@ -1,6 +1,6 @@
 package Main.Organisms.Attributes;
 
-import Main.Organisms.Animals.Animal;
+import Main.Organisms.Animal;
 
 public enum Gender {
     MALE {

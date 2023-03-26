@@ -1,6 +1,6 @@
 package Main;
 
-import Main.Organisms.Animals.Animal;
+import Main.Organisms.Animal;
 
 import javax.swing.*;
 import java.awt.*;
