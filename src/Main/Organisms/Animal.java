@@ -11,6 +11,7 @@ import Main.SimulationGUI;
 import Main.World;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -585,6 +586,11 @@ public class Animal extends Organism {
         }
         assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
         return steer;
+    }
+
+    //TODO maybe refactor into Transform class?
+    public Ellipse2D getSensoryRadius(){
+        return new Ellipse2D.Double(this.getLocX() - this.getR() - this.viewDistance/2, this.getLocY() - this.getR() - this.viewDistance/2, this.size() + this.viewDistance, this.size() + this.viewDistance);
     }
 
     //------------------------------------------------Getter and Setter------------------------------------------------

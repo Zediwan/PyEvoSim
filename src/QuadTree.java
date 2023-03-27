@@ -1,7 +1,10 @@
 import Main.Helper.Vector2D;
+import Main.Organisms.Animal;
 import Main.Organisms.Organism;
+import Main.World;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 
 public class QuadTree {
@@ -13,12 +16,30 @@ public class QuadTree {
     private QuadTree southwest;
     private QuadTree southeast;
     private boolean isDivided  = false;
+    private World w;
 
-    public QuadTree(Rectangle boundary, int capacity) {
+    public QuadTree(Rectangle boundary, int capacity, World w) {
         assert capacity > 0 : "capacity is smaller than 1";
         this.boundary = boundary;
         this.capacity = capacity;
         this.organisms = new ArrayList<>();
+        this.w = w;
+    }
+
+    public void update(){
+
+    }
+
+    public void clear() {
+        this.organisms.clear();
+
+        if(this.isDivided){
+            this.northwest = null;
+            this.northeast = null;
+            this.southwest = null;
+            this.southeast = null;
+            this.isDivided = false;
+        }
     }
 
     public boolean insert(Organism o){
@@ -57,12 +78,67 @@ public class QuadTree {
         int w = this.boundary.width;
         int h = this.boundary.height;
 
-        this.northeast =  new QuadTree(new Rectangle(x , y , w / 2, h/2), this.capacity);
-        this.northwest = new QuadTree(new Rectangle(x + w/2 , y , w / 2, h/2), this.capacity);
-        this.southwest = new QuadTree(new Rectangle(x, y + h/2, w/2, h/2), this.capacity);
-        this.southeast = new QuadTree(new Rectangle(x + w/2, y + h/2, w/2, h/2), this.capacity);
+        this.northeast =  new QuadTree(new Rectangle(x , y , w / 2, h/2), this.capacity, this.w);
+        this.northwest = new QuadTree(new Rectangle(x + w/2 , y , w / 2, h/2), this.capacity, this.w);
+        this.southwest = new QuadTree(new Rectangle(x, y + h/2, w/2, h/2), this.capacity, this.w);
+        this.southeast = new QuadTree(new Rectangle(x + w/2, y + h/2, w/2, h/2), this.capacity, this.w);
 
         this.isDivided = true;
+    }
+
+    public ArrayList<Organism> query(Animal a){
+        ArrayList<Organism> organismsFound = new ArrayList<Organism>();
+        Ellipse2D rangeArea = a.getSensoryRadius();
+
+        //if they don't intersect return an empty array
+        if(!rangeArea.intersects(this.boundary)){
+            return organismsFound;
+        }
+        else{
+            for(Organism o : this.organisms){
+                //check if the organism is in the area
+                if(rangeArea.contains(o.getLoc().toPoint())){
+                    organismsFound.add(o);
+                }
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(a, organismsFound);
+                this.northeast.query(a, organismsFound);
+                this.southwest.query(a, organismsFound);
+                this.southeast.query(a, organismsFound);
+            }
+
+            return organismsFound;
+        }
+    }
+
+    public ArrayList<Organism> query(Animal a, ArrayList<Organism> organismsFound){
+        Ellipse2D rangeArea = a.getSensoryRadius();
+
+        //if they don't intersect return an empty array
+        if(!rangeArea.intersects(this.boundary)){
+            return organismsFound;
+        }
+        else{
+            for(Organism o : this.organisms){
+                //check if the organism is in the area
+                if(rangeArea.contains(o.getLoc().toPoint())){
+                    organismsFound.add(o);
+                }
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(a, organismsFound);
+                this.northeast.query(a, organismsFound);
+                this.southwest.query(a, organismsFound);
+                this.southeast.query(a, organismsFound);
+            }
+
+            return organismsFound;
+        }
     }
 
     public ArrayList<Organism> query(Vector2D v, int range){
