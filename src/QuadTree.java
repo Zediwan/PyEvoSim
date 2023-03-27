@@ -1,3 +1,4 @@
+import Main.Helper.Vector2D;
 import Main.Organisms.Organism;
 
 import java.awt.*;
@@ -62,6 +63,61 @@ public class QuadTree {
         this.southeast = new QuadTree(new Rectangle(x + w/2, y + h/2, w/2, h/2), this.capacity);
 
         this.isDivided = true;
+    }
+
+    public ArrayList<Organism> query(Vector2D v, int range){
+        ArrayList<Organism> organismsFound = new ArrayList<Organism>();
+        Rectangle rangeArea = new Rectangle((int)(v.x - range / 2), (int)(v.y - range / 2), range, range);
+
+        //if they don't intersect return an empty array
+        if(!this.boundary.intersects(rangeArea)){
+            return organismsFound;
+        }
+        else{
+            for(Organism o : this.organisms){
+                //check if the organism is in the area
+                if(rangeArea.contains(o.getLoc().toPoint())){
+                    organismsFound.add(o);
+                }
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(v, range, organismsFound);
+                this.northeast.query(v, range, organismsFound);
+                this.southwest.query(v, range, organismsFound);
+                this.southeast.query(v, range, organismsFound);
+            }
+
+            return organismsFound;
+        }
+    }
+
+    public ArrayList<Organism> query(Vector2D v, int range, ArrayList<Organism> organismsFound){
+        Rectangle rangeArea = new Rectangle((int)(v.x - range / 2), (int)(v.y - range / 2), range, range);
+
+        //if they don't intersect return the array
+        if(!this.boundary.intersects(rangeArea)){
+            return organismsFound;
+        }
+        else{
+            for(Organism o : this.organisms){
+                //check if the organism is in the area
+                if(rangeArea.contains(o.getLoc().toPoint())){
+                    organismsFound.add(o);
+                }
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(v, range, organismsFound);
+                this.northeast.query(v, range, organismsFound);
+                this.southwest.query(v, range, organismsFound);
+                this.southeast.query(v, range, organismsFound);
+            }
+
+            return organismsFound;
+        }
     }
 
     public void paint(Graphics2D g){
