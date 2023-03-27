@@ -54,7 +54,6 @@ public class Transform {
         return t;
     }
 
-
     //Getters and Setters for all variables
     public Rectangle getRectangle(){
         Rectangle rec = new Rectangle((int)(this.location.x-(this.getR())),

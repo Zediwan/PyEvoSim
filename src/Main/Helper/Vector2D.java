@@ -1,5 +1,7 @@
 package Main.Helper;
 
+import java.awt.*;
+
 public class Vector2D {
     //TODO: change variables to private
     public double x; //x coordinate
@@ -32,6 +34,10 @@ public class Vector2D {
 
     public static Vector2D randSurroundingVec(double surrounding){
         return new Vector2D(Math.random()*surrounding - (surrounding/2), Math.random()*surrounding- (surrounding/2));
+    }
+
+    public Point toPoint(){
+        return new Point((int)Math.round(this.x), (int)Math.round(this.y));
     }
 
 
