@@ -28,6 +28,8 @@ public class SimulationGUI extends JFrame {
 
     private JCheckBox showHealthCheckBox;
     private JCheckBox showEnergyCheckBox;
+    private JCheckBox showAnimalQTCheckBox;
+    private JCheckBox showPlantQTCheckBox;
 
     private JPanel maxPlantsPanel;
     private JSlider maxPlantsSlider;
@@ -53,6 +55,8 @@ public class SimulationGUI extends JFrame {
 
     public static boolean showHealth = false;
     public static boolean showEnergy = false;
+    public static boolean showAnimalQT = false;
+    public static boolean showPlantQT = false;
     public static int simulationSpeed = 10;
 
     public SimulationGUI() {
@@ -63,7 +67,7 @@ public class SimulationGUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Set up simulation panel
-        World w =new World(2000,2000,10,10);
+        World w =new World(2000,2000, 20, 20);
         Simulation s = new Simulation(50000,2000,80000,
                 8000,5000,100,
                 1000,100,
@@ -137,15 +141,36 @@ public class SimulationGUI extends JFrame {
             }
         });
 
+        //Show Animal QT checkbox
+        this.showAnimalQTCheckBox = new JCheckBox("Show Animal Quad Tree");
+        this.showAnimalQTCheckBox.setToolTipText("Toggle the visualization of the Animal Quad Tree");
+        this.showAnimalQTCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAnimalQT = showAnimalQTCheckBox.isSelected();
+            }
+        });
+
+        //Show Plant QT checkbox
+        this.showPlantQTCheckBox = new JCheckBox("Show Plant Quad Tree");
+        this.showPlantQTCheckBox.setToolTipText("Toggle the visualization of the Plant Quad Tree");
+        this.showPlantQTCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showPlantQT = showPlantQTCheckBox.isSelected();            }
+        });
+
         //TODO create rangeSliders
         //Slider for maxPlants
         this.maxPlantsPanel = new JPanel(new BorderLayout());
-        this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100000);
+        int startingValue = 50000;
+        this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
         this.maxPlantsSlider.setMajorTickSpacing(25000);
         this.maxPlantsSlider.setMinorTickSpacing(12500);
         this.maxPlantsSlider.setPaintTicks(true);
         this.maxPlantsSlider.setPaintTrack(true);
-        this.maxPlantsLabel = new JLabel("Max Plants: " + 10000, JLabel.CENTER);
+        this.maxPlantsLabel = new JLabel("Max Plants: " + startingValue, JLabel.CENTER);
+        s.setMaxPlants(startingValue);
         this.maxPlantsSlider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
             int maxPlants = source.getValue();
@@ -162,12 +187,14 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minPlants
         this.minPlantsPanel = new JPanel(new BorderLayout());
-        this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 50000);
+        startingValue = 20000;
+        this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
         this.minPlantsSlider.setMajorTickSpacing(25000);
         this.minPlantsSlider.setMinorTickSpacing(12500);
         this.minPlantsSlider.setPaintTicks(true);
         this.minPlantsSlider.setPaintTrack(true);
-        this.minPlantsLabel = new JLabel("Min Plants: " + 10000, JLabel.CENTER);
+        this.minPlantsLabel = new JLabel("Min Plants: " + startingValue, JLabel.CENTER);
+        s.setMinNumPlants(startingValue);
         this.minPlantsSlider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
             int minPlants = source.getValue();
@@ -184,12 +211,14 @@ public class SimulationGUI extends JFrame {
 
         //Slider for maxAnimals
         this.maxAnimalsPanel = new JPanel(new BorderLayout());
-        this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 50000);
+        startingValue = 20000;
+        this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
         this.maxAnimalsSlider.setMajorTickSpacing(25000);
         this.maxAnimalsSlider.setMinorTickSpacing(12500);
         this.maxAnimalsSlider.setPaintTicks(true);
         this.maxAnimalsSlider.setPaintTrack(true);
-        this.maxAnimalsLabel = new JLabel("Max Animals: " + 10000, JLabel.CENTER);
+        this.maxAnimalsLabel = new JLabel("Max Animals: " + startingValue, JLabel.CENTER);
+        s.setMaxAnimals(startingValue);
         this.maxAnimalsSlider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
             int maxAnimals = source.getValue();
@@ -206,12 +235,14 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minAnimals
         this.minAnimalsPanel = new JPanel(new BorderLayout());
-        this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, 100);
+        startingValue = 1000;
+        this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
         this.minAnimalsSlider.setMajorTickSpacing(25000);
         this.minAnimalsSlider.setMinorTickSpacing(12500);
         this.minAnimalsSlider.setPaintTicks(true);
         this.minAnimalsSlider.setPaintTrack(true);
-        this.minAnimalsLabel = new JLabel("Min Animals: " + 10000, JLabel.CENTER);
+        this.minAnimalsLabel = new JLabel("Min Animals: " + startingValue, JLabel.CENTER);
+        s.setMinNumAnimals(startingValue);
         this.minAnimalsSlider.addChangeListener(e -> {
             JSlider source = (JSlider)e.getSource();
             int minAnimals = source.getValue();
@@ -228,10 +259,12 @@ public class SimulationGUI extends JFrame {
 
         //Simulation Speed Slider
         this.simulationSpeedPanel = new JPanel(new BorderLayout());
-        this.simulationSpeedSlider = new JSlider(JSlider.HORIZONTAL,1,100,10);
+        startingValue = 100;
+        this.simulationSpeedSlider = new JSlider(JSlider.HORIZONTAL,1,100,startingValue);
         this.simulationSpeedSlider.setMajorTickSpacing(10);
         this.simulationSpeedSlider.setPaintTrack(true);
-        this.simulationSpeedLabel = new JLabel("Frames per Sec: " + 10, JLabel.CENTER);
+        this.simulationSpeedLabel = new JLabel("Frames per Sec: " + startingValue, JLabel.CENTER);
+        s.setTimerDelay(1000/startingValue);
         this.simulationSpeedSlider.addChangeListener(e ->{
             JSlider source = (JSlider)e.getSource();
             int simulationSpeed = source.getValue();
@@ -315,6 +348,8 @@ public class SimulationGUI extends JFrame {
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(this.showHealthCheckBox);
         this.animalSettingsPanel.add(this.showEnergyCheckBox);
+        this.animalSettingsPanel.add(this.showAnimalQTCheckBox);
+        this.plantSettingPanel.add(this.showPlantQTCheckBox);
         this.worldSettingPanel.add(this.minPlantsPanel);
         this.worldSettingPanel.add(this.maxPlantsPanel);
         this.worldSettingPanel.add(this.minAnimalsPanel);

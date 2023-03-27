@@ -1,24 +1,39 @@
 package Main;
 
-import Main.Organisms.Organism;
+import Main.Organisms.Animal;
+import Main.Organisms.Plant;
 
 import java.awt.*;
 
 public class World {
     private Dimension worldDimension;     //world size
-    private Grid grid;
+    //private Grid grid;
+    private QuadTree.Animals animalQuadTree;
+    private QuadTree.Plants plantQuadTree;
 
-    public World(int width, int height, int gridFieldWidth, int gridFieldHeight){
+    public World(int width, int height, int capacityA, int capacityB){
         this.worldDimension = new Dimension(width, height);
-        this.grid = new Grid(gridFieldWidth, gridFieldHeight, this); //initiate the grid
+        Rectangle worldRect = new Rectangle(this.worldDimension.width,this.worldDimension.height);
+
+        this.worldDimension = new Dimension(width, height);
+        this.animalQuadTree = new QuadTree.Animals(worldRect, capacityA, this);
+        this.plantQuadTree = new QuadTree.Plants(worldRect, capacityB, this);
+        //this.grid = new Grid(gridFieldWidth, gridFieldHeight, this); //initiate the grid
     }
 
-    public void updatePlant(Organism o) {
-        this.grid.updateGridP(o);
+    public void clearQuadTrees(){
+        this.plantQuadTree.clear();
+        this.animalQuadTree.clear();
     }
 
-    public void updateAnimal(Organism o) {
-        this.grid.updateGridA(o);
+    public void updatePlant(Plant p) {
+        //this.grid.updateGridP(o);
+        this.plantQuadTree.insert(p);
+    }
+
+    public void updateAnimal(Animal a) {
+        //this.grid.updateGridA(o);
+        this.animalQuadTree.insert(a);
     }
 
     public Dimension getWorldDimension() {
@@ -29,6 +44,23 @@ public class World {
         this.worldDimension = worldDimension;
     }
 
+    public QuadTree.Animals getAnimalQuadTree() {
+        return animalQuadTree;
+    }
+
+    public void setAnimalQuadTree(QuadTree.Animals animalQuadTree) {
+        this.animalQuadTree = animalQuadTree;
+    }
+
+    public QuadTree.Plants getPlantQuadTree() {
+        return plantQuadTree;
+    }
+
+    public void setPlantQuadTree(QuadTree.Plants plantQuadTree) {
+        this.plantQuadTree = plantQuadTree;
+    }
+
+    /*
     public Grid getGrid() {
         return grid;
     }
@@ -36,4 +68,5 @@ public class World {
     public void setGrid(Grid grid) {
         this.grid = grid;
     }
+     */
 }

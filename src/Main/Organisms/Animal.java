@@ -237,7 +237,7 @@ public class Animal extends Organism {
     //TODO write documentation
     public void think(Simulation s){
         World w = s.getWorld();
-        ArrayList<Animal> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);
+        ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
         Organism cPlant = this.searchClosestPlant(w);
         Organism cAnimal = this.searchClosestAnimal(w);
 
@@ -252,7 +252,7 @@ public class Animal extends Organism {
                 cPlant != null && this.getLoc().distSq(cPlant.getLoc()) != 0 ? 1/this.getLoc().distSq(cPlant.getLoc()) : 0,
                 cPlant != null ? Vector2D.angleBetween(this.getLoc(), cPlant.getLoc()) : 0,
                 animals.size(),
-                w.getGrid().getGridFieldsP(this.getLoc(),this.viewDistance).size(),
+                w.getPlantQuadTree().query(this).size(),
                 cAnimal != null ? cAnimal.getColorRed() : 0,
                 cAnimal != null ? cAnimal.getColorGreen() : 0,
                 cAnimal != null ? cAnimal.getColorBlue() : 0,
@@ -332,7 +332,9 @@ public class Animal extends Organism {
     }
 
     public Animal searchClosestMate(World w){
-        ArrayList<Animal> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);
+        //ArrayList<Animal> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);
+        ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
+
 
         Animal chosenMate = null;
         double mostAttractive = Double.NEGATIVE_INFINITY;
@@ -341,6 +343,7 @@ public class Animal extends Organism {
             double distance = this.getLoc().distSq(o.getLoc());
             double attractiveness = (1/distance) * o.getAttractiveness() * this.reproductiveUrge - this.attractiveness;
 
+            //TODO rework
             if(this.id != o.id
                     && distance <= Math.pow(this.viewDistance,2)
                     && this.correctGenderComb(o) && this.canMate() && o.canMate()
@@ -436,20 +439,50 @@ public class Animal extends Organism {
     //TODO Test
     //TODO write documentation
     //Search for food
-    public Organism searchClosestPlant(World w){
+    public Plant searchClosestPlant(World w){
         assert !this.isDead() : "This is dead";
 
-        ArrayList<Organism> foods = w.getGrid().getGridFieldsP(this.getLoc(), this.viewDistance);     //get all food in view Distance
+        //ArrayList<Organism> foods = w.getGrid().getGridFieldsP(this.getLoc(), this.viewDistance);     //get all food in view Distance
+        ArrayList<Plant> plants = w.getPlantQuadTree().query(this);
+
         //calculate the closest organism
-        return this.searchClosest(foods);
+        assert !this.isDead() : "This is dead";
+
+        Plant closestOrganism = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+
+        //calculate the closest organism
+        for(Plant p : plants){
+            double distance = this.getLoc().distSq(p.getLoc());
+            //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (p.getId() != this.id)){
+                closestDistance = distance;
+                closestOrganism = p;
+            }
+        }
+        return closestOrganism;
     }
 
     public Organism searchClosestAnimal(World w){
         assert !this.isDead() : "This is dead";
 
-        ArrayList<Organism> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);     //get all animals in view Distance
+        //ArrayList<Organism> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);     //get all animals in view Distance
+        ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
+
         //calculate the closest organism
-        return this.searchClosest(animals);
+        Animal closestAnimal = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+
+        //calculate the closest organism
+        for(Animal a : animals){
+            double distance = this.getLoc().distSq(a.getLoc());
+            //if the distance is smaller than the current closest distance and smaller than the viewDistance
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (a.getId() != this.id)){
+                closestDistance = distance;
+                closestAnimal = a;
+            }
+        }
+        return closestAnimal;
     }
 
     //TODO Test

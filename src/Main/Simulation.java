@@ -17,6 +17,8 @@ public class Simulation extends JPanel implements ActionListener {
 
     //TODO: implement a button to toggle this on and off
     private boolean paintNN = true;                 //enables displaying a NN
+    private boolean paintAnimalQuadTree = true;
+    private boolean paintPlantQuadTree = true;
 
     //TODO: this should be chosen by clicking an organism and then displaying their stats
     private Animal currentTrackedA;   //the currently tracked Animal
@@ -94,7 +96,17 @@ public class Simulation extends JPanel implements ActionListener {
         this.updatePlants(g);
         this.updateAnimals(g);
 
-        this.world.getGrid().clearGrid();
+        if(this.paintAnimalQuadTree){
+            g.setColor(Color.BLACK);
+            this.world.getAnimalQuadTree().paint((Graphics2D) g);
+        }
+        if(this.paintPlantQuadTree){
+            g.setColor(Color.BLACK);
+            this.world.getPlantQuadTree().paint((Graphics2D) g);
+        }
+
+        //this.world.getGrid().clearGrid();
+        this.world.clearQuadTrees();
 
         this.controlPops();
     }
