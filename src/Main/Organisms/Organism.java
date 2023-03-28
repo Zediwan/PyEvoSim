@@ -123,8 +123,18 @@ public abstract class Organism {
         return 100 * this.maturity * Math.pow(this.sizeRatio,2);
     }
 
+    public double healthRatio(){
+        assert this.maxHealth() >= this.health;
+        return this.health/this.maxHealth();
+    }
+
     public double maxEnergy(){
         return this.maxHealth() * Organism.maxEnergyToBodyRatio;
+    }
+
+    public double energyRatio() {
+        assert this.maxEnergy() >= this.energy;
+        return this.energy/this.maxEnergy();
     }
 
     public double growthRate(){

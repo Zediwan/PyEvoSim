@@ -12,8 +12,17 @@ public class Plant extends Organism {
     public static long plaCount = 0;
 
     public static double nutritionFactor;
+
     public static double growthFactor;
     public static double allMaxSize;
+    public static double avgAge;
+    public static double avgMaxHealth;
+    public static double avgHealth;
+    public static double avgHealthRatio;
+    public static double avgMaxEnergy;
+    public static double avgEnergy;
+    public static double avgEnergyRatio;
+
     private static Plant blueprint;
     private static double bodyEnergyRatio = 1;
     private static int healthBodyRatio = 1;

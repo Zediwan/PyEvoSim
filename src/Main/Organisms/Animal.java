@@ -19,6 +19,16 @@ import java.util.TimerTask;
 public class Animal extends Organism {
     public static long aniCount = 0;
     public static long aniBornCount = 0;
+    public static double avgAge = 0;
+    public static double avgAniKilled = 0;
+    public static double avgPlaKilled = 0;
+    public static double avgOffspringBirthed = 0;
+    public static double avgMaxHealth = 0;
+    public static double avgHealth = 0;
+    public static double avgHealthRatio = 0;
+    public static double avgMaxEnergy = 0;
+    public static double avgEnergy = 0;
+    public static double avgEnergyRatio = 0;
     private static Animal blueprint;
 
     private static double baseExhaustDmg = 1;
@@ -508,11 +518,6 @@ public class Animal extends Organism {
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
         return (this.speed()*Animal.metabolismFactor) / (2*this.size());
-    }
-
-    public double healthRatio(){
-        assert this.maxHealth() >= this.health;
-        return this.health/this.maxHealth();
     }
 
     public Vector2D seek(Vector2D target, int groupRatio){

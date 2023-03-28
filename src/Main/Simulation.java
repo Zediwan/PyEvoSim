@@ -116,17 +116,6 @@ public class Simulation extends JPanel implements ActionListener {
     }
 
     /**
-     * Setup method, initiates the simulation frame
-     * @return the simulation frame
-     */
-    public JPanel setUpVisuals(){
-        JPanel simPanel = new JPanel();
-        simPanel.setSize(this.world.getWorldDimension());
-        simPanel.setVisible(true);
-        return simPanel;
-    }
-
-    /**
      * Initializes the Population according to the set variables
      */
     public void initiatePopulation(){
@@ -180,6 +169,19 @@ public class Simulation extends JPanel implements ActionListener {
      * Updates all the plants in the simulation, removing any dead, updating and painting any that are not
      */
     private void updatePlants(Graphics g) {
+        double count = 0;
+
+        //double avgAniKilled = 0;
+        double avgAge = 0;
+        //double avgPlaKilled = 0;
+        //double avgOffspringBirthed = 0;
+        double avgMaxHealth = 0;
+        double avgHealth = 0;
+        double avgHealthRatio = 0;
+        double avgMaxEnergy = 0;
+        double avgEnergy = 0;
+        double avgEnergyRatio = 0;
+
         for(int i = this.plants.size()-1; i >= 0; i--){
             Plant p = this.plants.get(i);
             if(p.isDead()) {
@@ -189,8 +191,42 @@ public class Simulation extends JPanel implements ActionListener {
                 this.world.updatePlant(p);
                 p.paint((Graphics2D) g);
                 p.update(this);
+
+                count++;
+                avgAge += p.getAge();
+                //avgAniKilled += p.getAnimalsKilled();
+                //avgPlaKilled += p.getPlantsKilled();
+                //avgOffspringBirthed += p.getOffspringBirthed();
+                avgMaxHealth += p.maxHealth();
+                avgHealth += p.getHealth();
+                avgHealthRatio += p.healthRatio();
+                avgMaxEnergy += p.maxEnergy();
+                avgEnergy += p.getEnergy();
+                avgEnergyRatio += p.energyRatio();
             }
         }
+        if(count != 0){
+            avgAge /= count;
+            //avgAniKilled /= count;
+            //avgPlaKilled /= count;
+            //avgOffspringBirthed /= count;
+            avgMaxHealth /= count;
+            avgHealth /= count;
+            avgHealthRatio /= count;
+            avgMaxEnergy /= count;
+            avgEnergy /= count;
+            avgEnergyRatio /= count;
+        }
+        Plant.avgAge = avgAge;
+        //Plant.avgAniKilled = avgAniKilled;
+        //Plant.avgPlaKilled = avgPlaKilled;
+        //Plant.avgOffspringBirthed = avgOffspringBirthed;
+        Plant.avgMaxHealth = avgMaxHealth;
+        Plant.avgHealth = avgHealth;
+        Plant.avgHealthRatio = avgHealthRatio;
+        Plant.avgMaxEnergy = avgMaxEnergy;
+        Plant.avgEnergy = avgEnergy;
+        Plant.avgEnergyRatio = avgEnergyRatio;
     }
 
     //TODO: Test
@@ -198,6 +234,19 @@ public class Simulation extends JPanel implements ActionListener {
      * Updates all the Rabbits in the simulation, removing any dead, updating and painting any that are not
      */
     private void updateAnimals(Graphics g) {
+        double count = 0;
+
+        double avgAniKilled = 0;
+        double avgAge = 0;
+        double avgPlaKilled = 0;
+        double avgOffspringBirthed = 0;
+        double avgMaxHealth = 0;
+        double avgHealth = 0;
+        double avgHealthRatio = 0;
+        double avgMaxEnergy = 0;
+        double avgEnergy = 0;
+        double avgEnergyRatio = 0;
+
         for(int i = this.animals.size()-1; i >= 0; i--){
             Animal a = this.animals.get(i);
             if(a.isDead()) {
@@ -208,8 +257,42 @@ public class Simulation extends JPanel implements ActionListener {
                 a.paint((Graphics2D) g);
                 a.update(this);
                 this.borders1(a);
+
+                count++;
+                avgAge += a.getAge();
+                avgAniKilled += a.getAnimalsKilled();
+                avgPlaKilled += a.getPlantsKilled();
+                avgOffspringBirthed += a.getOffspringBirthed();
+                avgMaxHealth += a.maxHealth();
+                avgHealth += a.getHealth();
+                avgHealthRatio += a.healthRatio();
+                avgMaxEnergy += a.maxEnergy();
+                avgEnergy += a.getEnergy();
+                avgEnergyRatio += a.energyRatio();
             }
         }
+        if(count != 0){
+            avgAge /= count;
+            avgAniKilled /= count;
+            avgPlaKilled /= count;
+            avgOffspringBirthed /= count;
+            avgMaxHealth /= count;
+            avgHealth /= count;
+            avgHealthRatio /= count;
+            avgMaxEnergy /= count;
+            avgEnergy /= count;
+            avgEnergyRatio /= count;
+        }
+        Animal.avgAge = avgAge;
+        Animal.avgAniKilled = avgAniKilled;
+        Animal.avgPlaKilled = avgPlaKilled;
+        Animal.avgOffspringBirthed = avgOffspringBirthed;
+        Animal.avgMaxHealth = avgMaxHealth;
+        Animal.avgHealth = avgHealth;
+        Animal.avgHealthRatio = avgHealthRatio;
+        Animal.avgMaxEnergy = avgMaxEnergy;
+        Animal.avgEnergy = avgEnergy;
+        Animal.avgEnergyRatio = avgEnergyRatio;
     }
 
     //Border handling
@@ -534,5 +617,13 @@ public class Simulation extends JPanel implements ActionListener {
 
     public ArrayList getAnimals() {
         return this.animals;
+    }
+
+    public ArrayList<Plant> getPlants() {
+        return plants;
+    }
+
+    public void setPlants(ArrayList<Plant> plants) {
+        this.plants = plants;
     }
 }

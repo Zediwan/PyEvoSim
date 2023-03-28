@@ -1,6 +1,7 @@
 package Main;
 
 import Main.Organisms.Animal;
+import Main.Organisms.Plant;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,12 +55,12 @@ public class SimulationGUI extends JFrame {
     private JLabel fpsLabel;
 
     private Object[][] animalData;
+    private Object[][] plantData;
 
     public static boolean showHealth = false;
     public static boolean showEnergy = false;
     public static boolean showAnimalQT = false;
     public static boolean showPlantQT = false;
-    public static int simulationSpeed = 10;
 
     public SimulationGUI() {
         // Set up main frame
@@ -77,20 +78,7 @@ public class SimulationGUI extends JFrame {
         this.simPanel = s;
         this.simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
         this.scrollPane = new JScrollPane(this.simPanel);
-        /*
-        scrollPane.addMouseWheelListener(new MouseWheelListener() {
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                System.out.println("Test");
-                int notches = e.getWheelRotation();
-                Dimension size = simPanel.getSize();
-                double scale = 1.0 + (0.1 * notches); // Adjust scale based on mouse wheel
-                size.width = (int) (size.width * scale);
-                size.height = (int) (size.height * scale);
-                simPanel.setPreferredSize(size);
-                scrollPane.revalidate(); // Redraw scroll pane
-            }
-        });
-         */
+
         this.scrollPane.setPreferredSize(new Dimension(800, 600)); // Set initial viewport size
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -116,10 +104,8 @@ public class SimulationGUI extends JFrame {
         this.settingsPane.addTab("World", this.worldSettingPanel);
 
         this.statPanel =  new JTabbedPane();
-        this.plantStatPanel = new JScrollPane();
         this.organismStatPanel = new JScrollPane();
         this.worldStatPanel = new JPanel();
-        this.statPanel.addTab("Plants", this.plantStatPanel);
         this.statPanel.addTab("Organisms", this.organismStatPanel);
         this.statPanel.addTab("World", this.worldStatPanel);
 
@@ -312,84 +298,121 @@ public class SimulationGUI extends JFrame {
         this.simulationSpeedPanel.add(this.simulationSpeedLabel, BorderLayout.NORTH);
         this.simulationSpeedPanel.add(this.simulationSpeedSlider, BorderLayout.CENTER);
 
-        //FPS Label
         this.fpsLabel = new JLabel();
+        JLabel timeLabel = new JLabel();
         Timer timer = new Timer(1000, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 fpsLabel.setText("FPS: " + s.getFps());
-            }
-        });
-        timer.start();
-
-        JLabel timeLabel = new JLabel();
-        Timer runtimeTimer = new Timer(1000, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
                 timeLabel.setText("Runtime: " + (System.currentTimeMillis()-s.startTime)/1000 + " sec");
             }
         });
-        runtimeTimer.start();
+        timer.start();
 
         // Create a 2D array to hold your statistics data
         this.animalData = new Object[][]{
                 { "Amount of Animals: " , s.getAnimals().size() },
                 { "All-time of Animals: " , Animal.aniCount },
-                { "Average Age: ", s.getAVGAgeAnimals() },
-                { "Average Animals Killed: ", s.getAVGAnimalsKilled()},
-                { "Average Plants Killed: ", s.getAVGPlantsKilled()},
-                { "Average Offspring Birthed: ", s.getAVGOffspringBirthed()},
 
-                { "Average Max Health: ", s.getAVGMaxHealthAnimals() },
-                { "Average Health: ", s.getAVGHealthAnimals() },
-                { "Average Health Ratio: ", s.getAVGHealthRatioAnimals() },
+                { "Average Age: ", Animal.avgAge },
+                { "Average Animals Killed: ", Animal.avgAniKilled},
+                { "Average Plants Killed: ", Animal.avgPlaKilled},
+                { "Average Offspring Birthed: ", Animal.avgOffspringBirthed},
 
-                { "Average Max Energy: ", s.getAVGMaxEnergyAnimals() },
-                { "Average Energy: ", s.getAVGEnergyAnimals() },
-                { "Average Energy Ratio: ", s.getAVGEnergyRatioAnimals() },
+                { "Average Max Health: ", Animal.avgMaxHealth },
+                { "Average Health: ", Animal.avgHealth },
+                { "Average Health Ratio: ", Animal.avgHealthRatio },
+
+                { "Average Max Energy: ", Animal.avgMaxEnergy },
+                { "Average Energy: ", Animal.avgEnergy },
+                { "Average Energy Ratio: ", Animal.avgEnergyRatio },
 
                 { "All-time Animals born: ", Animal.aniBornCount}
                 // Add more rows as needed
         };
 
         // Create an array of column names
-        String[] columnNames = { "Statistic Name", "Value" };
+        String[] columnNamesAnimals = { "Statistic Name", "Value" };
 
         // Create the JTable with the data and column names
-        JTable table = new JTable(this.animalData, columnNames);
-
-        // Add the JTable to a JScrollPane
-        //JScrollPane scrollPane = new JScrollPane(table);
+        JTable animalStatTable = new JTable(this.animalData, columnNamesAnimals);
 
         // Add the JScrollPane to your statPanel
-        this.animalStatPanel = new JScrollPane(table);
+        this.animalStatPanel = new JScrollPane(animalStatTable);
         this.statPanel.addTab("Animals", this.animalStatPanel);
-        //this.animalStatPanel.add(scrollPane);
 
-        Timer aniStatTimer = new Timer(2000, new ActionListener() {
+        // Create a 2D array to hold your statistics data
+        this.plantData = new Object[][]{
+                { "Amount of Plants: " , s.getPlants().size() },
+                { "All-time of Plants: " , Plant.plaCount },
+                { "Average Age: ", Plant.avgAge },
+                //{ "Average Animals Killed: ", s.getAVGAnimalsKilled()},
+                //{ "Average Plants Killed: ", s.getAVGPlantsKilled()},
+                //{ "Average Offspring Birthed: ", s.getAVGOffspringBirthed()},
+
+                { "Average Max Health: ", Plant.avgMaxHealth },
+                { "Average Health: ", Plant.avgHealth },
+                { "Average Health Ratio: ", Plant.avgHealthRatio },
+
+                { "Average Max Energy: ", Plant.avgMaxEnergy },
+                { "Average Energy: ", Plant.avgEnergy },
+                { "Average Energy Ratio: ", Plant.avgEnergyRatio },
+
+                //{ "All-time Animals born: ", Animal.aniBornCount}
+                // Add more rows as needed
+        };
+
+        // Create an array of column names
+        String[] columnNamesPlants = { "Statistic Name", "Value" };
+
+        // Create the JTable with the data and column names
+        JTable plantStatTable = new JTable(this.plantData, columnNamesPlants);
+
+        // Add the JScrollPane to your statPanel
+        this.plantStatPanel = new JScrollPane(plantStatTable);
+        this.statPanel.addTab("Plants", this.plantStatPanel);
+
+        Timer statRefreshTimer = new Timer(2000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Update the table data here
                 animalData[0][1] = s.getAnimals().size();
                 animalData[1][1] = Animal.aniCount;
-                animalData[2][1] = String.format("%.2f", s.getAVGAgeAnimals());
-                animalData[3][1] = Math.round(s.getAVGAnimalsKilled());
-                animalData[4][1] = Math.round(s.getAVGPlantsKilled());
-                animalData[5][1] = Math.round(s.getAVGOffspringBirthed());
 
-                animalData[6][1] = String.format("%.2f", s.getAVGMaxHealthAnimals());
-                animalData[7][1] = String.format("%.2f", s.getAVGHealthAnimals());
-                animalData[8][1] = String.format("%.2f", s.getAVGHealthRatioAnimals());
+                animalData[2][1] = String.format("%.2f", Animal.avgAge);
+                animalData[3][1] = Math.round(Animal.avgAniKilled);
+                animalData[4][1] = Math.round(Animal.avgPlaKilled);
+                animalData[5][1] = Math.round(Animal.avgOffspringBirthed);
 
-                animalData[9][1] = String.format("%.2f", s.getAVGMaxEnergyAnimals());
-                animalData[10][1] = String.format("%.2f", s.getAVGEnergyAnimals());
-                animalData[11][1] = String.format("%.2f", s.getAVGEnergyRatioAnimals());
+                animalData[6][1] = String.format("%.2f", Animal.avgMaxHealth);
+                animalData[7][1] = String.format("%.2f", Animal.avgHealth);
+                animalData[8][1] = String.format("%.2f", Animal.avgHealthRatio);
+
+                animalData[9][1] = String.format("%.2f", Animal.avgMaxEnergy);
+                animalData[10][1] = String.format("%.2f", Animal.avgEnergy);
+                animalData[11][1] = String.format("%.2f", Animal.avgEnergyRatio);
 
                 animalData[12][1] = Animal.aniBornCount;
+
+                plantData[0][1] = s.getPlants().size();
+                plantData[1][1] = Plant.plaCount;
+                plantData[2][1] = String.format("%.2f", Plant.avgAge);
+                //plantData[3][1] = Math.round(Animal.avgAniKilled);
+                //plantData[4][1] = Math.round(Animal.avgPlaKilled);
+                //plantData[5][1] = Math.round(Animal.avgOffspringBirthed);
+
+                plantData[3][1] = String.format("%.2f", Plant.avgMaxHealth);
+                plantData[4][1] = String.format("%.2f", Plant.avgHealth);
+                plantData[5][1] = String.format("%.2f", Plant.avgHealthRatio);
+
+                plantData[6][1] = String.format("%.2f", Plant.avgMaxEnergy);
+                plantData[7][1] = String.format("%.2f", Plant.avgEnergy);
+                plantData[8][1] = String.format("%.2f", Plant.avgEnergyRatio);
 
                 // Repaint the table
                 statPanel.repaint();
             }
         });
-        aniStatTimer.start();
+        statRefreshTimer.start();
         
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(this.showHealthCheckBox);
