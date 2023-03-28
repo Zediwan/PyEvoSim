@@ -285,10 +285,12 @@ public abstract class Organism {
     public double getHealth() {
         return this.health;
     }
+
     public void setHealth(double health){
         this.health = health;
         assert this.health <= this.maxHealth();
     }
+
     public void takeDamage(double damage) {
         //if the damage is negative it should be added to remove the right amount and not add to the health
         if(damage <= 0){
@@ -300,6 +302,7 @@ public abstract class Organism {
         }
         assert this.health <= this.maxHealth();
     }
+
     public void restoreHealth(double restoredHealth) {
         assert restoredHealth >= 0 : "restored amount is negative";
 
@@ -310,8 +313,17 @@ public abstract class Organism {
         assert this.health <= this.maxHealth();
     }
 
-    public double getEnergy(){return this.energy;}
-    public void setEnergy(double energy){this.energy = energy;}
+    public double getEnergy(){
+        return this.energy;
+    }
+
+    public void setEnergy(double energy){
+        this.energy = energy;
+        if(this.energy > this.maxEnergy()){
+            this.energy = this.maxEnergy();
+        }
+    }
+
     public void useEnergy(double energyUsed){
         if(this.energy >= energyUsed){
             this.energy -= energyUsed;
@@ -322,12 +334,13 @@ public abstract class Organism {
             this.takeDamage(rest);
         }
     }
+
     public void restoreEnergy(double restoreEnergy) {
         assert restoreEnergy >= 0 : "restored amount is negative";
 
         this.energy += restoreEnergy;
-        if(this.energy > 100){
-            this.energy = 100;
+        if(this.energy > this.maxEnergy()){
+            this.energy = this.maxEnergy();
         }
     }
 

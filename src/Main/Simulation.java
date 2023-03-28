@@ -97,6 +97,8 @@ public class Simulation extends JPanel implements ActionListener {
     public void paint(Graphics g){
         super.paintComponent(g);
 
+        this.world.clearQuadTrees();
+
         this.updatePlants(g);
         this.updateAnimals(g);
 
@@ -108,10 +110,6 @@ public class Simulation extends JPanel implements ActionListener {
             g.setColor(Color.BLACK);
             this.world.getPlantQuadTree().paint((Graphics2D) g);
         }
-
-        //this.world.getGrid().clearGrid();
-        this.world.clearQuadTrees();
-
         this.controlPops();
     }
 
@@ -253,10 +251,11 @@ public class Simulation extends JPanel implements ActionListener {
                 this.animals.remove(a);      //if the plant is dead, then remove it
             }
             else{
-                this.world.updateAnimal(a);
                 a.paint((Graphics2D) g);
                 a.update(this);
                 this.borders1(a);
+
+                this.world.updateAnimal(a);
 
                 count++;
                 avgAge += a.getAge();

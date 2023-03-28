@@ -31,22 +31,22 @@ public class Animal extends Organism {
     public static double avgEnergyRatio = 0;
     private static Animal blueprint;
 
-    private static double baseExhaustDmg = 1;
-    private static double baseSize = 4;
-    private static double allMaxSpeed = 4;
-    private static double healthBodyRatio = 2;
-    private static double bodyEnergyRatio = 2;
-    private static double herdingThreshold = .5;
-    private static double matingThreshold = .2;
-    private static double eatingThreshold = .2;
-    private static double growthThreshold = .5;
-    private static double healingThreshold = .5;
-    private static double attackThreshold = .5;
-    private static double reproductiveUrgeFactor = 10;
-    private static double damageFactor = 30;
-    private static double healingFactor = 2;
-    private static double healingCostFactor = 2;
-    private static double metabolismFactor = 1;
+    public static double baseExhaustDmg = 1;
+    public static double baseSize = 4;
+    public static double allMaxSpeed = 4;
+    public static double healthBodyRatio = 2;
+    public static double bodyEnergyRatio = 2;
+    public static double herdingThreshold = .5;
+    public static double matingThreshold = .2;
+    public static double eatingThreshold = .2;
+    public static double growthThreshold = .5;
+    public static double healingThreshold = .5;
+    public static double attackThreshold = .5;
+    public static double reproductiveUrgeFactor = 50;
+    public static double damageFactor = 30;
+    public static double healingFactor = 2;
+    public static double healingCostFactor = 2;
+    public static double metabolismFactor = 1;
     //private static double baseSize = 1;
 
     //TODO how should generations be handled when there are two parents?

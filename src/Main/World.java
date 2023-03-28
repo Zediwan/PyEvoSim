@@ -4,6 +4,7 @@ import Main.Organisms.Animal;
 import Main.Organisms.Plant;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 public class World {
     private Dimension worldDimension;     //world size
@@ -13,7 +14,7 @@ public class World {
 
     public World(int width, int height, int capacityA, int capacityB){
         this.worldDimension = new Dimension(width, height);
-        Rectangle worldRect = new Rectangle(this.worldDimension.width,this.worldDimension.height);
+        Rectangle2D.Double worldRect = new Rectangle2D.Double(0,0, width, height);
 
         this.worldDimension = new Dimension(width, height);
         this.animalQuadTree = new QuadTree.Animals(worldRect, capacityA, this);

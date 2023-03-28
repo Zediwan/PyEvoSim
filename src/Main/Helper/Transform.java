@@ -1,6 +1,7 @@
 package Main.Helper;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 
 public class Transform {
     //TODO: add scale everywhere for zooming functions
@@ -55,6 +56,14 @@ public class Transform {
     }
 
     //Getters and Setters for all variables
+    public Vector2D getCenter(){
+        return Vector2D.add(this.location.copy(), new Vector2D(this.getR(), this.getR()));
+    }
+
+    public Ellipse2D getCircle(){
+        return new Ellipse2D.Double(this.getLocX() - this.getR(), this.getLocY() - this.getR(), this.size, this.size);
+    }
+
     public Rectangle getRectangle(){
         Rectangle rec = new Rectangle((int)(this.location.x-(this.getR())),
                 (int)(this.location.y-(this.getR())),

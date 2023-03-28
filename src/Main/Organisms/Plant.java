@@ -24,8 +24,8 @@ public class Plant extends Organism {
     public static double avgEnergyRatio;
 
     private static Plant blueprint;
-    private static double bodyEnergyRatio = 1;
-    private static int healthBodyRatio = 1;
+    public static double bodyEnergyRatio = 1;
+    public static int healthBodyRatio = 1;
     private double generation = 0;
     protected double growthTimer = 0;
 
