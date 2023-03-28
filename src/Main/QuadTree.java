@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public abstract class QuadTree {
     protected int depth;
+    protected int maxDepth = 10;
 
     protected int capacity;
     protected Rectangle2D.Double boundary;
@@ -24,9 +25,23 @@ public abstract class QuadTree {
         this.capacity = capacity;
     }
 
-    public static class Animals extends QuadTree {
-        public static int maxDepth = 10;
+    public int getDepth() {
+        return depth;
+    }
 
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+    public void setMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
+
+    public static class Animals extends QuadTree {
         private ArrayList<Animal> animals;
 
         protected QuadTree.Animals northeast;
@@ -75,7 +90,7 @@ public abstract class QuadTree {
                     this.boundary.y <= center.y && center.y <= this.boundary.y + this.boundary.height);
 
             if(!this.isDivided){
-                if(this.animals.size() < this.capacity || this.depth == Animals.maxDepth){
+                if(this.animals.size() < this.capacity || this.depth == this.maxDepth){
                     this.animals.add(a);
                     return true;
                 }
@@ -215,8 +230,6 @@ if(this.plants.size() < this.capacity){
     }
 
     public static class Plants extends QuadTree {
-        public static int maxDepth = 10;
-
         private ArrayList<Plant> plants;
 
         protected QuadTree.Plants northeast;
@@ -265,7 +278,7 @@ if(this.plants.size() < this.capacity){
                     this.boundary.y <= center.y && center.y <= this.boundary.y + this.boundary.height);
 
             if(!this.isDivided){
-                if(this.plants.size() < this.capacity || this.depth == Plants.maxDepth){
+                if(this.plants.size() < this.capacity || this.depth == this.maxDepth){
                     this.plants.add(p);
                     return true;
                 }

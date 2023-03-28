@@ -149,6 +149,7 @@ public class SimulationGUI extends JFrame {
         });
 
         JTextField animalQTCapacity = new JTextField();
+        animalQTCapacity.setToolTipText("Set the capacity of a square in the Animal Quad Tree");
         animalQTCapacity.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -167,6 +168,7 @@ public class SimulationGUI extends JFrame {
         });
 
         JTextField plantQTCapacity = new JTextField();
+        plantQTCapacity.setToolTipText("Set the capacity of a square in the Plant Quad Tree");
         plantQTCapacity.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -174,6 +176,44 @@ public class SimulationGUI extends JFrame {
                         int capacity = Integer.parseInt(plantQTCapacity.getText());
                         if(capacity > 0){
                             s.getWorld().getPlantQuadTree().setCapacity(capacity);
+                        }
+                        // Set the capacity of your quad tree here
+                    }
+                    catch (NumberFormatException ex) {
+                        // Handle the case where the user enters an invalid value
+                    }
+                }
+            }
+        });
+
+        JTextField animalQTMaxDepth = new JTextField();
+        animalQTMaxDepth.setToolTipText("Set the maximum depth of the Animal Quad Tree");
+        animalQTMaxDepth.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    try {
+                        int maxDepth = Integer.parseInt(animalQTMaxDepth.getText());
+                        if(maxDepth > 0){
+                            s.getWorld().getAnimalQuadTree().setMaxDepth(maxDepth);
+                        }
+                        // Set the capacity of your quad tree here
+                    }
+                    catch (NumberFormatException ex) {
+                        // Handle the case where the user enters an invalid value
+                    }
+                }
+            }
+        });
+
+        JTextField plantQTMaxDepth = new JTextField();
+        plantQTMaxDepth.setToolTipText("Set the maximum depth of the Plant Quad Tree");
+        plantQTMaxDepth.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    try {
+                        int maxDepth = Integer.parseInt(plantQTMaxDepth.getText());
+                        if(maxDepth > 0){
+                            s.getWorld().getPlantQuadTree().setMaxDepth(maxDepth);
                         }
                         // Set the capacity of your quad tree here
                     }
@@ -419,8 +459,11 @@ public class SimulationGUI extends JFrame {
         this.animalSettingsPanel.add(this.showEnergyCheckBox);
         this.animalSettingsPanel.add(this.showAnimalQTCheckBox);
         this.animalSettingsPanel.add(animalQTCapacity);
+        this.animalSettingsPanel.add(animalQTMaxDepth);
+
         this.plantSettingPanel.add(this.showPlantQTCheckBox);
         this.plantSettingPanel.add(plantQTCapacity);
+        this.plantSettingPanel.add(plantQTMaxDepth);
         this.worldSettingPanel.add(this.minPlantsPanel);
         this.worldSettingPanel.add(this.maxPlantsPanel);
         this.worldSettingPanel.add(this.minAnimalsPanel);
