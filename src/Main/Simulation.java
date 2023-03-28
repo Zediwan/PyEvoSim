@@ -53,6 +53,8 @@ public class Simulation extends JPanel implements ActionListener {
     private long lastFrameTime;
     private int fps;
 
+    public long startTime;
+
     public Simulation(int stP, int stA,
                       int maxP, int minP, int maxA, int minA,
                       int newP, int newA,
@@ -85,6 +87,8 @@ public class Simulation extends JPanel implements ActionListener {
         this.repaintTimer = new Timer(10, this);
         this.lastFrameTime = System.currentTimeMillis();
         this.repaintTimer.start();
+
+        this.startTime = this.lastFrameTime;
     }
 
     /**

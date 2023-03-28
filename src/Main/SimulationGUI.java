@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class SimulationGUI extends JFrame {
     private JPanel simPanel;
@@ -104,9 +106,9 @@ public class SimulationGUI extends JFrame {
         this.controlPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
         this.settingsPane = new JTabbedPane();
-        this.animalSettingsPanel = new JPanel();
-        this.plantSettingPanel = new JPanel();
-        this.organismSettingPanel = new JPanel();
+        this.animalSettingsPanel = new JPanel(new GridLayout(0, 2));
+        this.plantSettingPanel = new JPanel(new GridLayout(0, 2));
+        this.organismSettingPanel = new JPanel(new GridLayout(0, 2));
         this.worldSettingPanel = new JPanel(new GridLayout(0, 2));
         this.settingsPane.addTab("Animals", this.animalSettingsPanel);
         this.settingsPane.addTab("Plants", this.plantSettingPanel);
@@ -158,6 +160,42 @@ public class SimulationGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showPlantQT = showPlantQTCheckBox.isSelected();            }
+        });
+
+        JTextField animalQTCapacity = new JTextField();
+        animalQTCapacity.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    try {
+                        int capacity = Integer.parseInt(animalQTCapacity.getText());
+                        if(capacity > 0){
+                            s.getWorld().getAnimalQuadTree().setCapacity(capacity);
+                        }
+                        // Set the capacity of your quad tree here
+                    }
+                    catch (NumberFormatException ex) {
+                        // Handle the case where the user enters an invalid value
+                    }
+                }
+            }
+        });
+
+        JTextField plantQTCapacity = new JTextField();
+        plantQTCapacity.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    try {
+                        int capacity = Integer.parseInt(plantQTCapacity.getText());
+                        if(capacity > 0){
+                            s.getWorld().getPlantQuadTree().setCapacity(capacity);
+                        }
+                        // Set the capacity of your quad tree here
+                    }
+                    catch (NumberFormatException ex) {
+                        // Handle the case where the user enters an invalid value
+                    }
+                }
+            }
         });
 
         //TODO create rangeSliders
@@ -283,6 +321,14 @@ public class SimulationGUI extends JFrame {
         });
         timer.start();
 
+        JLabel timeLabel = new JLabel();
+        Timer runtimeTimer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                timeLabel.setText("Runtime: " + (System.currentTimeMillis()-s.startTime)/1000 + " sec");
+            }
+        });
+        runtimeTimer.start();
+
         // Create a 2D array to hold your statistics data
         this.animalData = new Object[][]{
                 { "Amount of Animals: " , s.getAnimals().size() },
@@ -349,7 +395,9 @@ public class SimulationGUI extends JFrame {
         this.animalSettingsPanel.add(this.showHealthCheckBox);
         this.animalSettingsPanel.add(this.showEnergyCheckBox);
         this.animalSettingsPanel.add(this.showAnimalQTCheckBox);
+        this.animalSettingsPanel.add(animalQTCapacity);
         this.plantSettingPanel.add(this.showPlantQTCheckBox);
+        this.plantSettingPanel.add(plantQTCapacity);
         this.worldSettingPanel.add(this.minPlantsPanel);
         this.worldSettingPanel.add(this.maxPlantsPanel);
         this.worldSettingPanel.add(this.minAnimalsPanel);
@@ -358,6 +406,7 @@ public class SimulationGUI extends JFrame {
 
         //Add info in the stat panel
         this.worldStatPanel.add(this.fpsLabel);
+        this.worldStatPanel.add(timeLabel);
 
         this.controlPane.setResizeWeight(.5);
         this.controlPane.setTopComponent(settingsPane);

@@ -14,6 +14,14 @@ public abstract class QuadTree {
     protected boolean isDivided  = false;
     protected World w;
 
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
     public static class Animals extends QuadTree {
         private ArrayList<Animal> animals;
 
