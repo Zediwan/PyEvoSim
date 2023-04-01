@@ -466,6 +466,24 @@ public class Vector2D {
     }
 
     /**
+     * This is used for painting
+     * @return the rounded x coordinates
+     * @see #paint(Graphics2D)
+     */
+    public int getRoundedX(){
+        return (int)Math.round(this.x);
+    }
+
+    /**
+     * This is used for painting
+     * @return the rounded y coordinates
+     * @see #paint(Graphics2D)
+     */
+    public int getRoundedY(){
+        return (int)Math.round(this.y);
+    }
+
+    /**
      * This is used for some Shape methods that use Points as variables
      * @return a Point representing the vector
      */
@@ -496,6 +514,15 @@ public class Vector2D {
         return this.x + ", " + this.y;
     }
 
+    /**
+     * Used for displaying the vector as a point
+     * @param g the Graphics variable used for panting
+     * @see #getRoundedX()
+     * @see #getRoundedY()
+     */
+    public void paint(Graphics2D g){
+        g.fillOval(this.getRoundedX(),this.getRoundedY(),1,1);
+    }
 
     //TODO: doesnt really belong in this class, maybe create a new class
     public static float map(float value, float isStart, float isStop, float oStart, float oStop){
