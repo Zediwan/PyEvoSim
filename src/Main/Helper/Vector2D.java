@@ -3,9 +3,18 @@ package Main.Helper;
 import java.awt.*;
 
 //TODO create tests for all the methods
+
+/**
+ * A vector represents a point in two-dimensional space
+ * @author Jeremy Moser
+ */
 public class Vector2D {
-    private double x; //x coordinate
-    private double y; //y coordinate
+    /**
+     * @param x the x coordinate of the point
+     * @param y the y coordinate of the point
+     */
+    private double x;
+    private double y;
 
     /**
      * Constructor
