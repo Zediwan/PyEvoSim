@@ -2,47 +2,52 @@ package Main.Helper;
 
 import java.awt.*;
 
+//TODO create tests for all the methods
 public class Vector2D {
-    //TODO: change variables to private
     public double x; //x coordinate
     public double y; //y coordinate
 
+    /**
+     * Constructor
+     * @param x coordinate
+     * @param y coordinate
+     */
     public Vector2D(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
     /**
-     * Convention if no values are given just generate the null vector
+     * Constructor
+     * <p>
+     * If no arguments are given, the null-vector will be created
      */
     public Vector2D(){
         this.x = 0;
         this.y = 0;
     }
+
     /**
-     * Transforms a "negative vector" into the null vector
+     * @return a copy of the vector
      */
-    public Vector2D negVectorCheck(){
-        if(this.x < 0){
-            this.x = 0;
-        }
-        if(this.y < 0){
-            this.y = 0;
-        }
-        return this;
+    public Vector2D copy() {
+        return new Vector2D(this.x, this.y);
     }
 
+    /**
+     * Creates a vector within a radius
+     * @param surrounding the range where the vector should lie in
+     * @return the vector
+     * @preCondition surrounding must be positive
+     */
     public static Vector2D randSurroundingVec(double surrounding){
+        assert surrounding >= 0 : "surrounding must be positive";
+
         return new Vector2D(Math.random()*surrounding - (surrounding/2), Math.random()*surrounding- (surrounding/2));
     }
 
-    public Point toPoint(){
-        return new Point((int)Math.round(this.x), (int)Math.round(this.y));
-    }
-
-
     /**
-     * Generates a random vector within 0 to the limits
+     * Generates a random vector from 0 to the limits
      * @param maxX maximal x value of the vector
      * @param maxY maximal y value of the vector
      * @return a random Vector in the rang from 0 to (maxX and maxY)
@@ -56,9 +61,10 @@ public class Vector2D {
      * NOTE: Changes the vector on which this method is called
      * @param v the vector that should be added
      * @return the changed vector
+     * @preCondition vector must not be null
      */
     public Vector2D add(Vector2D v) {
-        assert v != null;
+        assert v != null : "given vector is null";
 
         this.x += v.x;
         this.y += v.y;
@@ -72,14 +78,16 @@ public class Vector2D {
      * @param v1 first vector
      * @param v2 second vector
      * @return the sum of the regular vector addition
+     * @preCondition none of the two vectors should be null
      */
     public static Vector2D add(Vector2D v1, Vector2D v2){
-        assert v1 != null;
-        assert v2 != null;
+        assert v1 != null : "given vector is null";
+        assert v2 != null : "given vector is null";
 
         double newX = v1.x + v2.x;
         double newY = v1.y + v2.y;
         Vector2D vector = new Vector2D(newX,newY);
+
         return vector;
     }
 
@@ -88,9 +96,10 @@ public class Vector2D {
      * NOTE: Changes the vector on which this method is called
      * @param v that should be subtracted
      * @return the changed vector
+     * @preCondition vector must not be null
      */
     public Vector2D sub(Vector2D v) {
-        assert v != null;
+        assert v != null : "given vector is null";
 
         this.x -= v.x;
         this.y -= v.y;
@@ -104,14 +113,16 @@ public class Vector2D {
      * @param v1 first vector
      * @param v2 second vector
      * @return the difference of the two vectors
+     * @preCondition none of the two vectors should be null
      */
     public static Vector2D sub(Vector2D v1, Vector2D v2){
-        assert v1 != null;
-        assert v2 != null;
+        assert v1 != null : "given vector is null";
+        assert v2 != null : "given vector is null";
 
         double newX = v1.x - v2.x;
         double newY = v1.y - v2.y;
         Vector2D vector = new Vector2D(newX,newY);
+
         return vector;
     }
 
@@ -134,9 +145,10 @@ public class Vector2D {
      * @param v vector that should be scaled
      * @param scalar that the vector should be scaled by
      * @return the scaled vector
+     * @preCondition vector should not be null
      */
     public static Vector2D mult(Vector2D v, double scalar){
-        assert v != null;
+        assert v != null : "given vector is null";
 
         Vector2D vector = new Vector2D(v.x * scalar, v.y * scalar);
         return vector;
@@ -147,8 +159,11 @@ public class Vector2D {
      * NOTE: Changes the vector on which this method is called
      * @param scalar that the vector should be shrunk by
      * @return the changed vector
+     * @preCondition scalar mustn't be zero
      */
     public Vector2D div(double scalar){
+        assert scalar != 0 :  "scalar is zero";
+
         this.x /= scalar;
         this.y /= scalar;
 
@@ -161,12 +176,14 @@ public class Vector2D {
      * @param v vector that should be shrunk
      * @param scalar that the vector should be shrunk by
      * @return a new vector
+     * @preCondition the given vector shouldn't be null and the scalar cannot be zero
      */
     public static Vector2D div(Vector2D v, double scalar){
-        assert v != null;
-        assert scalar != 0;
+        assert v != null : "given vector is null";
+        assert scalar != 0 : "scalar is zero";
 
         Vector2D vector = new Vector2D(v.x / scalar, v.y / scalar);
+
         return vector;
     }
 
@@ -174,8 +191,11 @@ public class Vector2D {
      * Dot product of two vectors, multiplication of the x values and the y values separately
      * @param v vector that should be multiplied with
      * @return the dot product
+     * @preCondition the given vector is not null
      */
     public double dot(Vector2D v){
+        assert v != null : "given vector is null";
+
         return this.x * v.x + this.y * v.y;
     }
 
@@ -184,8 +204,12 @@ public class Vector2D {
      * @param v1 first vector
      * @param v2 second vector
      * @return the dot product
+     * @preCondition vectors mustn't be null
      */
     public static double dot(Vector2D v1, Vector2D v2){
+        assert v1 != null : "first given vector is null";
+        assert v2 != null : "second given vector is null";
+
         return v1.x * v2.x + v1.y * v2.y;
     }
 
@@ -194,13 +218,21 @@ public class Vector2D {
      * NOTE: Changes the vector on which this method is called
      * NOTE: if the magnitude is 0 then return the normal vector
      * @return the normalized vector
+     * @see #magSq()
+     * @postCondition checking if normalization worked correctly, needs overhaul and testing
      */
     public Vector2D normalize(){
-        if(this.mag()!=0){
-            this.x /= this.mag();
-            this.y /= this.mag();
-            assert (this.mag() >= .9 || this.mag() <= 1.1): "Magnitude is not 1 but: " + this.mag();
+        //first check is to avoid division by 0
+        //second part is that if the magnitude squared is 1 then the vector is already normalized
+        if(this.magSq()!=0 && this.magSq() != 1){
+            this.x = Math.pow(this.x,2) / this.magSq();
+            this.y = Math.pow(this.y,2) / this.magSq();
+
+            //assertion for floating point errors
+            //TODO check if this is still needed or think about better ways to check that
+            //assert (this.mag() >= .9 || this.mag() <= 1.1): "Magnitude is not relative close to 1 but: " + this.mag();
         }
+
         return this;
     }
 
@@ -209,43 +241,60 @@ public class Vector2D {
      * NOTE: Doesn't change the vector(s), instead a new one is generated
      * NOTE: if the magnitude is 0 then return the normal vector
      * @return a normalized vector
+     * @see #copy()
+     * @see #normalize(Vector2D)
+     * @preCondition given vector mustn't be null
+     * TODO check if this works correctly
      */
     public static Vector2D normalize(Vector2D v) {
-        assert v != null;
-        Vector2D normalizedVector = v;
-        if(v.mag() != 0) normalizedVector = new Vector2D(v.x/v.mag(), v.y/v.mag());
-        return normalizedVector;
+        assert v != null : "given vector is null";
+
+        return v.copy().normalize();
     }
 
     /**
      * The length is calculated by the square root of the coordinates by the power of 2.
-     * Post-condition: length is never smaller than 0.
+     * NOTE: this method is computationally heavier, if possible use {@link Vector2D#magSq()} for better performance
      * @return the length of the vector
+     * @postCondition length of the vector isn't smaller than zero
      */
     public double mag(){
         double mag = Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2));
+
         assert mag >= 0 : "Magnitude is negative (" + mag+")";
+
         return mag;
     }
 
     /**
-     * Post-condition: length is never smaller than 0.
+     * Works like {@link Vector2D#mag()} but is computationally better
      * @return the squared length of a vector
+     * @postCondition magnitude squared is greater than zero
      */
     public double magSq(){
         double magSq = this.x*this.x + this.y*this.y;
-        assert !(magSq < 0) : "Magnitude is negative (" + magSq +")";
+
+        assert magSq >= 0 : "Magnitude is negative (" + magSq +")";
+
         return magSq;
     }
 
     /**
-     * scales the vector to a given magnitude
+     * scales the vector to a given magnitude, by first {@link #normalize normalizing} it
+     * and the {@link #mult multiplying} by the factor
+     * NOTE: Changes the vector on which this method is called
      * @param m the magnitude the vector should have
-     * @return the vector
+     * @return the vector changed vector
+     * @see #normalize()
+     * @see #mult(double)
+     * @postCondition checking if normalization worked correctly, needs overhaul and testing
      */
     public Vector2D setMag(double m){
         Vector2D v = this.normalize().mult(m);
+
+        //TODO check if this is still needed or think about better ways to check that
         assert (this.mag() >= m-.001 || this.mag() <= m+.001): "Magnitude is not "+ m +" but: " + this.mag();
+
         return v;
     }
 
@@ -253,6 +302,8 @@ public class Vector2D {
      * Calculates the distance between two vectors
      * @param v the other vector
      * @return the distance
+     * @see #sub(Vector2D, Vector2D)
+     * @see #mag()
      */
     public double dist(Vector2D v){
         return Vector2D.sub(v,this).mag();
@@ -260,9 +311,12 @@ public class Vector2D {
 
     /**
      * Calculates the distance between two vectors
+     * Use {@link #distSq(Vector2D, Vector2D)} for better performance
      * @param v1 first vector
      * @param v2 second vector
      * @return the distance between the vectors
+     * @see #sub(Vector2D, Vector2D)
+     * @see #mag()
      */
     public static double dist(Vector2D v1, Vector2D v2){
         return Vector2D.sub(v1,v2).mag();
@@ -270,27 +324,25 @@ public class Vector2D {
 
     /**
      * Calculates the distance squared between two vectors
-     * Used for better performance
+     * Works like {@link #dist(Vector2D)} but is computationally better
      * @param v the other vector
      * @return the distance
+     * @see #sub(Vector2D, Vector2D)
+     * @see #magSq()
      */
     public double distSq(Vector2D v){
-        /*
-        double dist = Vector2D.sub(v,this).magSq();
-        if(dist == Double.POSITIVE_INFINITY || dist == Double.NEGATIVE_INFINITY){
-            dist = 0;
-        }
-        return dist;
-         */
         return Vector2D.sub(v,this).magSq();
     }
 
     /**
      * Calculates the distance squared between two vectors
+     * Works like {@link #dist(Vector2D, Vector2D)} but is computationally better
      * Used for better performance
      * @param v1 first vector
      * @param v2 second vector
      * @return the distance between the vectors
+     * @see #sub(Vector2D, Vector2D)
+     * @see #magSq()
      */
     public static double distSq(Vector2D v1, Vector2D v2){
         return Vector2D.sub(v1,v2).magSq();
@@ -301,10 +353,11 @@ public class Vector2D {
      * NOTE: Changes the vector on which this method is called
      * @param max magnitude of the vector
      * @return the vector
+     * @see #magSq()
+     * @see #setMag(double)
      */
     public Vector2D limit(double max) {
         if (this.magSq() > (max*max)) this.setMag(max);
-        //assert (this.magSq() <= (max*max)+.5) : "Magnitude (" + this.mag() + ") is bigger than maximum (" + max+")";
         return this;
     }
 
@@ -316,7 +369,6 @@ public class Vector2D {
      * @brief Calculate and return the angle between two vectors
      */
     static public double angleBetween(Vector2D v1, Vector2D v2) {
-
         // We get NaN if we pass in a zero vector which can cause problems
         // Zero seems like a reasonable angle between a (0,0,0) vector and something else
         if (v1.x == 0 && v1.y == 0) return 0.0f;
@@ -413,20 +465,44 @@ public class Vector2D {
         return y;
     }
 
-    //TODO: doesnt really belong in this class
+    /**
+     * This is used for some Shape methods that use Points as variables
+     * @return a Point representing the vector
+     */
+    public Point toPoint(){
+        return new Point((int)Math.round(this.x), (int)Math.round(this.y));
+    }
+
+
+    /**
+     * Transforms a "negative vector" into the null-vector
+     * @return the vector only with values >= 0
+     * @Deprecated
+     */
+    public Vector2D negVectorCheck(){
+        if(this.x < 0){
+            this.x = 0;
+        }
+        if(this.y < 0){
+            this.y = 0;
+        }
+        return this;
+    }
+
+    /**
+     * @return the vectors x and y coordinates as a string
+     */
+    public String toString(){
+        return this.x + ", " + this.y;
+    }
+
+
+    //TODO: doesnt really belong in this class, maybe create a new class
     public static float map(float value, float isStart, float isStop, float oStart, float oStop){
         return oStart + (oStop-oStart) * ((value-isStart)/(isStop-isStart));
     }
     public static double map(double value, double isStart, double isStop, double oStart, double oStop){
         return oStart + (oStop-oStart) * ((value-isStart)/(isStop-isStart));
-    }
-
-    public String toString(){
-        return this.x + ", " + this.y;
-    }
-
-    public Vector2D copy() {
-        return new Vector2D(this.x, this.y);
     }
 }
 
