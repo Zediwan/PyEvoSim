@@ -65,8 +65,8 @@ public class Transform {
     }
 
     public Rectangle getRectangle(){
-        Rectangle rec = new Rectangle((int)(this.location.x-(this.getR())),
-                (int)(this.location.y-(this.getR())),
+        Rectangle rec = new Rectangle((int)(this.getLocX()-(this.getR())),
+                (int)(this.getLocY()-(this.getR())),
                 (int)this.size, (int)this.size);
         return rec;
     }

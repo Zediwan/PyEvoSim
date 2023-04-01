@@ -89,7 +89,7 @@ public class DNA implements mutable {
     }
 
     public void paint(Graphics2D g, Vector2D loc) {
-        this.paint(g, (int)loc.x,(int)loc.y);
+        this.paint(g, (int)loc.getX(),(int)loc.getY());
     }
 
     public String toString(){

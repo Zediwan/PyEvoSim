@@ -43,7 +43,7 @@ public class Neuron {
         if(this.bias >= 0) g.setColor(Color.BLACK);
         else g.setColor(Color.RED);
         int size = (int)Math.round(baseSize+biaseSizeFactor*Math.abs(this.bias));
-        g.fillOval((int)Math.round(this.location.x-size/2),(int)Math.round(this.location.y-size/2),size,size);
+        g.fillOval((int)Math.round(this.location.getX()-size/2),(int)Math.round(this.location.getY()-size/2),size,size);
     }
 
     public void update() {

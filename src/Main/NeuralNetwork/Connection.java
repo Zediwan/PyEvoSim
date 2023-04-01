@@ -21,7 +21,7 @@ public class Connection {
 
     public void feedForward(double value) {
         this.sending = true;
-        this.sender = new Vector2D(this.a.location.x, this.a.location.y);
+        this.sender = new Vector2D(this.a.location.getX(), this.a.location.getY());
         this.senderStep = Vector2D.sub(this.b.location,this.sender).div(100);
         this.output = value * this.weight;
     }
@@ -43,7 +43,7 @@ public class Connection {
         if(this.weight >= 0) g.setColor(Color.BLACK);
         else g.setColor(Color.RED);
         g.setStroke(new BasicStroke(Math.round(baseSize+Math.abs(this.weight)*weightSizeFactor)));
-        g.drawLine((int)Math.round(this.a.location.x),(int)Math.round(this.a.location.y),(int)Math.round(this.b.location.x),(int)Math.round(this.b.location.y));
+        g.drawLine((int)Math.round(this.a.location.getX()),(int)Math.round(this.a.location.getY()),(int)Math.round(this.b.location.getX()),(int)Math.round(this.b.location.getY()));
 
         /*
         if(this.sending) {

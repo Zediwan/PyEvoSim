@@ -4,8 +4,8 @@ import java.awt.*;
 
 //TODO create tests for all the methods
 public class Vector2D {
-    public double x; //x coordinate
-    public double y; //y coordinate
+    private double x; //x coordinate
+    private double y; //y coordinate
 
     /**
      * Constructor

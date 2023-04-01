@@ -69,8 +69,8 @@ public class Grid {
         int height = this.world.getWorldDimension().height;
 
         //Define Grid position
-        int column = (int)Math.round(Vector2D.map(loc.x,0, width,0, this.numCellsX));
-        int row = (int)Math.round(Vector2D.map(loc.y, 0, height, 0, this.numCellsY));
+        int column = (int)Math.round(Vector2D.map(loc.getX(),0, width,0, this.numCellsX));
+        int row = (int)Math.round(Vector2D.map(loc.getY(), 0, height, 0, this.numCellsY));
 
         //Check for border cases
         if (column < 0) column = 0;
@@ -92,8 +92,8 @@ public class Grid {
         //int column = gridPosition[0];
         //int row =  gridPosition[1];
 
-        for(double x = location.x - range; x <= location.x +range; x += this.gridCellWidth){
-            for(double y = location.y - range; y <= location.y + range; y += this.gridCellHeight){
+        for(double x = location.getX() - range; x <= location.getX() +range; x += this.gridCellWidth){
+            for(double y = location.getY() - range; y <= location.getY() + range; y += this.gridCellHeight){
                 int[] gridCell = this.getGrid(new Vector2D(x,y));
                 //TODO: check if the values are the right way around
                 list.addAll(this.pGrid[gridCell[1]][gridCell[0]]);
@@ -111,8 +111,8 @@ public class Grid {
         //int column = gridPosition[0];
         //int row =  gridPosition[1];
 
-        for(double x = location.x - range; x <= location.x +range; x += this.gridCellWidth){
-            for(double y = location.y - range; y <= location.y + range; y += this.gridCellHeight){
+        for(double x = location.getX() - range; x <= location.getX() +range; x += this.gridCellWidth){
+            for(double y = location.getY() - range; y <= location.getY() + range; y += this.gridCellHeight){
                 int[] gridCell = this.getGrid(new Vector2D(x,y));
                 //TODO: check if the values are the right way around
                 list.addAll(this.aGrid[gridCell[1]][gridCell[0]]);

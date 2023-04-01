@@ -584,7 +584,7 @@ public class Animal extends Organism {
                     ratio++;
                 }
                 ratio++;
-                sum.add(a.getLoc().negVectorCheck());
+                sum.add(a.getLoc());
                 count++;
             }
         }
