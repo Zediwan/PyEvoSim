@@ -10,7 +10,7 @@ import java.awt.geom.Ellipse2D;
  * A `Transform` object is constructed with a `Vector2D` representing its initial location, velocity, and acceleration,
  * as well as a size and shape.
  * @author Jeremy Moser
- * @since TODO complete
+ * @since 02.04.2023
  * @see Vector2D
  * @see Shape
  */

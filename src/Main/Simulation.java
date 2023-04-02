@@ -110,6 +110,7 @@ public class Simulation extends JPanel implements ActionListener {
             g.setColor(Color.BLACK);
             this.world.getPlantQuadTree().paint((Graphics2D) g);
         }
+        //animals.get(0).getNn().paint((Graphics2D) g, 500, 500);
         this.controlPops();
     }
 

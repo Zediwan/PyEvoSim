@@ -1,4 +1,5 @@
 package Main.NeuralNetwork;
+
 import Main.Helper.Vector2D;
 import java.awt.*;
 
@@ -10,8 +11,8 @@ public class Connection {
     Vector2D sender;
     double output;
     Vector2D senderStep;
-    private static double baseSize = .5;
-    private static double weightSizeFactor = .1;
+    private static double baseSize = 1;
+    private static double weightSizeFactor = 1;
 
     public Connection(Neuron from, Neuron to, double weight){
         this.a = from;
@@ -40,16 +41,11 @@ public class Connection {
     }
 
     public void paint(Graphics2D g) {
-        if(this.weight >= 0) g.setColor(Color.BLACK);
-        else g.setColor(Color.RED);
+        if(this.weight > 0) g.setColor(Color.GREEN);
+        else if(this.weight < 0) g.setColor(Color.RED);
+        else return; // do not paint if weight is zero
         g.setStroke(new BasicStroke(Math.round(baseSize+Math.abs(this.weight)*weightSizeFactor)));
         g.drawLine((int)Math.round(this.a.location.getX()),(int)Math.round(this.a.location.getY()),(int)Math.round(this.b.location.getX()),(int)Math.round(this.b.location.getY()));
-
-        /*
-        if(this.sending) {
-            g.setColor(new Color(0,0,0,100));
-            g.fillOval((int)this.sender.x-8,(int)this.sender.y-8,16,16);
-        }
-         */
     }
+
 }
