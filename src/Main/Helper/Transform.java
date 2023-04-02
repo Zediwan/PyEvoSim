@@ -177,7 +177,6 @@ public class Transform {
         return clone;
     }
 
-    //Getters and Setters for all variables
     /**
      * Calculates the center of the Transform's shape.
      * <p>The center is half the size added in x and y direction</p>
@@ -215,6 +214,8 @@ public class Transform {
 
         return rec;
     }
+
+    //------------------------------------------------Getter and Setter------------------------------------------------
 
     /**
      * Returns the radius of the object, which is half of the width/height of the object.
@@ -288,8 +289,36 @@ public class Transform {
         this.shape = shape;
     }
 
+    //------------------------------------------------toString and paint-----------------------------------------------
+
     //TODO think about th utilization of the shape
     public void paint(Graphics2D g){
         g.fill(this.shape);
+    }
+
+    /**
+     * Paints the velocity vector drawn from the center of this
+     * @param g the graphics object to paint on
+     */
+    public void paintVelocity(Graphics2D g){
+        Vector2D movedVelocity = Vector2D.add(this.location, this.velocity);
+
+        g.drawLine(
+                this.location.getRoundedX(), this.location.getRoundedY(),
+                movedVelocity.getRoundedX(), movedVelocity.getRoundedY()
+        );
+    }
+
+    /**
+     * Paints the acceleration vector drawn from the center of this
+     * @param g the graphics object to paint on
+     */
+    public void paintAcceleration(Graphics2D g){
+        Vector2D movedVelocity = Vector2D.add(this.location, this.acceleration);
+
+        g.drawLine(
+                this.location.getRoundedX(), this.location.getRoundedY(),
+                movedVelocity.getRoundedX(), movedVelocity.getRoundedY()
+        );
     }
 }

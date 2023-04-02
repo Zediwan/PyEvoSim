@@ -512,6 +512,8 @@ public class Matrix implements mutable {
         return result;
     }
 
+    //------------------------------------------------Getter and Setter------------------------------------------------
+
     public int getROWS() {
         return ROWS;
     }
@@ -527,6 +529,8 @@ public class Matrix implements mutable {
     public void setData(double[][] data) {
         this.data = data;
     }
+
+    //------------------------------------------------toString and paint-----------------------------------------------
 
     public String toString(){
         String s = "";

@@ -451,6 +451,8 @@ public class Vector2D {
         return angle;
     }
 
+    //------------------------------------------------Getter and Setter------------------------------------------------
+
     /**
      * @param x the x component of the vector
      * @param y the y component of the vector
@@ -518,6 +520,8 @@ public class Vector2D {
         }
         return this;
     }
+
+    //------------------------------------------------toString and paint-----------------------------------------------
 
     /**
      * @return the vectors x and y coordinates as a string
