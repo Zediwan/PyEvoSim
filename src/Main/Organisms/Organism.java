@@ -53,7 +53,7 @@ public abstract class Organism {
      */
 
     public Organism(Organism father, Organism mother){
-        this.transform = new Transform(mother.getLoc().add(Vector2D.randSurroundingVec(mother.transform.size*2)));
+        this.transform = new Transform(mother.getLoc().add(Vector2D.randSurroundingVec(mother.transform.getSize()*2)));
 
         this.birt = System.currentTimeMillis();
 
@@ -172,7 +172,7 @@ public abstract class Organism {
 
     public Vector2D getLoc(){return this.transform.getLocation();}
 
-    public void setLocation(Vector2D location) {this.transform.location = location;}
+    public void setLocation(Vector2D location) {this.transform.setLocation(location);}
 
     public double getLocX(){return this.transform.getLocX();}
 

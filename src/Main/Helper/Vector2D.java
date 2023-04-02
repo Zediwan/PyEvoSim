@@ -366,7 +366,9 @@ public class Vector2D {
      * @see #setMag(double)
      */
     public Vector2D limit(double max) {
-        if (this.magSq() > (max*max)) this.setMag(max);
+        if (this.magSq() > (max*max)){
+            this.setMag(max);
+        }
         return this;
     }
 

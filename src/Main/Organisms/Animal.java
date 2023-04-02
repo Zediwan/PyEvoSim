@@ -210,7 +210,7 @@ public class Animal extends Organism {
         this.velocityWeight = this.dna.getGene(shift+12).getValue();
         this.separationDistance = this.dna.getGene(shift + 13).getValue();
 
-        this.transform.size = Animal.baseSize * this.sizeRatio * this.maturity+1;
+        this.transform.setSize(Animal.baseSize * this.sizeRatio * this.maturity+1);
         if(this.maxSpeed > Animal.allMaxSpeed){
             this.maxSpeed = Animal.allMaxSpeed;
         }
@@ -233,10 +233,8 @@ public class Animal extends Organism {
         //Movement
         //TODO check if this should be tweaked (relation to size, resistance, slipperiness, etc.)
         //TODO: maybe refactor this?
-        this.transform.velocity.add(this.transform.acceleration.mult(this.healthRatio()));
-        this.transform.velocity.limit(maxSpeed);
-        this.transform.location.add(this.transform.velocity);
-        this.transform.acceleration.mult(0);
+        this.transform.setAcceleration(this.transform.getAcceleration().mult(this.healthRatio()));
+        this.transform.move(this.maxSpeed);
 
         //update variables and states
             //use energy for existing
@@ -274,7 +272,7 @@ public class Animal extends Organism {
         double[] outputs = this.nn.predict(inputs);
 
         //Accelerate, Rotate
-        this.transform.applyForce(Vector2D.fromAngle(outputs[0]-.5, this.transform.acceleration).setMag(outputs[1]-.5).limit(this.maxForce));
+        this.transform.applyForce(Vector2D.fromAngle(outputs[0]-.5, this.transform.getAcceleration()).setMag(outputs[1]-.5).limit(this.maxForce));
 
         //Herding Desire
         if(outputs[2] > Animal.herdingThreshold){
@@ -325,7 +323,7 @@ public class Animal extends Organism {
         if(outputs[7] > Animal.attackThreshold){
             if(collision(cAnimal)){
                 //TODO consider strength of attacked animal
-                cAnimal.takeDamage(this.strength * this.transform.velocity.magSq());
+                cAnimal.takeDamage(this.strength * this.transform.getVelocity().magSq());
                 if(cAnimal.getHealth() <= 0){
                     this.animalsKilled++;
                 }
@@ -521,14 +519,14 @@ public class Animal extends Organism {
     }
 
     public Vector2D seek(Vector2D target, int groupRatio){
-        Vector2D desired = Vector2D.sub(target,this.transform.location);
+        Vector2D desired = Vector2D.sub(target,this.transform.getLocation());
 
         desired.setMag(this.maxSpeed * groupRatio);
 
-        Vector2D steer = Vector2D.sub(desired,this.transform.velocity);
+        Vector2D steer = Vector2D.sub(desired,this.transform.getVelocity());
         steer.limit(this.maxForce);
 
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" +Math.pow(this.maxSpeed,2);
+        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" +Math.pow(this.maxSpeed,2);
         return steer;
     }
 
@@ -564,7 +562,7 @@ public class Animal extends Organism {
             steer = Vector2D.sub(sum,this.transform.getVelocity());
             steer.limit(this.maxForce);
         }
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
         return steer;
     }
     /**
@@ -591,10 +589,10 @@ public class Animal extends Organism {
         if(count > 0){
             sum.div(count);
             ratio/= count * 2;
-            assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+            assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
             return seek(sum,ratio);
         }else {
-            assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+            assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
             return new Vector2D();
         }
     }
@@ -622,7 +620,7 @@ public class Animal extends Organism {
             steer = Vector2D.sub(sum,this.transform.getVelocity());
             steer.limit(this.maxForce);
         }
-        assert this.invariant() : "Invariant is broken " + this.transform.velocity.magSq() + "/" + Math.pow(this.maxSpeed,2);
+        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
         return steer;
     }
 
@@ -658,12 +656,12 @@ public class Animal extends Organism {
     }
 
     public double size(){
-        return this.transform.size;
+        return this.transform.getSize();
     }
 
     public double speed(){
         //TODO: check if velocity changes when no acceleration is applied
-        return this.transform.acceleration.mag();
+        return this.transform.getAcceleration().mag();
     }
 
     public int getGeneration() {
@@ -841,7 +839,7 @@ public class Animal extends Organism {
      * @return if the current speed is bigger than the maxSpeed
      */
     public boolean invariant(){
-        return (this.transform.velocity.magSq() <= (this.maxSpeed*this.maxSpeed) + .01) ||
-                (this.transform.velocity.magSq() >= (this.maxSpeed*this.maxSpeed) - .01);
+        return (this.transform.getVelocity().magSq() <= (this.maxSpeed*this.maxSpeed) + .01) ||
+                (this.transform.getVelocity().magSq() >= (this.maxSpeed*this.maxSpeed) - .01);
     }
 }
