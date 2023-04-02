@@ -51,7 +51,7 @@ public class Grid {
     public void updateGridP(Organism o){
         //assert o.getClass().equals(Plant.class);
 
-        int[] gridCell = this.getGrid(o.getLoc());
+        int[] gridCell = this.getGrid(o.getLocation());
         this.pGrid[gridCell[1]][gridCell[0]].add(o);
     }
 
@@ -59,7 +59,7 @@ public class Grid {
     public void updateGridA(Organism o){
         assert o.getClass().equals(Animal.class);
 
-        int[] gridCell = this.getGrid(o.getLoc());
+        int[] gridCell = this.getGrid(o.getLocation());
         this.aGrid[gridCell[1]][gridCell[0]].add(o);
     }
 

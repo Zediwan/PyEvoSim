@@ -179,7 +179,7 @@ if(this.plants.size() < this.capacity){
 
             for(Animal ani : this.animals){
                 //check if the organism is in the area
-                if(rangeArea.contains(ani.getLoc().toPoint())){
+                if(rangeArea.contains(ani.getLocation().toPoint())){
                     found.add(ani);
                 }
             }
@@ -205,7 +205,7 @@ if(this.plants.size() < this.capacity){
 
             for(Animal ani : this.animals){
                 //check if the organism is in the area
-                if(rangeArea.contains(ani.getLoc().toPoint())){
+                if(rangeArea.contains(ani.getLocation().toPoint())){
                     found.add(ani);
                 }
             }
@@ -363,7 +363,7 @@ if(this.plants.size() < this.capacity){
 
             for(Plant p : this.plants){
                 //check if the organism is in the area
-                if(rangeArea.contains(p.getLoc().toPoint())){
+                if(rangeArea.contains(p.getLocation().toPoint())){
                     found.add(p);
                 }
             }
@@ -389,7 +389,7 @@ if(this.plants.size() < this.capacity){
 
             for(Plant p : this.plants){
                 //check if the organism is in the area
-                if(rangeArea.contains(p.getLoc().toPoint())){
+                if(rangeArea.contains(p.getLocation().toPoint())){
                     found.add(p);
                 }
             }

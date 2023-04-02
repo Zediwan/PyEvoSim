@@ -261,10 +261,10 @@ public class Animal extends Organism {
                 //Maturity,
                 this.healthRatio(),
                 this.speed(),
-                cAnimal != null && this.getLoc().distSq(cAnimal.getLoc()) != 0 ? 1/this.getLoc().distSq(cAnimal.getLoc()) : 0,
-                cAnimal != null ? Vector2D.angleBetween(this.getLoc(), cAnimal.getLoc()) : 0,
-                cPlant != null && this.getLoc().distSq(cPlant.getLoc()) != 0 ? 1/this.getLoc().distSq(cPlant.getLoc()) : 0,
-                cPlant != null ? Vector2D.angleBetween(this.getLoc(), cPlant.getLoc()) : 0,
+                cAnimal != null && this.getLocation().distSq(cAnimal.getLocation()) != 0 ? 1/this.getLocation().distSq(cAnimal.getLocation()) : 0,
+                cAnimal != null ? Vector2D.angleBetween(this.getLocation(), cAnimal.getLocation()) : 0,
+                cPlant != null && this.getLocation().distSq(cPlant.getLocation()) != 0 ? 1/this.getLocation().distSq(cPlant.getLocation()) : 0,
+                cPlant != null ? Vector2D.angleBetween(this.getLocation(), cPlant.getLocation()) : 0,
                 animals.size(),
                 w.getPlantQuadTree().query(this).size(),
                 cAnimal != null ? cAnimal.getColorRed() : 0,
@@ -354,7 +354,7 @@ public class Animal extends Organism {
         double mostAttractive = Double.NEGATIVE_INFINITY;
 
         for(Animal o : animals){
-            double distance = this.getLoc().distSq(o.getLoc());
+            double distance = this.getLocation().distSq(o.getLocation());
             double attractiveness = (1/distance) * o.getAttractiveness() * this.reproductiveUrge - this.attractiveness;
 
             //TODO rework
@@ -446,7 +446,7 @@ public class Animal extends Organism {
             return false;
         }
         else{
-            return this.getLoc().distSq(o.getLoc()) <= Math.pow(this.getR() + o.getR(), 2);
+            return this.getLocation().distSq(o.getLocation()) <= Math.pow(this.getR() + o.getR(), 2);
         }
     }
 
@@ -467,7 +467,7 @@ public class Animal extends Organism {
 
         //calculate the closest organism
         for(Plant p : plants){
-            double distance = this.getLoc().distSq(p.getLoc());
+            double distance = this.getLocation().distSq(p.getLocation());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
             if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (p.getId() != this.id)){
                 closestDistance = distance;
@@ -489,7 +489,7 @@ public class Animal extends Organism {
 
         //calculate the closest organism
         for(Animal a : animals){
-            double distance = this.getLoc().distSq(a.getLoc());
+            double distance = this.getLocation().distSq(a.getLocation());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
             if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (a.getId() != this.id)){
                 closestDistance = distance;
@@ -509,7 +509,7 @@ public class Animal extends Organism {
 
         //calculate the closest organism
         for(Organism o : organisms){
-            double distance = this.getLoc().distSq(o.getLoc());
+            double distance = this.getLocation().distSq(o.getLocation());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
             if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (o.getId() != this.id)){
                 closestDistance = distance;
@@ -548,11 +548,11 @@ public class Animal extends Organism {
 
         for(Animal a : animals){
             //calculate distance of the two animals
-            double distance = Vector2D.dist(this.getLoc(),a.getLoc());
+            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
 
             //here check distance > 0 to avoid an animal separation from itself
             if((distance>0) && (distance<this.separationDistance)){
-                Vector2D difference = Vector2D.sub(this.getLoc(), a.getLoc());
+                Vector2D difference = Vector2D.sub(this.getLocation(), a.getLocation());
                 difference.normalize();
                 //the closer an animal the more we should flee
                 difference.div(distance);
@@ -582,13 +582,13 @@ public class Animal extends Organism {
         int ratio = 0;
 
         for(Animal a : animals){
-            double distance = Vector2D.dist(this.getLoc(),a.getLoc());
+            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
             if((distance > 0) && (distance < this.separationDistance*5)){
                 if(distance < 0.5 * this.separationDistance*5) {
                     ratio++;
                 }
                 ratio++;
-                sum.add(a.getLoc());
+                sum.add(a.getLocation());
                 count++;
             }
         }
@@ -613,7 +613,7 @@ public class Animal extends Organism {
         int count = 0;
 
         for(Animal a : animals){
-            double distance = Vector2D.dist(this.getLoc(),a.getLoc());
+            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
             if((distance > 0) && (distance < this.separationDistance*5)){
                 sum.add(a.getTransform().getVelocity());
                 count++;

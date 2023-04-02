@@ -4,73 +4,208 @@ import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Simulation;
+import Main.World;
 
 import java.awt.*;
 
+/**
+ *
+ * The abstract class representing an organism in the simulation.
+ * This class contains variables and methods that are common to all organisms in the simulation.
+ * Organisms are represented by their DNA and a Transform object, which contains information about their location,
+ * rotation, and scale in the simulation. Organisms can also move, grow, and reproduce.
+ * The variables and methods in this class are not meant to be accessed directly by other classes, but rather
+ * through the public methods in the subclasses.
+ *
+ * @author Jeremy Moser
+ * @since 02.04.2023
+ * @see Animal
+ * @see Plant
+ */
 public abstract class Organism {
+    /**
+     * All time amount of organisms
+     * */
     public static long orgCount = 0;
+    /**
+     * This is used to scale maxEnergy in relation to the BodyPoints
+     */
     private static double maxEnergyToBodyRatio = 2;
 
+    /**
+     * Holds all physical information about an Organism
+     * @see Transform
+     */
     protected Transform transform;
+
+    /**
+     * This holds the genetic Information used to create an Organism
+     */
     protected DNA dna;
 
-    //stats
+    /**
+     * Time of birth
+     */
     protected long birt = 0;
+    /**
+     * identification number
+     */
     protected double id;
+    /**
+     * amount of animals that this has killed
+     */
     protected int animalsKilled = 0;
+    /**
+     * amount of plants this has killed
+     */
     protected int plantsKilled = 0;
+    /**
+     * amount of offspring this has birthed
+     */
     protected int offspringBirthed = 0;
 
-    //general variables
+    /**
+     * current health of this
+     */
     protected double health;
+    /**
+     * current energy of this
+     */
     protected double energy;
-    protected Color color;                  //color of the organism
+    /**
+     * color of this
+     */
+    protected Color color;
+    /**
+     * maturity of this
+     */
     protected double maturity;
 
     //------------------------------------------------DNA Variables----------------------------------------------------
 
-    protected double sizeRatio;             //[0]
-    protected int colorRed;                 //[1]   0.0-1.0
-    protected int colorGreen;               //[2]   0.0-1.0
-    protected int colorBlue;                //[3]   0.0-1.0
-    protected double mutSizeDNA;            //[4]   how much
-    protected double mutProbDNA;            //[5]   how likely
-    protected double mutSizeNN;             //[6]   how much
-    protected double mutProbNN;             //[7]   how likely
-    protected double attractiveness;        //[8]
-    protected double growthScaleFactor;     //[9]
-    protected double growthMaturityFactor;  //[10]
-    protected double growthMaturityExponent;//[11]
+    /**
+     * Gene number 0
+     * <p> TODO add description </p>
+     * <p> Positive value </p>
+     */
+    protected double sizeRatio;
+    /**
+     * Gene number 1
+     * <p> Represents the red value of this color </p>
+     * <p> Value between 0 and 255 </p>
+     */
+    protected int colorRed;
+    /**
+     * Gene number 2
+     * <p> Represents the green value of this color </p>
+     * <p> Value between 0 and 255 </p>
+     */
+    protected int colorGreen;
+    /**
+     * Gene number 3
+     * <p> Represents the blue value of this color </p>
+     * <p> Value between 0 and 255 </p>
+     */
+    protected int colorBlue;
+    /**
+     * Gene number 4
+     * <p> How much DNA genes can mutate when they do </p>
+     */
+    protected double mutSizeDNA;
+    /**
+     * Gene number 5
+     * <p> How likely it is for genes of the DNA to mutate </p>
+     * <p> Value between 0 and 1 </p>
+     */
+    protected double mutProbDNA;
+    /**
+     * Gene number 6
+     * <p> How much the biases and weights of the brain can mutate when they do </p>
+     */
+    protected double mutSizeNN;
+    /**
+     * Gene number 7
+     * <p> How likely it is for brain wiring to mutate </p>
+     * <p> Value between 0 and 1 </p>
+     */
+    protected double mutProbNN;
+    /**
+     * Gene number 8
+     * <p> The objective attractiveness of this </p>
+     * @see Animal#wantsToMate(Animal)
+     * @see Animal#searchClosestMate(World) 
+     */
+    protected double attractiveness;
+    /**
+     * Gene number 9
+     * <p> Used to calculate the growth rate </p>
+     * @see #growthRate()
+     * @see Animal#grow(double) 
+     * @see Plant#grow(double) 
+     */
+    protected double growthScaleFactor;
+    /**
+     * Gene number 10
+     * <p> Used to calculate the growth rate </p>
+     * @see #growthRate()
+     * @see Animal#grow(double)
+     * @see Plant#grow(double)
+     */
+    protected double growthMaturityFactor;
+    /**
+     * Gene number 11
+     * <p> Used to calculate the growth rate </p>
+     * @see #growthRate()
+     * @see Animal#grow(double)
+     * @see Plant#grow(double)
+     */
+    protected double growthMaturityExponent;
+    /**
+     * used as a shift value when expressing genes of children classes
+     * @see Animal#expressGenes()
+     * @see Plant#expressGenes()
+     */
     protected static int numberOrganismGenes = 12;
 
     //-----------------------------------------------------------------------------------------------------------------
 
-    /*
-    public Organism(){
-        this(new Transform(), new DNA());
-        Organism.orgCount++;
-    }
+    /**
+     * Creates a new Organism instance with genetic material from the given father and mother organisms.
+     *
+     * @param father The father organism to inherit genetic material from.
+     * @param mother The mother organism to inherit genetic material from.
+     * @throws AssertionError if the father or mother organisms are null.
      */
-
     public Organism(Organism father, Organism mother){
-        this.transform = new Transform(mother.getLoc().add(Vector2D.randSurroundingVec(mother.transform.getSize()*2)));
+        assert father != null : "first organism is null";
+        assert mother != null : "second organism is null";
+
+        this.transform = new Transform(
+                mother.getLocation().
+                        add(Vector2D.randSurroundingVec(mother.transform.getSize()*2))
+        );
 
         this.birt = System.currentTimeMillis();
 
         Organism.orgCount++;
     }
 
+    /**
+     * Creates a new Organism instance with genetic material from a single ancestor.
+     *
+     * @param ancestor of this organism
+     * @see #Organism(Organism, Organism)
+     */
     public Organism(Organism ancestor){
         this(ancestor,ancestor);
     }
 
-    /*
-    public Organism(double width, double height){
-        this(new Transform(Vector2D.randLimVec(width,height)), new DNA());
-        Organism.orgCount++;
-    }
+    /**
+     * Constructs a new Organism with the given Transform and DNA.
+     *
+     * @param transform the initial transform of the organism
+     * @param dna of the Organism
      */
-
     public Organism(Transform transform, DNA dna){
         this.transform = transform.clone();
         this.dna = dna.copy();
@@ -79,6 +214,32 @@ public abstract class Organism {
         Organism.orgCount++;
     }
 
+    /**
+     * Expresses the genes of the organism, retrieving and setting values for the different DNA genes.
+     * The genes are stored in the DNA object, which is an attribute of the organism.
+     * Each gene is accessed and its value is checked and set within specific bounds, and then used to set the values of
+     * the corresponding attributes of the organism.
+     * <p>
+     *     Genes:
+     *     <ul>
+     *         <li>[0] sizeRatio: size ratio of the organism</li>
+     *         <li>[1] colorRed: red component of the color of the organism (0-255)</li>
+     *         <li>[2] colorGreen: green component of the color of the organism (0-255)</li>
+     *         <li>[3] colorBlue: blue component of the color of the organism (0-255)</li>
+     *         <li>[4] mutSizeDNA: mutation size for DNA genes</li>
+     *         <li>[5] mutProbDNA: mutation probability for DNA genes</li>
+     *         <li>[6] mutSizeNN: mutation size for neural network genes</li>
+     *         <li>[7] mutProbNN: mutation probability for neural network genes</li>
+     *         <li>[8] attractiveness: attractiveness of the organism</li>
+     *         <li>[9] growthScaleFactor: growth scale factor for the organism</li>
+     *         <li>[10] growthMaturityFactor: growth maturity factor for the organism</li>
+     *         <li>[11] growthMaturityExponent: growth maturity exponent for the organism</li>
+     *     </ul>
+     * </p>
+     * The values of health and energy are set to their maximum value, and the color of the organism is set using the
+     * red, green, and blue components retrieved from the DNA genes.
+     * @see DNA
+     */
     public void expressGenes(){
         this.dna.getGene(0).genePositiveCheck();
         this.sizeRatio = this.dna.getGene(0).getValue();
@@ -104,6 +265,7 @@ public abstract class Organism {
         this.growthMaturityFactor = this.dna.getGene(10).getValue();
         this.growthMaturityExponent = this.dna.getGene(11).getValue();
 
+        //each animal starts with health and energy at max value
         this.health = this.maxHealth();
         this.energy = this.maxEnergy();
 
@@ -119,24 +281,52 @@ public abstract class Organism {
 
     public abstract Organism reproduce(Simulation s);
 
+    /**
+     * Calculates the maximum health of this organism based on its current maturity and size ratio.
+     * <p>The formula used is: {@code 100 * maturity * Math.pow(sizeRatio,2)}.</p>
+     *
+     * @return The maximum health of this organism.
+     */
     public double maxHealth() {
         return 100 * this.maturity * Math.pow(this.sizeRatio,2);
     }
 
+    /**
+     * Calculates the health ratio
+     *
+     * @return health ratio
+     */
     public double healthRatio(){
         assert this.maxHealth() >= this.health;
         return this.health/this.maxHealth();
     }
 
+
+    /**
+     * Calculates the maximum amount of energy an organism can have
+     * based on its maximum health and a fixed energy-to-body ratio.
+     *
+     * @return The maximum energy of the organism.
+     */
     public double maxEnergy(){
         return this.maxHealth() * Organism.maxEnergyToBodyRatio;
     }
 
+    /**
+     * Calculates the energy ratio
+     *
+     * @return energy ratio
+     */
     public double energyRatio() {
         assert this.maxEnergy() >= this.energy;
         return this.energy/this.maxEnergy();
     }
 
+    /**
+     * Calculates the growth rate of this organism based on its maturity level and growth parameters.
+     *
+     * @return the growth rate of this organism
+     */
     public double growthRate(){
         return this.growthScaleFactor/(1+this.growthMaturityFactor*Math.pow(this.maturity,this.growthMaturityExponent));
     }
@@ -147,6 +337,9 @@ public abstract class Organism {
         return health <= 0;
     }
 
+    /**
+     * Updates the color of the organism
+     */
     public void refreshColor() {
         this.color = new Color(this.colorRed,this.colorGreen,this.colorBlue);
     }
@@ -170,17 +363,29 @@ public abstract class Organism {
         return this.transform.getR();
     }
 
-    public Vector2D getLoc(){return this.transform.getLocation();}
+    public Vector2D getLocation() {
+        return this.transform.getLocation();
+    }
 
-    public void setLocation(Vector2D location) {this.transform.setLocation(location);}
+    public void setLocation(Vector2D location) {
+        this.transform.setLocation(location);
+    }
 
-    public double getLocX(){return this.transform.getLocX();}
+    public double getLocX() {
+        return this.transform.getLocX();
+    }
 
-    public void setLocX(float x) {this.transform.setLocX(x);}
+    public void setLocX(float x) {
+        this.transform.setLocX(x);
+    }
 
-    public double getLocY(){return this.transform.getLocY();}
+    public double getLocY() {
+        return this.transform.getLocY();
+    }
 
-    public void setLocY(float y){this.transform.setLocY(y);}
+    public void setLocY(float y) {
+        this.transform.setLocY(y);
+    }
 
     public DNA getDna() {
         return dna;
@@ -286,11 +491,19 @@ public abstract class Organism {
         return this.health;
     }
 
-    public void setHealth(double health){
+    public void setHealth(double health) {
         this.health = health;
         assert this.health <= this.maxHealth();
     }
 
+    /**
+     * Updates the organism's health by subtracting the given damage.
+     * If the damage is negative, it will be added to the organism's health.
+     * If the damage is positive, it will be subtracted from the organism's health.
+     *
+     * @param damage the amount of damage to subtract or add to the organism's health
+     * @throws AssertionError if health is higher than maxHealth
+     */
     public void takeDamage(double damage) {
         //if the damage is negative it should be added to remove the right amount and not add to the health
         if(damage <= 0){
@@ -303,6 +516,12 @@ public abstract class Organism {
         assert this.health <= this.maxHealth();
     }
 
+    /**
+     * Restores the organism's health by a specified amount.
+     *
+     * @param restoredHealth the amount of health to be restored
+     * @throws AssertionError if the restored amount is negative
+     */
     public void restoreHealth(double restoredHealth) {
         assert restoredHealth >= 0 : "restored amount is negative";
 
@@ -310,7 +529,6 @@ public abstract class Organism {
         if(this.health > maxHealth()){
             this.health = maxHealth();
         }
-        assert this.health <= this.maxHealth();
     }
 
     public double getEnergy(){
@@ -324,7 +542,17 @@ public abstract class Organism {
         }
     }
 
+    /**
+     * Reduces the energy of the organism by the given amount. If the organism has enough energy,
+     * the energy is simply reduced by the given amount. If not, the organism takes damage equal to
+     * the difference between the energy used and the current energy.
+     *
+     * @param energyUsed the amount of energy to be used
+     * @throws AssertionError if the energy used is negative
+     */
     public void useEnergy(double energyUsed){
+        assert energyUsed >= 0 : "energy used is negative";
+
         if(this.energy >= energyUsed){
             this.energy -= energyUsed;
         }
@@ -352,12 +580,20 @@ public abstract class Organism {
         this.animalsKilled = animalsKilled;
     }
 
+    public void incrementAnimalsKilled() {
+        this.animalsKilled++;
+    }
+
     public int getPlantsKilled() {
         return plantsKilled;
     }
 
     public void setPlantsKilled(int plantsKilled) {
         this.plantsKilled = plantsKilled;
+    }
+
+    public void incrementPlantsKilled() {
+        this.plantsKilled++;
     }
 
     public int getOffspringBirthed() {
@@ -368,7 +604,15 @@ public abstract class Organism {
         this.offspringBirthed = offspringBirthed;
     }
 
+    public void incrementOffspringBirthed() {
+        this.offspringBirthed++;
+    }
+
     //------------------------------------------------toString and paint-----------------------------------------------
+
+    public String toString(){
+        return this.id + "";
+    }
 
     public void paint(Graphics2D g){
         g.setColor(this.color);
