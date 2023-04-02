@@ -188,16 +188,22 @@ public class Animal extends Organism {
 
         this.speedRatio = this.dna.getGene(shift+0).getValue();
 
+        this.dna.getGene(shift+1).genePositiveCheck();
         this.strength = this.dna.getGene(shift+1).getValue();
 
+        this.dna.getGene(shift+2).genePositiveCheck();
         this.gestationDuration = Math.round(this.dna.getGene(shift+2).getValue());
 
+        this.dna.getGene(shift+3).genePositiveCheck();
         this.maxForce = this.dna.getGene(shift+3).getValue();
 
+        this.dna.getGene(shift+4).genePositiveCheck();
         this.maxSpeed = this.dna.getGene(shift+4).getValue();
 
+        this.dna.getGene(shift+5).genePositiveCheck();
         this.viewAngle = this.dna.getGene(shift+5).getValue();
 
+        this.dna.getGene(shift+6).genePositiveCheck();
         this.viewDistance = this.dna.getGene(shift+6).getValue();
 
         this.timerFrequency = this.dna.getGene(shift+7).getValue();

@@ -111,7 +111,7 @@ public class Plant extends Organism {
         this.spreadingRange = (int)Math.round(this.dna.getGene(shift+0).getValue());
         this.growthInterval = (int)Math.round(this.dna.getGene(shift+1).getValue());
 
-        this.transform.size = Plant.allMaxSize * this.sizeRatio * this.maturity +3;
+        this.transform.setSize(Plant.allMaxSize * this.sizeRatio * this.maturity +3);
         this.transform.setShape(this.transform.getRectangle());
     }
 
@@ -189,6 +189,6 @@ public class Plant extends Organism {
         g.setColor(this.color);
         g.fillOval((int)(this.getLocX()-(this.getR())),
                 (int)(this.getLocY()-(this.getR())),
-                (int)this.transform.size, (int)this.transform.size);
+                (int)this.transform.getSize(), (int)this.transform.getSize());
     }
 }

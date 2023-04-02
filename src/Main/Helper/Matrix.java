@@ -6,7 +6,7 @@ import java.util.function.Function;
  * A Matrix class for performing various operations on matrices, such as addition, multiplication, and element-wise multiplication.
  *
  * @author Jeremy Moser
- * @since TODO complete
+ * @since 02.04.2023
  */
 public class Matrix implements mutable {
     //TODO: write Test cases
@@ -24,7 +24,7 @@ public class Matrix implements mutable {
     /**
      * The data in the matrix represented as a two-dimensional array.
      */
-    public double[][] data;
+    private double[][] data;
 
     /**
      * Constructs a matrix with the specified number of rows and columns.
