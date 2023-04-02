@@ -7,6 +7,7 @@ import java.awt.*;
 /**
  * A vector represents a point in two-dimensional space
  * @author Jeremy Moser
+ * @since TODO complete
  */
 public class Vector2D {
     /**
