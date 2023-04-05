@@ -122,7 +122,7 @@ public class Simulation extends JPanel implements ActionListener {
     public void initiatePopulation(){
         for(int i = 0; i < this.startingPlants; i++){
             Plant p = new Plant();
-            p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
+            p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width-10,this.world.getWorldDimension().height-10).add(new Vector2D(5,5)));
             this.plants.add(p);
         }
 
@@ -148,7 +148,7 @@ public class Simulation extends JPanel implements ActionListener {
         if(this.plants.size() < minNumPlants && this.plants.size() + this.numNewPlants < this.maxNumPlants){
             for(int i = 0; i < numNewPlants; i++){
                 Plant p = new Plant();
-                p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
+                p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width-10,this.world.getWorldDimension().height-10).add(new Vector2D(5,5)));
                 this.plants.add(p);
             }
         }

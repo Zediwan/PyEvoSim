@@ -713,9 +713,15 @@ public class Animal extends Organism {
 
     //------------------------------------------------Reproduction-----------------------------------------------------
 
+    /**
+     * Searches for the closest mate within the given world.
+     *
+     * @param w The world in which the animal is searching for a mate.
+     * @return The closest animal that is a suitable mate, or null if no mate is found.
+     * @throws AssertionError If the chosen mate is not of the correct gender combination or the animal tries to mate with itself.
+     */
     public Animal searchClosestMate(World w){
         ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
-
 
         Animal chosenMate = null;
         double mostAttractive = Double.NEGATIVE_INFINITY;
@@ -742,7 +748,15 @@ public class Animal extends Organism {
         return chosenMate;
     }
 
-    //TODO rework
+
+    /**
+     * Returns whether this animal wants to mate with another animal.
+     *
+     * @param a the other animal
+     * @return true if this animal wants to mate with the other animal, false otherwise
+     * @throws AssertionError if the other animal is the same as this animal
+     //TODO rework
+     */
     public boolean wantsToMate(Animal a) {
         assert this != a : "wantsToMate on itself";
 
@@ -750,22 +764,47 @@ public class Animal extends Organism {
             return false;
         }
         else{
+            //TODO rethink this formula with some examples and see if they make sense
             return this.attractiveness * (1 / this.reproductiveUrge) <= a.attractiveness;
         }
     }
 
+    /**
+     * Checks if the gender combination of this animal and its mate is valid for mating.
+     *
+     * @param mate the animal to mate with
+     * @return true if the gender combination is valid for mating, false otherwise
+     * @see Gender#correctGender(Gender)
+     */
     public boolean correctGenderComb(Animal mate){
         return this.gender.correctGender(mate.gender);
     }
 
+    /**
+     * Checks whether the animal can mate or not based on its health ratio and maturity.
+     *
+     * @return boolean value indicating whether the animal can mate or not.
+     */
     public boolean canMate(){
         return this.healthRatio() >= Animal.minHealthToReproduce && this.maturity >= Animal.minMaturityToReproduce;
     }
 
+    /**
+     * Initiates a mating process with another animal, given they are of the correct gender combination and both are able to mate.
+     * If this animal is female and able to give birth, and is not already pregnant, it will become pregnant and start gestating for a certain amount of time before reproducing.
+     * Otherwise, the mate() method is called on the other animal, initiating the mating process on its end.
+     *
+     * @param mate the other animal to mate with
+     * @param s the simulation instance
+     * @throws AssertionError if the gender combination is incorrect or if either animal is unable to mate
+     * @see #reproduce(Simulation)
+     * @see Gender#getPregnant(Animal)
+     * @see Gender#getPregnant(Animal)
+     */
     public void mate(Animal mate, Simulation s){
         assert this.correctGenderComb(mate) : "Wrong gender combination";
-        assert this.canMate();
-        assert mate.canMate();
+        assert this.canMate() : "this can't mate";
+        assert mate.canMate() : "partner is not able to mate";
 
         Animal self = this;
 
@@ -782,10 +821,21 @@ public class Animal extends Organism {
             }
         }
         else {
+            //if this cannot getPregnant then the other animal should be female and call this method on the other animal
             mate.mate(this, s);
         }
     }
 
+    /**
+     * Overrides the reproduce method of the Organism class to create a new Animal that inherits
+     * its gender from the mate of the parent animal, and its genes from the parent. The child is
+     * then added to the simulation. The count of animals born is incremented and the birth is
+     * recorded in the parent animal's gender object.
+     *
+     * @param s The simulation that the animal is added to.
+     * @return The new Animal object.
+     * @throws AssertionError If the parent animal can't give birth or has not had a mate.
+     */
     @Override
     public Organism reproduce(Simulation s) {
         assert this.gender.canBirth() : "this can't birth";
@@ -833,6 +883,13 @@ public class Animal extends Organism {
     //------------------------------------------------Attacking--------------------------------------------------------
 
     //------------------------------------------------Searching--------------------------------------------------------
+    /**
+     * Searches for the closest plant in the given list of plants within the animal's view distance.
+     *
+     * @param plantsInSight the list of plants within the animal's view distance
+     * @return the closest plant, or null if no plants are within the view distance
+     * @throws AssertionError if the animal is dead
+     */
     public Plant searchClosestPlant(ArrayList<Plant> plantsInSight){
         assert !this.isDead() : "This is dead";
 
@@ -857,6 +914,13 @@ public class Animal extends Organism {
         return this.searchClosestPlant(w.getPlantQuadTree().query(this));
     }
 
+    /**
+     * Searches for the closest animal in the given list of animals in sight.
+     *
+     * @param animalsInSight the list of animals in sight
+     * @return the closest animal, or null if no animal is in sight
+     * @throws IllegalStateException if this animal is dead
+     */
     public Animal searchClosestAnimal(ArrayList<Animal> animalsInSight){
         assert !this.isDead() : "This is dead";
 
@@ -880,6 +944,13 @@ public class Animal extends Organism {
         return this.searchClosestAnimal(w.getAnimalQuadTree().query(this));
     }
 
+    /**
+     * Searches for the closest organism within the given list of organisms.
+     * Throws an assertion error if the organism invoking this method is dead.
+     *
+     * @param organisms the list of organisms to search within
+     * @return the closest organism found, or null if the list is empty
+     */
     public Organism searchClosest(ArrayList<Organism> organisms){
         assert !this.isDead() : "This is dead";
 
@@ -899,25 +970,42 @@ public class Animal extends Organism {
     }
 
     //------------------------------------------------Other------------------------------------------------------------
-    //TODO Test
-    //TODO write documentation
-    //Collision registration
+    /**
+     * Checks whether this organism collides with another organism.
+     *
+     * @param o the other organism to check for collision with
+     * @return true if this organism collides with the other organism, false otherwise
+     */
     public boolean collision(Organism o){
         //check if this collides with something
         if(o == null){
             return false;
         }
         else{
-            return this.getLocation().distSq(o.getLocation()) <= Math.pow(this.getR() + o.getR(), 2);
+            return this.transform.getRectangle().intersects(o.getTransform().getRectangle());
+            //return this.getLocation().distSq(o.getLocation()) <= Math.pow(this.getR() + o.getR(), 2);
         }
     }
 
+    /**
+     * Calculates the metabolic cost of this organism based on its speed and size.
+     * The larger and faster the organism is, the more energy it requires to sustain itself.
+     *
+     * @return the metabolic cost of this organism
+     */
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
         return (this.speed()*Animal.metabolismFactor) / (2*this.size());
     }
 
-    //TODO maybe refactor into Transform class?
+    /**
+     * Returns an Ellipse2D object that represents the sensory radius of the organism.
+     * The sensory radius is a circular area that extends a distance of half the view distance beyond the
+     * radius of the organism, centered on its location.
+     *
+     * @return an Ellipse2D object representing the sensory radius of the organism
+     * TODO maybe refactor into Transform class?
+     */
     public Ellipse2D getSensoryRadius(){
         return new Ellipse2D.Double(this.getLocX() - this.getR() - this.viewDistance/2, this.getLocY() - this.getR() - this.viewDistance/2, this.size() + this.viewDistance, this.size() + this.viewDistance);
     }
@@ -952,6 +1040,11 @@ public class Animal extends Organism {
         return this.transform.getSize();
     }
 
+    /**
+     * Returns the current speed of the organism, which is the magnitude of its acceleration vector.
+     *
+     * @return the current speed of the organism
+     */
     public double speed(){
         //TODO: check if velocity changes when no acceleration is applied
         return this.transform.getAcceleration().mag();
