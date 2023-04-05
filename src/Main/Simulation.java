@@ -97,12 +97,17 @@ public class Simulation extends JPanel implements ActionListener {
     public void paint(Graphics g){
         super.paintComponent(g);
 
+        //Graphics2D graphics = (Graphics2D) g;
+        //double centerX = this.world.getWorldDimension().getWidth() / 2;
+        //double centerY = this.world.getWorldDimension().getHeight() / 2;
+        //graphics.translate(centerX, centerY);
+
         this.world.clearQuadTrees();
 
         this.updatePlants(g);
         this.updateAnimals(g);
 
-        //this.animals.get((int)Math.random()*animals.size()).getNn().paint((Graphics2D) g,200,200);
+        //this.animals.get((int)Math.random()*animals.size()).getNn().paint((Graphics2D) graphics,200,200);
 
         if(this.paintAnimalQuadTree){
             g.setColor(Color.BLACK);
@@ -112,7 +117,7 @@ public class Simulation extends JPanel implements ActionListener {
             g.setColor(Color.BLACK);
             this.world.getPlantQuadTree().paint((Graphics2D) g);
         }
-        //animals.get(0).getNn().paint((Graphics2D) g, 500, 500);
+        //animals.get(0).getNn().paint((Graphics2D) graphics, 500, 500);
         this.controlPops();
     }
 
@@ -158,6 +163,23 @@ public class Simulation extends JPanel implements ActionListener {
                 Animal a = new Animal();
                 a.getNn().mutate(10,.5);
                 //a.getDna().mutate(1, .1);
+
+                /*
+                double respawnCorner = Math.random();
+                if(respawnCorner <= .25){
+                    a.setLocation(new Vector2D(10,10));
+                }
+                else if(respawnCorner > .25 && respawnCorner <= .5){
+                    a.setLocation(new Vector2D(10,this.world.getWorldDimension().height-10));
+                }
+                else if(respawnCorner > .5 && respawnCorner <= .75){
+                    a.setLocation(new Vector2D(this.world.getWorldDimension().width -10,10));
+                }
+                else if(respawnCorner > .75 && respawnCorner <= 1){
+                    a.setLocation(new Vector2D(this.world.getWorldDimension().width-10,this.world.getWorldDimension().height-10));
+                }
+                 */
+
                 a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
                 a.setColorRed((int)Math.round(Math.random() * 255));
                 a.setColorGreen((int)Math.round(Math.random() * 255));

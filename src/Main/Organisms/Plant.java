@@ -27,7 +27,7 @@ public class Plant extends Organism {
     /**
      * is a static variable that keeps track of the maximum size of all the plants in the simulation.
      */
-    public static double allMaxSize;
+    public static double allMaxSize = 2;
     /**
      * is a static variable that keeps track of the average age of all the plants in the simulation.
      */

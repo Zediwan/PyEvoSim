@@ -58,6 +58,9 @@ public class SimulationGUI extends JFrame {
     public static boolean showEnergy = false;
     public static boolean showAnimalQT = false;
     public static boolean showPlantQT = false;
+    public static boolean showSteering;
+    public static boolean showDirection;
+    public static boolean showSensoryRadius;
 
     public SimulationGUI() {
         // Set up main frame
@@ -151,6 +154,39 @@ public class SimulationGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showEnergy = showEnergyCheckBox.isSelected();
+            }
+        });
+
+        //Show direction checkbox
+        JCheckBox showDirectionCheckBox = new JCheckBox("Show Direction");
+        //TODO add descr
+        showDirectionCheckBox.setToolTipText("");
+        showDirectionCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showDirection = showDirectionCheckBox.isSelected();
+            }
+        });
+
+        //Show direction checkbox
+        JCheckBox showAccelerationCheckBox = new JCheckBox("Show Acceleration");
+        //TODO add descr
+        showAccelerationCheckBox.setToolTipText("");
+        showAccelerationCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSteering = showAccelerationCheckBox.isSelected();
+            }
+        });
+
+        //Show sensoryRad
+        JCheckBox showSensoryRadiusCheckBox = new JCheckBox("Show Sensory Radius");
+        //TODO add descr
+        showSensoryRadiusCheckBox.setToolTipText("");
+        showSensoryRadiusCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSensoryRadius = showSensoryRadiusCheckBox.isSelected();
             }
         });
 
@@ -482,6 +518,9 @@ public class SimulationGUI extends JFrame {
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(this.showHealthCheckBox);
         this.animalSettingsPanel.add(this.showEnergyCheckBox);
+        this.animalSettingsPanel.add(showAccelerationCheckBox);
+        this.animalSettingsPanel.add(showDirectionCheckBox);
+        this.animalSettingsPanel.add(showSensoryRadiusCheckBox);
         this.animalSettingsPanel.add(this.showAnimalQTCheckBox);
         this.animalSettingsPanel.add(animalQTCapacity);
         this.animalSettingsPanel.add(animalQTMaxDepth);

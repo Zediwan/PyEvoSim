@@ -48,7 +48,7 @@ public class Animal extends Organism {
 
     //------------------------------------------------Simulation Setting Variables-------------------------------------
     public static double baseExhaustDmg = 1;
-    public static double baseSize = 1;
+    public static double baseSize = 3;
     public static double allMaxSpeed = 4;
     public static double healthBodyRatio = 2;
     public static double bodyEnergyRatio = 2;
@@ -59,12 +59,12 @@ public class Animal extends Organism {
     public static double healingThreshold = .5;
     public static double attackThreshold = .5;
     public static double minHealthToReproduce = .2;
-    public static double minMaturityToReproduce = 1;
+    public static double minMaturityToReproduce = .75;
     public static double reproductiveUrgeFactor = 50;
     public static double damageFactor = 30;
     public static double healingFactor = 2;
     public static double healingCostFactor = 2;
-    public static double metabolismFactor = 1;
+    public static double metabolismFactor = 1.5;
     //private static double baseSize = 1;
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -212,8 +212,8 @@ public class Animal extends Organism {
 
         //calculate maturity of this
         //TODO think about this function
-        //this.maturity = .1 + (mother.gestationDuration / (5*1000));
-        this.maturity = 1;
+        this.maturity = .1 + (mother.gestationDuration / (6*1000.0));
+        //this.maturity = 1;
 
         this.expressGenes();
     }
@@ -991,7 +991,7 @@ public class Animal extends Organism {
      */
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
-        return (this.speed()*Animal.metabolismFactor) / (2*this.size());
+        return ((this.speed()+1)*Animal.metabolismFactor) / (2*this.size());
     }
 
     /**
@@ -1204,6 +1204,34 @@ public class Animal extends Organism {
     public void paint(Graphics2D g) {
         super.paint(g);
         g.fill(this.transform.getRectangle());
+        int x = (int)Math.round(this.getLocX() -1);
+        int y = (int)Math.round(this.getLocY()-1);
+        int s = (int)this.size()+2;
+
+        if(this.gender == Gender.FEMALE){
+            if(this.gender.isPregnant()){
+                g.fillOval(x,y,s,s);
+            }
+            else{
+                g.drawOval(x, y,s,s);
+            }
+        }
+
+        if(SimulationGUI.showSensoryRadius){
+            g.setColor(new Color(200,200,200,30));
+            g.fill(this.getSensoryRadius());
+        }
+
+        if(SimulationGUI.showDirection){
+            g.setColor(Color.BLACK);
+            this.transform.paintVelocity(g);
+        }
+
+        if(SimulationGUI.showSteering){
+            g.setColor(Color.lightGray);
+            this.transform.paintAcceleration(g);
+        }
+
         if(SimulationGUI.showHealth){
             g.setColor(this.color.darker());
             g.drawString(String.format("%.2f", this.health), (int)this.getLocX(), (int)this.getLocY());

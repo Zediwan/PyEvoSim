@@ -138,7 +138,7 @@ public class Transform {
             this.velocity.add(this.acceleration);
             this.velocity.limit(maxSpeed);
             this.location.add(this.velocity);
-            this.acceleration.mult(0);  //TODO think more about this, if it is needed everytime...
+            //this.acceleration.mult(0);  //TODO think more about this, if it is needed everytime...
         }
     }
 
@@ -303,7 +303,8 @@ public class Transform {
      * @param g the graphics object to paint on
      */
     public void paintVelocity(Graphics2D g){
-        Vector2D movedVelocity = Vector2D.add(this.location, this.velocity);
+        //TODO add scaling to the length
+        Vector2D movedVelocity = Vector2D.add(this.location, this.velocity.copy().mult(10));
 
         g.drawLine(
                 this.location.getRoundedX(), this.location.getRoundedY(),
@@ -316,7 +317,8 @@ public class Transform {
      * @param g the graphics object to paint on
      */
     public void paintAcceleration(Graphics2D g){
-        Vector2D movedVelocity = Vector2D.add(this.location, this.acceleration);
+        //TODO add scaling to the length
+        Vector2D movedVelocity = Vector2D.add(this.location, this.acceleration.copy().mult(10));
 
         g.drawLine(
                 this.location.getRoundedX(), this.location.getRoundedY(),

@@ -6,6 +6,9 @@ import Main.Helper.mutable;
 import java.awt.*;
 import java.util.function.Function;
 
+/**
+ * <a href = https://youtube.com/playlist?list=PLRqwX-V7Uu6aCibgK1PTWWu9by6XFdCfh>Youtube Series for understanding</a>
+ */
 public class NeuralNetwork implements mutable {
     //TODO: add toString method
     //TODO: add paint visualization
