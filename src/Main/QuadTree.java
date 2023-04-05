@@ -81,7 +81,7 @@ public abstract class QuadTree {
         }
 
         public boolean insert(Animal a){
-            Point center = a.getTransform().getCenter().toPoint();
+            Point center = a.getTransform().getLocation().toPoint();
             if(!this.boundary.contains(center)){
                 return false;
             }
@@ -269,7 +269,7 @@ if(this.plants.size() < this.capacity){
         }
 
         public boolean insert(Plant p){
-            Point center = p.getTransform().getCenter().toPoint();
+            Point center = p.getTransform().getLocation().toPoint();
             if(!this.boundary.contains(center)){
                 return false;
             }

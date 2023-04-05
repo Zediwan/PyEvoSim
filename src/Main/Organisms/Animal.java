@@ -16,9 +16,25 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+//TODO create tests for all the methods
+
 public class Animal extends Organism {
+    /**
+     * All time amount of animals
+     */
     public static long aniCount = 0;
+    /**
+     * All time amount of animals born by other animals ((re-)population by system not included)
+     */
     public static long aniBornCount = 0;
+
+    /**
+     * The blueprint for all animals spawned by the simulation
+     * @see #blueprint()
+     */
+    private static Animal blueprint;
+
+    //------------------------------------------------Statistics for simulation----------------------------------------
     public static double avgAge = 0;
     public static double avgAniKilled = 0;
     public static double avgPlaKilled = 0;
@@ -29,19 +45,21 @@ public class Animal extends Organism {
     public static double avgMaxEnergy = 0;
     public static double avgEnergy = 0;
     public static double avgEnergyRatio = 0;
-    private static Animal blueprint;
 
+    //------------------------------------------------Simulation Setting Variables-------------------------------------
     public static double baseExhaustDmg = 1;
-    public static double baseSize = 4;
+    public static double baseSize = 1;
     public static double allMaxSpeed = 4;
     public static double healthBodyRatio = 2;
     public static double bodyEnergyRatio = 2;
     public static double herdingThreshold = .5;
-    public static double matingThreshold = .2;
-    public static double eatingThreshold = .2;
+    public static double matingThreshold = 0;
+    public static double eatingThreshold = 0;
     public static double growthThreshold = .5;
     public static double healingThreshold = .5;
     public static double attackThreshold = .5;
+    public static double minHealthToReproduce = .2;
+    public static double minMaturityToReproduce = 1;
     public static double reproductiveUrgeFactor = 50;
     public static double damageFactor = 30;
     public static double healingFactor = 2;
@@ -49,74 +67,186 @@ public class Animal extends Organism {
     public static double metabolismFactor = 1;
     //private static double baseSize = 1;
 
+    //-----------------------------------------------------------------------------------------------------------------
+
     //TODO how should generations be handled when there are two parents?
+    /**
+     * The generation of an animal is equal the higher generation of its parents +1
+     * @see #Animal(Animal, Animal)
+     */
     protected int generation = 0;
     protected Gender gender;
+    /**
+     * Brain of this
+     */
     protected NeuralNetwork nn;
+
+    //TODO think if this is really needed or can be passed on through the methods
     protected double reproductiveUrge = 0;
-    //protected double bodyPoints = 0;
 
     //------------------------------------------------DNA Variables----------------------------------------------------
 
-    protected double speedRatio;                    //[9]
-    protected double strength;                      //[10]  //TODO: make this depend on size, via a ration or something
-    protected long gestationDuration;               //[11]
-    protected double maxForce;                      //[12]
-    protected double maxSpeed;                      //[13]
-    protected double viewAngle;                     //[14]
-    protected double viewDistance;                  //[15]
-    protected double timerFrequency;                //[16]
-    protected double pheromoneSensibility;          //[17]
-    protected double separationWeight;              //[18]
-    protected double alignmentWeight;               //[19]
-    protected double cohesionWeight;                //[20]
-    protected double velocityWeight;                //[21]
-    protected double separationDistance;            //[22]
+    /**
+     * Animal Gene number 0
+     * <p>
+     * TODO this may not be needed
+     */
+    protected double speedRatio;
+    /**
+     * Animal Gene number 1
+     * <p> Represents the strength of this, this is used for fighting and defending </p>
+     * <p> Positive value </p>
+     * TODO: make this depend on size, via a ration or something
+     */
+    protected double strength;
+    /**
+     * Animal Gene number 2
+     * <p> How long, in seconds, pregnancy takes,
+     * the longer this period ist he more mature / developed an animal is at birth </p>
+     * <p> Positive value </p>
+     */
+    protected long gestationDuration;
+    /**
+     * Animal Gene number 3
+     * <p> The maximum steering force of this </p>
+     * <p> Positive value </p>
+     * TODO: make this depend on size, via a ration or something
+     */
+    protected double maxForce;
+    /**
+     * Animal Gene number 4
+     * <p> The maximum speed of this </p>
+     * <p> Positive value </p>
+     */
+    protected double maxSpeed;
+    /**
+     * Animal Gene number 5
+     * <p> The view angle from heading direction </p>
+     * <p> Value between 0 and 180 </p>
+     * TODO implement
+     */
+    protected double viewAngle;
+    /**
+     * Animal Gene number 6
+     * <p> How far this can see </p>
+     * <p> Positive value</p>
+     */
+    protected double viewDistance;
+    /**
+     * Animal Gene number 7
+     * <p> The seconds at which the inner timer runs </p>
+     * <p> Positive value </p>
+     * TODO implement in thinking
+     */
+    protected double timerFrequency;
+    /**
+     * Animal Gene number 8
+     * <p> How sensible this is to pheromones </p>
+     * TODO implement pheromones
+     */
+    protected double pheromoneSensibility;
+    /**
+     * Animal Gene number 9
+     * <p> How much the separation vector is scaled by </p>
+     */
+    protected double separationWeight;
+    /**
+     * Animal Gene number 10
+     * <p> How much the alignment vector is scaled by </p>
+     */
+    protected double alignmentWeight;
+    /**
+     * Animal Gene number 11
+     * <p> How much the cohesion vector is scaled by </p>
+     */
+    protected double cohesionWeight;
+    /**
+     * Animal Gene number 12
+     * <p> ? </p>
+     * TODO check if this is needed
+     */
+    protected double velocityWeight;
+    /**
+     * Animal Gene number 13
+     * <p> At what distance this want's to separate from others </p>
+     * <p> Positive Value </p>
+     */
+    protected double separationDistance;
+
+    /**
+     * used as a shift value when expressing genes of children classes
+     */
     protected static int numberAnimalGenes = 14;
 
     //-----------------------------------------------------------------------------------------------------------------
 
-    //Constructors
-    //Used for population by system
-    /*
-    public Animal() {
-        super();
-
-        Animal.aniCount++;
-        this.id = Animal.aniCount;
-
-        this.dna = new DNA();
-        this.expressGenes();
-    }
+    /**
+     * Creates a new Animal object by crossing over the genes and neural network of the father and mother.
+     * The resulting animal has a mutated combination of the father's and mother's DNA and neural network.
+     * The animal's ID, generation, and maturity are set based on the father and mother's properties.
+     *
+     * @param father The Animal object representing the father of the new animal
+     * @param mother The Animal object representing the mother of the new animal
+     * @throws AssertionError if father is female or mother is male (if they are not the same animal)
      */
-    //Used for population by reproduction
     public Animal(Animal father, Animal mother){
         super(father,mother);
 
+        if(father.id != mother.id){
+            assert father.gender == Gender.MALE : "father is wrong gender";
+            assert mother.gender == Gender.FEMALE : "mother is wrong gender";
+        }
         this.dna = DNA.crossover(father.getDna(), mother.getDna());
+        //mutate by the mother's gene values
         this.dna.mutate(mother.getDna().getGene(5).getValue(), mother.getDna().getGene(4).getValue());
 
         this.nn = NeuralNetwork.crossover(father.getNn(), mother.getNn());
+        //mutate by the mother's gene values
         this.nn.mutate(mother.getDna().getGene(7).getValue(), mother.getDna().getGene(6).getValue());
 
         Animal.aniCount++;
         this.id = Animal.aniCount;
+
+        //calculate this generation
         this.generation += Math.max(father.generation,mother.generation) + 1;
 
-        this.maturity = 0 + mother.gestationDuration / (5*1000);
+        //calculate maturity of this
+        //TODO think about this function
+        //this.maturity = .1 + (mother.gestationDuration / (5*1000));
+        this.maturity = 1;
 
         this.expressGenes();
     }
 
+    /**
+     * Creates a new Animal instance with genetic material from a single ancestor.
+     *
+     * @param ancestor of this animal
+     * @see #Animal(Animal, Animal)
+     */
     public Animal(Animal ancestor) {
         this(ancestor,ancestor);
     }
 
+    /**
+     * Create a new Animal from the blueprint Animal
+     * <p>
+     *     Used for (re-)population of the simulation
+     * </p>
+     *
+     * @see #blueprint()
+     */
     public Animal(){
         this(Animal.blueprint());
     }
 
-    //Used for explicit creation
+    /**
+     * Constructs a new animal with the given Transform and DNA.
+     *
+     * @param transform of this animal
+     * @param dna of this animal
+     * @param nn brain of this animal
+     */
     public Animal(Transform transform, DNA dna, NeuralNetwork nn){
         super(transform,dna);
 
@@ -127,49 +257,57 @@ public class Animal extends Organism {
         this.nn = nn;
     }
 
-    //TODO Test
-    //TODO write documentation
-    //this is a singleton pattern
+    /**
+     * Returns a blueprint Animal with default parameters for use in creating new animals.
+     * <p>
+     *     <a href = "https://en.wikipedia.org/wiki/Singleton_pattern"> Singleton pattern </a>
+     * </p>
+     *
+     * @return an Animal object with default DNA and NeuralNetwork parameters
+     */
     public static Animal blueprint(){
+        //if blueprint hasn't been generated already create it
         if(Animal.blueprint == null) {
             Transform t = new Transform();  //location is at (0,0)
 
             Gene[] genes = {
                     //TODO: set default parameters
-                    new Gene(1, "sizeRatio"),
+                    new Gene(2, "sizeRatio"),
                     new Gene(128, "colorRed"),
                     new Gene(128, "colorGreen"),
                     new Gene(128, "colorBlue"),
-                    new Gene(.5, "mutSizeDNA"),
-                    new Gene(1, "mutProbDNA"),
+                    new Gene(.1, "mutSizeDNA"),
+                    new Gene(.5, "mutProbDNA"),
                     new Gene(.1, "mutSizeNN"),
-                    new Gene(1, "mutProbNN"),
-                    new Gene(.5, "attractiveness"),
-                    new Gene(.5, "growthScaleFactor"),
-                    new Gene(.5, "growthMaturityFactor"),
-                    new Gene(.5, "growthMaturityExponent"),
+                    new Gene(.5, "mutProbNN"),
+                    new Gene(5, "attractiveness"),
+                    new Gene(1, "growthScaleFactor"),
+                    new Gene(1, "growthMaturityFactor"),
+                    new Gene(2, "growthMaturityExponent"),
                     new Gene(.05, "speedRatio"),
                     new Gene(5, "strength"),
-                    new Gene(5*1000, "gestationDuration"),
-                    new Gene(.2, "maxForce"),
+                    new Gene(3*1000, "gestationDuration"),
+                    new Gene(1, "maxForce"),
                     new Gene(1, "maxSpeed"),
                     new Gene(45, "viewAngle"),
                     new Gene(100, "viewDistance"),
-                    new Gene(1, "timerFrequency"),
-                    new Gene(1, "pheromoneSensibility"),
+                    new Gene(3 * 1000, "timerFrequency"),
+                    new Gene(0, "pheromoneSensibility"),
                     new Gene(.1, "separationWeight"),
                     new Gene(.1, "alignmentWeight"),
                     new Gene(.1, "cohesionWeight"),
                     new Gene(.1, "velocityWeight"),
-                    new Gene(4, "separationDistance")
+                    new Gene(10, "separationDistance")
             };
             DNA dna = new DNA(genes);
 
             //TODO: check if these are the correct default amount of inputs
-            NeuralNetwork nn = new NeuralNetwork(14, 36, 8);
+            NeuralNetwork nn = new NeuralNetwork(22, 36, 8);
 
             Animal blueprint = new Animal(t,dna,nn);
-            Animal.aniCount--;  //to not increase the counter when not needed
+
+            //to not increase the counter when not needed, because this will be increased in the expressGenes method
+            Animal.aniCount--;
             blueprint.id = 0;
 
             Animal.blueprint = blueprint;
@@ -177,8 +315,35 @@ public class Animal extends Organism {
         return Animal.blueprint;
     }
 
-    //TODO Test
-    //TODO write documentation
+
+    /**
+     * Expresses the genes of the animal, retrieving and setting values for the different DNA genes.
+     * The genes are stored in the DNA object, which is an attribute of the animal.
+     * Each gene is accessed and its value is checked and set within specific bounds, and then used to set the values of
+     * the corresponding attributes of the animal.
+     * <p>
+     *     Genes:
+     *     <ul>
+     *         <li>[0] speedRatio: speed ratio of the organism</li>
+     *         <li>[1] strength: strength of the organism (>=0)</li>
+     *         <li>[2] gestationDuration: duration of pregnancy in seconds (>=0)</li>
+     *         <li>[3] maxForce: The maximum steering force of this (>=0)</li>
+     *         <li>[4] maxSpeed: The maximum speed of this (>=0)</li>
+     *         <li>[5] viewAngle: The view angle from heading direction (0-180)</li>
+     *         <li>[6] viewDistance: How far this can see (>=0)</li>
+     *         <li>[7] timerFrequency: The seconds at which the inner timer runs (>=0)</li>
+     *         <li>[8] pheromoneSensibility: How sensible this is to pheromones</li>
+     *         <li>[9] separationWeight: How much the separation vector is scaled by</li>
+     *         <li>[10] alignmentWeight: How much the alignment vector is scaled by</li>
+     *         <li>[11] cohesionWeight: How much the cohesion vector is scaled by</li>
+     *         <li>[12] velocityWeight: ?</li>
+     *         <li>[13] separationDistance: At what distance this want's to separate from others</li>
+     *     </ul>
+     * </p>
+     * The size is set by multiplying the maturity and size Ratio
+     * @see DNA
+     * @see Organism#expressGenes()
+     */
     @Override
     public void expressGenes() {
         super.expressGenes();
@@ -200,7 +365,7 @@ public class Animal extends Organism {
         this.dna.getGene(shift+4).genePositiveCheck();
         this.maxSpeed = this.dna.getGene(shift+4).getValue();
 
-        this.dna.getGene(shift+5).genePositiveCheck();
+        this.dna.getGene(shift+5).geneBoundCheck(0,180);
         this.viewAngle = this.dna.getGene(shift+5).getValue();
 
         this.dna.getGene(shift+6).genePositiveCheck();
@@ -216,93 +381,158 @@ public class Animal extends Organism {
         this.velocityWeight = this.dna.getGene(shift+12).getValue();
         this.separationDistance = this.dna.getGene(shift + 13).getValue();
 
-        this.transform.setSize(Animal.baseSize * this.sizeRatio * this.maturity+1);
+        this.transform.setSize(Animal.baseSize * this.sizeRatio * this.maturity + 1);
+
         if(this.maxSpeed > Animal.allMaxSpeed){
             this.maxSpeed = Animal.allMaxSpeed;
         }
     }
 
-    //TODO Test
-    //TODO write documentation
+
+    /**
+     * Updates the state of the organism based on the current simulation.
+     *
+     * <p>This method is responsible for executing the organism's behaviors and updating its position and state.
+     * First, the organism thinks and uses energy for this process. Then, the organism uses energy for acceleration and
+     * moves according to its maximum speed. Finally, the organism updates its variables and states and uses energy for
+     * existing and moving.</p>
+     *
+     * <p>The organism's energy is used during the thinking and acceleration processes.</p>
+     *
+     * <p>TODO: add physics so the organism cannot run through another one and cannot clip.</p>
+     *
+     * @param s the current simulation context
+     *
+     * @see #think(Simulation)
+     * @see #metabolismCost()
+     * @throws AssertionError if this is dead
+     */
     @Override
     public void update(Simulation s) {
         assert !this.isDead() : "this is dead";
-        //TODO add physics so they can't run through into another and don't clip
 
-        //System.out.println(this.healthRatio());
 
         this.think(s);
-            //use energy for thinking
+        //TODO use energy for thinking
 
-        this.useEnergy(this.metabolismCost());      //use energy for acceleration
+        //use energy for acceleration
+        this.useEnergy(this.metabolismCost());
 
         //Movement
         //TODO check if this should be tweaked (relation to size, resistance, slipperiness, etc.)
-        //TODO: maybe refactor this?
-        this.transform.setAcceleration(this.transform.getAcceleration().mult(this.healthRatio()));
+        this.transform.setAcceleration(this.transform.getAcceleration().limit(this.maxForce).mult(this.healthRatio()));
         this.transform.move(this.maxSpeed);
 
         //update variables and states
-            //use energy for existing
-            //use energy for moving
+        //TODO use energy for existing
+        //TODO use energy for moving
     }
 
-    //TODO Test
-    //TODO write documentation
+    /**
+     * Determines the actions to take based on the current state and environment.
+     *
+     * @param s the simulation in which the animal exists
+     */
     public void think(Simulation s){
         World w = s.getWorld();
-        ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
-        Organism cPlant = this.searchClosestPlant(w);
-        Organism cAnimal = this.searchClosestAnimal(w);
+
+        //get animals and plants in sight
+        ArrayList<Animal> animalsInSight = w.getAnimalQuadTree().query(this);
+        ArrayList<Plant> plantsInSight = w.getPlantQuadTree().query(this);
+
+        //search the closest entity of each
+        Plant cPlant = this.searchClosestPlant(plantsInSight);
+        Animal cAnimal = this.searchClosestAnimal(animalsInSight);
 
         double[] inputs = new double[]{
+                //constant
                 1,
                 this.energy,
-                //Maturity,
+                this.getMaturity(),
+                this.attractiveness,
                 this.healthRatio(),
                 this.speed(),
+                this.getAge(),
+                this.canMate() ? 1 : 0,
+
+                // 1/distance to the closest Animal
                 cAnimal != null && this.getLocation().distSq(cAnimal.getLocation()) != 0 ? 1/this.getLocation().distSq(cAnimal.getLocation()) : 0,
+                // angle to the closest Animal
                 cAnimal != null ? Vector2D.angleBetween(this.getLocation(), cAnimal.getLocation()) : 0,
+
+                // 1/distance to the closest Plant
                 cPlant != null && this.getLocation().distSq(cPlant.getLocation()) != 0 ? 1/this.getLocation().distSq(cPlant.getLocation()) : 0,
+                // angle to the closest Plant
                 cPlant != null ? Vector2D.angleBetween(this.getLocation(), cPlant.getLocation()) : 0,
-                animals.size(),
-                w.getPlantQuadTree().query(this).size(),
+
+                //how many animals / plants are in sight
+                animalsInSight.size(),
+                plantsInSight.size(),
+
+                //color of the closest animal
                 cAnimal != null ? cAnimal.getColorRed() : 0,
                 cAnimal != null ? cAnimal.getColorGreen() : 0,
                 cAnimal != null ? cAnimal.getColorBlue() : 0,
+
+                //gender of the closest animal
+                //TODO figure out a smart way to transmit this
+
+                /*
+                cAnimal != null ?
+                        (cAnimal.getGender() == Gender.MALE ? 1 : -1)
+                        : 0,
+                 */
+                cAnimal != null ? (this.correctGenderComb(cAnimal) ? 1 : 0) : 0,
+                cAnimal != null ? (cAnimal.canMate() ? 1 : 0) : 0,
+
+                cAnimal != null ? cAnimal.healthRatio() : 0,
+                cAnimal != null ? cAnimal.getMaturity() : 0,
+                cAnimal != null ? cAnimal.attractiveness : 0,
+                //direction of movement of the animal
+                //cAnimal.getTransform().getVelocity().getX(),
+                //cAnimal.getTransform().getVelocity().getY(),
+
+
                 //clkTic: Internal timer (1s on, 1s off (actual period decided by genes))
                 //clkMinut: kind of like a chronometer, counts time, gets reset by an output neuron
-                this.getAge(),
         };
 
         double[] outputs = this.nn.predict(inputs);
 
         //Accelerate, Rotate
-        this.transform.applyForce(Vector2D.fromAngle(outputs[0]-.5, this.transform.getAcceleration()).setMag(outputs[1]-.5).limit(this.maxForce));
+        this.transform.applyForce(
+                //"choose" direction to move
+                Vector2D.fromAngle(outputs[0]-.5, this.transform.getAcceleration())
+                        //how fast
+                        .mult(outputs[1])
+                            //limiting by possible steer
+                            .limit(this.maxForce)
+        );
 
-        //Herding Desire
-        if(outputs[2] > Animal.herdingThreshold){
-            this.transform.applyForce(separate(animals).setMag(this.separationWeight).limit(this.maxForce));
-            this.transform.applyForce(cohesion(animals).setMag(this.cohesionWeight).limit(this.maxForce));
-            this.transform.applyForce(align(animals).setMag(this.alignmentWeight).limit(this.maxForce));
+        //Herding Desire TODO check if the handling of the vectors is correct
+        if(outputs[2] > Animal.herdingThreshold) {
+            this.transform.applyForce(separate(animalsInSight).mult(this.separationWeight));
+            this.transform.applyForce(cohesion(animalsInSight).mult(this.cohesionWeight));
+            this.transform.applyForce(align(animalsInSight).mult(this.alignmentWeight));
         }
 
-        //Mate Desire
-        if(outputs[3] > Animal.matingThreshold){
-            this.reproductiveUrge = outputs[3] * Animal.reproductiveUrgeFactor;
-            Animal mate = this.searchClosestMate(w);
-            if(this.collision(mate)){
-                this.mate(mate, s);
+        //Mate Desire TODO implement attractiveness into the mating
+        if(outputs[3] > Animal.matingThreshold && cAnimal != null){
+            //this.reproductiveUrge = outputs[3] * Animal.reproductiveUrgeFactor;
+
+            if(this.correctGenderComb(cAnimal) &&
+                    this.canMate() &&
+                    cAnimal.canMate() &&
+                    this.collision(cAnimal)){
+                this.mate(cAnimal, s);
             }
-            /*
             else{
-                this.seek(mate.getLoc(),1);
+                //TODO should this then seek the mate?
             }
-             */
         }
 
-        //Eat Desire
-        if(outputs[4] > Animal.eatingThreshold){
+        //Eat Desire TODO rework and implement different diet types
+        if(outputs[4] > Animal.eatingThreshold && cPlant != null){
             if(collision(cPlant)){
                 double damage = this.strength * Animal.damageFactor;
                 cPlant.takeDamage(damage);
@@ -315,18 +545,18 @@ public class Animal extends Organism {
         }
 
         //Growth
-        if(outputs[5] > Animal.growthThreshold){
+        if(outputs[5] > Animal.growthThreshold && outputs[5] > 0){
             this.grow(outputs[5]);
         }
 
-        //Healing
+        //Healing TODO rework
         if(outputs[6] > Animal.healingThreshold){
             this.useEnergy(outputs[6] * Animal.healingFactor);//Animal.healingCostFactor);
             this.restoreHealth(outputs[6] * Animal.healingFactor);
         }
 
-        //Attack
-        if(outputs[7] > Animal.attackThreshold){
+        //Attack TODO rework
+        if(outputs[7] > Animal.attackThreshold && cAnimal != null){
             if(collision(cAnimal)){
                 //TODO consider strength of attacked animal
                 cAnimal.takeDamage(this.strength * this.transform.getVelocity().magSq());
@@ -337,16 +567,153 @@ public class Animal extends Organism {
         }
     }
 
-    @Override
-    public void grow(double factor) {
-        double growth = this.growthRate()*factor;
-        this.maturity += growth;
-        double BPIncrease = 100 * growth * Math.pow(this.sizeRatio,2);
-        this.useEnergy(BPIncrease * Animal.bodyEnergyRatio * (1+(1/Animal.healthBodyRatio)));
+    //------------------------------------------------Herding----------------------------------------------------------
+    /**
+     * Calculates and returns the steering force required to separate the current animal from other animals that are
+     * too close according to the separation distance.
+     *
+     * @param animals an ArrayList of Animal objects representing the other animals in the environment
+     * @return a Vector2D object representing the steering force required to separate the current animal from the other animals
+     * @throws AssertionError if an animal is not in sight
+     */
+    public Vector2D separate(ArrayList<Animal> animals){
+        Vector2D sum = new Vector2D();
+        Vector2D steer = new Vector2D();
+        int count = 0; //of animals being too close
+
+        for(Animal a : animals){
+            //calculate distance of the two animals
+            double distance = Vector2D.distSq(this.getLocation(),a.getLocation());
+
+            //TODO check
+            //assert distance < Math.pow(this.viewDistance,2) : "animal not in sight";
+
+            //here check distance > 0 to avoid an animal separation from itself
+            if((distance>0) && (distance < Math.pow(this.separationDistance,2))){
+                Vector2D difference = Vector2D.sub(this.getLocation(), a.getLocation());
+                difference.normalize();
+                //the closer an animal the more we should flee
+                difference.div(distance);
+                //add all the vectors together
+                sum.add(difference);
+                count++;
+            }
+        }
+
+        //avoid division by zero
+        if(count > 0){
+            sum.div(count);
+            sum.setMag(this.maxSpeed);
+            steer = Vector2D.sub(sum,this.transform.getVelocity());
+            steer.limit(this.maxForce);
+        }
+
+        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
+        return steer;
     }
 
+    /**
+     * Calculates and returns the steering force required to separate the current animal from other animals that are
+     * too close according to the separation distance.
+     *
+     * @param animals an ArrayList of Animal objects representing the other animals in the environment
+     * @return a Vector2D object representing the steering force required to separate the current animal from the other animals
+     * @throws AssertionError if an animal is not in sight
+     */
+    public Vector2D cohesion(ArrayList<Animal> animals){
+        Vector2D sum = new Vector2D();
+        int count = 0;
+        int ratio = 0;
+
+        for(Animal a : animals){
+            double distance = Vector2D.distSq(this.getLocation(),a.getLocation());
+
+            assert distance < Math.pow(this.viewDistance,2) : "animal not in sight";
+
+            //TODO implement cohesion distance?
+            if((distance > 0) && (distance < Math.pow(this.separationDistance*5,2))){
+                if(distance < Math.pow(0.5 * this.separationDistance*5,2)) {
+                    ratio++;
+                }
+                ratio++;
+                sum.add(a.getLocation());
+                count++;
+            }
+        }
+        if(count > 0){
+            sum.div(count);
+            ratio/= count * 2;
+            assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
+            return seek(sum,ratio);
+        }
+        else {
+            assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
+            return new Vector2D();
+        }
+    }
+
+    /**
+     * Calculates the steering force required for the animal to align its velocity with the average velocity of neighboring animals.
+     * Only animals within the view distance and alignment distance will be considered.
+     *
+     * @param animals an ArrayList of Animal objects representing the neighboring animals
+     * @return a Vector2D representing the steering force required for the animal to align its velocity with neighboring animals
+     * @throws AssertionError if an animal is not in sight
+     */
+    public Vector2D align(ArrayList<Animal> animals){
+        Vector2D sum = new Vector2D();
+        Vector2D steer = new Vector2D();
+        int count = 0;
+
+        for(Animal a : animals){
+            double distance = Vector2D.distSq(this.getLocation(),a.getLocation());
+
+            assert distance < Math.pow(this.viewDistance,2) : "animal not in sight";
+
+            //TODO implement alignment distance?
+            if((distance > 0) && (distance < Math.pow(this.separationDistance*5,2))){
+                sum.add(a.getTransform().getVelocity());
+                count++;
+            }
+        }
+        if(count > 0){
+            sum.div(count);
+            sum.normalize();
+            sum.mult(this.maxSpeed);
+            steer = Vector2D.sub(sum,this.transform.getVelocity());
+            steer.limit(this.maxForce);
+        }
+        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
+        return steer;
+    }
+
+    /**
+     * Calculates a steering force towards a target location.
+     * The force is calculated as the difference between the desired velocity (which points from the animal's current location
+     * towards the target) and the animal's current velocity.
+     * The magnitude of the desired velocity is adjusted based on the groupRatio parameter, which should be an integer value representing
+     * the ratio of nearby animals to the maximum number of animals allowed within a certain range.
+     * The steering force is then limited by the animal's maximum force.
+     *
+     * @param target the target location to seek
+     * @param groupRatio the ratio of nearby animals to the maximum number of animals allowed within a certain range
+     * @return a Vector2D representing the steering force towards the target location
+     */
+    public Vector2D seek(Vector2D target, int groupRatio){
+        Vector2D desired = Vector2D.sub(target,this.transform.getLocation());
+
+        desired.setMag(this.maxSpeed * groupRatio);
+
+        Vector2D steer = Vector2D.sub(desired,this.transform.getVelocity());
+        steer.limit(this.maxForce);
+
+        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" +Math.pow(this.maxSpeed,2);
+        return steer;
+    }
+
+    //------------------------------------------------Reproduction-----------------------------------------------------
+
     public Animal searchClosestMate(World w){
-        //ArrayList<Animal> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);
         ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
 
 
@@ -363,7 +730,7 @@ public class Animal extends Organism {
                     && this.correctGenderComb(o) && this.canMate() && o.canMate()
                     && o.wantsToMate(this)
                     && mostAttractive <= attractiveness
-                )
+            )
             {
                 mostAttractive = attractiveness;
                 chosenMate = o;
@@ -375,6 +742,7 @@ public class Animal extends Organism {
         return chosenMate;
     }
 
+    //TODO rework
     public boolean wantsToMate(Animal a) {
         assert this != a : "wantsToMate on itself";
 
@@ -391,11 +759,9 @@ public class Animal extends Organism {
     }
 
     public boolean canMate(){
-        return this.healthRatio() >= .5 && this.maturity >= 1;
+        return this.healthRatio() >= Animal.minHealthToReproduce && this.maturity >= Animal.minMaturityToReproduce;
     }
 
-    //TODO Test
-    //TODO write documentation
     public void mate(Animal mate, Simulation s){
         assert this.correctGenderComb(mate) : "Wrong gender combination";
         assert this.canMate();
@@ -403,9 +769,8 @@ public class Animal extends Organism {
 
         Animal self = this;
 
-        if (this.gender == Gender.FEMALE && mate.gender == Gender.MALE) {
+        if (this.gender.canBirth()) {
             if (!this.gender.isPregnant()) { // check if not already pregnant
-
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
@@ -416,16 +781,15 @@ public class Animal extends Organism {
                 this.gender.getPregnant(mate); // set pregnant flag
             }
         }
-        else if (this.gender == Gender.MALE && mate.gender == Gender.FEMALE) {
+        else {
             mate.mate(this, s);
         }
     }
 
-    //TODO Test
-    //TODO write documentation
     @Override
     public Organism reproduce(Simulation s) {
         assert this.gender.canBirth() : "this can't birth";
+        assert this.gender.getMate() != null : "this has had no mate (mate is null)";
 
         Animal child = new Animal(this.gender.getMate(),this);
         s.addAnimal(child);
@@ -437,36 +801,48 @@ public class Animal extends Organism {
         return child;
     }
 
-    //TODO Test
-    //TODO write documentation
-    //Collision registration
-    public boolean collision(Organism o){
-        //check if this collides with something
-        if(o == null){
-            return false;
-        }
-        else{
-            return this.getLocation().distSq(o.getLocation()) <= Math.pow(this.getR() + o.getR(), 2);
-        }
+    //------------------------------------------------Eating-----------------------------------------------------------
+
+    //------------------------------------------------Growth-----------------------------------------------------------
+    /**
+     * Increases the maturity of the animal by a certain factor, based on its growth rate and size ratio.
+     * Uses energy based on the increase in basal metabolic rate (BMR) caused by the growth.
+     *
+     * @param factor the factor by which to increase the animal's maturity (must be greater than 0)
+     * @throws AssertionError if factor is 0 or less
+     */
+    @Override
+    public void grow(double factor) {
+        assert factor > 0 : "factor is 0 or less";
+
+        double oldMaturity = this.maturity;
+
+        double growth = this.growthRate() * factor;
+        double newMaturity = this.maturity + growth;
+        assert newMaturity >= this.maturity;
+        this.setMaturity(newMaturity);
+        assert newMaturity >= this.maturity - growth;
+        double BPIncrease = 100 * growth * Math.pow(this.sizeRatio,2);
+        this.useEnergy(BPIncrease * Animal.bodyEnergyRatio * (1+(1/Animal.healthBodyRatio)));
+
+        assert oldMaturity <= this.maturity;
     }
 
-    //TODO Test
-    //TODO write documentation
-    //Search for food
-    public Plant searchClosestPlant(World w){
-        assert !this.isDead() : "This is dead";
+    //------------------------------------------------Healing----------------------------------------------------------
 
-        //ArrayList<Organism> foods = w.getGrid().getGridFieldsP(this.getLoc(), this.viewDistance);     //get all food in view Distance
-        ArrayList<Plant> plants = w.getPlantQuadTree().query(this);
+    //------------------------------------------------Attacking--------------------------------------------------------
+
+    //------------------------------------------------Searching--------------------------------------------------------
+    public Plant searchClosestPlant(ArrayList<Plant> plantsInSight){
+        assert !this.isDead() : "This is dead";
 
         //calculate the closest organism
-        assert !this.isDead() : "This is dead";
 
         Plant closestOrganism = null;
         double closestDistance = Double.POSITIVE_INFINITY;
 
         //calculate the closest organism
-        for(Plant p : plants){
+        for(Plant p : plantsInSight){
             double distance = this.getLocation().distSq(p.getLocation());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
             if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (p.getId() != this.id)){
@@ -477,18 +853,19 @@ public class Animal extends Organism {
         return closestOrganism;
     }
 
-    public Organism searchClosestAnimal(World w){
-        assert !this.isDead() : "This is dead";
+    public Plant searchClosestPlant(World w){
+        return this.searchClosestPlant(w.getPlantQuadTree().query(this));
+    }
 
-        //ArrayList<Organism> animals = w.getGrid().getGridFieldsA(this.getLoc(), this.viewDistance);     //get all animals in view Distance
-        ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
+    public Animal searchClosestAnimal(ArrayList<Animal> animalsInSight){
+        assert !this.isDead() : "This is dead";
 
         //calculate the closest organism
         Animal closestAnimal = null;
         double closestDistance = Double.POSITIVE_INFINITY;
 
         //calculate the closest organism
-        for(Animal a : animals){
+        for(Animal a : animalsInSight){
             double distance = this.getLocation().distSq(a.getLocation());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
             if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (a.getId() != this.id)){
@@ -499,8 +876,10 @@ public class Animal extends Organism {
         return closestAnimal;
     }
 
-    //TODO Test
-    //TODO write documentation
+    public Animal searchClosestAnimal(World w){
+        return this.searchClosestAnimal(w.getAnimalQuadTree().query(this));
+    }
+
     public Organism searchClosest(ArrayList<Organism> organisms){
         assert !this.isDead() : "This is dead";
 
@@ -519,115 +898,23 @@ public class Animal extends Organism {
         return closestOrganism;
     }
 
+    //------------------------------------------------Other------------------------------------------------------------
+    //TODO Test
+    //TODO write documentation
+    //Collision registration
+    public boolean collision(Organism o){
+        //check if this collides with something
+        if(o == null){
+            return false;
+        }
+        else{
+            return this.getLocation().distSq(o.getLocation()) <= Math.pow(this.getR() + o.getR(), 2);
+        }
+    }
+
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
         return (this.speed()*Animal.metabolismFactor) / (2*this.size());
-    }
-
-    public Vector2D seek(Vector2D target, int groupRatio){
-        Vector2D desired = Vector2D.sub(target,this.transform.getLocation());
-
-        desired.setMag(this.maxSpeed * groupRatio);
-
-        Vector2D steer = Vector2D.sub(desired,this.transform.getVelocity());
-        steer.limit(this.maxForce);
-
-        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" +Math.pow(this.maxSpeed,2);
-        return steer;
-    }
-
-    /**
-     * Steer to avoid colliding with your neighbors
-     * @param animals in the system
-     * @return the steering vector
-     */
-    public Vector2D separate(ArrayList<Animal> animals){
-        Vector2D sum = new Vector2D();
-        Vector2D steer = new Vector2D();
-        int count = 0; //of animals being too close
-
-        for(Animal a : animals){
-            //calculate distance of the two animals
-            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
-
-            //here check distance > 0 to avoid an animal separation from itself
-            if((distance>0) && (distance<this.separationDistance)){
-                Vector2D difference = Vector2D.sub(this.getLocation(), a.getLocation());
-                difference.normalize();
-                //the closer an animal the more we should flee
-                difference.div(distance);
-                //add all the vectors together
-                sum.add(difference);
-                count++;
-            }
-        }
-        //avoid division by zero
-        if(count > 0){
-            sum.div(count);
-            sum.setMag(this.maxSpeed);
-            steer = Vector2D.sub(sum,this.transform.getVelocity());
-            steer.limit(this.maxForce);
-        }
-        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return steer;
-    }
-    /**
-     * Steer towards the center of your neighbors (stay within the group)
-     * @param animals in the system
-     * @return the steering vector
-     */
-    public Vector2D cohesion(ArrayList<Animal> animals){
-        Vector2D sum = new Vector2D();
-        int count = 0;
-        int ratio = 0;
-
-        for(Animal a : animals){
-            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
-            if((distance > 0) && (distance < this.separationDistance*5)){
-                if(distance < 0.5 * this.separationDistance*5) {
-                    ratio++;
-                }
-                ratio++;
-                sum.add(a.getLocation());
-                count++;
-            }
-        }
-        if(count > 0){
-            sum.div(count);
-            ratio/= count * 2;
-            assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
-            return seek(sum,ratio);
-        }else {
-            assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
-            return new Vector2D();
-        }
-    }
-    /**
-     * Steer in the same direction as your neighbors
-     * @param animals in the system
-     * @return the steering vector
-     */
-    public Vector2D align(ArrayList<Animal> animals){
-        Vector2D sum = new Vector2D();
-        Vector2D steer = new Vector2D();
-        int count = 0;
-
-        for(Animal a : animals){
-            double distance = Vector2D.dist(this.getLocation(),a.getLocation());
-            if((distance > 0) && (distance < this.separationDistance*5)){
-                sum.add(a.getTransform().getVelocity());
-                count++;
-            }
-        }
-        if(count > 0){
-            sum.div(count);
-            sum.normalize();
-            sum.mult(this.maxSpeed);
-            steer = Vector2D.sub(sum,this.transform.getVelocity());
-            steer.limit(this.maxForce);
-        }
-        assert this.invariant() : "Invariant is broken " + this.transform.getVelocity().magSq() + "/" + Math.pow(this.maxSpeed,2);
-        return steer;
     }
 
     //TODO maybe refactor into Transform class?

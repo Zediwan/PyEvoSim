@@ -3,6 +3,8 @@ package Main.Helper;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
+//TODO create tests for all the methods
+
 /**
  * The `Transform` class represents the position, velocity, and acceleration of an object in 2D space.
  * It also includes methods for moving the object, applying forces to it, and getting information about its shape.

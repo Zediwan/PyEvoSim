@@ -102,6 +102,8 @@ public class Simulation extends JPanel implements ActionListener {
         this.updatePlants(g);
         this.updateAnimals(g);
 
+        //this.animals.get((int)Math.random()*animals.size()).getNn().paint((Graphics2D) g,200,200);
+
         if(this.paintAnimalQuadTree){
             g.setColor(Color.BLACK);
             this.world.getAnimalQuadTree().paint((Graphics2D) g);
@@ -126,6 +128,8 @@ public class Simulation extends JPanel implements ActionListener {
 
         for(int i = 0; i < this.startingAnimals; i++){
             Animal a = new Animal();
+            a.getNn().mutate(1,.5);
+            //a.getDna().mutate(.1, 1);
             a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
             a.setColorRed((int)Math.round(Math.random() * 255));
             a.setColorGreen((int)Math.round(Math.random() * 255));
@@ -152,6 +156,8 @@ public class Simulation extends JPanel implements ActionListener {
         if(this.animals.size() < minNumAnimals && this.animals.size() + this.numNewAnimals < this.maxNumAnimals){
             for(int i = 0; i < numNewAnimals; i++){
                 Animal a = new Animal();
+                a.getNn().mutate(10,.5);
+                //a.getDna().mutate(1, .1);
                 a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
                 a.setColorRed((int)Math.round(Math.random() * 255));
                 a.setColorGreen((int)Math.round(Math.random() * 255));
@@ -609,6 +615,18 @@ public class Simulation extends JPanel implements ActionListener {
 
     public void setTimerDelay(int simulationSpeed) {
         this.repaintTimer.setDelay(simulationSpeed);
+    }
+
+    public boolean simulationIsRunning() {
+        return this.repaintTimer.isRunning();
+    }
+
+    public void stopSimulation() {
+        this.repaintTimer.stop();
+    }
+
+    public void startSimulation() {
+        this.repaintTimer.start();
     }
 
     public int getFps() {

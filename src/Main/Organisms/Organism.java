@@ -8,6 +8,8 @@ import Main.World;
 
 import java.awt.*;
 
+//TODO create tests for all the methods
+
 /**
  *
  * The abstract class representing an organism in the simulation.
@@ -269,9 +271,9 @@ public abstract class Organism {
         this.health = this.maxHealth();
         this.energy = this.maxEnergy();
 
-        assert this.colorRed < 255 && this.colorRed > 0 : "R Value is not in range " + this.colorRed;
-        assert this.colorGreen < 255 && this.colorGreen > 0 : "G Value is not in range " + this.colorGreen;
-        assert this.colorBlue < 255 && this.colorBlue > 0 : "B Value is not in range " + this.colorBlue;
+        assert this.colorRed <= 255 && this.colorRed >= 0 : "R Value is not in range " + this.colorRed;
+        assert this.colorGreen <= 255 && this.colorGreen >= 0 : "G Value is not in range " + this.colorGreen;
+        assert this.colorBlue <= 255 && this.colorBlue >= 0 : "B Value is not in range " + this.colorBlue;
         this.color = new Color(this.colorRed,this.colorGreen,this.colorBlue);
     }
 
@@ -606,6 +608,50 @@ public abstract class Organism {
 
     public void incrementOffspringBirthed() {
         this.offspringBirthed++;
+    }
+
+    public void setBirt(long birt) {
+        this.birt = birt;
+    }
+
+    public double getMaturity() {
+        return maturity;
+    }
+
+    public void setMaturity(double maturity) {
+        this.maturity = maturity;
+    }
+
+    public double getGrowthScaleFactor() {
+        return growthScaleFactor;
+    }
+
+    public void setGrowthScaleFactor(double growthScaleFactor) {
+        this.growthScaleFactor = growthScaleFactor;
+    }
+
+    public double getGrowthMaturityFactor() {
+        return growthMaturityFactor;
+    }
+
+    public void setGrowthMaturityFactor(double growthMaturityFactor) {
+        this.growthMaturityFactor = growthMaturityFactor;
+    }
+
+    public double getGrowthMaturityExponent() {
+        return growthMaturityExponent;
+    }
+
+    public void setGrowthMaturityExponent(double growthMaturityExponent) {
+        this.growthMaturityExponent = growthMaturityExponent;
+    }
+
+    public static int getNumberOrganismGenes() {
+        return numberOrganismGenes;
+    }
+
+    public static void setNumberOrganismGenes(int numberOrganismGenes) {
+        Organism.numberOrganismGenes = numberOrganismGenes;
     }
 
     //------------------------------------------------toString and paint-----------------------------------------------

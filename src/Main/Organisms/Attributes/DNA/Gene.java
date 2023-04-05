@@ -19,7 +19,7 @@ public class Gene implements mutable {
     @Override
     public void mutate(double mutationChance, double range) {
         if(Math.random() < mutationChance){
-            this.value += Math.random()*range - (range/2);
+            this.value += (Math.random()* 2*range) - range;
         }
     }
 

@@ -2,6 +2,8 @@ package Main.Helper;
 
 import java.util.function.Function;
 
+//TODO create tests for all the methods
+
 /**
  * A Matrix class for performing various operations on matrices, such as addition, multiplication, and element-wise multiplication.
  *

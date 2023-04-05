@@ -5,10 +5,7 @@ import Main.Organisms.Plant;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
 public class SimulationGUI extends JFrame {
     private JPanel simPanel;
@@ -77,11 +74,39 @@ public class SimulationGUI extends JFrame {
                 w);
         this.simPanel = s;
         this.simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
+        this.simPanel.setFocusable(true);
+        //TODO pausing
+        /*
+        this.simPanel.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+                System.out.println("Test");
+                // Set the focus back to the panel
+                simPanel.requestFocusInWindow();
+            }
+        });
+
+        this.simPanel.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                System.out.println("Test");
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    if(s.simulationIsRunning()){
+                        s.stopSimulation();
+                    }
+                    else{
+                        s.startSimulation();
+                    }
+                }
+            }
+        });
+         */
+
         this.scrollPane = new JScrollPane(this.simPanel);
 
         this.scrollPane.setPreferredSize(new Dimension(800, 600)); // Set initial viewport size
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        this.scrollPane.setFocusable(false); // Set focusable to false
+
         this.add(scrollPane, BorderLayout.CENTER);
 
         // Set up bottom panel
