@@ -17,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 //TODO create tests for all the methods
-
+//TODO write class documentation
 public class Animal extends Organism {
     /**
      * All time amount of animals
@@ -864,14 +864,10 @@ public class Animal extends Organism {
     @Override
     public void grow(double factor) {
         assert factor > 0 : "factor is 0 or less";
-
         double oldMaturity = this.maturity;
 
         double growth = this.growthRate() * factor;
-        double newMaturity = this.maturity + growth;
-        assert newMaturity >= this.maturity;
-        this.setMaturity(newMaturity);
-        assert newMaturity >= this.maturity - growth;
+        this.setMaturity(this.maturity+growth);
         double BPIncrease = 100 * growth * Math.pow(this.sizeRatio,2);
         this.useEnergy(BPIncrease * Animal.bodyEnergyRatio * (1+(1/Animal.healthBodyRatio)));
 
