@@ -9,7 +9,7 @@ Short description of the project.
 - [Usage](#usage)
 - [Features](#features)
 - [Contributing](#contributing)
-- [License](#license)
+- [Authors] (#authors)
 
 ## Introduction
 
