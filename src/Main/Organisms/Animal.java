@@ -51,17 +51,17 @@ public class Animal extends Organism {
     public static double baseSize = 3;
     public static double allMaxSpeed = 4;
     public static double healthBodyRatio = 2;
-    public static double bodyEnergyRatio = 2;
-    public static double herdingThreshold = .5;
+    public static double bodyEnergyRatio = 1;
+    public static double herdingThreshold = .7;
     public static double matingThreshold = 0;
-    public static double eatingThreshold = 0;
-    public static double growthThreshold = .5;
+    public static double eatingThreshold = .2;
+    public static double growthThreshold = .2;
     public static double healingThreshold = .5;
-    public static double attackThreshold = .5;
+    public static double attackThreshold = 1;
     public static double minHealthToReproduce = .2;
-    public static double minMaturityToReproduce = .75;
+    public static double minMaturityToReproduce = .7;
     public static double reproductiveUrgeFactor = 50;
-    public static double damageFactor = 30;
+    public static double damageFactor = 5;
     public static double healingFactor = 2;
     public static double healingCostFactor = 2;
     public static double metabolismFactor = 1.5;
@@ -76,6 +76,17 @@ public class Animal extends Organism {
      */
     protected int generation = 0;
     protected Gender gender;
+
+    /**
+     * flag to track if an animal is already pregnant
+     * @see #reproduce(Simulation)
+     */
+    protected boolean isPregnant = false;
+    /**
+     * to keep track of the animal this has mated with
+     * @see #reproduce(Simulation)
+     */
+    protected Animal mate;
     /**
      * Brain of this
      */
@@ -202,7 +213,7 @@ public class Animal extends Organism {
 
         this.nn = NeuralNetwork.crossover(father.getNn(), mother.getNn());
         //mutate by the mother's gene values
-        this.nn.mutate(mother.getDna().getGene(7).getValue(), mother.getDna().getGene(6).getValue());
+        this.nn.mutate(mother.getDna().getGene(6).getValue(), mother.getDna().getGene(7).getValue());
 
         Animal.aniCount++;
         this.id = Animal.aniCount;
@@ -212,7 +223,7 @@ public class Animal extends Organism {
 
         //calculate maturity of this
         //TODO think about this function
-        this.maturity = .1 + (mother.gestationDuration / (6*1000.0));
+        this.maturity = (mother.gestationDuration / (6*1000.0));
         //this.maturity = 1;
 
         this.expressGenes();
@@ -278,17 +289,17 @@ public class Animal extends Organism {
                     new Gene(128, "colorBlue"),
                     new Gene(.1, "mutSizeDNA"),
                     new Gene(.5, "mutProbDNA"),
-                    new Gene(.1, "mutSizeNN"),
-                    new Gene(.5, "mutProbNN"),
+                    new Gene(2, "mutSizeNN"),
+                    new Gene(10, "mutProbNN"),
                     new Gene(5, "attractiveness"),
                     new Gene(1, "growthScaleFactor"),
-                    new Gene(1, "growthMaturityFactor"),
-                    new Gene(2, "growthMaturityExponent"),
+                    new Gene(20, "growthMaturityFactor"),
+                    new Gene(1, "growthMaturityExponent"),
                     new Gene(.05, "speedRatio"),
                     new Gene(5, "strength"),
                     new Gene(3*1000, "gestationDuration"),
-                    new Gene(1, "maxForce"),
-                    new Gene(1, "maxSpeed"),
+                    new Gene(.5, "maxForce"),
+                    new Gene(.5, "maxSpeed"),
                     new Gene(45, "viewAngle"),
                     new Gene(100, "viewDistance"),
                     new Gene(3 * 1000, "timerFrequency"),
@@ -379,6 +390,7 @@ public class Animal extends Organism {
         this.alignmentWeight = this.dna.getGene(shift+10).getValue();
         this.cohesionWeight = this.dna.getGene(shift + 11).getValue();
         this.velocityWeight = this.dna.getGene(shift+12).getValue();
+        this.dna.getGene(shift+13).geneBoundCheck(Double.NEGATIVE_INFINITY, this.viewDistance);
         this.separationDistance = this.dna.getGene(shift + 13).getValue();
 
         this.transform.setSize(Animal.baseSize * this.sizeRatio * this.maturity + 1);
@@ -527,6 +539,11 @@ public class Animal extends Organism {
                 this.mate(cAnimal, s);
             }
             else{
+                //TODO take this out
+                if(this.canMate() & Math.random() <= this.healthRatio() * 0 & this.gender == Gender.FEMALE && !this.isPregnant){
+                    this.mate = this;
+                    this.reproduce(s);
+                }
                 //TODO should this then seek the mate?
             }
         }
@@ -809,15 +826,16 @@ public class Animal extends Organism {
         Animal self = this;
 
         if (this.gender.canBirth()) {
-            if (!this.gender.isPregnant()) { // check if not already pregnant
+            if (!this.isPregnant) { // check if not already pregnant
+                //this.gender.getPregnant(mate); // set pregnant flag
+                this.mate = mate;
+                this.isPregnant = true;
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
                         self.reproduce(s);
                     }
                 }, this.gestationDuration);
-
-                this.gender.getPregnant(mate); // set pregnant flag
             }
         }
         else {
@@ -839,14 +857,17 @@ public class Animal extends Organism {
     @Override
     public Organism reproduce(Simulation s) {
         assert this.gender.canBirth() : "this can't birth";
-        assert this.gender.getMate() != null : "this has had no mate (mate is null)";
+        assert this.mate != null;
 
-        Animal child = new Animal(this.gender.getMate(),this);
+        Animal child = new Animal(this.mate,this);
+        //TODO add a toggle for this
+        //s.getGraphics().drawOval((int)child.getLocX()-20,(int)child.getLocY()-20,40,40);
         s.addAnimal(child);
 
         Animal.aniBornCount++;
         this.offspringBirthed++;
-        this.gender.giveBirth();
+        this.mate = null;
+        this.isPregnant = false;
 
         return child;
     }
@@ -869,7 +890,7 @@ public class Animal extends Organism {
         double growth = this.growthRate() * factor;
         this.setMaturity(this.maturity+growth);
         double BPIncrease = 100 * growth * Math.pow(this.sizeRatio,2);
-        this.useEnergy(BPIncrease * Animal.bodyEnergyRatio * (1+(1/Animal.healthBodyRatio)));
+        this.useEnergy(BPIncrease * Animal.bodyEnergyRatio * (1+(1.0/Animal.healthBodyRatio)));
 
         assert oldMaturity <= this.maturity;
     }
@@ -1204,21 +1225,41 @@ public class Animal extends Organism {
     public void paint(Graphics2D g) {
         super.paint(g);
         g.fill(this.transform.getRectangle());
-        int x = (int)Math.round(this.getLocX() -1);
-        int y = (int)Math.round(this.getLocY()-1);
-        int s = (int)this.size()+2;
 
+        //specially mark females
         if(this.gender == Gender.FEMALE){
-            if(this.gender.isPregnant()){
+            int offset = 2;
+            int x = (int)Math.round(this.getLocX() - this.getR() - offset);
+            int y = (int)Math.round(this.getLocY() - this.getR() - offset);
+            int s = (int)this.size() + (2*offset);
+
+            //if pregnant fill the oval
+            if(this.isPregnant){
                 g.fillOval(x,y,s,s);
             }
+            //otherwise, just a circle surrounding the animal
             else{
-                g.drawOval(x, y,s,s);
+                g.drawOval(x,y,s,s);
             }
         }
 
+        //show the sensory radius
         if(SimulationGUI.showSensoryRadius){
-            g.setColor(new Color(200,200,200,30));
+            //paint red if this is pregnant
+            if(this.isPregnant){
+                g.setColor(new Color(200,0,0,100));
+            }
+            //paint green if this can mate
+            else if(this.canMate()){
+                g.setColor(new Color(0,200,0,100));
+            }
+            //paint yellow if this is mature
+            else if(this.maturity >= 1){
+                g.setColor(new Color(200,200,0,100));
+            }
+            else{
+                g.setColor(new Color(200,200,200,30));
+            }
             g.fill(this.getSensoryRadius());
         }
 
@@ -1234,11 +1275,11 @@ public class Animal extends Organism {
 
         if(SimulationGUI.showHealth){
             g.setColor(this.color.darker());
-            g.drawString(String.format("%.2f", this.health), (int)this.getLocX(), (int)this.getLocY());
+            g.drawString(String.format("%1$,.1f", this.health), (int)this.getLocX(), (int)this.getLocY());
         }
         if(SimulationGUI.showEnergy){
             g.setColor(this.color.brighter());
-            g.drawString(String.format("%.2f", this.energy), (int)this.getLocX(), (int)this.getLocY()+10);
+            g.drawString(String.format("%1$,.1f", this.energy), (int)this.getLocX(), (int)this.getLocY()+10);
         }
         //g.drawString(String.format("%.2f", this.healthRatio()), (int)this.getLocX(), (int)this.getLocY());
     }

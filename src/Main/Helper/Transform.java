@@ -2,6 +2,7 @@ package Main.Helper;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 
 //TODO create tests for all the methods
 
@@ -204,14 +205,12 @@ public class Transform {
      * @return a Rectangle object representing the bounds of the Transform object.
      * @see Rectangle
      */
-    public Rectangle getRectangle(){
-        int roundedRad = (int)Math.round(this.getR());
+    public Rectangle2D.Double getRectangle(){
 
-        Rectangle rec = new Rectangle(
-                this.location.getRoundedX()- roundedRad,
-                this.location.getRoundedY() - roundedRad,
-                (int) this.size,
-                (int) this.size
+        Rectangle2D.Double rec = new Rectangle2D.Double(
+                this.location.getX()- this.getR(),
+                this.location.getY() - this.getR(),
+                this.size, this.size
         );
 
         return rec;
@@ -304,7 +303,7 @@ public class Transform {
      */
     public void paintVelocity(Graphics2D g){
         //TODO add scaling to the length
-        Vector2D movedVelocity = Vector2D.add(this.location, this.velocity.copy().mult(10));
+        Vector2D movedVelocity = Vector2D.add(this.location, this.velocity.copy().mult(20));
 
         g.drawLine(
                 this.location.getRoundedX(), this.location.getRoundedY(),
@@ -318,7 +317,7 @@ public class Transform {
      */
     public void paintAcceleration(Graphics2D g){
         //TODO add scaling to the length
-        Vector2D movedVelocity = Vector2D.add(this.location, this.acceleration.copy().mult(10));
+        Vector2D movedVelocity = Vector2D.add(this.location, this.acceleration.copy().mult(20));
 
         g.drawLine(
                 this.location.getRoundedX(), this.location.getRoundedY(),

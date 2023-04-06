@@ -23,6 +23,15 @@ public class Gene implements mutable {
         }
     }
 
+    //TODO think if this is better
+    //@Override
+    public void mutateFactor(double mutationChance, double factor) {
+        double range = factor * this.value;
+        if(Math.random() < mutationChance){
+            this.value += (Math.random()* 2*range) - range;
+        }
+    }
+
     public void gene0to1Check(){
         this.geneBoundCheck(0,1);
     }

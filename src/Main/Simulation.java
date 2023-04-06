@@ -133,7 +133,7 @@ public class Simulation extends JPanel implements ActionListener {
 
         for(int i = 0; i < this.startingAnimals; i++){
             Animal a = new Animal();
-            a.getNn().mutate(1,.5);
+            a.getNn().mutate(10,.25);
             //a.getDna().mutate(.1, 1);
             a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
             a.setColorRed((int)Math.round(Math.random() * 255));
@@ -161,7 +161,7 @@ public class Simulation extends JPanel implements ActionListener {
         if(this.animals.size() < minNumAnimals && this.animals.size() + this.numNewAnimals < this.maxNumAnimals){
             for(int i = 0; i < numNewAnimals; i++){
                 Animal a = new Animal();
-                a.getNn().mutate(10,.5);
+                a.getNn().mutate(10,.25);
                 //a.getDna().mutate(1, .1);
 
                 /*
@@ -610,7 +610,7 @@ public class Simulation extends JPanel implements ActionListener {
     }
 
     public void addAnimal(Animal child) {
-        if(this.animals.size() + 1 >= this.maxNumAnimals){
+        if(this.animals.size() + 1 <= this.maxNumAnimals){
             this.animals.add(child);
         }
     }

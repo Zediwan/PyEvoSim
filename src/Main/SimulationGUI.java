@@ -70,10 +70,10 @@ public class SimulationGUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Set up simulation panel
-        World w =new World(2000,2000, 20, 20);
-        Simulation s = new Simulation(50000,2000,80000,
-                8000,5000,100,
-                1000,100,
+        World w =new World(2000,2000, 50, 50);
+        Simulation s = new Simulation(8000,2000,8000,
+                1000,2000,10,
+                2000,50,
                 w);
         this.simPanel = s;
         this.simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
@@ -288,10 +288,10 @@ public class SimulationGUI extends JFrame {
         //TODO create rangeSliders
         //Slider for maxPlants
         this.maxPlantsPanel = new JPanel(new BorderLayout());
-        int startingValue = 50000;
-        this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
-        this.maxPlantsSlider.setMajorTickSpacing(25000);
-        this.maxPlantsSlider.setMinorTickSpacing(12500);
+        int startingValue = 8000;
+        this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 50000, startingValue);
+        this.maxPlantsSlider.setMajorTickSpacing(10000);
+        this.maxPlantsSlider.setMinorTickSpacing(5000);
         this.maxPlantsSlider.setPaintTicks(true);
         this.maxPlantsSlider.setPaintTrack(true);
         this.maxPlantsLabel = new JLabel("Max Plants: " + startingValue, JLabel.CENTER);
@@ -312,10 +312,10 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minPlants
         this.minPlantsPanel = new JPanel(new BorderLayout());
-        startingValue = 20000;
-        this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
-        this.minPlantsSlider.setMajorTickSpacing(25000);
-        this.minPlantsSlider.setMinorTickSpacing(12500);
+        startingValue = 1000;
+        this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 10000, startingValue);
+        this.minPlantsSlider.setMajorTickSpacing(2500);
+        this.minPlantsSlider.setMinorTickSpacing(1250);
         this.minPlantsSlider.setPaintTicks(true);
         this.minPlantsSlider.setPaintTrack(true);
         this.minPlantsLabel = new JLabel("Min Plants: " + startingValue, JLabel.CENTER);
@@ -333,6 +333,46 @@ public class SimulationGUI extends JFrame {
         });
         this.minPlantsPanel.add(this.minPlantsLabel, BorderLayout.NORTH);
         this.minPlantsPanel.add(this.minPlantsSlider, BorderLayout.CENTER);
+
+        //Slider for amount plants respawned
+        JPanel plantRespawnAmountPanel = new JPanel(new BorderLayout());
+        startingValue = 100;
+        JSlider plantRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 5000, startingValue);
+        plantRespawnAmountSlider.setMajorTickSpacing(1000);
+        plantRespawnAmountSlider.setMinorTickSpacing(250);
+        plantRespawnAmountSlider.setPaintTicks(true);
+        plantRespawnAmountSlider.setPaintTrack(true);
+        JLabel plantRespawnAmountLabel = new JLabel("Respawned Plants at once: " + startingValue, JLabel.CENTER);
+        s.setNumNewPlants(startingValue);
+        plantRespawnAmountSlider.addChangeListener(e -> {
+            JSlider source = (JSlider)e.getSource();
+            int numNewPlants = source.getValue();
+            plantRespawnAmountLabel.setText("Respawned Plants at once: " + numNewPlants);
+            s.setNumNewPlants(numNewPlants);
+
+        });
+        plantRespawnAmountPanel.add(plantRespawnAmountLabel, BorderLayout.NORTH);
+        plantRespawnAmountPanel.add(plantRespawnAmountSlider, BorderLayout.CENTER);
+
+        //Slider for amount animals spawned
+        JPanel animalRespawnAmountPanel = new JPanel(new BorderLayout());
+        startingValue = 10;
+        JSlider animalRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 500, startingValue);
+        animalRespawnAmountSlider.setMajorTickSpacing(100);
+        animalRespawnAmountSlider.setMinorTickSpacing(20);
+        animalRespawnAmountSlider.setPaintTicks(true);
+        animalRespawnAmountSlider.setPaintTrack(true);
+        JLabel animalRespawnAmountLabel = new JLabel("Respawned Animals at once: " + startingValue, JLabel.CENTER);
+        s.setNumNewAnimals(startingValue);
+        animalRespawnAmountSlider.addChangeListener(e -> {
+            JSlider source = (JSlider)e.getSource();
+            int numNewAnimals = source.getValue();
+            animalRespawnAmountLabel.setText("Respawned Animals at once: " + numNewAnimals);
+            s.setNumNewAnimals(numNewAnimals);
+
+        });
+        animalRespawnAmountPanel.add(animalRespawnAmountLabel, BorderLayout.NORTH);
+        animalRespawnAmountPanel.add(animalRespawnAmountSlider, BorderLayout.CENTER);
 
         //Slider for maxAnimals
         this.maxAnimalsPanel = new JPanel(new BorderLayout());
@@ -360,10 +400,10 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minAnimals
         this.minAnimalsPanel = new JPanel(new BorderLayout());
-        startingValue = 1000;
-        this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
-        this.minAnimalsSlider.setMajorTickSpacing(25000);
-        this.minAnimalsSlider.setMinorTickSpacing(12500);
+        startingValue = 20;
+        this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 10000, startingValue);
+        this.minAnimalsSlider.setMajorTickSpacing(2500);
+        this.minAnimalsSlider.setMinorTickSpacing(1250);
         this.minAnimalsSlider.setPaintTicks(true);
         this.minAnimalsSlider.setPaintTrack(true);
         this.minAnimalsLabel = new JLabel("Min Animals: " + startingValue, JLabel.CENTER);
@@ -384,8 +424,8 @@ public class SimulationGUI extends JFrame {
 
         //Simulation Speed Slider
         this.simulationSpeedPanel = new JPanel(new BorderLayout());
-        startingValue = 100;
-        this.simulationSpeedSlider = new JSlider(JSlider.HORIZONTAL,1,100,startingValue);
+        startingValue = 60;
+        this.simulationSpeedSlider = new JSlider(JSlider.HORIZONTAL,0,60,startingValue);
         this.simulationSpeedSlider.setMajorTickSpacing(10);
         this.simulationSpeedSlider.setPaintTrack(true);
         this.simulationSpeedLabel = new JLabel("Frames per Sec: " + startingValue, JLabel.CENTER);
@@ -394,7 +434,14 @@ public class SimulationGUI extends JFrame {
             JSlider source = (JSlider)e.getSource();
             int simulationSpeed = source.getValue();
             this.simulationSpeedLabel.setText("Frames per Sec: " + simulationSpeed);
-            s.setTimerDelay(1000/simulationSpeed);
+            //TODO make the time since start stop when simulation stops
+            if(simulationSpeed <= 0){
+                s.stopSimulation();
+            }
+            else{
+                s.startSimulation();
+                s.setTimerDelay(1000/simulationSpeed);
+            }
         });
         this.simulationSpeedPanel.add(this.simulationSpeedLabel, BorderLayout.NORTH);
         this.simulationSpeedPanel.add(this.simulationSpeedSlider, BorderLayout.CENTER);
@@ -530,6 +577,8 @@ public class SimulationGUI extends JFrame {
         this.plantSettingPanel.add(plantQTMaxDepth);
         this.worldSettingPanel.add(this.minPlantsPanel);
         this.worldSettingPanel.add(this.maxPlantsPanel);
+        this.worldSettingPanel.add(plantRespawnAmountPanel);
+        this.worldSettingPanel.add(animalRespawnAmountPanel);
         this.worldSettingPanel.add(this.minAnimalsPanel);
         this.worldSettingPanel.add(this.maxAnimalsPanel);
         this.worldSettingPanel.add(this.simulationSpeedPanel);

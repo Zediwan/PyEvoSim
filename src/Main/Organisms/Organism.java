@@ -32,7 +32,7 @@ public abstract class Organism {
     /**
      * This is used to scale maxEnergy in relation to the BodyPoints
      */
-    private static double maxEnergyToBodyRatio = 2;
+    private static double maxEnergyToBodyRatio = 3;
 
     /**
      * Holds all physical information about an Organism
@@ -183,8 +183,8 @@ public abstract class Organism {
         assert mother != null : "second organism is null";
 
         this.transform = new Transform(
-                mother.getLocation().
-                        add(Vector2D.randSurroundingVec(mother.transform.getSize()*2))
+                mother.getLocation().copy().
+                        add(Vector2D.randSurroundingVec(mother.transform.getSize()*10))
         );
 
         this.birt = System.currentTimeMillis();
