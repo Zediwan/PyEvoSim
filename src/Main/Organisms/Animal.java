@@ -209,11 +209,11 @@ public class Animal extends Organism {
         }
         this.dna = DNA.crossover(father.getDna(), mother.getDna());
         //mutate by the mother's gene values
-        this.dna.mutate(mother.getDna().getGene(5).getValue(), mother.getDna().getGene(4).getValue());
+        this.dna.rangedMutate(mother.getMutProbDNA(), mother.getMutSizeDNA());
 
         this.nn = NeuralNetwork.crossover(father.getNn(), mother.getNn());
         //mutate by the mother's gene values
-        this.nn.mutate(mother.getDna().getGene(6).getValue(), mother.getDna().getGene(7).getValue());
+        this.nn.rangedMutate(mother.getMutProbNN(), mother.getMutSizeNN());
 
         Animal.aniCount++;
         this.id = Animal.aniCount;

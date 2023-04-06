@@ -2,7 +2,11 @@ package Main.Helper;
 
 public interface mutable {
     //TODO: check if this interface is applied to all necessary classes
-    void mutate();
+    void rangedMutate();
 
-    void mutate(double mutationChance, double range);
+    void rangedMutate(double mutationChance, double range);
+
+    void percentageMutate();
+
+    void percentageMutate(double mutationChance, double percent);
 }

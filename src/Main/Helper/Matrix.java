@@ -134,11 +134,11 @@ public class Matrix implements mutable {
      * Randomly modifies the values of the current matrix by adding a random number
      * between -range and range to each element, with a given chance of modifying each element.
      *
-     * @param range The maximum absolute value of the random number to add to each element.
      * @param chance The probability of modifying each element, between 0 (no element is modified) and 1 (all elements are modified).
+     * @param range The maximum absolute value of the random number to add to each element.
      * @return This matrix, with the modified values.
      */
-    public Matrix randomize(double range, double chance){
+    public Matrix randomize(double chance, double range){
         for(int r = 0; r < this.ROWS; r++){
             for(int c = 0; c < this.COLS; c++){
                 if(Math.random()< chance){
@@ -421,27 +421,54 @@ public class Matrix implements mutable {
     }
 
     /**
-     * Adds a random value to each element in the matrix, with a mutation chance of 1 and range of 1.
-     *
-     * @see #mutate(double, double)
-     */
-    @Override
-    public void mutate() {
-        this.mutate(1,1);
-    }
-
-    /**
      * Performs mutation on the matrix object by adding a new matrix object with random values multiplied by a mutation chance and range.
      * The resulting matrix is added to the original matrix object using the add() method. The original matrix object is mutated in place.
      *
      * @param mutationChance The chance of a given value being mutated.
      * @param range The range of the mutation.
-     * @see Matrix#mutate(double, double)
+     * @see Matrix#rangedMutate(double, double)
      */
     @Override
-    public void mutate(double mutationChance, double range) {
+    public void rangedMutate(double mutationChance, double range) {
         Matrix mutation = new Matrix(this.ROWS,this.COLS).randomize(mutationChance,range);
         this.add(mutation);
+    }
+
+    /**
+     * Adds a random value to each element in the matrix, with a mutation chance of 1 and range of 1.
+     *
+     * @see #rangedMutate(double, double)
+     */
+    @Override
+    public void rangedMutate() {
+        this.rangedMutate(1,1);
+    }
+
+    /**
+     * Randomly mutates the weights by a percentage amount, with a specified mutation chance.
+     * @param mutationChance The probability that a weight will be mutated
+     * @param percent The percentage amount by which to mutate the weight
+     */
+    @Override
+    public void percentageMutate(double mutationChance, double percent){
+        for(int r = 0; r < this.ROWS; r++){
+            for(int c = 0; c < this.COLS; c++){
+                // If the mutationChance is greater than a random number between 0 and 1, then mutate the weight
+                if(Math.random()< mutationChance){
+                    // Mutate the weight by the given percentage amount
+                    this.data[r][c] += (this.data[r][c] * percent) - ((this.data[r][c] * percent)/2);
+                }
+            }
+        }
+    }
+
+    /**
+     * Randomly mutates the weights by a default percentage amount and mutation chance.
+     * The default values are 1.
+     */
+    @Override
+    public void percentageMutate(){
+        this.percentageMutate(1,1);
     }
 
     /**

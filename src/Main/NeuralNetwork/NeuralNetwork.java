@@ -215,7 +215,7 @@ public class NeuralNetwork implements mutable {
      *
      * @param func a function that takes a double as input and returns a double as output, used to modify each weight and bias value.
      */
-    public void mutate(Function<Double, Double> func) {
+    public void rangedMutate(Function<Double, Double> func) {
         this.weights_ih.map(func);
         this.weights_ho.map(func);
         this.bias_h.map(func);
@@ -223,27 +223,29 @@ public class NeuralNetwork implements mutable {
     }
 
     /**
-     * Randomly mutates the weights and biases of the neural network according to the given range and chance.
-     * Each weight and bias value has a chance to be mutated, and if selected, it will be mutated by a random value
+     * Randomly mutates the weights and biases of the neural network according to the given range and mutationChance.
+     * Each weight and bias value has a mutationChance to be mutated, and if selected, it will be mutated by a random value
      * within the given range.
      *
+     * @param mutationChance The mutationChance that a weight or bias value will be mutated. Should be between 0 and 1.
      * @param range The range within which each weight and bias can be mutated.
-     * @param chance The chance that a weight or bias value will be mutated. Should be between 0 and 1.
-     * @see Matrix#mutate(double, double)
+     * @see Matrix#rangedMutate(double, double)
      */
-    public void mutate(double range, double chance){
-        this.weights_ih.mutate(range, chance);
-        this.weights_ho.mutate(range, chance);
-        this.bias_h.mutate(range, chance);
-        this.bias_o.mutate(range, chance);
+    @Override
+    public void rangedMutate(double mutationChance, double range){
+        this.weights_ih.rangedMutate(mutationChance, range);
+        this.weights_ho.rangedMutate(mutationChance, range);
+        this.bias_h.rangedMutate(mutationChance, range);
+        this.bias_o.rangedMutate(mutationChance, range);
     }
 
     /**
      * Randomly mutates the weights and biases of the neural network with a range of 1 and a chance of 1.
      * Each weight and bias value has a chance of 100% to be mutated by a random value within the range of -1 to 1.
      */
-    public void mutate(){
-        this.mutate(1,1);
+    @Override
+    public void rangedMutate(){
+        this.rangedMutate(1,1);
     }
 
     /**
@@ -252,8 +254,33 @@ public class NeuralNetwork implements mutable {
      *
      * @param range The range within which each weight and bias can be mutated.
      */
-    public void mutate(double range){
-        this.mutate(range, 1);
+    public void rangedMutate(double range){
+        this.rangedMutate(1, range);
+    }
+
+    /**
+     * Mutates the weights and biases of the neural network by the given percentage.
+     *
+     * @param mutationChance The probability that a weight or bias will be mutated.
+     * @param percent        The percentage by which to mutate the weights and biases.
+     */
+    public void percentageMutate(double mutationChance, double percent){
+        // Mutate the weights and biases of the input-hidden layer
+        this.weights_ih.percentageMutate(mutationChance, percent);
+        this.bias_h.percentageMutate(mutationChance, percent);
+
+        // Mutate the weights and biases of the hidden-output layer
+        this.weights_ho.percentageMutate(mutationChance, percent);
+        this.bias_o.percentageMutate(mutationChance, percent);
+    }
+
+    /**
+     * Mutates the weights and biases of the neural network by 100% with a probability of 1.0.
+     */
+    @Override
+    public void percentageMutate(){
+        // Mutate the weights and biases with a mutation chance of 1.0 and a percentage of 100%
+        this.percentageMutate(1,1);
     }
 
     /**

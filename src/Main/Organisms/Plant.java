@@ -117,7 +117,7 @@ public class Plant extends Organism {
         super(ancestor);
 
         this.dna = ancestor.dna;
-        this.dna.mutate(ancestor.getDna().getGene(5).getValue(), ancestor.getDna().getGene(4).getValue());
+        this.dna.rangedMutate(ancestor.getDna().getGene(5).getValue(), ancestor.getDna().getGene(4).getValue());
 
         Plant.plaCount++;
         this.id = Plant.plaCount;
@@ -248,7 +248,7 @@ public class Plant extends Organism {
         transform.getLocation().add(Vector2D.randSurroundingVec(this.spreadingRange));
 
         DNA newDNA = this.dna.copy();
-        newDNA.mutate(this.mutProbDNA,this.mutSizeDNA);
+        newDNA.rangedMutate(this.mutProbDNA,this.mutSizeDNA);
 
         Plant p = new Plant(transform, newDNA);
         s.addPlant(p);

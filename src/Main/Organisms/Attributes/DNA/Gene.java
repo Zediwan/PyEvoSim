@@ -12,15 +12,25 @@ public class Gene implements mutable {
     }
 
     @Override
-    public void mutate() {
-        this.mutate(1,1);
-    }
-
-    @Override
-    public void mutate(double mutationChance, double range) {
+    public void rangedMutate(double mutationChance, double range) {
         if(Math.random() < mutationChance){
             this.value += (Math.random()* 2*range) - range;
         }
+    }
+
+    @Override
+    public void rangedMutate() {
+        this.rangedMutate(1,1);
+    }
+
+    @Override
+    public void percentageMutate(double mutationChance, double range){
+        this.rangedMutate(mutationChance, this.getValue() * range);
+    }
+
+    @Override
+    public void percentageMutate(){
+        this.percentageMutate(1,1);
     }
 
     //TODO think if this is better

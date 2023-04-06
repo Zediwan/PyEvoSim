@@ -29,14 +29,27 @@ public class DNA implements mutable {
     }
 
     @Override
-    public void mutate() {
-        this.mutate(1,1);
+    public void rangedMutate(double mutationChance, double range) {
+        for(Gene gene : this.genes){
+            gene.rangedMutate(mutationChance, range);
+        }
     }
 
-    public void mutate(double mutationChance, double range) {
+    @Override
+    public void rangedMutate() {
+        this.rangedMutate(1,1);
+    }
+
+    @Override
+    public void percentageMutate(double mutationChance, double range){
         for(Gene gene : this.genes){
-            gene.mutate(mutationChance, range);
+            gene.percentageMutate(mutationChance, range);
         }
+    }
+
+    @Override
+    public void percentageMutate(){
+        this.rangedMutate(1,1);
     }
 
     public static DNA crossover(DNA father, DNA mother){
