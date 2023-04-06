@@ -791,10 +791,10 @@ public class Animal extends Organism {
      *
      * @param mate the animal to mate with
      * @return true if the gender combination is valid for mating, false otherwise
-     * @see Gender#correctGender(Gender)
+     * @see Gender#correctGenderForReproduction(Gender)
      */
     public boolean correctGenderComb(Animal mate){
-        return this.gender.correctGender(mate.gender);
+        return this.gender.correctGenderForReproduction(mate.gender);
     }
 
     /**
