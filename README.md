@@ -1,15 +1,4 @@
-# Project Title
-
-Short description of the project.
-
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Technologies](#technologies)
-- [Usage](#usage)
-- [Features](#features)
-- [Contributing](#contributing)
-- [Authors] (#authors)
+# Evolution Simulation
 
 ## Introduction
 
