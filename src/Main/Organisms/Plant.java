@@ -4,6 +4,7 @@ import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
+import Main.Organisms.Attributes.DNA.GeneType;
 import Main.Simulation;
 
 import java.awt.*;
@@ -117,7 +118,7 @@ public class Plant extends Organism {
         super(ancestor);
 
         this.dna = ancestor.dna;
-        this.dna.rangedMutate(ancestor.getDna().getGene(5).getValue(), ancestor.getDna().getGene(4).getValue());
+        this.dna.percentageMutate(ancestor.getMutProbDNA(), ancestor.getMutSizeDNA());
 
         Plant.plaCount++;
         this.id = Plant.plaCount;
@@ -147,20 +148,20 @@ public class Plant extends Organism {
 
             Gene[] genes = {
                     //TODO: set default parameters
-                    new Gene(1, "sizeRatio"),
-                    new Gene(128, "colorRed"),
-                    new Gene(180, "colorGreen"),
-                    new Gene(128, "colorBlue"),
-                    new Gene(.1, "mutSizeDNA"),
-                    new Gene(.01, "mutProbDNA"),
-                    new Gene(.1, "mutSizeNN"),
-                    new Gene(.01, "mutProbNN"),
-                    new Gene(1, "attractiveness"),
-                    new Gene(.5, "growthScaleFactor"),
-                    new Gene(.5, "growthMaturityFactor"),
-                    new Gene(.5, "growthMaturityExponent"),
-                    new Gene(10, "spreadingRange"),
-                    new Gene(10*1000, "growthInterval")
+                    new Gene(1, "sizeRatio", GeneType.SMALLER),
+                    new Gene(128, "colorRed", GeneType.COLOR),
+                    new Gene(180, "colorGreen", GeneType.COLOR),
+                    new Gene(128, "colorBlue", GeneType.COLOR),
+                    new Gene(.1, "mutSizeDNA", GeneType.SMALLER),
+                    new Gene(.01, "mutProbDNA", GeneType.PROBABILITY),
+                    new Gene(.1, "mutSizeNN", GeneType.PROBABILITY),
+                    new Gene(.01, "mutProbNN", GeneType.PROBABILITY),
+                    new Gene(1, "attractiveness", GeneType.SMALLER),
+                    new Gene(1, "growthScaleFactor", GeneType.SMALLER),
+                    new Gene(20, "growthMaturityFactor", GeneType.BIGGER),
+                    new Gene(1, "growthMaturityExponent", GeneType.SMALLER),
+                    new Gene(10, "spreadingRange", GeneType.SMALLER),
+                    new Gene(10*1000, "growthInterval", GeneType.TIME)
             };
             DNA dna = new DNA(genes);
 

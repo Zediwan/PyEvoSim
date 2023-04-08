@@ -13,12 +13,12 @@ public class DNA implements mutable {
         this.genes = genes;
     }
 
-    public DNA(double[] values, String[] names){
+    public DNA(double[] values, String[] names, GeneType[] geneTypes){
         assert names.length == values.length: "more names given than genes";
 
         this.genes = new Gene[values.length];
         for(int i = 0; i < this.genes.length; i++){
-            this.genes[i] = new Gene(values[i], names[i]);
+            this.genes[i] = new Gene(values[i], names[i], geneTypes[i]);
         }
     }
 

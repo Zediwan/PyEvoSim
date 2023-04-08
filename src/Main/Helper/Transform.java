@@ -136,10 +136,21 @@ public class Transform {
         if(maxSpeed == 0){
             return;
         }else{
+            this.velocity.mult(.95);
             this.velocity.add(this.acceleration);
             this.velocity.limit(maxSpeed);
+            //TODO add something that reduces velocity to resemble friction
+            /*
+            if(this.velocity.mag() > 0){
+                this.velocity.sub(Vector2D.mult(this.velocity, .2));
+            }
+            else if (this.velocity.mag() < 0){
+                this.velocity.add(Vector2D.mult(this.velocity, .2));
+            }
+             */
+
             this.location.add(this.velocity);
-            //this.acceleration.mult(0);  //TODO think more about this, if it is needed everytime...
+            this.acceleration.mult(0);  //TODO think more about this, if it is needed everytime...
         }
     }
 
@@ -317,6 +328,7 @@ public class Transform {
      */
     public void paintAcceleration(Graphics2D g){
         //TODO add scaling to the length
+        //TODO how can this be painted if acceleration is reset each timestep
         Vector2D movedVelocity = Vector2D.add(this.location, this.acceleration.copy().mult(20));
 
         g.drawLine(

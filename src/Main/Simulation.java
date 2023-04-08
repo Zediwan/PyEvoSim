@@ -133,7 +133,7 @@ public class Simulation extends JPanel implements ActionListener {
 
         for(int i = 0; i < this.startingAnimals; i++){
             Animal a = new Animal();
-            a.getNn().rangedMutate(10,.25);
+            a.getNn().rangedMutate(1,3);
             //a.getDna().mutate(.1, 1);
             a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
             a.setColorRed((int)Math.round(Math.random() * 255));
@@ -150,7 +150,14 @@ public class Simulation extends JPanel implements ActionListener {
      */
     private void controlPops() {
         //control plant pop
-        if(this.plants.size() < minNumPlants && this.plants.size() + this.numNewPlants < this.maxNumPlants){
+        while(this.plants.size() < minNumPlants){
+            for(int i = 0; i < numNewPlants; i++){
+                Plant p = new Plant();
+                p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width-10,this.world.getWorldDimension().height-10).add(new Vector2D(5,5)));
+                this.plants.add(p);
+            }
+        }
+        if(this.plants.size() + this.numNewPlants < this.maxNumPlants){
             for(int i = 0; i < numNewPlants; i++){
                 Plant p = new Plant();
                 p.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width-10,this.world.getWorldDimension().height-10).add(new Vector2D(5,5)));
@@ -161,7 +168,7 @@ public class Simulation extends JPanel implements ActionListener {
         if(this.animals.size() < minNumAnimals && this.animals.size() + this.numNewAnimals < this.maxNumAnimals){
             for(int i = 0; i < numNewAnimals; i++){
                 Animal a = new Animal();
-                a.getNn().rangedMutate(10,.25);
+                a.getNn().rangedMutate(1,3);
                 //a.getDna().mutate(1, .1);
 
                 /*

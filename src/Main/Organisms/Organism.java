@@ -253,12 +253,17 @@ public abstract class Organism {
         this.dna.getGene(3).geneBoundCheck(0,255);
         this.colorBlue = (int)Math.round(this.dna.getGene(3).getValue());
 
+        this.dna.getGene(4).gene0to1Check();
         this.mutSizeDNA = this.dna.getGene(4).getValue();
+
         this.dna.getGene(5).gene0to1Check();
         this.mutProbDNA = this.dna.getGene(5).getValue();
+
         this.mutSizeNN = this.dna.getGene(6).getValue();
+
         this.dna.getGene(6).gene0to1Check();
         this.mutProbNN = this.dna.getGene(7).getValue();
+
         this.attractiveness = this.dna.getGene(8).getValue();
 
         this.dna.getGene(9).genePositiveCheck();

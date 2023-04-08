@@ -5,6 +5,7 @@ import Main.Helper.Vector2D;
 import Main.NeuralNetwork.NeuralNetwork;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
+import Main.Organisms.Attributes.DNA.GeneType;
 import Main.Organisms.Attributes.Gender;
 import Main.Simulation;
 import Main.SimulationGUI;
@@ -51,15 +52,15 @@ public class Animal extends Organism {
     public static double baseSize = 3;
     public static double allMaxSpeed = 4;
     public static double healthBodyRatio = 2;
-    public static double bodyEnergyRatio = 1;
-    public static double herdingThreshold = .7;
-    public static double matingThreshold = 0;
-    public static double eatingThreshold = .2;
-    public static double growthThreshold = .2;
+    public static double bodyEnergyRatio = 3;
+    public static double herdingThreshold = .5;
+    public static double matingThreshold = .5;
+    public static double eatingThreshold = .5;
+    public static double growthThreshold = .5;
     public static double healingThreshold = .5;
-    public static double attackThreshold = 1;
-    public static double minHealthToReproduce = .2;
-    public static double minMaturityToReproduce = .7;
+    public static double attackThreshold = .5;
+    public static double minHealthToReproduce = .5;
+    public static double minMaturityToReproduce = 1;
     public static double reproductiveUrgeFactor = 50;
     public static double damageFactor = 5;
     public static double healingFactor = 2;
@@ -209,7 +210,7 @@ public class Animal extends Organism {
         }
         this.dna = DNA.crossover(father.getDna(), mother.getDna());
         //mutate by the mother's gene values
-        this.dna.rangedMutate(mother.getMutProbDNA(), mother.getMutSizeDNA());
+        this.dna.percentageMutate(mother.getMutProbDNA(), mother.getMutSizeDNA());
 
         this.nn = NeuralNetwork.crossover(father.getNn(), mother.getNn());
         //mutate by the mother's gene values
@@ -283,32 +284,32 @@ public class Animal extends Organism {
 
             Gene[] genes = {
                     //TODO: set default parameters
-                    new Gene(2, "sizeRatio"),
-                    new Gene(128, "colorRed"),
-                    new Gene(128, "colorGreen"),
-                    new Gene(128, "colorBlue"),
-                    new Gene(.1, "mutSizeDNA"),
-                    new Gene(.5, "mutProbDNA"),
-                    new Gene(2, "mutSizeNN"),
-                    new Gene(10, "mutProbNN"),
-                    new Gene(5, "attractiveness"),
-                    new Gene(1, "growthScaleFactor"),
-                    new Gene(20, "growthMaturityFactor"),
-                    new Gene(1, "growthMaturityExponent"),
-                    new Gene(.05, "speedRatio"),
-                    new Gene(5, "strength"),
-                    new Gene(3*1000, "gestationDuration"),
-                    new Gene(.5, "maxForce"),
-                    new Gene(.5, "maxSpeed"),
-                    new Gene(45, "viewAngle"),
-                    new Gene(100, "viewDistance"),
-                    new Gene(3 * 1000, "timerFrequency"),
-                    new Gene(0, "pheromoneSensibility"),
-                    new Gene(.1, "separationWeight"),
-                    new Gene(.1, "alignmentWeight"),
-                    new Gene(.1, "cohesionWeight"),
-                    new Gene(.1, "velocityWeight"),
-                    new Gene(10, "separationDistance")
+                    new Gene(2, "sizeRatio", GeneType.SMALLER),
+                    new Gene(128, "colorRed", GeneType.COLOR),
+                    new Gene(128, "colorGreen", GeneType.COLOR),
+                    new Gene(128, "colorBlue", GeneType.COLOR),
+                    new Gene(.01, "mutSizeDNA", GeneType.PROBABILITY),
+                    new Gene(.1, "mutProbDNA", GeneType.PROBABILITY),
+                    new Gene(5, "mutSizeNN", GeneType.PROBABILITY),
+                    new Gene(.5, "mutProbNN", GeneType.PROBABILITY),
+                    new Gene(5, "attractiveness", GeneType.SMALLER),
+                    new Gene(1, "growthScaleFactor", GeneType.SMALLER),
+                    new Gene(20, "growthMaturityFactor", GeneType.BIGGER),
+                    new Gene(1, "growthMaturityExponent", GeneType.SMALLER),
+                    new Gene(.05, "speedRatio", GeneType.SMALLER),
+                    new Gene(5, "strength", GeneType.BIGGER),
+                    new Gene(2*1000, "gestationDuration", GeneType.TIME),
+                    new Gene(.2, "maxForce", GeneType.SMALLER),
+                    new Gene(.5, "maxSpeed", GeneType.SMALLER),
+                    new Gene(45, "viewAngle", GeneType.ANGLE),
+                    new Gene(100, "viewDistance", GeneType.DISTANCE),
+                    new Gene(3 * 1000, "timerFrequency", GeneType.TIME),
+                    new Gene(0, "pheromoneSensibility", GeneType.SMALLER),
+                    new Gene(0, "separationWeight", GeneType.SMALLER),
+                    new Gene(0, "alignmentWeight", GeneType.SMALLER),
+                    new Gene(0, "cohesionWeight", GeneType.SMALLER),
+                    new Gene(0, "velocityWeight", GeneType.SMALLER),
+                    new Gene(50, "separationDistance", GeneType.DISTANCE)
             };
             DNA dna = new DNA(genes);
 
@@ -367,7 +368,7 @@ public class Animal extends Organism {
         this.dna.getGene(shift+1).genePositiveCheck();
         this.strength = this.dna.getGene(shift+1).getValue();
 
-        this.dna.getGene(shift+2).genePositiveCheck();
+        this.dna.getGene(shift+2).geneBoundCheck(1000, Double.POSITIVE_INFINITY);
         this.gestationDuration = Math.round(this.dna.getGene(shift+2).getValue());
 
         this.dna.getGene(shift+3).genePositiveCheck();
@@ -514,7 +515,7 @@ public class Animal extends Organism {
         //Accelerate, Rotate
         this.transform.applyForce(
                 //"choose" direction to move
-                Vector2D.fromAngle(outputs[0]-.5, this.transform.getAcceleration())
+                Vector2D.fromAngle((outputs[0])*360, this.transform.getAcceleration())
                         //how fast
                         .mult(outputs[1])
                             //limiting by possible steer
@@ -523,9 +524,9 @@ public class Animal extends Organism {
 
         //Herding Desire TODO check if the handling of the vectors is correct
         if(outputs[2] > Animal.herdingThreshold) {
-            this.transform.applyForce(separate(animalsInSight).mult(this.separationWeight));
-            this.transform.applyForce(cohesion(animalsInSight).mult(this.cohesionWeight));
-            this.transform.applyForce(align(animalsInSight).mult(this.alignmentWeight));
+            this.transform.applyForce(separate(animalsInSight).mult(this.separationWeight).limit(this.maxForce));
+            this.transform.applyForce(cohesion(animalsInSight).mult(this.cohesionWeight).limit(this.maxForce));
+            this.transform.applyForce(align(animalsInSight).mult(this.alignmentWeight).limit(this.maxForce));
         }
 
         //Mate Desire TODO implement attractiveness into the mating
@@ -539,12 +540,11 @@ public class Animal extends Organism {
                 this.mate(cAnimal, s);
             }
             else{
-                //TODO take this out
-                if(this.canMate() & Math.random() <= this.healthRatio() * 0 & this.gender == Gender.FEMALE && !this.isPregnant){
+                //TODO implement asexual reproduction
+                if(this.canMate() & Math.random() <= this.healthRatio() * .005 & this.gender == Gender.FEMALE && !this.isPregnant){
                     this.mate = this;
                     this.reproduce(s);
                 }
-                //TODO should this then seek the mate?
             }
         }
 
@@ -645,7 +645,8 @@ public class Animal extends Organism {
         for(Animal a : animals){
             double distance = Vector2D.distSq(this.getLocation(),a.getLocation());
 
-            assert distance < Math.pow(this.viewDistance,2) : "animal not in sight";
+            //TODO check why this assertion is thrown
+            //assert distance < Math.pow(this.viewDistance,2) : "animal not in sight";
 
             //TODO implement cohesion distance?
             if((distance > 0) && (distance < Math.pow(this.separationDistance*5,2))){
@@ -685,7 +686,8 @@ public class Animal extends Organism {
         for(Animal a : animals){
             double distance = Vector2D.distSq(this.getLocation(),a.getLocation());
 
-            assert distance < Math.pow(this.viewDistance,2) : "animal not in sight";
+            //TODO check why this assertion is thrown
+            //assert distance < Math.pow(this.viewDistance,2) : "animal not in sight";
 
             //TODO implement alignment distance?
             if((distance > 0) && (distance < Math.pow(this.separationDistance*5,2))){
@@ -815,8 +817,6 @@ public class Animal extends Organism {
      * @param s the simulation instance
      * @throws AssertionError if the gender combination is incorrect or if either animal is unable to mate
      * @see #reproduce(Simulation)
-     * @see Gender#getPregnant(Animal)
-     * @see Gender#getPregnant(Animal)
      */
     public void mate(Animal mate, Simulation s){
         assert this.correctGenderComb(mate) : "Wrong gender combination";

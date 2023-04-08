@@ -70,7 +70,7 @@ public class SimulationGUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Set up simulation panel
-        World w =new World(2000,2000, 50, 50);
+        World w =new World(5000,5000, 50, 50);
         Simulation s = new Simulation(8000,2000,8000,
                 1000,2000,10,
                 2000,50,
@@ -337,9 +337,9 @@ public class SimulationGUI extends JFrame {
         //Slider for amount plants respawned
         JPanel plantRespawnAmountPanel = new JPanel(new BorderLayout());
         startingValue = 100;
-        JSlider plantRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 5000, startingValue);
-        plantRespawnAmountSlider.setMajorTickSpacing(1000);
-        plantRespawnAmountSlider.setMinorTickSpacing(250);
+        JSlider plantRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startingValue);
+        plantRespawnAmountSlider.setMajorTickSpacing(20);
+        plantRespawnAmountSlider.setMinorTickSpacing(10);
         plantRespawnAmountSlider.setPaintTicks(true);
         plantRespawnAmountSlider.setPaintTrack(true);
         JLabel plantRespawnAmountLabel = new JLabel("Respawned Plants at once: " + startingValue, JLabel.CENTER);
@@ -357,9 +357,9 @@ public class SimulationGUI extends JFrame {
         //Slider for amount animals spawned
         JPanel animalRespawnAmountPanel = new JPanel(new BorderLayout());
         startingValue = 10;
-        JSlider animalRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 500, startingValue);
-        animalRespawnAmountSlider.setMajorTickSpacing(100);
-        animalRespawnAmountSlider.setMinorTickSpacing(20);
+        JSlider animalRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startingValue);
+        animalRespawnAmountSlider.setMajorTickSpacing(20);
+        animalRespawnAmountSlider.setMinorTickSpacing(10);
         animalRespawnAmountSlider.setPaintTicks(true);
         animalRespawnAmountSlider.setPaintTrack(true);
         JLabel animalRespawnAmountLabel = new JLabel("Respawned Animals at once: " + startingValue, JLabel.CENTER);

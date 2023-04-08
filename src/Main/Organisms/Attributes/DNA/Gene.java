@@ -5,10 +5,12 @@ import Main.Helper.mutable;
 public class Gene implements mutable {
     private double value;
     private String name;
+    private GeneType geneType;
 
-    public Gene(double value, String name) {
+    public Gene(double value, String name, GeneType geneType) {
         this.value = value;
         this.name = name;
+        this.geneType = geneType;
     }
 
     @Override
@@ -24,8 +26,43 @@ public class Gene implements mutable {
     }
 
     @Override
-    public void percentageMutate(double mutationChance, double range){
-        this.rangedMutate(mutationChance, this.getValue() * range);
+    public void percentageMutate(double mutationChance, double percentage){
+        assert this.geneType != null : "Gene type not defined";
+        assert percentage >= 0 && percentage <= 1;
+
+        //TODO add this to the genetype enum
+        double range = 0;
+        //TODO rethink this
+        switch(geneType){
+            case COLOR:
+                range = percentage * 10;
+                break;
+            case TIME:
+                range = percentage * 500;
+                break;
+            case PROBABILITY:
+                range = percentage * .05;
+                break;
+            case DISTANCE:
+                range = percentage * 5;
+                break;
+            case BIGGER:
+                range = percentage * 1;
+                break;
+            case SMALLER:
+                range = percentage * .05;
+                break;
+            case OTHER:
+                range = percentage * .5;
+                break;
+            case ANGLE:
+                range = percentage * 5;
+                break;
+            default:
+                assert false : "Type of Gene not supported";
+        }
+        //assert range != 0;
+        this.rangedMutate(mutationChance, range);
     }
 
     @Override
