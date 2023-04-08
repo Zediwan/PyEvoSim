@@ -1,5 +1,6 @@
-package Main;
+package Main.World;
 
+import Main.GUI.SimulationGUI;
 import Main.Organisms.Animal;
 import Main.Organisms.Plant;
 

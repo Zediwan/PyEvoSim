@@ -1,4 +1,4 @@
-package Main;
+package Main.World;
 
 import Main.Helper.Vector2D;
 import Main.Organisms.Animal;
@@ -54,6 +54,7 @@ public class Simulation extends JPanel implements ActionListener {
     private int fps;
 
     public long startTime;
+    public Animal fittestAnimal;
 
     public Simulation(int stP, int stA,
                       int maxP, int minP, int maxA, int minA,
@@ -106,8 +107,15 @@ public class Simulation extends JPanel implements ActionListener {
 
         this.updatePlants(g);
         this.updateAnimals(g);
-
-        //this.animals.get((int)Math.random()*animals.size()).getNn().paint((Graphics2D) graphics,200,200);
+        if(!this.fittestAnimal.isDead()){
+            int offset = 10;
+            int x = (int)Math.round(this.fittestAnimal.getLocX() - this.fittestAnimal.getR() - offset);
+            int y = (int)Math.round(this.fittestAnimal.getLocY() - this.fittestAnimal.getR() - offset);
+            int s = (int)this.fittestAnimal.size() + (2*offset);
+            g.setColor(new Color(50,50,200,100));
+            g.fillOval(x,y,s,s);
+            g.setColor(Color.BLACK);
+        }
 
         if(this.paintAnimalQuadTree){
             g.setColor(Color.BLACK);
@@ -142,6 +150,8 @@ public class Simulation extends JPanel implements ActionListener {
             a.refreshColor();
             this.animals.add(a);
         }
+
+        this.fittestAnimal = this.animals.get(0);
     }
 
     //TODO: Test
@@ -292,6 +302,13 @@ public class Simulation extends JPanel implements ActionListener {
                 this.borders1(a);
 
                 this.world.updateAnimal(a);
+
+                //choose the fittest Animal and set the blueprint to it
+                if(this.fittestAnimal.getFitnessScore() < a.getFitnessScore()){
+                    System.out.println("Blueprint set:" + "\n" + "Old: " + this.fittestAnimal.getFitnessScore() + "\n" + "New: " + a.getFitnessScore());
+                    this.fittestAnimal = a;
+                    Animal.setBlueprint(this.fittestAnimal);
+                }
 
                 count++;
                 avgAge += a.getAge();

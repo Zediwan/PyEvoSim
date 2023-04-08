@@ -30,7 +30,7 @@ public class Gene implements mutable {
         assert this.geneType != null : "Gene type not defined";
         assert percentage >= 0 && percentage <= 1;
 
-        //TODO add this to the genetype enum
+        //TODO add this to the gene type enum
         double range = 0;
         //TODO rethink this
         switch(geneType){

@@ -3,8 +3,8 @@ package Main.Organisms;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
-import Main.Simulation;
-import Main.World;
+import Main.World.Simulation;
+import Main.World.World;
 
 import java.awt.*;
 

@@ -1,8 +1,10 @@
-package Main;
+package Main.Legacy;
 
 import Main.Helper.Vector2D;
 import Main.Organisms.Animal;
 import Main.Organisms.Organism;
+import Main.World.World;
+
 import java.util.ArrayList;
 
 public class Grid {

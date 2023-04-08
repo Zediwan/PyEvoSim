@@ -1,7 +1,9 @@
-package Main;
+package Main.GUI;
 
 import Main.Organisms.Animal;
 import Main.Organisms.Plant;
+import Main.World.Simulation;
+import Main.World.World;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,9 +60,9 @@ public class SimulationGUI extends JFrame {
     public static boolean showEnergy = false;
     public static boolean showAnimalQT = false;
     public static boolean showPlantQT = false;
-    public static boolean showSteering;
-    public static boolean showDirection;
-    public static boolean showSensoryRadius;
+    public static boolean showSteering = true;
+    public static boolean showDirection = true;
+    public static boolean showSensoryRadius = true;
 
     public SimulationGUI() {
         // Set up main frame
@@ -70,7 +72,7 @@ public class SimulationGUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Set up simulation panel
-        World w =new World(5000,5000, 50, 50);
+        World w =new World(1500,1500, 50, 50);
         Simulation s = new Simulation(8000,2000,8000,
                 1000,2000,10,
                 2000,50,
@@ -87,11 +89,18 @@ public class SimulationGUI extends JFrame {
                 simPanel.requestFocusInWindow();
             }
         });
+         */
 
-        this.simPanel.addKeyListener(new KeyAdapter() {
+        this.scrollPane = new JScrollPane(this.simPanel);
+
+        this.scrollPane.setPreferredSize(new Dimension(800, 600)); // Set initial viewport size
+        this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        //This is used to be able to pause when pressing enter and having focused the scroll panel
+        this.scrollPane.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 System.out.println("Test");
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     if(s.simulationIsRunning()){
                         s.stopSimulation();
                     }
@@ -101,14 +110,7 @@ public class SimulationGUI extends JFrame {
                 }
             }
         });
-         */
-
-        this.scrollPane = new JScrollPane(this.simPanel);
-
-        this.scrollPane.setPreferredSize(new Dimension(800, 600)); // Set initial viewport size
-        this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        this.scrollPane.setFocusable(false); // Set focusable to false
+        this.scrollPane.setFocusable(true); // Set focusable to false
 
         this.add(scrollPane, BorderLayout.CENTER);
 
@@ -336,7 +338,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for amount plants respawned
         JPanel plantRespawnAmountPanel = new JPanel(new BorderLayout());
-        startingValue = 100;
+        startingValue = 10;
         JSlider plantRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startingValue);
         plantRespawnAmountSlider.setMajorTickSpacing(20);
         plantRespawnAmountSlider.setMinorTickSpacing(10);
@@ -376,7 +378,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for maxAnimals
         this.maxAnimalsPanel = new JPanel(new BorderLayout());
-        startingValue = 20000;
+        startingValue = 3000;
         this.maxAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 100000, startingValue);
         this.maxAnimalsSlider.setMajorTickSpacing(25000);
         this.maxAnimalsSlider.setMinorTickSpacing(12500);
@@ -561,7 +563,32 @@ public class SimulationGUI extends JFrame {
             }
         });
         statRefreshTimer.start();
-        
+
+        /*
+        simPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int x = e.getX();
+                int y = e.getY();
+
+                s.getWorld().getAnimalQuadTree().query()
+
+                // Loop through all animals and check if the click position is within their bounds
+                for (Animal a : animals) {
+                    simPanel animalLocation = a.getLocation();
+                    double distance = Math.sqrt(Math.pow(x - animalLocation.getX(), 2) + Math.pow(y - animalLocation.getY(), 2));
+
+                    if (distance <= a.getSize()) {
+                        // Display animal information in a popup or separate panel
+                        String info = simulation.getAnimalInfo(a);
+                        displayAnimalInfo(info);
+                        break;
+                    }
+                }
+            }
+        });
+         */
+
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(this.showHealthCheckBox);
         this.animalSettingsPanel.add(this.showEnergyCheckBox);

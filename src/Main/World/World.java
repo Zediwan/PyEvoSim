@@ -1,4 +1,4 @@
-package Main;
+package Main.World;
 
 import Main.Organisms.Animal;
 import Main.Organisms.Plant;

@@ -5,7 +5,7 @@ import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
 import Main.Organisms.Attributes.DNA.GeneType;
-import Main.Simulation;
+import Main.World.Simulation;
 
 import java.awt.*;
 

@@ -7,9 +7,9 @@ import Main.Organisms.Attributes.DNA.DNA;
 import Main.Organisms.Attributes.DNA.Gene;
 import Main.Organisms.Attributes.DNA.GeneType;
 import Main.Organisms.Attributes.Gender;
-import Main.Simulation;
-import Main.SimulationGUI;
-import Main.World;
+import Main.World.Simulation;
+import Main.GUI.SimulationGUI;
+import Main.World.World;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -59,8 +59,8 @@ public class Animal extends Organism {
     public static double growthThreshold = .5;
     public static double healingThreshold = .5;
     public static double attackThreshold = .5;
-    public static double minHealthToReproduce = .5;
-    public static double minMaturityToReproduce = 1;
+    public static double minHealthToReproduce = .4;
+    public static double minMaturityToReproduce = .5;
     public static double reproductiveUrgeFactor = 50;
     public static double damageFactor = 5;
     public static double healingFactor = 2;
@@ -327,6 +327,14 @@ public class Animal extends Organism {
         return Animal.blueprint;
     }
 
+    /**
+     * sets the new blueprint
+     * @param blueprint that should from now on be used
+     */
+    public static void setBlueprint(Animal blueprint){
+        Animal.blueprint = blueprint;
+    }
+
 
     /**
      * Expresses the genes of the animal, retrieving and setting values for the different DNA genes.
@@ -507,7 +515,7 @@ public class Animal extends Organism {
 
 
                 //clkTic: Internal timer (1s on, 1s off (actual period decided by genes))
-                //clkMinut: kind of like a chronometer, counts time, gets reset by an output neuron
+                //clkMinute: kind of like a chronometer, counts time, gets reset by an output neuron
         };
 
         double[] outputs = this.nn.predict(inputs);
@@ -865,6 +873,9 @@ public class Animal extends Organism {
         s.addAnimal(child);
 
         Animal.aniBornCount++;
+        if(this != this.mate){
+            this.mate.offspringBirthed++;
+        }
         this.offspringBirthed++;
         this.mate = null;
         this.isPregnant = false;
@@ -1025,6 +1036,11 @@ public class Animal extends Organism {
      */
     public Ellipse2D getSensoryRadius(){
         return new Ellipse2D.Double(this.getLocX() - this.getR() - this.viewDistance/2, this.getLocY() - this.getR() - this.viewDistance/2, this.size() + this.viewDistance, this.size() + this.viewDistance);
+    }
+
+    //TODO think about a good function
+    public double getFitnessScore(){
+        return ( 1 * Math.pow(this.offspringBirthed,2)) + this.maturity * 1;
     }
 
     //------------------------------------------------Getter and Setter------------------------------------------------
