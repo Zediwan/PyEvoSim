@@ -107,6 +107,7 @@ public class Simulation extends JPanel implements ActionListener {
 
         this.updatePlants(g);
         this.updateAnimals(g);
+
         if(!this.fittestAnimal.isDead()){
             int offset = 10;
             int x = (int)Math.round(this.fittestAnimal.getLocX() - this.fittestAnimal.getR() - offset);
@@ -115,6 +116,27 @@ public class Simulation extends JPanel implements ActionListener {
             g.setColor(new Color(50,50,200,100));
             g.fillOval(x,y,s,s);
             g.setColor(Color.BLACK);
+
+            /*
+            Focusing on fittest animal:
+
+            // Get the scroll pane's viewport
+            JViewport viewport = SimulationGUI.scrollPane.getViewport();
+
+            // Get the size of the viewport
+            int width = viewport.getWidth();
+            int height = viewport.getHeight();
+
+            // Get the position of the fittest animal on the screen
+            Point animalPos = this.fittestAnimal.getScreenPosition();
+
+            // Calculate the new position for the viewport
+            x = animalPos.x - (width / 2);
+            y = animalPos.y - (height / 2);
+
+            // Set the position of the viewport
+            viewport.setViewPosition(new Point(x, y));
+             */
         }
 
         if(this.paintAnimalQuadTree){

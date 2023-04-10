@@ -1,5 +1,6 @@
 package Main.Organisms;
 
+import Main.GUI.SimulationGUI;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.NeuralNetwork.NeuralNetwork;
@@ -8,10 +9,10 @@ import Main.Organisms.Attributes.DNA.Gene;
 import Main.Organisms.Attributes.DNA.GeneType;
 import Main.Organisms.Attributes.Gender;
 import Main.World.Simulation;
-import Main.GUI.SimulationGUI;
 import Main.World.World;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -1043,6 +1044,21 @@ public class Animal extends Organism {
         return ( 1 * Math.pow(this.offspringBirthed,2)) + this.maturity * 1;
     }
 
+    /**
+     * Returns the on-screen position of the animal based on its current location and the position of the scroll pane's viewport.
+     *
+     * @return a Point object representing the on-screen position of the animal
+     */
+    public Point getScreenPosition() {
+        // calculate the animal's position on the screen
+        // based on its current position and the position
+        // of the viewport in the scroll pane
+        int x = (int)(this.getLocX() - SimulationGUI.scrollPane.getViewport().getViewPosition().getX());
+        int y = (int)(this.getLocY() - SimulationGUI.scrollPane.getViewport().getViewPosition().getY());
+        return new Point(x, y);
+    }
+
+
     //------------------------------------------------Getter and Setter------------------------------------------------
 
     public Gender getGender() {
@@ -1240,13 +1256,23 @@ public class Animal extends Organism {
     @Override
     public void paint(Graphics2D g) {
         super.paint(g);
-        g.fill(this.transform.getRectangle());
+        AffineTransform old = g.getTransform(); //save transform to reset later
 
-        //specially mark females
+        //set the center of the graphics to this center
+        g.translate(this.getLocX(), this.getLocY());
+        double rotation = Vector2D.angleBetween(this.transform.getVelocity(), new Vector2D(1,0));
+        g.rotate(rotation,0,0);
+
+        //TODO refactor to the transform class
+        int r = (int)Math.round(this.getR());
+        Rectangle rect = new Rectangle(-r,-r,r*2,r*2);
+        g.fill(rect);
+
+         //specially mark females
         if(this.gender == Gender.FEMALE){
             int offset = 2;
-            int x = (int)Math.round(this.getLocX() - this.getR() - offset);
-            int y = (int)Math.round(this.getLocY() - this.getR() - offset);
+            int x = (int)Math.round(-this.getR() -offset);
+            int y = (int)Math.round(-this.getR() -offset);
             int s = (int)this.size() + (2*offset);
 
             //if pregnant fill the oval
@@ -1276,28 +1302,51 @@ public class Animal extends Organism {
             else{
                 g.setColor(new Color(200,200,200,30));
             }
-            g.fill(this.getSensoryRadius());
+
+            //TODO refactor to transform
+            g.fill(new Ellipse2D.Double(-this.getR() - this.viewDistance/2, -this.getR() - this.viewDistance/2,
+                    this.size() + this.viewDistance, this.size() + this.viewDistance));
         }
 
         if(SimulationGUI.showDirection){
             g.setColor(Color.BLACK);
-            this.transform.paintVelocity(g);
+
+            //TODO rework
+            //Vector2D rotatedDirection = Vector2D.fromAngle(-rotation, this.transform.getVelocity()).mult(10);
+            Vector2D rotatedDirection = new Vector2D(1,0).setMag(this.transform.getVelocity().magSq()).mult(50);
+
+            g.drawLine(
+                    0, 0,
+                    rotatedDirection.getRoundedX(),
+                    rotatedDirection.getRoundedY()
+            );
         }
 
         if(SimulationGUI.showSteering){
             g.setColor(Color.lightGray);
-            this.transform.paintAcceleration(g);
+
+            //TODO rework
+            //Vector2D rotatedAcceleration = Vector2D.fromAngle(-rotation, this.transform.getAcceleration()).mult(10);
+            Vector2D rotatedAcceleration = new Vector2D(1,0).setMag(this.transform.getAcceleration().magSq()).mult(10);
+
+            g.drawLine(
+                    0, 0,
+                    rotatedAcceleration.getRoundedX(),
+                    rotatedAcceleration.getRoundedY()
+            );
         }
 
         if(SimulationGUI.showHealth){
             g.setColor(this.color.darker());
-            g.drawString(String.format("%1$,.1f", this.health), (int)this.getLocX(), (int)this.getLocY());
+            g.drawString(String.format("%1$,.1f", this.health), 0, 0);
         }
         if(SimulationGUI.showEnergy){
             g.setColor(this.color.brighter());
-            g.drawString(String.format("%1$,.1f", this.energy), (int)this.getLocX(), (int)this.getLocY()+10);
+            g.drawString(String.format("%1$,.1f", this.energy), 0, 0);
         }
         //g.drawString(String.format("%.2f", this.healthRatio()), (int)this.getLocX(), (int)this.getLocY());
+
+        g.setTransform(old); //Reset Transform
     }
 
     //------------------------------------------------invariant--------------------------------------------------------

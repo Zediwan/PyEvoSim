@@ -196,6 +196,7 @@ public class Transform {
      * <p>The center is half the size added in x and y direction</p>
      * @return a Vector2D representing the center location of this
      * @see #getR()
+     * TODO maybe deprecated???
      */
     public Vector2D getCenter(){
         return Vector2D.add(this.location, new Vector2D(this.getR(), this.getR()));

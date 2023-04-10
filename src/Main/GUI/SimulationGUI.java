@@ -6,14 +6,15 @@ import Main.World.Simulation;
 import Main.World.World;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
 public class SimulationGUI extends JFrame {
     private JPanel simPanel;
-    private JScrollPane scrollPane;
+    public static JScrollPane scrollPane;
     private JPanel graphPanel;
-
     private JSplitPane controlPane;
 
     private JTabbedPane settingsPane;
@@ -63,6 +64,10 @@ public class SimulationGUI extends JFrame {
     public static boolean showSteering = true;
     public static boolean showDirection = true;
     public static boolean showSensoryRadius = true;
+    public static int viewportWidth;
+    public static int viewportHeight;
+    public static double scrollOffsetX;
+    public static double scrollOffsetY;
 
     public SimulationGUI() {
         // Set up main frame
@@ -80,22 +85,11 @@ public class SimulationGUI extends JFrame {
         this.simPanel = s;
         this.simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
         this.simPanel.setFocusable(true);
-        //TODO pausing
-        /*
-        this.simPanel.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) {
-                System.out.println("Test");
-                // Set the focus back to the panel
-                simPanel.requestFocusInWindow();
-            }
-        });
-         */
-
         this.scrollPane = new JScrollPane(this.simPanel);
-
         this.scrollPane.setPreferredSize(new Dimension(800, 600)); // Set initial viewport size
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
         //This is used to be able to pause when pressing enter and having focused the scroll panel
         this.scrollPane.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -110,6 +104,24 @@ public class SimulationGUI extends JFrame {
                 }
             }
         });
+
+        scrollPane.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent e) {
+                // update the viewport size when the scroll pane is resized
+                viewportWidth = scrollPane.getViewport().getWidth();
+                viewportHeight = scrollPane.getViewport().getHeight();
+            }
+        });
+
+        scrollPane.getViewport().addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                // update the scroll offset when the viewport position changes
+                scrollOffsetX = scrollPane.getViewport().getViewPosition().getX();
+                scrollOffsetY = scrollPane.getViewport().getViewPosition().getY();
+            }
+        });
+
+
         this.scrollPane.setFocusable(true); // Set focusable to false
 
         this.add(scrollPane, BorderLayout.CENTER);
