@@ -1253,6 +1253,7 @@ public class Animal extends Organism {
 
     //------------------------------------------------toString and paint-----------------------------------------------
 
+    //TODO needs rework
     @Override
     public void paint(Graphics2D g) {
         super.paint(g);
