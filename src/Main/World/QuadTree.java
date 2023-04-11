@@ -104,32 +104,6 @@ public abstract class QuadTree {
                             this.southeast.insert(a) ||
                             this.southwest.insert(a)
             );
-
-            /*
-if(this.plants.size() < this.capacity){
-                this.plants.add(p);
-                return true;
-            }
-            else{
-                if(!this.isDivided){
-                    this.subdivide();
-                }
-
-                if(this.northwest.insert(p)){
-                    return true;
-                }
-                else if(this.northeast.insert(p)){
-                    return true;
-                }
-                else if(this.southwest.insert(p)){
-                    return true;
-                }
-                else if(this.southeast.insert(p)){
-                    return true;
-                }
-            }
-            return false;
-             */
         }
 
         private void subdivide() {
@@ -161,6 +135,11 @@ if(this.plants.size() < this.capacity){
             this.animals.clear();
         }
 
+        /**
+         * @deprecated since 11.04.2023 use {@link QuadTree.Animals#query(Shape)} instead
+         * @param a
+         * @return
+         */
         public ArrayList<Animal> query(Animal a){
             ArrayList<Animal> found = new ArrayList<>();
             Ellipse2D rangeArea = a.getSensoryRadius();
@@ -188,6 +167,12 @@ if(this.plants.size() < this.capacity){
             return found;
         }
 
+        /**
+         * @deprecated since 11.04.2023 use {@link QuadTree.Animals#query(Shape, ArrayList)} instead
+         * @param a
+         * @param found
+         * @return
+         */
         public ArrayList<Animal> query(Animal a, ArrayList<Animal> found){
             Ellipse2D rangeArea = a.getSensoryRadius();
 
@@ -207,6 +192,67 @@ if(this.plants.size() < this.capacity){
             for(Animal ani : this.animals){
                 //check if the organism is in the area
                 if(rangeArea.contains(ani.getLocation().toPoint())){
+                    found.add(ani);
+                }
+            }
+
+            return found;
+        }
+
+        /**
+         * @param s
+         * @return
+         * @since 11.04.2023
+         */
+        public ArrayList<Animal> query(Shape s){
+            ArrayList<Animal> found = new ArrayList<>();
+
+            //if they don't intersect return an empty array
+            if(!s.intersects(this.boundary)){
+                return found;
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(s, found);
+                this.northeast.query(s, found);
+                this.southwest.query(s, found);
+                this.southeast.query(s, found);
+            }
+
+            for(Animal ani : this.animals){
+                //check if the organism is in the area
+                if(s.contains(ani.getLocation().toPoint())){
+                    found.add(ani);
+                }
+            }
+
+            return found;
+        }
+
+        /**
+         * @param s
+         * @param found
+         * @return
+         * @since 11.04.2023
+         */
+        public ArrayList<Animal> query(Shape s, ArrayList<Animal> found){
+            //if they don't intersect return an empty array
+            if(!s.intersects(this.boundary)){
+                return found;
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(s, found);
+                this.northeast.query(s, found);
+                this.southwest.query(s, found);
+                this.southeast.query(s, found);
+            }
+
+            for(Animal ani : this.animals){
+                //check if the organism is in the area
+                if(s.contains(ani.getLocation().toPoint())){
                     found.add(ani);
                 }
             }
@@ -345,6 +391,11 @@ if(this.plants.size() < this.capacity){
             this.plants.clear();
         }
 
+        /**
+         * @deprecated since 11.04.2023 use {@link QuadTree.Plants#query(Shape)} instead
+         * @param a
+         * @return
+         */
         public ArrayList<Plant> query(Animal a){
             ArrayList<Plant> found = new ArrayList<>();
             Ellipse2D rangeArea = a.getSensoryRadius();
@@ -372,6 +423,12 @@ if(this.plants.size() < this.capacity){
             return found;
         }
 
+        /**
+         * @deprecated since 11.04.2023 use {@link QuadTree.Plants#query(Shape, ArrayList)} instead
+         * @param a
+         * @param found
+         * @return
+         */
         public ArrayList<Plant> query(Animal a, ArrayList<Plant> found){
             Ellipse2D rangeArea = a.getSensoryRadius();
 
@@ -392,6 +449,67 @@ if(this.plants.size() < this.capacity){
                 //check if the organism is in the area
                 if(rangeArea.contains(p.getLocation().toPoint())){
                     found.add(p);
+                }
+            }
+
+            return found;
+        }
+
+        /**
+         * @param s
+         * @return
+         * @since 11.04.2023
+         */
+        public ArrayList<Plant> query(Shape s){
+            ArrayList<Plant> found = new ArrayList<>();
+
+            //if they don't intersect return an empty array
+            if(!s.intersects(this.boundary)){
+                return found;
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(s, found);
+                this.northeast.query(s, found);
+                this.southwest.query(s, found);
+                this.southeast.query(s, found);
+            }
+
+            for(Plant pla : this.plants){
+                //check if the organism is in the area
+                if(s.contains(pla.getLocation().toPoint())){
+                    found.add(pla);
+                }
+            }
+
+            return found;
+        }
+
+        /**
+         * @param s
+         * @param found
+         * @return
+         * @since 11.04.2023
+         */
+        public ArrayList<Plant> query(Shape s, ArrayList<Plant> found){
+            //if they don't intersect return an empty array
+            if(!s.intersects(this.boundary)){
+                return found;
+            }
+
+            //check for all subdivisions if divided
+            if(this.isDivided){
+                this.northwest.query(s, found);
+                this.northeast.query(s, found);
+                this.southwest.query(s, found);
+                this.southeast.query(s, found);
+            }
+
+            for(Plant plant : this.plants){
+                //check if the organism is in the area
+                if(s.contains(plant.getLocation().toPoint())){
+                    found.add(plant);
                 }
             }
 

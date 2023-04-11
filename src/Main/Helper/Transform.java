@@ -234,7 +234,7 @@ public class Transform {
      *
      * @return a Rectangle2D.Double object centered around the object's location.
      */
-    public Rectangle2D.Double getCenteredRectangle(){
+    public Rectangle2D.Double getTranslatedRectangle(){
         double r = this.getR();
         return new Rectangle2D.Double(-r,-r,r*2,r*2);
     }

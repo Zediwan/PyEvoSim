@@ -460,8 +460,10 @@ public class Animal extends Organism {
         World w = s.getWorld();
 
         //get animals and plants in sight
-        ArrayList<Animal> animalsInSight = w.getAnimalQuadTree().query(this);
-        ArrayList<Plant> plantsInSight = w.getPlantQuadTree().query(this);
+        //ArrayList<Animal> animalsInSight = w.getAnimalQuadTree().query(this);
+        ArrayList<Animal> animalsInSight = w.getAnimalQuadTree().query(this.getFieldOfView());
+        //ArrayList<Plant> plantsInSight = w.getPlantQuadTree().query(this);
+        ArrayList<Plant> plantsInSight = w.getPlantQuadTree().query(this.getFieldOfView());
 
         //search the closest entity of each
         Plant cPlant = this.searchClosestPlant(plantsInSight);
@@ -750,7 +752,7 @@ public class Animal extends Organism {
      * @throws AssertionError If the chosen mate is not of the correct gender combination or the animal tries to mate with itself.
      */
     public Animal searchClosestMate(World w){
-        ArrayList<Animal> animals = w.getAnimalQuadTree().query(this);
+        ArrayList<Animal> animals = w.getAnimalQuadTree().query(this.getFieldOfView());
 
         Animal chosenMate = null;
         double mostAttractive = Double.NEGATIVE_INFINITY;
@@ -941,7 +943,7 @@ public class Animal extends Organism {
     }
 
     public Plant searchClosestPlant(World w){
-        return this.searchClosestPlant(w.getPlantQuadTree().query(this));
+        return this.searchClosestPlant(w.getPlantQuadTree().query(this.getFieldOfView()));
     }
 
     /**
@@ -971,7 +973,7 @@ public class Animal extends Organism {
     }
 
     public Animal searchClosestAnimal(World w){
-        return this.searchClosestAnimal(w.getAnimalQuadTree().query(this));
+        return this.searchClosestAnimal(w.getAnimalQuadTree().query(this.getFieldOfView()));
     }
 
     /**
@@ -1041,15 +1043,29 @@ public class Animal extends Organism {
     }
 
     /**
-     * this returns the field of view of an animal in relation to its view distance and view angle
-     * note that this requires the painting canvas center to be at the center of the animal,
-     * @return the field of View of the animal with the animals center as the center point of drawing
+     * Returns an Arc2D.Double object representing the translated field of view of the animal.
+     * The arc is created with the current location of the animal as its center.
+     *
+     * @return Arc2D.Double object representing the translated field of view of the animal.
      * TODO add this as the new search shape for the quadTree
      * TODO extend documentation maybe add pre conditions
      */
-    public Arc2D.Double getFieldOfView(){
+    public Arc2D.Double getTranslatedFieldOfView(){
         return new Arc2D.Double(
                 -this.viewDistance/2, -this.viewDistance/2,
+                this.viewDistance, this.viewDistance,
+                -this.viewAngle, 2*this.viewAngle, Arc2D.PIE);
+    }
+
+    /**
+     * Returns an Arc2D.Double object representing the field of view of the animal.
+     *
+     * @return Arc2D.Double object representing the field of view of the animal.
+     * @since 11.04.2023
+     */
+    public Arc2D.Double getFieldOfView(){
+        return new Arc2D.Double(
+                this.getLocX()-this.viewDistance/2, this.getLocY()-this.viewDistance/2,
                 this.viewDistance, this.viewDistance,
                 -this.viewAngle, 2*this.viewAngle, Arc2D.PIE);
     }
@@ -1080,6 +1096,7 @@ public class Animal extends Organism {
      * and then rotates the graphics context based on the rotation angle of the object's transform.
      *
      * @param g the graphics context to be translated and rotated
+     * @since 11.04.2023
      */
     @Override
     protected void translateGraphics(Graphics2D g) {
@@ -1290,36 +1307,11 @@ public class Animal extends Organism {
         this.translateGraphics(g);  //set the center of the graphics to this center
 
         //TODO rework so this works with the animals shape via getCenteredShape and getShape
-        g.fill(this.transform.getCenteredRectangle());  //paint the shape
+        g.fill(this.transform.getTranslatedRectangle());  //paint the shape
 
-        this.markFemale(g); //mark if female (and if pregnant)
+        this.paintFemale(g); //mark if female (and if pregnant)
 
-        //TODO refactor this into the lower if part when it is properly implemented
-        g.setColor(new Color(0,0,0,50));
-        g.fill(this.getFieldOfView());
-
-        //show the sensory radius
-        if(SimulationGUI.showSensoryRadius){
-            //paint red if this is pregnant
-            if(this.isPregnant){
-                g.setColor(new Color(200,0,0,100));
-            }
-            //paint green if this can mate
-            else if(this.canMate()){
-                g.setColor(new Color(0,200,0,100));
-            }
-            //paint yellow if this is mature
-            else if(this.maturity >= 1){
-                g.setColor(new Color(200,200,0,100));
-            }
-            else{
-                g.setColor(new Color(200,200,200,30));
-            }
-
-            //TODO refactor to transform
-            g.fill(new Ellipse2D.Double(-this.getR() - this.viewDistance/2, -this.getR() - this.viewDistance/2,
-                    this.size() + this.viewDistance, this.size() + this.viewDistance));
-        }
+        this.paintFieldOfView(g); //paint the field of view
 
         if(SimulationGUI.showDirection){
             g.setColor(Color.BLACK);
@@ -1364,12 +1356,45 @@ public class Animal extends Organism {
     }
 
     /**
+     * Paints the field of view of the animal.
+     * If SimulationGUI.showSensoryRadius is true, the sensory radius of the animal is shown.
+     * The color of the field of view depends on the status of the animal:
+     * red if it is pregnant, green if it can mate, yellow if it is mature, and gray if it is immature.
+     *
+     * @param g the Graphics2D object used for painting
+     * @since 11.04.2023
+     */
+    private void paintFieldOfView(Graphics2D g) {
+        //show the sensory radius
+        if(SimulationGUI.showSensoryRadius){
+            //paint red if this is pregnant
+            if(this.isPregnant){
+                g.setColor(new Color(200,0,0,100));
+            }
+            //paint green if this can mate
+            else if(this.canMate()){
+                g.setColor(new Color(0,200,0,100));
+            }
+            //paint yellow if this is mature
+            else if(this.maturity >= 1){
+                g.setColor(new Color(200,200,0,100));
+            }
+            else{
+                g.setColor(new Color(200,200,200,30));
+            }
+
+            g.fill(this.getTranslatedFieldOfView());
+        }
+    }
+
+    /**
      * Marks the female animal with a circle or filled oval, depending on whether it is pregnant or not.
      * The circle/oval is drawn around the animal's location.
      *
      * @param g The graphics object on which to draw the mark
+     * @since 11.04.2023
      */
-    private void markFemale(Graphics2D g) {
+    private void paintFemale(Graphics2D g) {
         //specially mark females
         if(this.gender == Gender.FEMALE){
             int offset = 2;
