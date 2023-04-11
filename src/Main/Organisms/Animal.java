@@ -13,6 +13,7 @@ import Main.World.World;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -1039,7 +1040,22 @@ public class Animal extends Organism {
         return new Ellipse2D.Double(this.getLocX() - this.getR() - this.viewDistance/2, this.getLocY() - this.getR() - this.viewDistance/2, this.size() + this.viewDistance, this.size() + this.viewDistance);
     }
 
+    /**
+     * this returns the field of view of an animal in relation to its view distance and view angle
+     * note that this requires the painting canvas center to be at the center of the animal,
+     * @return the field of View of the animal with the animals center as the center point of drawing
+     * TODO add this as the new search shape for the quadTree
+     * TODO extend documentation maybe add pre conditions
+     */
+    public Arc2D.Double getFieldOfView(){
+        return new Arc2D.Double(
+                -this.viewDistance/2, -this.viewDistance/2,
+                this.viewDistance, this.viewDistance,
+                -this.viewAngle, 2*this.viewAngle, Arc2D.PIE);
+    }
+
     //TODO think about a good function
+    //TODO write documentation with examples and maybe a link to a visual drawing of the function
     public double getFitnessScore(){
         return ( 1 * Math.pow(this.offspringBirthed,2)) + this.maturity * 1;
     }
@@ -1253,7 +1269,7 @@ public class Animal extends Organism {
 
     //------------------------------------------------toString and paint-----------------------------------------------
 
-    //TODO needs rework
+    //TODO needs rework, think about unnecessary multiple calculation
     @Override
     public void paint(Graphics2D g) {
         super.paint(g);
@@ -1261,6 +1277,7 @@ public class Animal extends Organism {
 
         //set the center of the graphics to this center
         g.translate(this.getLocX(), this.getLocY());
+        //TODO refactor to Transform
         double rotation = Vector2D.angleBetween(this.transform.getVelocity(), new Vector2D(1,0));
         g.rotate(rotation,0,0);
 
@@ -1285,6 +1302,10 @@ public class Animal extends Organism {
                 g.drawOval(x,y,s,s);
             }
         }
+
+        //TODO refactor this into the lower if part when it is properly implemented
+        g.setColor(new Color(0,0,0,50));
+        g.fill(this.getFieldOfView());
 
         //show the sensory radius
         if(SimulationGUI.showSensoryRadius){
@@ -1312,7 +1333,7 @@ public class Animal extends Organism {
         if(SimulationGUI.showDirection){
             g.setColor(Color.BLACK);
 
-            //TODO rework
+            //TODO rework, maybe add a Setting variable or map the acceleration to a certain distance making it understandable
             //Vector2D rotatedDirection = Vector2D.fromAngle(-rotation, this.transform.getVelocity()).mult(10);
             Vector2D rotatedDirection = new Vector2D(1,0).setMag(this.transform.getVelocity().magSq()).mult(50);
 
@@ -1326,7 +1347,7 @@ public class Animal extends Organism {
         if(SimulationGUI.showSteering){
             g.setColor(Color.lightGray);
 
-            //TODO rework
+            //TODO rework, maybe add a Setting variable or map the acceleration to a certain distance making it understandable
             //Vector2D rotatedAcceleration = Vector2D.fromAngle(-rotation, this.transform.getAcceleration()).mult(10);
             Vector2D rotatedAcceleration = new Vector2D(1,0).setMag(this.transform.getAcceleration().magSq()).mult(10);
 
@@ -1337,6 +1358,7 @@ public class Animal extends Organism {
             );
         }
 
+        //TODO maybe add a stat box following an Animal
         if(SimulationGUI.showHealth){
             g.setColor(this.color.darker());
             g.drawString(String.format("%1$,.1f", this.health), 0, 0);
