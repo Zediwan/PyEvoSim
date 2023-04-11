@@ -229,6 +229,17 @@ public class Transform {
     }
 
     /**
+     * Returns a Rectangle2D.Double object that is centered around the object's location.
+     * The rectangle's width and height are twice the object's radius.
+     *
+     * @return a Rectangle2D.Double object centered around the object's location.
+     */
+    public Rectangle2D.Double getCenteredRectangle(){
+        double r = this.getR();
+        return new Rectangle2D.Double(-r,-r,r*2,r*2);
+    }
+
+    /**
      * Returns the rotation of the object in radians, based on its velocity vector and the positive X-axis.
      *
      * @return the rotation of the object in radians

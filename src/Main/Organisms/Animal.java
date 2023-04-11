@@ -1087,7 +1087,6 @@ public class Animal extends Organism {
         g.rotate(this.transform.getRotation(),0,0);
     }
 
-
     //------------------------------------------------Getter and Setter------------------------------------------------
 
     public Gender getGender() {
@@ -1290,27 +1289,10 @@ public class Animal extends Organism {
 
         this.translateGraphics(g);  //set the center of the graphics to this center
 
-        //TODO refactor to the transform class
-        int r = (int)Math.round(this.getR());
-        Rectangle rect = new Rectangle(-r,-r,r*2,r*2);
-        g.fill(rect);
+        //TODO rework so this works with the animals shape via getCenteredShape and getShape
+        g.fill(this.transform.getCenteredRectangle());  //paint the shape
 
-         //specially mark females
-        if(this.gender == Gender.FEMALE){
-            int offset = 2;
-            int x = (int)Math.round(-this.getR() -offset);
-            int y = (int)Math.round(-this.getR() -offset);
-            int s = (int)this.size() + (2*offset);
-
-            //if pregnant fill the oval
-            if(this.isPregnant){
-                g.fillOval(x,y,s,s);
-            }
-            //otherwise, just a circle surrounding the animal
-            else{
-                g.drawOval(x,y,s,s);
-            }
-        }
+        this.markFemale(g); //mark if female (and if pregnant)
 
         //TODO refactor this into the lower if part when it is properly implemented
         g.setColor(new Color(0,0,0,50));
@@ -1379,6 +1361,31 @@ public class Animal extends Organism {
         //g.drawString(String.format("%.2f", this.healthRatio()), (int)this.getLocX(), (int)this.getLocY());
 
         g.setTransform(old); //Reset Transform
+    }
+
+    /**
+     * Marks the female animal with a circle or filled oval, depending on whether it is pregnant or not.
+     * The circle/oval is drawn around the animal's location.
+     *
+     * @param g The graphics object on which to draw the mark
+     */
+    private void markFemale(Graphics2D g) {
+        //specially mark females
+        if(this.gender == Gender.FEMALE){
+            int offset = 2;
+            int x = (int)Math.round(-this.getR() -offset);
+            int y = (int)Math.round(-this.getR() -offset);
+            int s = (int)this.size() + (2*offset);
+
+            //if pregnant fill the oval
+            if(this.isPregnant){
+                g.fillOval(x,y,s,s);
+            }
+            //otherwise, just a circle surrounding the animal
+            else{
+                g.drawOval(x,y,s,s);
+            }
+        }
     }
 
     //------------------------------------------------invariant--------------------------------------------------------
