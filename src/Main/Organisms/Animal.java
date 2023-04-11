@@ -1074,6 +1074,19 @@ public class Animal extends Organism {
         return new Point(x, y);
     }
 
+    /**
+     * Overrides the parent method to add rotation to the graphics context.
+     * It first calls the parent method to translate the graphics to the location of the object,
+     * and then rotates the graphics context based on the rotation angle of the object's transform.
+     *
+     * @param g the graphics context to be translated and rotated
+     */
+    @Override
+    protected void translateGraphics(Graphics2D g) {
+        super.translateGraphics(g);
+        g.rotate(this.transform.getRotation(),0,0);
+    }
+
 
     //------------------------------------------------Getter and Setter------------------------------------------------
 
@@ -1275,11 +1288,7 @@ public class Animal extends Organism {
         super.paint(g);
         AffineTransform old = g.getTransform(); //save transform to reset later
 
-        //set the center of the graphics to this center
-        g.translate(this.getLocX(), this.getLocY());
-        //TODO refactor to Transform
-        double rotation = Vector2D.angleBetween(this.transform.getVelocity(), new Vector2D(1,0));
-        g.rotate(rotation,0,0);
+        this.translateGraphics(g);  //set the center of the graphics to this center
 
         //TODO refactor to the transform class
         int r = (int)Math.round(this.getR());

@@ -228,6 +228,15 @@ public class Transform {
         return rec;
     }
 
+    /**
+     * Returns the rotation of the object in radians, based on its velocity vector and the positive X-axis.
+     *
+     * @return the rotation of the object in radians
+    */
+    public double getRotation(){
+        return Vector2D.angleBetween(this.velocity, new Vector2D(1,0));
+    }
+
     //------------------------------------------------Getter and Setter------------------------------------------------
 
     /**

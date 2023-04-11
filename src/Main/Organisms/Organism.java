@@ -338,6 +338,15 @@ public abstract class Organism {
         return this.growthScaleFactor/(1+this.growthMaturityFactor*Math.pow(this.maturity,this.growthMaturityExponent));
     }
 
+    /**
+     * Translates the graphics context to the location of this object.
+     *
+     * @param g the graphics context to be translated
+     */
+    protected void translateGraphics(Graphics2D g) {
+        g.translate(this.getLocX(), this.getLocY());
+    }
+
     //------------------------------------------------Getter and Setter------------------------------------------------
 
     public boolean isDead(){
