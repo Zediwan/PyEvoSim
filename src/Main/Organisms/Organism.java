@@ -1,5 +1,6 @@
 package Main.Organisms;
 
+import Main.GUI.SimulationGUI;
 import Main.Helper.Transform;
 import Main.Helper.Vector2D;
 import Main.Organisms.Attributes.DNA.DNA;
@@ -677,4 +678,33 @@ public abstract class Organism {
     public void paint(Graphics2D g){
         g.setColor(this.color);
     }
+
+    /**
+     * Paints the health and energy statistics of the animal, if enabled by the {@link SimulationGUI} settings.
+     *
+     * @param g the graphics context to use for painting
+     * @since 12.04.2023
+     * TODO progress bars
+     * TODO box that forms next to the organism
+     */
+    protected void paintStats(Graphics2D g) {
+        // Paint the health statistic
+        if (SimulationGUI.showHealth) {
+            // Set the color to a darker version of the animal's color
+            g.setColor(this.color.darker());
+
+            // Draw the health value as a string at the animal's location
+            g.drawString(String.format("%1$,.1f", this.health), this.getLocation().getRoundedX(), this.getLocation().getRoundedY());
+        }
+
+        // Paint the energy statistic
+        if (SimulationGUI.showEnergy) {
+            // Set the color to a brighter version of the animal's color
+            g.setColor(this.color.brighter());
+
+            // Draw the energy value as a string above the animal's location
+            g.drawString(String.format("%1$,.1f", this.energy), this.getLocation().getRoundedX(), this.getLocation().getRoundedY() - 10);
+        }
+    }
+
 }

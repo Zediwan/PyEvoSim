@@ -1320,36 +1320,18 @@ public class Animal extends Organism {
 
         g.setTransform(old); //Reset Transform
 
-        this.paintStats(g); //paint this stats
+        this.paintStats(g); //paint stats
     }
 
     /**
-     * Paints the statistics of the animal onto the graphics context.
+     * Paints any statistics that should be displayed for this animal onto the graphics context.
      *
      * @param g the graphics context to paint onto
      * @since 12.04.2023
-     * TODO refactor parts to organism
-     * TODO maybe add a stat box following an Animal
-     * TODO paint progress bars
      */
-    private void paintStats(Graphics2D g) {
-        // Paint the health statistic
-        if (SimulationGUI.showHealth) {
-            // Set the color to a darker version of the animal's color
-            g.setColor(this.color.darker());
-
-            // Draw the health value as a string at the animal's location
-            g.drawString(String.format("%1$,.1f", this.health), this.getLocation().getRoundedX(), this.getLocation().getRoundedY());
-        }
-
-        // Paint the energy statistic
-        if (SimulationGUI.showEnergy) {
-            // Set the color to a brighter version of the animal's color
-            g.setColor(this.color.brighter());
-
-            // Draw the energy value as a string above the animal's location
-            g.drawString(String.format("%1$,.1f", this.energy), this.getLocation().getRoundedX(), this.getLocation().getRoundedY() - 10);
-        }
+    @Override
+    protected void paintStats(Graphics2D g) {
+        super.paintStats(g);
     }
 
     /**
