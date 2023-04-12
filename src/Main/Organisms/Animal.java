@@ -70,6 +70,9 @@ public class Animal extends Organism {
     public static double metabolismFactor = 1.5;
     //private static double baseSize = 1;
 
+    private static double visualDirScale = 20;
+    private static double visualAccScale = 10;
+
     //-----------------------------------------------------------------------------------------------------------------
 
     //TODO how should generations be handled when there are two parents?
@@ -443,7 +446,7 @@ public class Animal extends Organism {
 
         //Movement
         //TODO check if this should be tweaked (relation to size, resistance, slipperiness, etc.)
-        this.transform.setAcceleration(this.transform.getAcceleration().limit(this.maxForce).mult(this.healthRatio()));
+        this.transform.getAcceleration().limit(this.maxForce).mult(this.healthRatio());
         this.transform.move(this.maxSpeed);
 
         //update variables and states
@@ -460,9 +463,7 @@ public class Animal extends Organism {
         World w = s.getWorld();
 
         //get animals and plants in sight
-        //ArrayList<Animal> animalsInSight = w.getAnimalQuadTree().query(this);
         ArrayList<Animal> animalsInSight = w.getAnimalQuadTree().query(this.getFieldOfView());
-        //ArrayList<Plant> plantsInSight = w.getPlantQuadTree().query(this);
         ArrayList<Plant> plantsInSight = w.getPlantQuadTree().query(this.getFieldOfView());
 
         //search the closest entity of each
@@ -529,8 +530,8 @@ public class Animal extends Organism {
                 //"choose" direction to move
                 Vector2D.fromAngle((outputs[0])*360, this.transform.getAcceleration())
                         //how fast
-                        .mult(outputs[1])
-                            //limiting by possible steer
+                        .mult(outputs[1]*this.maxForce)
+                            //limiting by possible steer TODO test if this is needed
                             .limit(this.maxForce)
         );
 
@@ -1313,46 +1314,73 @@ public class Animal extends Organism {
 
         this.paintFieldOfView(g); //paint the field of view
 
-        if(SimulationGUI.showDirection){
-            g.setColor(Color.BLACK);
+        this.paintAcceleration(g); //paint the acceleration vector
 
-            //TODO rework, maybe add a Setting variable or map the acceleration to a certain distance making it understandable
-            //Vector2D rotatedDirection = Vector2D.fromAngle(-rotation, this.transform.getVelocity()).mult(10);
-            Vector2D rotatedDirection = new Vector2D(1,0).setMag(this.transform.getVelocity().magSq()).mult(50);
-
-            g.drawLine(
-                    0, 0,
-                    rotatedDirection.getRoundedX(),
-                    rotatedDirection.getRoundedY()
-            );
-        }
-
-        if(SimulationGUI.showSteering){
-            g.setColor(Color.lightGray);
-
-            //TODO rework, maybe add a Setting variable or map the acceleration to a certain distance making it understandable
-            //Vector2D rotatedAcceleration = Vector2D.fromAngle(-rotation, this.transform.getAcceleration()).mult(10);
-            Vector2D rotatedAcceleration = new Vector2D(1,0).setMag(this.transform.getAcceleration().magSq()).mult(10);
-
-            g.drawLine(
-                    0, 0,
-                    rotatedAcceleration.getRoundedX(),
-                    rotatedAcceleration.getRoundedY()
-            );
-        }
-
-        //TODO maybe add a stat box following an Animal
-        if(SimulationGUI.showHealth){
-            g.setColor(this.color.darker());
-            g.drawString(String.format("%1$,.1f", this.health), 0, 0);
-        }
-        if(SimulationGUI.showEnergy){
-            g.setColor(this.color.brighter());
-            g.drawString(String.format("%1$,.1f", this.energy), 0, 0);
-        }
-        //g.drawString(String.format("%.2f", this.healthRatio()), (int)this.getLocX(), (int)this.getLocY());
+        this.paintDirection(g); //paint the direction vector
 
         g.setTransform(old); //Reset Transform
+
+        this.paintStats(g); //paint this stats
+    }
+
+    /**
+     * Paints the statistics of the animal onto the graphics context.
+     *
+     * @param g the graphics context to paint onto
+     * @since 12.04.2023
+     * TODO refactor parts to organism
+     * TODO maybe add a stat box following an Animal
+     * TODO paint progress bars
+     */
+    private void paintStats(Graphics2D g) {
+        // Paint the health statistic
+        if (SimulationGUI.showHealth) {
+            // Set the color to a darker version of the animal's color
+            g.setColor(this.color.darker());
+
+            // Draw the health value as a string at the animal's location
+            g.drawString(String.format("%1$,.1f", this.health), this.getLocation().getRoundedX(), this.getLocation().getRoundedY());
+        }
+
+        // Paint the energy statistic
+        if (SimulationGUI.showEnergy) {
+            // Set the color to a brighter version of the animal's color
+            g.setColor(this.color.brighter());
+
+            // Draw the energy value as a string above the animal's location
+            g.drawString(String.format("%1$,.1f", this.energy), this.getLocation().getRoundedX(), this.getLocation().getRoundedY() - 10);
+        }
+    }
+
+    /**
+     * Paints a line indicating the animal's direction of movement.
+     * The length of the line is proportional to the magnitude of the animal's velocity vector.
+     *
+     * @param g the Graphics2D object to paint on
+     * @since 12.04.2023
+     */
+    private void paintDirection(Graphics2D g) {
+        if(SimulationGUI.showDirection){
+            g.setColor(Color.BLACK);
+            g.draw(this.transform.getTranslatedVelocityLine(Animal.visualDirScale));
+        }
+    }
+
+    /**
+     * Paints the acceleration vector of this animal onto the given Graphics2D object, if the
+     * SimulationGUI flag "showSteering" is set to true.
+     *
+     * @param g the Graphics2D object on which to paint the acceleration vector
+     * @since 12.04.2023
+     */
+    private void paintAcceleration(Graphics2D g) {
+        if (SimulationGUI.showSteering) {
+            // Set the color of the acceleration vector to light gray
+            g.setColor(Color.lightGray);
+
+            // Draw the translated acceleration line of the animal on the Graphics2D object
+            g.draw(this.transform.getTranslatedAccelerationLine(Animal.visualAccScale));
+        }
     }
 
     /**

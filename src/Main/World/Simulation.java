@@ -163,8 +163,8 @@ public class Simulation extends JPanel implements ActionListener {
 
         for(int i = 0; i < this.startingAnimals; i++){
             Animal a = new Animal();
-            a.getNn().rangedMutate(1,3);
-            //a.getDna().mutate(.1, 1);
+            a.getNn().percentageMutate(1,1);
+            a.getDna().percentageMutate(.2,.2);
             a.setLocation(Vector2D.randLimVec(this.world.getWorldDimension().width,this.world.getWorldDimension().height));
             a.setColorRed((int)Math.round(Math.random() * 255));
             a.setColorGreen((int)Math.round(Math.random() * 255));
@@ -200,8 +200,8 @@ public class Simulation extends JPanel implements ActionListener {
         if(this.animals.size() < minNumAnimals && this.animals.size() + this.numNewAnimals < this.maxNumAnimals){
             for(int i = 0; i < numNewAnimals; i++){
                 Animal a = new Animal();
-                a.getNn().rangedMutate(1,3);
-                //a.getDna().mutate(1, .1);
+                a.getNn().percentageMutate(1,1);
+                a.getDna().percentageMutate(.2,.2);
 
                 /*
                 double respawnCorner = Math.random();

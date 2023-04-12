@@ -2,6 +2,7 @@ package Main.Helper;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
 //TODO create tests for all the methods
@@ -129,6 +130,7 @@ public class Transform {
      * @param maxSpeed the maximum speed that the object can move
      * @see Vector2D#limit(double)
      * TODO what if maxSpeed is negative or zero? where should this be handled
+     * TODO add something that reduces velocity to resemble friction
      */
     public void move(double maxSpeed){
         assert maxSpeed >= 0 : "maxSpeed is negative";
@@ -136,18 +138,15 @@ public class Transform {
         if(maxSpeed == 0){
             return;
         }else{
-            this.velocity.mult(.95);
-            this.velocity.add(this.acceleration);
-            this.velocity.limit(maxSpeed);
-            //TODO add something that reduces velocity to resemble friction
             /*
-            if(this.velocity.mag() > 0){
-                this.velocity.sub(Vector2D.mult(this.velocity, .2));
-            }
-            else if (this.velocity.mag() < 0){
-                this.velocity.add(Vector2D.mult(this.velocity, .2));
+            double frictionMagnitude = 0.01; // adjust this to control the strength of the friction force
+            Vector2D frictionForce = Vector2D.mult(this.velocity, -frictionMagnitude);
+            if(this.acceleration.mag() - frictionForce.mag() >= 0){
+                this.acceleration.add(frictionForce);
             }
              */
+            this.velocity.add(this.acceleration);
+            this.velocity.limit(maxSpeed);
 
             this.location.add(this.velocity);
             this.acceleration.mult(0);  //TODO think more about this, if it is needed everytime...
@@ -330,17 +329,39 @@ public class Transform {
     }
 
     /**
-     * Paints the velocity vector drawn from the center of this
-     * @param g the graphics object to paint on
+     * Returns a line representing the velocity vector of this animal,
+     * scaled by the specified factor, relative to the animal's position.
+     *
+     * @param scale the scaling factor for the velocity vector
+     * @return a Line2D object representing the scaled velocity vector relative to the animal's position
      */
-    public void paintVelocity(Graphics2D g){
-        //TODO add scaling to the length
-        Vector2D movedVelocity = Vector2D.add(this.location, this.velocity.copy().mult(20));
+    public Line2D getVelocityLine(double scale){
+        // Calculate the moved velocity vector by adding the current location and the scaled velocity vector.
+        Vector2D movedVelocity = Vector2D.add(this.location, this.velocity.copy().mult(scale));
 
-        g.drawLine(
+        // Create a new Line2D object from the animal's current location to the location of the moved velocity vector.
+        return new Line2D.Double(
                 this.location.getRoundedX(), this.location.getRoundedY(),
-                movedVelocity.getRoundedX(), movedVelocity.getRoundedY()
-        );
+                movedVelocity.getRoundedX(), movedVelocity.getRoundedY());
+    }
+
+    /**
+     * Returns a Line2D object representing the translated velocity vector of this object.
+     * The Line2D object is scaled by the specified factor and rotated by the object's current rotation angle.
+     *
+     * @param scale the scale factor by which to scale the velocity vector
+     * @return a Line2D object representing the translated velocity vector of this object
+     * @since 12.04.2023
+     */
+    public Line2D getTranslatedVelocityLine(double scale) {
+        // Scale the velocity vector
+        Vector2D scaledVelocity = this.velocity.copy().mult(scale);
+
+        // Rotate the scaled velocity vector by the negative rotation angle of the object
+        scaledVelocity.rotate(-this.getRotation());
+
+        // Create and return a Line2D object from (0, 0) to the scaled and rotated velocity vector
+        return new Line2D.Double(0, 0, scaledVelocity.getRoundedX(), scaledVelocity.getRoundedY());
     }
 
     /**
@@ -357,4 +378,41 @@ public class Transform {
                 movedVelocity.getRoundedX(), movedVelocity.getRoundedY()
         );
     }
+
+    /**
+     * Returns a line representing the acceleration vector of this animal,
+     * scaled by the specified factor, relative to the animal's position.
+     *
+     * @param scale the scaling factor for the acceleration vector
+     * @return a Line2D object representing the scaled acceleration vector relative to the animal's position
+     */
+    public Line2D getAccelerationLine(double scale){
+        // Calculate the moved acceleration vector by adding the current location and the scaled acceleration vector.
+        Vector2D movedAcceleration = Vector2D.add(this.location, this.acceleration.copy().mult(scale));
+
+        // Create a new Line2D object from the animal's current location to the location of the moved acceleration vector.
+        return new Line2D.Double(
+                this.location.getRoundedX(), this.location.getRoundedY(),
+                movedAcceleration.getRoundedX(), movedAcceleration.getRoundedY());
+    }
+
+    /**
+     * Returns a Line2D object representing the translated acceleration vector of this object.
+     * The Line2D object is scaled by the specified factor and rotated by the object's current rotation angle.
+     *
+     * @param scale the scale factor by which to scale the acceleration vector
+     * @return a Line2D object representing the translated acceleration vector of this object
+     * @since 12.04.2023
+     */
+    public Line2D getTranslatedAccelerationLine(double scale) {
+        // Scale the acceleration vector
+        Vector2D scaledAcceleration = this.acceleration.copy().mult(scale);
+
+        // Rotate the scaled acceleration vector by the negative rotation angle of the object
+        scaledAcceleration.rotate(-this.getRotation());
+
+        // Create and return a Line2D object from (0, 0) to the scaled and rotated acceleration vector
+        return new Line2D.Double(0, 0, scaledAcceleration.getRoundedX(), scaledAcceleration.getRoundedY());
+    }
+
 }

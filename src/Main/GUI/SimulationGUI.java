@@ -78,7 +78,7 @@ public class SimulationGUI extends JFrame {
 
         // Set up simulation panel
         World w =new World(1500,1500, 50, 50);
-        Simulation s = new Simulation(8000,2000,8000,
+        Simulation s = new Simulation(2000,500,8000,
                 1000,2000,10,
                 2000,50,
                 w);
