@@ -244,8 +244,17 @@ public class Transform {
      * @return the rotation of the object in radians
     */
     public double getRotation(){
+        double angle = Vector2D.angleBetween(this.velocity, new Vector2D(1,0));
+        if (this.velocity.getY() < 0) {
+            angle += 180;
+        }
+        return angle;
+    }
+    /*
+    public double getRotation(){
         return Vector2D.angleBetween(this.velocity, new Vector2D(1,0));
     }
+     */
 
     //------------------------------------------------Getter and Setter------------------------------------------------
 
@@ -367,6 +376,7 @@ public class Transform {
     /**
      * Paints the acceleration vector drawn from the center of this
      * @param g the graphics object to paint on
+     * @deprecated Use {@link #getAccelerationLine(double)} or {@link #getTranslatedAccelerationLine(double)}
      */
     public void paintAcceleration(Graphics2D g){
         //TODO add scaling to the length
