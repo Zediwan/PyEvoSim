@@ -6,10 +6,11 @@ import Main.World.Simulation;
 import Main.World.World;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class SimulationGUI extends JFrame {
     private JPanel simPanel;
@@ -78,9 +79,9 @@ public class SimulationGUI extends JFrame {
 
         // Set up simulation panel
         World w =new World(1500,1500, 50, 50);
-        Simulation s = new Simulation(2000,500,8000,
-                1000,2000,10,
-                2000,50,
+        Simulation s = new Simulation(2000,1000,2000,
+                1,3000,1000,
+                1,1,
                 w);
         this.simPanel = s;
         this.simPanel.setPreferredSize(w.getWorldDimension()); // Set initial size
@@ -105,6 +106,7 @@ public class SimulationGUI extends JFrame {
             }
         });
 
+        /*
         scrollPane.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 // update the viewport size when the scroll pane is resized
@@ -120,8 +122,7 @@ public class SimulationGUI extends JFrame {
                 scrollOffsetY = scrollPane.getViewport().getViewPosition().getY();
             }
         });
-
-
+         */
         this.scrollPane.setFocusable(true); // Set focusable to false
 
         this.add(scrollPane, BorderLayout.CENTER);
@@ -160,6 +161,7 @@ public class SimulationGUI extends JFrame {
                 showHealth = showHealthCheckBox.isSelected();
             }
         });
+        showHealthCheckBox.setSelected(this.showHealth);
 
         //Show energy checkbox
         this.showEnergyCheckBox = new JCheckBox("Show Energy");
@@ -170,6 +172,7 @@ public class SimulationGUI extends JFrame {
                 showEnergy = showEnergyCheckBox.isSelected();
             }
         });
+        showEnergyCheckBox.setSelected(this.showEnergy);
 
         //Show direction checkbox
         JCheckBox showDirectionCheckBox = new JCheckBox("Show Direction");
@@ -181,6 +184,7 @@ public class SimulationGUI extends JFrame {
                 showDirection = showDirectionCheckBox.isSelected();
             }
         });
+        showDirectionCheckBox.setSelected(this.showDirection);
 
         //Show direction checkbox
         JCheckBox showAccelerationCheckBox = new JCheckBox("Show Acceleration");
@@ -192,6 +196,7 @@ public class SimulationGUI extends JFrame {
                 showSteering = showAccelerationCheckBox.isSelected();
             }
         });
+        showAccelerationCheckBox.setSelected(this.showSteering);
 
         //Show sensoryRad
         JCheckBox showSensoryRadiusCheckBox = new JCheckBox("Show Sensory Radius");
@@ -203,6 +208,7 @@ public class SimulationGUI extends JFrame {
                 showSensoryRadius = showSensoryRadiusCheckBox.isSelected();
             }
         });
+        showSensoryRadiusCheckBox.setSelected(this.showSensoryRadius);
 
         //Show Animal QT checkbox
         this.showAnimalQTCheckBox = new JCheckBox("Show Animal Quad Tree");
@@ -213,6 +219,7 @@ public class SimulationGUI extends JFrame {
                 showAnimalQT = showAnimalQTCheckBox.isSelected();
             }
         });
+        this.showAnimalQTCheckBox.setSelected(this.showAnimalQT);
 
         //Show Plant QT checkbox
         this.showPlantQTCheckBox = new JCheckBox("Show Plant Quad Tree");
@@ -222,6 +229,7 @@ public class SimulationGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 showPlantQT = showPlantQTCheckBox.isSelected();            }
         });
+        showPlantQTCheckBox.setSelected(this.showPlantQT);
 
         JTextField animalQTCapacity = new JTextField();
         animalQTCapacity.setToolTipText("Set the capacity of a square in the Animal Quad Tree");
@@ -302,7 +310,7 @@ public class SimulationGUI extends JFrame {
         //TODO create rangeSliders
         //Slider for maxPlants
         this.maxPlantsPanel = new JPanel(new BorderLayout());
-        int startingValue = 8000;
+        int startingValue = 2000;
         this.maxPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 50000, startingValue);
         this.maxPlantsSlider.setMajorTickSpacing(10000);
         this.maxPlantsSlider.setMinorTickSpacing(5000);
@@ -326,7 +334,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minPlants
         this.minPlantsPanel = new JPanel(new BorderLayout());
-        startingValue = 1000;
+        startingValue = 1;
         this.minPlantsSlider = new JSlider(JSlider.HORIZONTAL, 0, 10000, startingValue);
         this.minPlantsSlider.setMajorTickSpacing(2500);
         this.minPlantsSlider.setMinorTickSpacing(1250);
@@ -350,7 +358,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for amount plants respawned
         JPanel plantRespawnAmountPanel = new JPanel(new BorderLayout());
-        startingValue = 10;
+        startingValue = 1;
         JSlider plantRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startingValue);
         plantRespawnAmountSlider.setMajorTickSpacing(20);
         plantRespawnAmountSlider.setMinorTickSpacing(10);
@@ -370,7 +378,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for amount animals spawned
         JPanel animalRespawnAmountPanel = new JPanel(new BorderLayout());
-        startingValue = 10;
+        startingValue = 2;
         JSlider animalRespawnAmountSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startingValue);
         animalRespawnAmountSlider.setMajorTickSpacing(20);
         animalRespawnAmountSlider.setMinorTickSpacing(10);
@@ -414,7 +422,7 @@ public class SimulationGUI extends JFrame {
 
         //Slider for minAnimals
         this.minAnimalsPanel = new JPanel(new BorderLayout());
-        startingValue = 20;
+        startingValue = 1000;
         this.minAnimalsSlider = new JSlider(JSlider.HORIZONTAL, 0, 10000, startingValue);
         this.minAnimalsSlider.setMajorTickSpacing(2500);
         this.minAnimalsSlider.setMinorTickSpacing(1250);
@@ -438,8 +446,8 @@ public class SimulationGUI extends JFrame {
 
         //Simulation Speed Slider
         this.simulationSpeedPanel = new JPanel(new BorderLayout());
-        startingValue = 60;
-        this.simulationSpeedSlider = new JSlider(JSlider.HORIZONTAL,0,60,startingValue);
+        startingValue = 100;
+        this.simulationSpeedSlider = new JSlider(JSlider.HORIZONTAL,0,120,startingValue);
         this.simulationSpeedSlider.setMajorTickSpacing(10);
         this.simulationSpeedSlider.setPaintTrack(true);
         this.simulationSpeedLabel = new JLabel("Frames per Sec: " + startingValue, JLabel.CENTER);
@@ -465,7 +473,14 @@ public class SimulationGUI extends JFrame {
         Timer timer = new Timer(1000, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 fpsLabel.setText("FPS: " + s.getFps());
-                timeLabel.setText("Runtime: " + (System.currentTimeMillis()-s.startTime)/1000 + " sec");
+
+                double timeInSeconds = (System.currentTimeMillis() - s.startTime) / 1000.0;
+                int hours = (int) (timeInSeconds / 3600);
+                int minutes = (int) ((timeInSeconds % 3600) / 60);
+                int seconds = (int) (timeInSeconds % 60);
+
+                String formattedTime = String.format("Runtime: %02d:%02d:%02d", hours, minutes, seconds);
+                timeLabel.setText(formattedTime);
             }
         });
         timer.start();
@@ -575,31 +590,6 @@ public class SimulationGUI extends JFrame {
             }
         });
         statRefreshTimer.start();
-
-        /*
-        simPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int x = e.getX();
-                int y = e.getY();
-
-                s.getWorld().getAnimalQuadTree().query()
-
-                // Loop through all animals and check if the click position is within their bounds
-                for (Animal a : animals) {
-                    simPanel animalLocation = a.getLocation();
-                    double distance = Math.sqrt(Math.pow(x - animalLocation.getX(), 2) + Math.pow(y - animalLocation.getY(), 2));
-
-                    if (distance <= a.getSize()) {
-                        // Display animal information in a popup or separate panel
-                        String info = simulation.getAnimalInfo(a);
-                        displayAnimalInfo(info);
-                        break;
-                    }
-                }
-            }
-        });
-         */
 
         //Add the buttons and sliders to the setting panel
         this.animalSettingsPanel.add(this.showHealthCheckBox);
