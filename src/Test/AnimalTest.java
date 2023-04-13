@@ -21,78 +21,7 @@ class AnimalTest {
     }
 
     @Test
-    void blueprint() {
-    }
+    void getFieldOfView(){
 
-    @Test
-    void expressGenes() {
-    }
-
-    @Test
-    void update() {
-    }
-
-    @Test
-    void grow() {
-    }
-
-    @Test
-    void think() {
-    }
-
-    @Test
-    void mate() {
-    }
-
-    @Test
-    void reproduce() {
-    }
-
-    @Test
-    void collision() {
-    }
-
-    @Test
-    void searchClosestPlant() {
-    }
-
-    @Test
-    void searchClosestAnimal() {
-    }
-
-    @Test
-    void searchClosestMate() {
-    }
-
-    @Test
-    void searchClosest() {
-    }
-
-    @Test
-    void metabolismCost() {
-    }
-
-    @Test
-    void growthRate() {
-    }
-
-    @Test
-    void healthRatio() {
-    }
-
-    @Test
-    void seek() {
-    }
-
-    @Test
-    void separate() {
-    }
-
-    @Test
-    void cohesion() {
-    }
-
-    @Test
-    void align() {
     }
 }

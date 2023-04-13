@@ -64,7 +64,7 @@ public class Animal extends Organism {
     public static double minHealthToReproduce = .4;
     public static double minMaturityToReproduce = .5;
     public static double reproductiveUrgeFactor = 50;
-    public static double damageFactor = 5;
+    public static double damageFactor = 4;
     public static double healingFactor = 2;
     public static double healingCostFactor = 2;
     public static double metabolismFactor = 1.5;
@@ -302,7 +302,7 @@ public class Animal extends Organism {
                     new Gene(20, "growthMaturityFactor", GeneType.BIGGER),
                     new Gene(1, "growthMaturityExponent", GeneType.SMALLER),
                     new Gene(.05, "speedRatio", GeneType.SMALLER),
-                    new Gene(5, "strength", GeneType.BIGGER),
+                    new Gene(20, "strength", GeneType.BIGGER),
                     new Gene(2*1000, "gestationDuration", GeneType.TIME),
                     new Gene(.2, "maxForce", GeneType.SMALLER),
                     new Gene(.5, "maxSpeed", GeneType.SMALLER),
@@ -564,13 +564,23 @@ public class Animal extends Organism {
         //Eat Desire TODO rework and implement different diet types
         if(outputs[4] > Animal.eatingThreshold && cPlant != null){
             if(collision(cPlant)){
-                double damage = this.strength * Animal.damageFactor;
-                cPlant.takeDamage(damage);
+                double damage = this.strength * Animal.damageFactor;    //calculate damage
+                double energyGained = damage;   //TODO add a factor to scale energyGained in the settings
+
+                //if damage is bigger than rest of health obtainable energy is limited
+                if(damage > cPlant.getHealth()){
+                    energyGained = cPlant.getHealth();
+                }
+
+                cPlant.takeDamage(damage);  //deal damage
+
                 //TODO how much energy gets restored and based on what?
-                this.restoreEnergy(damage);
+                this.restoreEnergy(energyGained);
+
                 if(cPlant.getHealth() <= 0){
                     this.plantsKilled++;
                 }
+
             }
         }
 
@@ -935,7 +945,8 @@ public class Animal extends Organism {
         for(Plant p : plantsInSight){
             double distance = this.getLocation().distSq(p.getLocation());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
-            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (p.getId() != this.id)){
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))
+                    && (p.getId() != this.id) && (!p.isDead())){
                 closestDistance = distance;
                 closestOrganism = p;
             }
@@ -965,7 +976,8 @@ public class Animal extends Organism {
         for(Animal a : animalsInSight){
             double distance = this.getLocation().distSq(a.getLocation());
             //if the distance is smaller than the current closest distance and smaller than the viewDistance
-            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2)) && (a.getId() != this.id)){
+            if((closestDistance >= distance) && (distance <= Math.pow(this.viewDistance,2))
+                    && (a.getId() != this.id) && (!a.isDead())){
                 closestDistance = distance;
                 closestAnimal = a;
             }
@@ -1048,8 +1060,8 @@ public class Animal extends Organism {
      * The arc is created with the current location of the animal as its center.
      *
      * @return Arc2D.Double object representing the translated field of view of the animal.
-     * TODO add this as the new search shape for the quadTree
      * TODO extend documentation maybe add pre conditions
+     * TODO find a bug where the field of view is not correct
      */
     public Arc2D.Double getTranslatedFieldOfView(){
         return new Arc2D.Double(
@@ -1063,6 +1075,7 @@ public class Animal extends Organism {
      *
      * @return Arc2D.Double object representing the field of view of the animal.
      * @since 11.04.2023
+     * TODO find a bug where the field of view is not correct
      */
     public Arc2D.Double getFieldOfView(){
         return new Arc2D.Double(
