@@ -25,6 +25,14 @@ public class Gene implements mutable {
         this.rangedMutate(1,1);
     }
 
+    /*
+    If a new Gene type is added in the future, the developer will need to remember to update this switch statement.
+    If the developer forgets, the default case will be called, which throws an assertion error.
+    It would be more robust to use an enum with a method to calculate the range based on the percentage,
+    and then call that method in the percentageMutate method.
+    This way, if a new Gene type is added, the enum can be updated and the percentage calculation method can be updated,
+    and there will be no need to modify the percentageMutate method.
+     */
     @Override
     public void percentageMutate(double mutationChance, double percentage){
         assert this.geneType != null : "Gene type not defined";

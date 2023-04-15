@@ -120,7 +120,7 @@ public class Transform {
         this.velocity = transform.getVelocity().copy();
         this.acceleration = transform.getAcceleration().copy();
         this.size = transform.getSize();
-        this.shape = transform.getShape();  //TODO check if this is working correct
+        this.shape = transform.getShape();  //TODO check if this is working correct maybe need to .copy()
     }
 
     /**

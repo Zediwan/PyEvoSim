@@ -61,13 +61,13 @@ public class Animal extends Organism {
     public static double growthThreshold = .5;
     public static double healingThreshold = .5;
     public static double attackThreshold = .5;
-    public static double minHealthToReproduce = .4;
+    public static double minHealthToReproduce = .5;
     public static double minMaturityToReproduce = .5;
     public static double reproductiveUrgeFactor = 50;
     public static double damageFactor = 4;
     public static double healingFactor = 2;
     public static double healingCostFactor = 2;
-    public static double metabolismFactor = 1.5;
+    public static double metabolismFactor = 3;
     //private static double baseSize = 1;
 
     private static double visualDirScale = 20;
@@ -232,6 +232,8 @@ public class Animal extends Organism {
         this.maturity = (mother.gestationDuration / (6*1000.0));
         //this.maturity = 1;
 
+        this.health *= Animal.minHealthToReproduce * .9;
+
         this.expressGenes();
     }
 
@@ -289,7 +291,7 @@ public class Animal extends Organism {
 
             Gene[] genes = {
                     //TODO: set default parameters
-                    new Gene(2, "sizeRatio", GeneType.SMALLER),
+                    new Gene(10, "sizeRatio", GeneType.SMALLER),
                     new Gene(128, "colorRed", GeneType.COLOR),
                     new Gene(128, "colorGreen", GeneType.COLOR),
                     new Gene(128, "colorBlue", GeneType.COLOR),
@@ -310,10 +312,10 @@ public class Animal extends Organism {
                     new Gene(100, "viewDistance", GeneType.DISTANCE),
                     new Gene(3 * 1000, "timerFrequency", GeneType.TIME),
                     new Gene(0, "pheromoneSensibility", GeneType.SMALLER),
-                    new Gene(0, "separationWeight", GeneType.SMALLER),
-                    new Gene(0, "alignmentWeight", GeneType.SMALLER),
-                    new Gene(0, "cohesionWeight", GeneType.SMALLER),
-                    new Gene(0, "velocityWeight", GeneType.SMALLER),
+                    new Gene(1, "separationWeight", GeneType.SMALLER),
+                    new Gene(.5, "alignmentWeight", GeneType.SMALLER),
+                    new Gene(.5, "cohesionWeight", GeneType.SMALLER),
+                    new Gene(1, "velocityWeight", GeneType.SMALLER),
                     new Gene(50, "separationDistance", GeneType.DISTANCE)
             };
             DNA dna = new DNA(genes);
@@ -543,7 +545,7 @@ public class Animal extends Organism {
         }
 
         //Mate Desire TODO implement attractiveness into the mating
-        if(outputs[3] > Animal.matingThreshold && cAnimal != null){
+        if(outputs[3] > Animal.matingThreshold && cAnimal != null && !cAnimal.isDead()){
             //this.reproductiveUrge = outputs[3] * Animal.reproductiveUrgeFactor;
 
             if(this.correctGenderComb(cAnimal) &&
@@ -562,7 +564,7 @@ public class Animal extends Organism {
         }
 
         //Eat Desire TODO rework and implement different diet types
-        if(outputs[4] > Animal.eatingThreshold && cPlant != null){
+        if(outputs[4] > Animal.eatingThreshold && cPlant != null && !cPlant.isDead()){
             if(collision(cPlant)){
                 double damage = this.strength * Animal.damageFactor;    //calculate damage
                 double energyGained = damage;   //TODO add a factor to scale energyGained in the settings
@@ -575,7 +577,8 @@ public class Animal extends Organism {
                 cPlant.takeDamage(damage);  //deal damage
 
                 //TODO how much energy gets restored and based on what?
-                this.restoreEnergy(energyGained);
+                //TODO add a factor to scale
+                this.restoreEnergy(energyGained * 3);
 
                 if(cPlant.getHealth() <= 0){
                     this.plantsKilled++;
@@ -596,10 +599,14 @@ public class Animal extends Organism {
         }
 
         //Attack TODO rework
-        if(outputs[7] > Animal.attackThreshold && cAnimal != null){
+        if(outputs[7] > Animal.attackThreshold && cAnimal != null && !cAnimal.isDead()){
             if(collision(cAnimal)){
-                //TODO consider strength of attacked animal
-                cAnimal.takeDamage(this.strength * this.transform.getVelocity().magSq());
+                //TODO consider strength of attacked animal as defence
+                //TODO consider speed of animals
+                if(this.strength >= cAnimal.strength){
+                    cAnimal.takeDamage(this.strength); //* this.transform.getVelocity().magSq());
+                }
+                //System.out.println("Dealt damage: " + this.strength);
                 if(cAnimal.getHealth() <= 0){
                     this.animalsKilled++;
                 }
@@ -893,7 +900,18 @@ public class Animal extends Organism {
         }
         this.offspringBirthed++;
         this.mate = null;
-        this.isPregnant = false;
+
+        Animal self = this;
+        //TODO make this a variable maybe in genes? settings?
+        //TODO also use another tag than isPregnant, maybe canGetPregnant or something like that
+        int timeTillCanBirthAgain = 10000;
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                self.isPregnant = false;
+            }
+        }, timeTillCanBirthAgain);
+        //this.isPregnant = false;
 
         return child;
     }
@@ -1087,7 +1105,7 @@ public class Animal extends Organism {
     //TODO think about a good function
     //TODO write documentation with examples and maybe a link to a visual drawing of the function
     public double getFitnessScore(){
-        return ( 1 * Math.pow(this.offspringBirthed,2)) + this.maturity * 1;
+        return ( 1 * Math.pow(this.offspringBirthed,2)) + this.maturity * 1 + (this.getAge() / 1000);
     }
 
     /**

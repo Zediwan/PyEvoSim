@@ -185,7 +185,7 @@ public abstract class Organism {
 
         this.transform = new Transform(
                 mother.getLocation().copy().
-                        add(Vector2D.randSurroundingVec(mother.transform.getSize()*10))
+                        add(Vector2D.randSurroundingVec(mother.transform.getSize()*3))
         );
 
         this.birt = System.currentTimeMillis();
@@ -274,6 +274,7 @@ public abstract class Organism {
         this.growthMaturityExponent = this.dna.getGene(11).getValue();
 
         //each animal starts with health and energy at max value
+        //TODO think of a better way to do this
         this.health = this.maxHealth();
         this.energy = this.maxEnergy();
 

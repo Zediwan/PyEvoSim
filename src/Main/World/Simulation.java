@@ -321,7 +321,8 @@ public class Simulation extends JPanel implements ActionListener {
             else{
                 a.paint((Graphics2D) g);
                 a.update(this);
-                this.borders1(a);
+                //TODO make this toggleable
+                //this.borders1(a);
 
                 this.world.updateAnimal(a);
 
@@ -329,6 +330,7 @@ public class Simulation extends JPanel implements ActionListener {
                 if(this.fittestAnimal.getFitnessScore() < a.getFitnessScore()){
                     System.out.println("Blueprint set:" + "\n" + "Old: " + this.fittestAnimal.getFitnessScore() + "\n" + "New: " + a.getFitnessScore());
                     this.fittestAnimal = a;
+                    //TODO make this toggleable
                     Animal.setBlueprint(this.fittestAnimal);
                 }
 

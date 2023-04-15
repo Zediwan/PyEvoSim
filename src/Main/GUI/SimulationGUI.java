@@ -78,7 +78,7 @@ public class SimulationGUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Set up simulation panel
-        World w =new World(1500,1500, 50, 50);
+        World w =new World(2000,2000, 50, 50);
         Simulation s = new Simulation(2000,1000,2000,
                 1,3000,1000,
                 1,1,
@@ -94,7 +94,7 @@ public class SimulationGUI extends JFrame {
         //This is used to be able to pause when pressing enter and having focused the scroll panel
         this.scrollPane.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
-                System.out.println("Test");
+                System.out.println("");
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     if(s.simulationIsRunning()){
                         s.stopSimulation();
