@@ -200,7 +200,7 @@ public class Simulation extends JPanel implements ActionListener {
         if(this.animals.size() < minNumAnimals && this.animals.size() + this.numNewAnimals < this.maxNumAnimals){
             for(int i = 0; i < numNewAnimals; i++){
                 Animal a = new Animal();
-                a.getNn().percentageMutate(1,1);
+                a.getNn().rangedMutate(1,1);
                 a.getDna().percentageMutate(.2,.2);
 
                 /*
