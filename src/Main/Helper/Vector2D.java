@@ -451,6 +451,16 @@ public class Vector2D {
         return angle;
     }
 
+    /**
+     * Checks if this vector is the null vector
+     *
+     * @return if the vector is the null vector (if x and y are 0)
+     */
+    //TODO add a variance so that a vector (.00001,.000001) is also seen as the null vector
+    public boolean isNullVector(){
+        return this.x == 0 && this.y == 0;
+    }
+
     //------------------------------------------------Getter and Setter------------------------------------------------
 
     /**
