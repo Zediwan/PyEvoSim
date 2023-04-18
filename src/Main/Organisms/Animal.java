@@ -527,14 +527,17 @@ public class Animal extends Organism {
 
         double[] outputs = this.nn.predict(inputs);
 
+        Vector2D direction = new Vector2D(1,0); //current direction of movement
+        //if this doesn't have any direction choose a unit vector
+        if(!this.transform.getAcceleration().isNullVector()){
+            direction = this.transform.getAcceleration();
+        }
         //Accelerate, Rotate
         this.transform.applyForce(
                 //"choose" direction to move
-                Vector2D.fromAngle((outputs[0])*360, this.transform.getAcceleration())
+                Vector2D.fromAngle((outputs[0])*360, direction)
                         //how fast
-                        .mult(outputs[1]*this.maxForce)
-                            //limiting by possible steer TODO test if this is needed
-                            .limit(this.maxForce)
+                        .setMag(outputs[1] * this.maxForce)
         );
 
         //Herding Desire TODO check if the handling of the vectors is correct
