@@ -1105,7 +1105,7 @@ public class Animal extends Organism {
     //TODO think about a good function
     //TODO write documentation with examples and maybe a link to a visual drawing of the function
     public double getFitnessScore(){
-        return ( 1 * Math.pow(this.offspringBirthed,2)) + this.maturity * 1 + (this.getAge() / 1000);
+        return (this.healthRatio() + this.energyRatio())*(1);//Math.pow(this.offspringBirthed,2) + this.maturity) * ;
     }
 
     /**
