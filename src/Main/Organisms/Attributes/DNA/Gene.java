@@ -43,7 +43,7 @@ public class Gene implements mutable {
         //TODO rethink this
         switch(geneType){
             case COLOR:
-                range = percentage * 10;
+                range = percentage * 6;
                 break;
             case TIME:
                 range = percentage * 500;
@@ -52,13 +52,13 @@ public class Gene implements mutable {
                 range = percentage * .05;
                 break;
             case DISTANCE:
-                range = percentage * 5;
+                range = percentage * 10;
                 break;
             case BIGGER:
                 range = percentage * 1;
                 break;
             case SMALLER:
-                range = percentage * .05;
+                range = percentage * .04;
                 break;
             case OTHER:
                 range = percentage * .5;
