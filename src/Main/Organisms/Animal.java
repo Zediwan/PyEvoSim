@@ -886,6 +886,7 @@ public class Animal extends Organism {
      * @param s The simulation that the animal is added to.
      * @return The new Animal object.
      * @throws AssertionError If the parent animal can't give birth or has not had a mate.
+     * TODO add the possibility of multiple children to be birthed and a way to control it or define it
      */
     @Override
     public Organism reproduce(Simulation s) {
@@ -894,7 +895,7 @@ public class Animal extends Organism {
 
         Animal child = new Animal(this.mate,this);
         //TODO add a toggle for this
-        //s.getGraphics().drawOval((int)child.getLocX()-20,(int)child.getLocY()-20,40,40);
+        s.getGraphics().drawOval((int)child.getLocX()-20,(int)child.getLocY()-20,40,40);
         s.addAnimal(child);
 
         Animal.aniBornCount++;
@@ -1061,7 +1062,7 @@ public class Animal extends Organism {
      */
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
-        return ((this.speed()+1)*Animal.metabolismFactor) / (2*this.size());
+        return ((this.speed()+3)*Animal.metabolismFactor) / (2*this.size());
     }
 
     /**
@@ -1108,7 +1109,7 @@ public class Animal extends Organism {
     //TODO think about a good function
     //TODO write documentation with examples and maybe a link to a visual drawing of the function
     public double getFitnessScore(){
-        return (this.healthRatio() + this.energyRatio())*(1);//Math.pow(this.offspringBirthed,2) + this.maturity) * ;
+        return (this.healthRatio() + this.energyRatio())*(this.plantsKilled);//Math.pow(this.offspringBirthed,2) + this.maturity) * ;
     }
 
     /**
