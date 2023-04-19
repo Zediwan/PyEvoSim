@@ -185,7 +185,7 @@ public abstract class Organism {
 
         this.transform = new Transform(
                 mother.getLocation().copy().
-                        add(Vector2D.randSurroundingVec(mother.transform.getSize()*3))
+                        add(Vector2D.randSurroundingVec(mother.transform.getSize()*2))
         );
 
         this.birt = System.currentTimeMillis();
