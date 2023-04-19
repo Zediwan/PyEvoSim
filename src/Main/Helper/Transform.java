@@ -245,16 +245,11 @@ public class Transform {
     */
     public double getRotation(){
         double angle = Vector2D.angleBetween(this.velocity, new Vector2D(1,0));
-        if (this.velocity.getY() < 0) {
-            angle += 180;
-        }
+        //if (this.velocity.getY() < 0) {
+        //    angle += 180;
+        //}
         return angle;
     }
-    /*
-    public double getRotation(){
-        return Vector2D.angleBetween(this.velocity, new Vector2D(1,0));
-    }
-     */
 
     //------------------------------------------------Getter and Setter------------------------------------------------
 
