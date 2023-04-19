@@ -158,4 +158,36 @@ class Vector2DTest {
         assertEquals(1, sum.getY());
     }
 
+    @Test
+    void testFromAngleNullTarget() {
+        Vector2D expected = new Vector2D(Math.sqrt(2) / 2, Math.sqrt(2) / 2);
+        Vector2D actual = Vector2D.fromAngle(Math.PI / 4, null);
+        assertEquals(expected.getX(), actual.getX(), .0001);
+        assertEquals(expected.getY(), actual.getY(), .0001);
+    }
+
+    @Test
+    void testFromAngleNonNullTarget() {
+        Vector2D target = new Vector2D(1, 0);
+        Vector2D expected = new Vector2D(Math.sqrt(3) / 2, 0.5);
+        Vector2D actual = Vector2D.fromAngle(Math.PI / 3, target);
+        assertEquals(expected.getX(), actual.getX(), .0001);
+        assertEquals(expected.getY(), actual.getY(), .0001);
+    }
+
+    @Test
+    void testFromAngleZeroAngle() {
+        Vector2D expected = new Vector2D(1, 0);
+        Vector2D actual = Vector2D.fromAngle(0, null);
+        assertEquals(expected.getX(), actual.getX(), .0001);
+        assertEquals(expected.getY(), actual.getY(), .0001);
+    }
+
+    @Test
+    void testFromAngleNegativeAngle() {
+        Vector2D expected = new Vector2D(-Math.sqrt(3) / 2, 0.5);
+        Vector2D actual = Vector2D.fromAngle(-2 * Math.PI / 3, null);
+        assertEquals(expected.getX(), actual.getX(), .0001);
+        assertEquals(expected.getY(), actual.getY(), .0001);
+    }
 }
