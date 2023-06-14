@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 111388298}
   m_Layer: 0
   m_Name: Upper Border
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -336,7 +336,7 @@ GameObject:
   - component: {fileID: 812223625}
   m_Layer: 0
   m_Name: Left Border
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -547,7 +547,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963303468}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 80}
+  m_LocalPosition: {x: 0.02, y: 0, z: 80.01}
   m_LocalScale: {x: 100, y: 100, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -675,7 +675,7 @@ GameObject:
   - component: {fileID: 1392270585}
   m_Layer: 0
   m_Name: Right Border
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -780,7 +780,7 @@ GameObject:
   - component: {fileID: 1624062192}
   m_Layer: 0
   m_Name: Lower Border
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -897,7 +897,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7002608220833166060, guid: 5a4baba60dafc45c7854a0ee04a26914, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 80
+      value: 79
       objectReference: {fileID: 0}
     - target: {fileID: 7002608220833166060, guid: 5a4baba60dafc45c7854a0ee04a26914, type: 3}
       propertyPath: m_LocalRotation.w
