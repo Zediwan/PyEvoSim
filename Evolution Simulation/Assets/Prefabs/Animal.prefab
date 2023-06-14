@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5769683218725921229}
   - component: {fileID: 1109012521038488445}
   - component: {fileID: 136350255724010126}
+  - component: {fileID: -4697940093477662319}
   m_Layer: 0
   m_Name: Animal
   m_TagString: Animal
@@ -29,12 +30,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6546485605409875480}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 18}
+  m_LocalPosition: {x: 0, y: 0, z: 79}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2296624977792488618
 MeshFilter:
@@ -152,3 +153,20 @@ MonoBehaviour:
   energy: 0
   maxForce: 0
   maxSpeed: 0
+--- !u!114 &-4697940093477662319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6546485605409875480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d7d105c558c94f6e9c23823b6863c40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputNodes: 3
+  outputNodes: 2
+  hiddenNodes: 0
+  a: 0
+  t: 0
