@@ -6,18 +6,20 @@ using UnityEngine;
 public class AnimalController : MonoBehaviour
 {
     public NeatNetwork myNetwork;
-    public int inputNodes = 3, outputNodes = 2, hiddenNodes; // Number of respective nodes for the initial network
+
+    public int inputNodes, outputNodes, hiddenNodes; // Number of respective nodes for the initial network
+
     private float[] sensors;
     private float hitDivider = 20f;
     private float rayDistance = 50f;
 
+    public int myBrainIndex;
     [Range(-1f,1f)]
     public float a,t;
 
     void Awake()
     {
         sensors = new float[inputNodes];    //Initialize the sensors
-        myNetwork = new NeatNetwork(inputNodes, outputNodes, hiddenNodes);
     }
 
     // Update is called once per frame

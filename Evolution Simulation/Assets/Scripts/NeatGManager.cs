@@ -23,7 +23,12 @@ public class NeatGManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        // Initialize population
+        allNeatAnimals = new GameObject[startingPopulation];
+        allNeatNetworks = new NeatNetwork[startingPopulation];
+
+        StartingNetworks();
+        SpawnBody();
     }
 
     // Update is called once per frame
@@ -31,4 +36,32 @@ public class NeatGManager : MonoBehaviour
     {
         
     }
+
+    // Initializes the starting Networks
+    private void StartingNetworks()
+    {
+        for(int i = 0; i < startingPopulation; i++)
+        {
+            allNeatNetworks[i] = new NeatNetwork(inputNodes, outputNodes, hiddenNodes);
+        }
+    }
+
+    // Instantiate each Animal Object and matches bodies with their networks
+    private void SpawnBody()
+    {
+        for(int i = 0; i < startingPopulation; i++)
+        {
+            // Spwan the Animals inside the Camera View
+            Vector3 pos = new Vector3(Random.value, Random.value, 89);
+            pos = Camera.main.ViewportToWorldPoint(pos);
+
+            allNeatAnimals[i] = Instantiate(NeatAnimalPrefab, pos, transform.rotation);
+            allNeatAnimals[i].gameObject.GetComponent<AnimalController>().myBrainIndex  = i;
+            allNeatAnimals[i].gameObject.GetComponent<AnimalController>().myNetwork = allNeatNetworks[i];
+            allNeatAnimals[i].gameObject.GetComponent<AnimalController>().inputNodes = inputNodes;
+            allNeatAnimals[i].gameObject.GetComponent<AnimalController>().outputNodes = outputNodes;
+            allNeatAnimals[i].gameObject.GetComponent<AnimalController>().hiddenNodes = hiddenNodes;
+        }
+    }
+
 }
