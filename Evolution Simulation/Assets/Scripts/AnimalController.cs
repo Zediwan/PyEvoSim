@@ -9,7 +9,7 @@ public class AnimalController : MonoBehaviour
     public int inputNodes = 3, outputNodes = 2, hiddenNodes; // Number of respective nodes for the initial network
     private float[] sensors;
     private float hitDivider = 20f;
-    private float rayDistance = 40f;
+    private float rayDistance = 50f;
 
     [Range(-1f,1f)]
     public float a,t;
@@ -45,7 +45,7 @@ public class AnimalController : MonoBehaviour
         {
             if(hit.transform.tag == "Wall")
             {
-                sensors[0] = hit.distance / hitDivider;
+                sensors[1] = hit.distance / hitDivider;
                 Debug.DrawLine(r.origin, hit.point, Color.white);
             }
         }
@@ -54,7 +54,7 @@ public class AnimalController : MonoBehaviour
         {
             if(hit.transform.tag == "Wall")
             {
-                sensors[0] = hit.distance / hitDivider;
+                sensors[2] = hit.distance / hitDivider;
                 Debug.DrawLine(r.origin, hit.point, Color.white);
             }
         }
