@@ -12,17 +12,27 @@ public class AnimalController : MonoBehaviour
     private float hitDivider = 20f;
     private float rayDistance = 50f;
 
-    private float overallFitness = 0;
+    [Header("Energy Options")]
+
+    public float totalEnergy;
+    public float rewardEnergy;
+    public float currentEnergy;
+
+    [Header("Fitness Options")]
+
+    public float overallFitness = 0;
+    public float plantsMultiplier;
+    public float plantsSinceStart = 0f;
+
+    [Header("Network Settings")]
 
     public int myBrainIndex;
 
     public int inputNodes, outputNodes, hiddenNodes; // Number of respective nodes for the initial network
 
-    [Range(-1f,1f)]
-    public float a,t;
-
-    void Awake()
+    void Start()
     {
+        currentEnergy = totalEnergy;
         sensors = new float[inputNodes];    //Initialize the sensors
     }
 
@@ -33,6 +43,23 @@ public class AnimalController : MonoBehaviour
         float[] outputs = myNetwork.FeedForwardNetwork(sensors); // Pass in sensor information
 
         MoveAnimal(outputs[0], outputs[1]);
+        CalculateFitness();
+    }
+
+    private void CalculateFitness()
+    {
+        UpdateEnergy();
+        overallFitness = (plantsSinceStart * plantsMultiplier);
+
+        if(currentEnergy <= 0)
+        {
+            Death();
+        }
+    }
+
+    private void UpdateEnergy()
+    {
+        currentEnergy -=  Time.deltaTime;
     }
 
     private void Death()
@@ -51,7 +78,8 @@ public class AnimalController : MonoBehaviour
         {
             other.gameObject.GetComponent<PlantController>().SpawnSinglePlant();
             Destroy(other.gameObject);
-            overallFitness += 1;
+            currentEnergy += rewardEnergy;
+            plantsSinceStart += 1;
         }
     }
 

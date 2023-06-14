@@ -165,9 +165,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d7d105c558c94f6e9c23823b6863c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  totalEnergy: 20
+  rewardEnergy: 10
+  currentEnergy: 0
+  overallFitness: 0
+  plantsMultiplier: 0
+  plantsSinceStart: 0
   myBrainIndex: 0
   inputNodes: 3
   outputNodes: 2
   hiddenNodes: 0
-  a: 0
-  t: 0
