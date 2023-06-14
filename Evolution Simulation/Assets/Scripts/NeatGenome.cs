@@ -44,7 +44,8 @@ public class ConGene
     public int outputNode;
     public float weight;
     public bool isActive;
-    public int innovNum; //innovation number
+    // Innovation number.
+    public int innovNum; 
 
     public ConGene(int inNode, int outNode, float wei, bool active, int innov)
     {
