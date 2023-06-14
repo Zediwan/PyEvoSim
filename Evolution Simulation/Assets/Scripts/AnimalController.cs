@@ -7,13 +7,17 @@ public class AnimalController : MonoBehaviour
 {
     public NeatNetwork myNetwork;
 
-    public int inputNodes, outputNodes, hiddenNodes; // Number of respective nodes for the initial network
-
     private float[] sensors;
+
     private float hitDivider = 20f;
     private float rayDistance = 50f;
 
+    private float overallFitness = 0;
+
     public int myBrainIndex;
+
+    public int inputNodes, outputNodes, hiddenNodes; // Number of respective nodes for the initial network
+
     [Range(-1f,1f)]
     public float a,t;
 
@@ -27,7 +31,22 @@ public class AnimalController : MonoBehaviour
     {
         InputSensors();
         float[] outputs = myNetwork.FeedForwardNetwork(sensors); // Pass in sensor information
+
         MoveAnimal(outputs[0], outputs[1]);
+    }
+
+    private void Death()
+    {
+        GameObject.FindObjectOfType<NeatGManager>().Death(overallFitness, myBrainIndex);
+        Destroy(gameObject);
+    }
+
+    private void OnCollisionEnter(Collision other) {
+        if(other.transform.tag == "Wall")
+        {
+            overallFitness = 0;
+            Death();
+        }
     }
 
     private void InputSensors()

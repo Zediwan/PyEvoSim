@@ -64,4 +64,9 @@ public class NeatGManager : MonoBehaviour
         }
     }
 
+    public void Death(float fitness, int index)
+    {
+        allNeatNetworks[index].fitness = fitness;
+    }
+
 }

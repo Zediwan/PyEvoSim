@@ -12,6 +12,8 @@ public class NeatNetwork
     public List<Node> hiddenNodes;
     public List<Connection> connections;
 
+    public float fitness;
+
     public NeatNetwork(int inp, int outp, int hid)
     {
         this.myGenome = CreateInitialGenome(inp, outp, hid);
