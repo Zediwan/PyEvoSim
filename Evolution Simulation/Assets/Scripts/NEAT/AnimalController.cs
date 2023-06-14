@@ -47,6 +47,12 @@ public class AnimalController : MonoBehaviour
             overallFitness = 0;
             Death();
         }
+        else if(other.transform.tag == "Plant")
+        {
+            other.gameObject.GetComponent<PlantController>().SpawnSinglePlant();
+            Destroy(other.gameObject);
+            overallFitness += 1;
+        }
     }
 
     private void InputSensors()
