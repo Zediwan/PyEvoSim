@@ -28,13 +28,58 @@ public class NeatGManager : MonoBehaviour
         allNeatNetworks = new NeatNetwork[startingPopulation];
 
         StartingNetworks();
+        currentGeneration++;
         SpawnBody();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        currentAlive = CurrentAlive();
+        if (!repoping && currentAlive <= 0)
+        {
+            repoping = true;
+            Repopulate();
+            repoping = false;
+        }
+    }
+
+    public int CurrentAlive()
+    {
+        int alive = 0;
+        for(int i = 0; i < allNeatAnimals.Length; i++){
+            if(allNeatAnimals[i].gameObject)
+            {
+                alive++;
+            }
+        }
+        return alive;
+    }
+
+    private void Repopulate()
+    {
+        currentGeneration++;
+    }
+
+    // TODO: Use a faster sorting algorithm.
+    private void SortPopulation()
+    {
+        for(int i = 0; i < allNeatNetworks.Length; i++)
+        {
+            for(int j = i; j < allNeatNetworks.Length; j++)
+            {
+                if(allNeatNetworks[i].fitness < allNeatNetworks[j].fitness)
+                {
+                    NeatNetwork temp = allNeatNetworks[i];
+                    allNeatNetworks[i] = allNeatNetworks[j];
+                    allNeatNetworks[j] = temp;
+                }
+            }
+        }
+    }
+    
+    private void SetNewPopulationNetworks()
+    {
+
     }
 
     // Initializes the starting Networks
