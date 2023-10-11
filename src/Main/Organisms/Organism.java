@@ -33,7 +33,7 @@ public abstract class Organism {
     /**
      * This is used to scale maxEnergy in relation to the BodyPoints
      */
-    private static double maxEnergyToBodyRatio = 3;
+    private static double maxEnergyToBodyRatio = 1;
 
     /**
      * Holds all physical information about an Organism
