@@ -331,7 +331,7 @@ public class Simulation extends JPanel implements ActionListener {
                     System.out.println("Blueprint set:" + "\n" + "Old: " + this.fittestAnimal.getFitnessScore() + "\n" + "New: " + a.getFitnessScore());
                     this.fittestAnimal = a;
                     //TODO make this toggleable
-                    Animal.setBlueprint(this.fittestAnimal);
+                    //Animal.setBlueprint(this.fittestAnimal);
                 }
 
                 count++;
