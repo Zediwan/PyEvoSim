@@ -61,8 +61,8 @@ public class Animal extends Organism {
     public static double growthThreshold = .5;
     public static double healingThreshold = .5;
     public static double attackThreshold = .5;
-    public static double minHealthToReproduce = .5;
-    public static double minMaturityToReproduce = .5;
+    public static double minHealthToReproduce = .2;
+    public static double minMaturityToReproduce = .2;
     public static double reproductiveUrgeFactor = 50;
     public static double damageFactor = 4;
     public static double healingFactor = 2;
@@ -312,10 +312,10 @@ public class Animal extends Organism {
                     new Gene(100, "viewDistance", GeneType.DISTANCE),
                     new Gene(3 * 1000, "timerFrequency", GeneType.TIME),
                     new Gene(0, "pheromoneSensibility", GeneType.SMALLER),
-                    new Gene(1, "separationWeight", GeneType.SMALLER),
-                    new Gene(.5, "alignmentWeight", GeneType.SMALLER),
-                    new Gene(.5, "cohesionWeight", GeneType.SMALLER),
-                    new Gene(1, "velocityWeight", GeneType.SMALLER),
+                    new Gene(0, "separationWeight", GeneType.SMALLER),
+                    new Gene(0, "alignmentWeight", GeneType.SMALLER),
+                    new Gene(0, "cohesionWeight", GeneType.SMALLER),
+                    new Gene(0, "velocityWeight", GeneType.SMALLER),
                     new Gene(50, "separationDistance", GeneType.DISTANCE)
             };
             DNA dna = new DNA(genes);
@@ -570,7 +570,7 @@ public class Animal extends Organism {
         if(outputs[4] > Animal.eatingThreshold && cPlant != null && !cPlant.isDead()){
             if(collision(cPlant)){
                 double damage = this.strength * Animal.damageFactor;    //calculate damage
-                double energyGained = damage;   //TODO add a factor to scale energyGained in the settings
+                double energyGained = damage * 10;   //TODO add a factor to scale energyGained in the settings
 
                 //if damage is bigger than rest of health obtainable energy is limited
                 if(damage > cPlant.getHealth()){
@@ -1062,7 +1062,7 @@ public class Animal extends Organism {
      */
     public double metabolismCost(){
         //TODO does this make sense? shouldn't more energy be used when bigger?
-        return ((this.speed()+3)*Animal.metabolismFactor) / (2*this.size());
+        return (((this.speed()/10)+3)*Animal.metabolismFactor) * ((this.size()/10));
     }
 
     /**
@@ -1109,7 +1109,7 @@ public class Animal extends Organism {
     //TODO think about a good function
     //TODO write documentation with examples and maybe a link to a visual drawing of the function
     public double getFitnessScore(){
-        return (this.healthRatio() + this.energyRatio())*(this.plantsKilled);//Math.pow(this.offspringBirthed,2) + this.maturity) * ;
+        return (this.healthRatio() + this.energyRatio())* (1+ (this.offspringBirthed/10));//Math.pow(this.offspringBirthed,2) + this.maturity) * ;
     }
 
     /**
