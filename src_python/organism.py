@@ -7,12 +7,12 @@ class Organism(ABC):
     MAX_SIZE = 10
     MAX_SPEED = 10
     
-    def __init__(self):
-        self.health = 0
-        self.energy = 0
-        self.birth = 0
-        self.transform = Transform()
-        self.speedLimit = 0
+    def __init__(self, health = 0, energy = 0, birth = 0, tranform = Transform(), speedLimit = 1):
+        self.health = health
+        self.energy = energy
+        self.birth = birth
+        self.transform = tranform
+        self.speedLimit = tranform
     
     def move(self):
         self.transform.move(self.speedLimit)
