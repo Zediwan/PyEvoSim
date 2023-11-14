@@ -14,7 +14,7 @@ class Simulation:
     def __init__(self, width, height, num_animals):
         self.width = width
         self.height = height
-        self.panel_width = 200  # Width of the stats panel
+        self.panel_width = 300  # Width of the stats panel
         self.total_width = width + self.panel_width  # Total width including the panel
         
         pygame.init()
