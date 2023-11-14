@@ -11,7 +11,7 @@ class Simulation:
     def __init__(self, width, height, num_animals):
         pygame.init()
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Random Animal Movement")
+        pygame.display.set_caption("Evolution Simulation")
         self.animals = [
                     Animal(
                         random.randint(0, width), 
