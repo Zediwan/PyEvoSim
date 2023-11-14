@@ -9,7 +9,7 @@ class Animal:
         self.health = dna.max_health
         self.energy = dna.max_energy
         self.size = dna.size
-        self.color = (255, 0, 0)  # Red color
+        self.color = dna.color  # Use color from DNA
 
     def draw_bars(self, screen):
         # Health bar
