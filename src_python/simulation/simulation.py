@@ -1,12 +1,17 @@
 import pygame
 import random
 from entities.animal import Animal  # Corrected import statement
+from entities.plant import Plant
 from entities.dna import DNA
 
 class Simulation:
     ANIMALS_MAX_HEALTH = 100
     ANIMALS_MAX_ENERGY = 100
     ANIMALS_MAX_SIZE = 10
+    
+    PLANTS_MAX_HEALTH = 100
+    PLANTS_MAX_ENERGY = 100
+    PLANTS_MAX_SIZE = 5
 
     MAX_ANIMALS = 50  # Maximum number of animals allowed in the simulation
     SPAWN_THRESHOLD = 30  # Threshold to spawn new animals
@@ -37,6 +42,8 @@ class Simulation:
                     ) for _ in range(num_animals)
         ]        
 
+        self.plants = []
+
         self.clock = pygame.time.Clock()
 
     def run(self):
@@ -57,6 +64,14 @@ class Simulation:
                     animal.draw(self.screen)
                 else:
                     self.animals.remove(animal)
+
+            self.spawn_plants()
+            
+            for plant in self.plants[:]:
+                if plant.is_alive():
+                    plant.draw(self.screen)
+                else:
+                    self.plants.remove(plant)
 
             # Display stats
             self.display_stats()
@@ -84,7 +99,22 @@ class Simulation:
                 self.animals.append(new_animal)
                 if len(self.animals) >= self.MAX_ANIMALS:
                     break
-                
+    
+    def spawn_plants(self):
+        new_plant = Plant(
+            random.randint(0, self.screen.get_width()), 
+            random.randint(0, self.screen.get_height()),
+            DNA(
+                random.randint(50, self.PLANTS_MAX_HEALTH), 
+                random.randint(50, self.PLANTS_MAX_ENERGY), 
+                random.randint(5, self.PLANTS_MAX_SIZE),
+                self.PLANTS_MAX_HEALTH,
+                self.PLANTS_MAX_ENERGY,
+                self.PLANTS_MAX_SIZE
+            )
+        )
+        self.plants.append(new_plant)  
+              
     def calculate_stats(self):
         num_animals = len(self.animals)
         if num_animals == 0:
