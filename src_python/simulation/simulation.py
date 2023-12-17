@@ -1,6 +1,6 @@
 import pygame
 import random
-from entities.animal import Animal  # Corrected import statement
+from entities.animal import Animal
 from entities.plant import Plant
 from entities.dna import DNA
 
@@ -8,12 +8,14 @@ class Simulation:
     ANIMALS_MAX_HEALTH = 100
     ANIMALS_MAX_ENERGY = 100
     ANIMALS_MAX_SIZE = 10
+    ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE_THRESHOLD = .9
     
     PLANTS_MAX_HEALTH = 100
     PLANTS_MAX_ENERGY = 100
     PLANTS_MAX_SIZE = 5
 
     MAX_ANIMALS = 50  # Maximum number of animals allowed in the simulation
+    MAX_PLANTS = 1000
     SPAWN_THRESHOLD = 30  # Threshold to spawn new animals
     
     def __init__(self, width, height, num_animals):
@@ -60,19 +62,28 @@ class Simulation:
 
             for animal in self.animals[:]:
                 animal.move()
-                if animal.is_alive():
+                if animal.isAlive():
+                    for plant in self.plants[:]:
+                        if plant.is_alive():
+                            if animal.x-animal.size/2 <= plant.x and animal.x+animal.size/2 >= plant.x and animal.y-animal.size/2 <= plant.y and animal.y+animal.size/2 >= plant.y:
+                                self.plants.remove(plant)
+                                animal.gainEnergy(100)  #TODO create variable for this
+                                animal.heal()
+                            else:
+                                plant.draw(self.screen)
+                        else:
+                            self.plants.remove(plant)
+                            
+                    if(animal.health >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE_THRESHOLD):
+                        if len(self.animals) < self.MAX_ANIMALS:
+                            self.animals.append(animal.give_birth())
+                    
                     animal.draw(self.screen)
                 else:
                     self.animals.remove(animal)
 
             self.spawn_plants()
             
-            for plant in self.plants[:]:
-                if plant.is_alive():
-                    plant.draw(self.screen)
-                else:
-                    self.plants.remove(plant)
-
             # Display stats
             self.display_stats()
             
@@ -101,19 +112,20 @@ class Simulation:
                     break
     
     def spawn_plants(self):
-        new_plant = Plant(
-            random.randint(0, self.screen.get_width()), 
-            random.randint(0, self.screen.get_height()),
-            DNA(
-                random.randint(50, self.PLANTS_MAX_HEALTH), 
-                random.randint(50, self.PLANTS_MAX_ENERGY), 
-                random.randint(5, self.PLANTS_MAX_SIZE),
-                self.PLANTS_MAX_HEALTH,
-                self.PLANTS_MAX_ENERGY,
-                self.PLANTS_MAX_SIZE
+        if len(self.plants) < self.MAX_PLANTS:
+            new_plant = Plant(
+                random.randint(0, self.screen.get_width()), 
+                random.randint(0, self.screen.get_height()),
+                DNA(
+                    random.randint(50, self.PLANTS_MAX_HEALTH), 
+                    random.randint(50, self.PLANTS_MAX_ENERGY), 
+                    random.randint(5, self.PLANTS_MAX_SIZE),
+                    self.PLANTS_MAX_HEALTH,
+                    self.PLANTS_MAX_ENERGY,
+                    self.PLANTS_MAX_SIZE
+                )
             )
-        )
-        self.plants.append(new_plant)  
+            self.plants.append(new_plant)  
               
     def calculate_stats(self):
         num_animals = len(self.animals)
