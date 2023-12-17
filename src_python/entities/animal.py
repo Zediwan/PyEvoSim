@@ -6,8 +6,8 @@ class Animal:
         self.x = x
         self.y = y
         self.dna = dna
-        self.health = dna.max_health
-        self.energy = dna.max_energy
+        self.health = dna.max_health/2
+        self.energy = dna.max_energy/2
         self.size = dna.size
         self.color = dna.color  # Use color from DNA
 
@@ -31,14 +31,49 @@ class Animal:
         self.draw_bars(screen)
 
     def move(self):
-        if self.energy > 0:
-            self.energy -= 1  # Moving costs energy
-        else:
-            self.health -= 1  # Moving without energy costs health
+        self.spendEnergy(1)
 
         # Random movement
         self.x += random.randint(-5, 5)
         self.y += random.randint(-5, 5)
-
-    def is_alive(self):
+    
+    def heal(self):
+        #TODO create variables out of this
+        usedEnergy = 1
+        gainedHealht = 1
+        
+        #TODO rethink this
+        assert usedEnergy >= gainedHealht, "More healht is gained than energy spent"
+        
+        self.spendEnergy(1)
+        self.gainHealth(1)
+    
+    def give_birth(self):
+        return self.copy()
+    
+    def copy(self):
+        return Animal(self.x, self.y, self.dna.copy())
+        
+    def isAlive(self):
         return self.health > 0
+    
+    def gainHealth(self, healhtGained):
+        assert healhtGained >= 0, "Health gained is negative"
+        
+        newHealth = self.health + healhtGained
+        if(newHealth <= self.dna.max_health):
+            self.health = newHealth
+    
+    def gainEnergy(self, energyGained):
+        assert energyGained >= 0, "Energy gained is negative"
+        
+        newEnergy = self.energy + energyGained
+        if(newEnergy <= self.dna.max_energy):
+            self.energy = newEnergy
+            
+    def spendEnergy(self, energySpent):
+        assert energySpent >= 0, "Energy spent is negative"
+        
+        newEnergy = self.energy - energySpent
+        if(newEnergy < 0):
+            self.health -= newEnergy
