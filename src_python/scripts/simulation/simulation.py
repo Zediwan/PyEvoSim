@@ -9,13 +9,13 @@ class Simulation:
     ANIMALS_MAX_HEALTH = 100
     ANIMALS_MAX_ENERGY = 100
     ANIMALS_MAX_SIZE = 10
-    ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .9
+    ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .7
     
     PLANTS_MAX_HEALTH = 100
     PLANTS_MAX_ENERGY = 100
     PLANTS_MAX_SIZE = 5
 
-    MAX_ANIMALS = 50
+    MAX_ANIMALS = 1000
     MAX_PLANTS = 1000
     SPAWN_NEW_ANIMALS_THRESHOLD = 30  # Threshold below which we start spawning new animals
     
@@ -67,7 +67,7 @@ class Simulation:
                 animal.move()                
                 if animal.isAlive():
                     for plant in self.plants[:]:
-                        if plant.is_alive():
+                        if plant.isAlive():
                             if animal.shape.colliderect(plant.shape):
                                 self.plants.remove(plant)
                                 animal.gainEnergy(100)  #TODO create variable for this
@@ -77,8 +77,8 @@ class Simulation:
                         else:
                             self.plants.remove(plant)
                             
-                    if(animal.health >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE):
-                        if len(self.animals) < self.MAX_ANIMALS:
+                    if(animal.health / animal.dna.max_health >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE):
+                        if len(self.animals) < self.MAX_ANIMALS and random.random() * (animal.health / animal.dna.max_health) >= 0.5:
                             self.animals.append(animal.give_birth())
                     
                     animal.draw(self.screen)
