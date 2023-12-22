@@ -1,32 +1,29 @@
+import sys
 import pygame
 import random
-from entities.animal import Animal
-from entities.plant import Plant
-from entities.dna import DNA
+from scripts.entities.animal import Animal
+from scripts.entities.plant import Plant
+from scripts.entities.dna import DNA
 
 class Simulation:
     ANIMALS_MAX_HEALTH = 100
     ANIMALS_MAX_ENERGY = 100
     ANIMALS_MAX_SIZE = 10
-    ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE_THRESHOLD = .9
+    ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .9
     
     PLANTS_MAX_HEALTH = 100
     PLANTS_MAX_ENERGY = 100
     PLANTS_MAX_SIZE = 5
 
-    MAX_ANIMALS = 50  # Maximum number of animals allowed in the simulation
+    MAX_ANIMALS = 50
     MAX_PLANTS = 1000
-    SPAWN_THRESHOLD = 30  # Threshold to spawn new animals
+    SPAWN_NEW_ANIMALS_THRESHOLD = 30  # Threshold below which we start spawning new animals
     
     def __init__(self, width, height, num_animals):
         self.width = width
         self.height = height
         self.panel_width = 300  # Width of the stats panel
         self.total_width = width + self.panel_width  # Total width including the panel
-        
-        pygame.init()
-        self.screen = pygame.display.set_mode((self.total_width, height))
-        pygame.display.set_caption("Evolution Simulation")
     
         num_animals = min(num_animals, self.MAX_ANIMALS)
         self.animals = [
@@ -45,6 +42,9 @@ class Simulation:
         ]        
         self.plants = []
 
+        pygame.init()
+        pygame.display.set_caption("Evolution Simulation")
+        self.screen = pygame.display.set_mode((self.total_width, height))
         self.clock = pygame.time.Clock()
 
     def run(self):
@@ -54,10 +54,12 @@ class Simulation:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    pygame.quit()
+                    sys.exit()
 
             self.screen.fill((255, 255, 255))  # Fill the screen with a white background
             
-            if len(self.animals) < self.SPAWN_THRESHOLD:
+            if len(self.animals) < self.SPAWN_NEW_ANIMALS_THRESHOLD:
                 self.spawn_animals()
 
             for animal in self.animals[:]:
@@ -74,7 +76,7 @@ class Simulation:
                         else:
                             self.plants.remove(plant)
                             
-                    if(animal.health >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE_THRESHOLD):
+                    if(animal.health >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE):
                         if len(self.animals) < self.MAX_ANIMALS:
                             self.animals.append(animal.give_birth())
                     
@@ -90,11 +92,11 @@ class Simulation:
             pygame.display.update()
             self.clock.tick(60)
 
-        pygame.quit()
+        
 
     def spawn_animals(self):
             # Function to spawn new animals if below threshold
-            while len(self.animals) < self.SPAWN_THRESHOLD:
+            while len(self.animals) < self.SPAWN_NEW_ANIMALS_THRESHOLD:
                 new_animal = Animal(
                     random.randint(0, self.screen.get_width()), 
                     random.randint(0, self.screen.get_height()), 

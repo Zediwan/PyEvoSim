@@ -1,4 +1,4 @@
-from simulation.simulation import Simulation
+from scripts.simulation.simulation import Simulation
 
 if __name__ == "__main__":
     WIDTH, HEIGHT = 1080, 1080
