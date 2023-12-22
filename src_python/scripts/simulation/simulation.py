@@ -42,8 +42,6 @@ class Simulation:
         ]        
         self.plants: list[Plant] = []
         
-        self.camera_movement = [False, False, False, False]
-
         pygame.init()
         pygame.display.set_caption("Evolution Simulation")
         self.screen = pygame.display.set_mode((self.total_width, height))
