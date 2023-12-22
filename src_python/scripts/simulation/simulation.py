@@ -56,6 +56,20 @@ class Simulation:
                     running = False
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    #TODO implement camera
+                    if event.key == pygame.K_UP:
+                        # Move camera up
+                        continue
+                    if event.key == pygame.K_DOWN:
+                        # Move camera dow
+                        continue
+                    if event.key == pygame.K_RIGHT:
+                        # Move camera right
+                        continue
+                    if event.key == pygame.K_LEFT:
+                        # Move camera left
+                        continue
 
             self.screen.fill((255, 255, 255))  # Fill the screen with a white background
             
@@ -91,8 +105,6 @@ class Simulation:
             
             pygame.display.update()
             self.clock.tick(60)
-
-        
 
     def spawn_animals(self):
             # Function to spawn new animals if below threshold
