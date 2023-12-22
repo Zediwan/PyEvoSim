@@ -26,7 +26,7 @@ class Simulation:
         self.total_width = width + self.panel_width  # Total width including the panel
     
         num_animals = min(num_animals, self.MAX_ANIMALS)
-        self.animals = [
+        self.animals: list[Animal] = [
                     Animal(
                         random.randint(0, width), 
                         random.randint(0, height), 
@@ -40,7 +40,7 @@ class Simulation:
                         )
                     ) for _ in range(num_animals)
         ]        
-        self.plants = []
+        self.plants: list[Plant] = []
         
         self.camera_movement = [False, False, False, False]
 
@@ -64,11 +64,11 @@ class Simulation:
                 self.spawn_animals()
 
             for animal in self.animals[:]:
-                animal.move()
+                animal.move()                
                 if animal.isAlive():
                     for plant in self.plants[:]:
                         if plant.is_alive():
-                            if animal.x-animal.size/2 <= plant.x and animal.x+animal.size/2 >= plant.x and animal.y-animal.size/2 <= plant.y and animal.y+animal.size/2 >= plant.y:
+                            if animal.shape.colliderect(plant.shape):
                                 self.plants.remove(plant)
                                 animal.gainEnergy(100)  #TODO create variable for this
                                 animal.heal()
