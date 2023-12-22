@@ -41,6 +41,8 @@ class Simulation:
                     ) for _ in range(num_animals)
         ]        
         self.plants = []
+        
+        self.camera_movement = [False, False, False, False]
 
         pygame.init()
         pygame.display.set_caption("Evolution Simulation")
@@ -49,28 +51,13 @@ class Simulation:
 
     def run(self):
         running = True
-        
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
                     sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    #TODO implement camera
-                    if event.key == pygame.K_UP:
-                        # Move camera up
-                        continue
-                    if event.key == pygame.K_DOWN:
-                        # Move camera dow
-                        continue
-                    if event.key == pygame.K_RIGHT:
-                        # Move camera right
-                        continue
-                    if event.key == pygame.K_LEFT:
-                        # Move camera left
-                        continue
-
+                
             self.screen.fill((255, 255, 255))  # Fill the screen with a white background
             
             if len(self.animals) < self.SPAWN_NEW_ANIMALS_THRESHOLD:
@@ -175,4 +162,3 @@ class Simulation:
             text = font.render(f"{key}: {value:.2f}", True, (0, 0, 0))
             self.screen.blit(text, (panel_x + 10, y_offset))
             y_offset += 30
-    
