@@ -60,6 +60,8 @@ class Animal:
         newHealth = self.health + healhtGained
         if(newHealth <= self.dna.max_health):
             self.health = newHealth
+        else:
+            self.health = self.dna.max_health
     
     def gainEnergy(self, energyGained):
         assert energyGained >= 0, "Energy gained is negative"
@@ -67,6 +69,8 @@ class Animal:
         newEnergy = self.energy + energyGained
         if(newEnergy <= self.dna.max_energy):
             self.energy = newEnergy
+        else:
+            self.energy = self.dna.max_energy
             
     def spendEnergy(self, energySpent):
         assert energySpent >= 0, "Energy spent is negative"
