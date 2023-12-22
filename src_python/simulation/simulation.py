@@ -43,13 +43,13 @@ class Simulation:
                         )
                     ) for _ in range(num_animals)
         ]        
-
         self.plants = []
 
         self.clock = pygame.time.Clock()
 
     def run(self):
         running = True
+        
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -87,8 +87,8 @@ class Simulation:
             # Display stats
             self.display_stats()
             
-            pygame.display.flip()
-            self.clock.tick(30)
+            pygame.display.update()
+            self.clock.tick(60)
 
         pygame.quit()
 
