@@ -13,7 +13,7 @@ class Simulation:
     
     PLANTS_MAX_HEALTH = 100
     PLANTS_MAX_ENERGY = 100
-    PLANTS_MAX_SIZE = 5
+    PLANTS_MAX_SIZE = 10
 
     MAX_ANIMALS = 1000
     MAX_PLANTS = 1000
@@ -36,7 +36,7 @@ class Simulation:
                             random.randint(5, self.ANIMALS_MAX_SIZE),
                             self.ANIMALS_MAX_HEALTH,
                             self.ANIMALS_MAX_ENERGY,
-                            self.ANIMALS_MAX_SIZE
+                            self.ANIMALS_MAX_SIZE,
                         )
                     ) for _ in range(num_animals)
         ]        
@@ -105,7 +105,7 @@ class Simulation:
                         random.randint(5, self.ANIMALS_MAX_SIZE),
                         self.ANIMALS_MAX_HEALTH,
                         self.ANIMALS_MAX_ENERGY,
-                        self.ANIMALS_MAX_SIZE
+                        self.ANIMALS_MAX_SIZE,
                     )
                 )
                 self.animals.append(new_animal)
@@ -123,7 +123,8 @@ class Simulation:
                     random.randint(5, self.PLANTS_MAX_SIZE),
                     self.PLANTS_MAX_HEALTH,
                     self.PLANTS_MAX_ENERGY,
-                    self.PLANTS_MAX_SIZE
+                    self.PLANTS_MAX_SIZE,
+                    color = pygame.Color(random.randint(0, 30), random.randint(50, 150), random.randint(0, 30))
                 )
             )
             self.plants.append(new_plant)  
