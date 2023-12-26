@@ -76,7 +76,7 @@ class Simulation:
                             self.plants.remove(plant)
                             
                     if(animal.health / animal.dna.max_health >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE):
-                        if len(self.animals) < self.MAX_ANIMALS and random.random() * (animal.health / animal.dna.max_health) >= 0.5:
+                        if len(self.animals) < self.MAX_ANIMALS and random.random() * (animal.health / animal.dna.max_health) >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE:
                             self.animals.append(animal.give_birth())
                     
                     animal.draw(self.screen)
