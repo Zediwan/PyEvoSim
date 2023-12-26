@@ -31,11 +31,6 @@ class Simulation:
                         random.randint(0, width), 
                         random.randint(0, height), 
                         DNA(
-                            random.randint(50, self.ANIMALS_MAX_HEALTH), 
-                            random.randint(50, self.ANIMALS_MAX_ENERGY), 
-                            random.randint(5, self.ANIMALS_MAX_SIZE),
-                            self.ANIMALS_MAX_HEALTH,
-                            self.ANIMALS_MAX_ENERGY,
                             self.ANIMALS_MAX_SIZE,
                         )
                     ) for _ in range(num_animals)
@@ -75,8 +70,8 @@ class Simulation:
                         else:
                             self.plants.remove(plant)
                             
-                    if(animal.health / animal.dna.max_health >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE):
-                        if len(self.animals) < self.MAX_ANIMALS and random.random() * (animal.health / animal.dna.max_health) >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE:
+                    if(animal.calculate_health_ratio() >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE):
+                        if len(self.animals) < self.MAX_ANIMALS and random.random() * animal.calculate_health_ratio() >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE:
                             self.animals.append(animal.give_birth())
                     
                     animal.draw(self.screen)
@@ -98,11 +93,6 @@ class Simulation:
                     random.randint(0, self.screen.get_width()), 
                     random.randint(0, self.screen.get_height()), 
                     DNA(
-                        random.randint(50, self.ANIMALS_MAX_HEALTH), 
-                        random.randint(50, self.ANIMALS_MAX_ENERGY), 
-                        random.randint(5, self.ANIMALS_MAX_SIZE),
-                        self.ANIMALS_MAX_HEALTH,
-                        self.ANIMALS_MAX_ENERGY,
                         self.ANIMALS_MAX_SIZE,
                     )
                 )
@@ -116,11 +106,6 @@ class Simulation:
                 random.randint(0, self.screen.get_width()), 
                 random.randint(0, self.screen.get_height()),
                 DNA(
-                    random.randint(50, self.PLANTS_MAX_HEALTH), 
-                    random.randint(50, self.PLANTS_MAX_ENERGY), 
-                    random.randint(5, self.PLANTS_MAX_SIZE),
-                    self.PLANTS_MAX_HEALTH,
-                    self.PLANTS_MAX_ENERGY,
                     self.PLANTS_MAX_SIZE,
                     color = pygame.Color(random.randint(0, 30), random.randint(50, 150), random.randint(0, 30))
                 )
