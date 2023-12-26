@@ -6,6 +6,9 @@ from scripts.entities.dna import DNA
 class Animal(Organism):
     def __init__(self, x, y, dna: DNA):
         super().__init__(x, y, dna)
+        
+    def update(self):
+        self.move()
 
     def move(self):
         self.spendEnergy(1)

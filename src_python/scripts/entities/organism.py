@@ -1,7 +1,8 @@
 import pygame
 from scripts.entities.dna import DNA
+from abc import ABC, abstractmethod
 
-class Organism():
+class Organism(ABC):
     HEALTH_BAR_OFFSET = 2
     def __init__(self, x, y, dna: DNA):
         self.dna = dna
@@ -9,7 +10,11 @@ class Organism():
         self.energy = dna.max_energy/2
         self.color = dna.color
         self.shape = pygame.Rect(x, y, dna.size, dna.size)
-        
+    
+    @abstractmethod
+    def update(self):
+        return
+    
     def draw_bars(self, screen):
         #TODO implement a class for the bars
         # Health bar
