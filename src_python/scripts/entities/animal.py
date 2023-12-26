@@ -15,13 +15,9 @@ class Animal(Organism):
         # Random movement
         self.shape.move_ip(random.randint(-5, 5), random.randint(-5, 5))
     
-    def heal(self):
-        #TODO create variables out of this
-        usedEnergy = 1
-        gainedHealht = 1
-        
-        #TODO rethink this
-        assert usedEnergy >= gainedHealht, "More healht is gained than energy spent"
+    def heal(self, usedEnergy = 1, gainedHealth = 1):
+        #TODO rethink this, maybe turn this into a warning
+        assert usedEnergy >= gainedHealth, "More health is gained than energy spent"
         
         self.spendEnergy(1)
         self.gainHealth(1)
