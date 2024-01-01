@@ -22,8 +22,6 @@ class Simulation:
     def __init__(self, width, height, num_animals):
         self.width = width
         self.height = height
-        self.panel_width = 300  # Width of the stats panel
-        self.total_width = width + self.panel_width  # Total width including the panel
     
         num_animals = min(num_animals, self.MAX_ANIMALS)
         self.animals: list[Animal] = [
@@ -39,7 +37,7 @@ class Simulation:
         
         pygame.init()
         pygame.display.set_caption("Evolution Simulation")
-        self.screen = pygame.display.set_mode((self.total_width, height))
+        self.screen = pygame.display.set_mode((self.width, height))
         self.clock = pygame.time.Clock()
 
     def run(self):
@@ -81,9 +79,6 @@ class Simulation:
 
             self.spawn_plants()
             
-            # Display stats
-            self.display_stats()
-            
             pygame.display.update()
             self.clock.tick(60)
 
@@ -112,38 +107,3 @@ class Simulation:
                 )
             )
             self.plants.append(new_plant)  
-              
-    def calculate_stats(self):
-        num_animals = len(self.animals)
-        if num_animals == 0:
-            return {
-                "Number of Animals": 0,
-                "Average Health": 0,
-                "Average Energy": 0,
-                # Add more stats as needed
-            }
-
-        total_health = sum(animal.health for animal in self.animals)
-        total_energy = sum(animal.energy for animal in self.animals)
-
-        return {
-            "Number of Animals": num_animals,
-            "Average Health": total_health / num_animals,
-            "Average Energy": total_energy / num_animals,
-            # Add more stats as needed
-        }
-    
-    def display_stats(self):
-        stats = self.calculate_stats()
-        font = pygame.font.SysFont('arial', 24)
-        panel_x = self.width  # Starting X coordinate of the panel
-        y_offset = 20  # Starting Y offset for text
-
-        # Draw panel background
-        pygame.draw.rect(self.screen, (230, 230, 230), (panel_x, 0, self.panel_width, self.height))
-
-        # Display each stat
-        for key, value in stats.items():
-            text = font.render(f"{key}: {value:.2f}", True, (0, 0, 0))
-            self.screen.blit(text, (panel_x + 10, y_offset))
-            y_offset += 30
