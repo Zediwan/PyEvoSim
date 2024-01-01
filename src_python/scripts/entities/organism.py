@@ -1,10 +1,10 @@
 from ast import Or
 import pygame
 from scripts.entities.dna import DNA
+from scripts.information.bar import Bar, EnergyBar, HealthBar
 from abc import ABC, abstractmethod
 
 class Organism(ABC):
-    HEALTH_BAR_OFFSET = 2
     SIZE_TO_ENERGY_RATIO = 2
     SIZE_TO_HEALTH_RATIO = 2
     STARTING_ENERGY_RATIO = .5
@@ -16,6 +16,8 @@ class Organism(ABC):
         self.energy = self.calculate_max_energy() * Organism.STARTING_ENERGY_RATIO
         self.color = dna.color
         self.shape = pygame.Rect(x, y, dna.size, dna.size)
+        self.healthBar = HealthBar(x, y, self.shape.width, self.calculate_max_health())
+        self.energyBar = EnergyBar(x, y, self.shape.width, self.calculate_max_energy())
     
     @abstractmethod
     def update(self):
@@ -23,20 +25,10 @@ class Organism(ABC):
     
     ### Graphics
     def draw_bars(self, screen):
-        #TODO implement a class for the bars
-        # Health bar
-        health_bar_width = self.calculate_health_ratio() * self.shape.width * 2
-        health_bar_height = 4
-        health_bar_x = self.shape.left - self.shape.width
-        health_bar_y = self.shape.top - self.shape.height - health_bar_height - 2  
-        pygame.draw.rect(screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_width, health_bar_height))
-
-        # Energy bar
-        energy_bar_width = self.calculate_energy_ratio() * self.shape.width * 2
-        energy_bar_height = 4
-        energy_bar_x = self.shape.left - self.shape.width
-        energy_bar_y = health_bar_y - energy_bar_height - 2
-        pygame.draw.rect(screen, (0, 0, 255), (energy_bar_x, energy_bar_y, energy_bar_width, energy_bar_height))
+        self.healthBar.update(self.shape.left, self.shape.top-4, self.calculate_health_ratio())
+        self.energyBar.update(self.shape.left, self.shape.top-2, self.calculate_energy_ratio())
+        self.healthBar.draw(screen)
+        self.energyBar.draw(screen)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.shape)
@@ -69,7 +61,7 @@ class Organism(ABC):
         
         newEnergy = self.energy - energySpent
         if(newEnergy < 0):
-            self.health -= newEnergy
+            self.health += newEnergy
             
     def calculate_max_energy(self):
         return self.dna.size * Organism.SIZE_TO_ENERGY_RATIO
@@ -78,7 +70,11 @@ class Organism(ABC):
         return self.dna.size * Organism.SIZE_TO_HEALTH_RATIO
     
     def calculate_energy_ratio(self):
-        return self.energy / self.calculate_max_energy()
+        ratio = self.energy / self.calculate_max_energy()
+        assert ratio <= 1, "Energy Ratio is bigger than 1"
+        return ratio
     
     def calculate_health_ratio(self):
-        return self.health / self.calculate_max_health()
+        ratio = self.health / self.calculate_max_health()
+        assert ratio <= 1, "Health Ratio is bigger than 1"
+        return ratio
