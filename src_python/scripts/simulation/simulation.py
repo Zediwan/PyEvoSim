@@ -66,6 +66,7 @@ class Simulation:
                                 animal.gainEnergy(100)  #TODO create variable for this
                                 animal.heal()
                             else:
+                                plant.update()
                                 plant.draw(self.screen)
                         else:
                             self.plants.remove(plant)
