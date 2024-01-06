@@ -5,10 +5,10 @@ from scripts.information.bar import Bar, EnergyBar, HealthBar
 from abc import ABC, abstractmethod
 
 class Organism(ABC):
-    SIZE_TO_ENERGY_RATIO = 2
+    SIZE_TO_ENERGY_RATIO = 4
     SIZE_TO_HEALTH_RATIO = 2
     STARTING_ENERGY_RATIO = .5
-    STARTING_HEALTH_RATIO = .5
+    STARTING_HEALTH_RATIO = 1
     
     def __init__(self, x, y, dna: DNA):
         self.dna = dna
@@ -25,8 +25,8 @@ class Organism(ABC):
     
     ### Graphics
     def draw_bars(self, screen):
-        self.healthBar.update(self.shape.left, self.shape.top-4, self.calculate_health_ratio())
-        self.energyBar.update(self.shape.left, self.shape.top-2, self.calculate_energy_ratio())
+        self.healthBar.update(self.shape, self.calculate_health_ratio())
+        self.energyBar.update(self.shape, self.calculate_energy_ratio())
         self.healthBar.draw(screen)
         self.energyBar.draw(screen)
 
@@ -62,6 +62,8 @@ class Organism(ABC):
         newEnergy = self.energy - energySpent
         if(newEnergy < 0):
             self.health += newEnergy
+        else:
+            self.energy = newEnergy  
             
     def calculate_max_energy(self):
         return self.dna.size * Organism.SIZE_TO_ENERGY_RATIO
