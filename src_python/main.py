@@ -1,7 +1,7 @@
 from scripts.simulation.simulation import Simulation
 
 if __name__ == "__main__":
-    WIDTH, HEIGHT = 1920, 1080
+    WIDTH, HEIGHT = 1000, 1000
     NUM_STARTING_ANIMALS = 10
     NUM_STARTING_PLANTS = 100
     
