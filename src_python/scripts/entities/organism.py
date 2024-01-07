@@ -1,7 +1,6 @@
-from ast import Or
 import pygame
 from scripts.entities.dna import DNA
-from scripts.information.bar import Bar, EnergyBar, HealthBar
+from scripts.information.bar import EnergyBar, HealthBar
 from abc import ABC, abstractmethod
 
 class Organism(ABC):

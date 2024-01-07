@@ -1,4 +1,3 @@
-import pygame
 import random
 from scripts.entities.dna import DNA
 from scripts.entities.organism import Organism
