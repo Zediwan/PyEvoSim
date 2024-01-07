@@ -30,20 +30,20 @@ class Simulation:
         # Initial genome (random or predefined)
         self.initial_genome = neat.DefaultGenome(self.config.genome_config)
         self.initial_genome.configure_new(self.config.genome_config)
-
-        num_starting_animals = min(num_starting_animals, self.MAX_ANIMALS)
-        
-        self.animals: list[Animal]    
-        self.plants: list[Plant]
-        for _ in range(num_starting_animals):
-            self.spawn_animal()
-        for _ in range(num_starting_plants):
-            self.spawn_plant()
         
         pygame.init()
         pygame.display.set_caption("Evolution Simulation")
         self.screen = pygame.display.set_mode((self.width, height))
         self.clock = pygame.time.Clock()
+        
+        num_starting_animals = min(num_starting_animals, self.MAX_ANIMALS)
+        
+        self.animals: list[Animal] = []
+        self.plants: list[Plant] = []
+        for _ in range(num_starting_animals):
+            self.spawn_animal()
+        for _ in range(num_starting_plants):
+            self.spawn_plant()
 
     def run(self):
         """
@@ -109,7 +109,7 @@ class Simulation:
         """
         Spawns new animals if the number of animals is below the threshold.
         """
-        if len(self.animals) < self.SPAWN_NEW_ANIMALS_THRESHOLD:
+        if len(self.animals) < self.MAX_ANIMALS:
             self.spawn_animal()
 
     def spawnNewPlants(self):
@@ -120,7 +120,7 @@ class Simulation:
             self.spawn_plant()
 
     def spawn_animal(self):
-        assert len(self.animals) >= self.MAX_ANIMALS, "Cannot spawn new Animals as this would put the amount of animals above the threshold"
+        assert len(self.animals) < self.MAX_ANIMALS, "Cannot spawn new Animals as this would put the amount of animals above the threshold"
         self.initial_genome.configure_new(self.config.genome_config)
         
         self.animals.append(
@@ -136,7 +136,7 @@ class Simulation:
         )
         
     def spawn_plant(self):
-        assert len(self.plants) >= self.MAX_PLANTS, "Cannot spawn new Plants as this would put the amount of plants above the threshold"
+        assert len(self.plants) < self.MAX_PLANTS, "Cannot spawn new Plants as this would put the amount of plants above the threshold"
         
         self.plants.append(
             Plant(
