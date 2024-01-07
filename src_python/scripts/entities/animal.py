@@ -21,7 +21,7 @@ class Animal(Organism):
         self.move(movement)
         self.heal(amountToHeal)
         
-    def think(self, plants: list[Plant]):
+    def think(self, plants: list[Plant]) -> tuple[pygame.math.Vector2, float]:
         #TODO implement energy useage for thinking
         #TODO implement seeing
         closest_plant, distance = self.find_closest_plant(plants)
@@ -78,7 +78,7 @@ class Animal(Organism):
 
         return closest_plant, min_distance
     
-    def heal(self, usedEnergy = 1.0):
+    def heal(self, usedEnergy: float = 1.0):
         self.spendEnergy(usedEnergy)
         self.gainHealth(usedEnergy*Animal.MIN_PERCENTAGE_HEALTH_TO_REPRODUCE)
 
@@ -95,7 +95,3 @@ class Animal(Organism):
         new_genome.configure_new(config.genome_config)
         new_genome.mutate(config.genome_config) #TODO avoid mutation in copy method
         return Animal(self.shape.left, self.shape.top, self.dna.copy(), new_genome, config)
-    
-    def scale_output(self, value, min_val, max_val):
-        # Assuming raw output is between 0 and 1 (adjust if your activation function is different)
-        return min_val + (max_val - min_val) * value
