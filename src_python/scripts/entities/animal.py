@@ -10,6 +10,7 @@ class Animal(Organism):
     MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .7
     MAX_SPEED = 3
     ENERGY_SPENT_TO_HEALTH_GAINED_RATIO = 1
+    ENERGY_TO_SPEED_RATIO = .01
     
     def __init__(self, x, y, dna: DNA, genome, config):
         super().__init__(x, y, dna)
@@ -59,8 +60,19 @@ class Animal(Organism):
         
         return movement_vector, energySpendingOnHealing
 
-    def move(self, movement_vector : pygame.math.Vector2):
-        self.spendEnergy(movement_vector.length()/100 + 0.1) #TODO implement energy spendure based on movement
+    def move(self, movement_vector: pygame.math.Vector2):
+        """
+        Update the position of the animal's shape based on the given movement vector.
+        Also calculates and spends energy based on the distance moved.
+
+        Args:
+            movement_vector (pygame.math.Vector2): The vector representing the desired movement direction and speed.
+
+        Returns:
+            None
+        """
+        energy_spent = (movement_vector.length_squared()*self.ENERGY_TO_SPEED_RATIO) * (self.shape.width * self.shape.height) + 0.1
+        self.spendEnergy(energy_spent)
         self.shape.move_ip(movement_vector)
     
     def find_closest_plant(self, plants:list[Plant]) -> tuple[Plant | None, float]:
