@@ -1,5 +1,5 @@
 import pygame
-from src_python.scripts.entities.DNA.dna import DNA
+from scripts.entities.DNA.dna import DNA
 from scripts.information.bar import EnergyBar, HealthBar
 from abc import ABC, abstractmethod
 
@@ -7,16 +7,16 @@ class Organism(ABC):
     SIZE_TO_ENERGY_RATIO = 20
     SIZE_TO_HEALTH_RATIO = 10
     STARTING_ENERGY_RATIO = .5
-    STARTING_HEALTH_RATIO = 1
+    STARTING_HEALTH_RATIO = .5
     
     def __init__(self, x: int, y:int, dna: DNA):
         self.dna = dna
-        self.health = self.calculate_max_health() * Organism.STARTING_HEALTH_RATIO
-        self.energy = self.calculate_max_energy() * Organism.STARTING_ENERGY_RATIO
-        self.color = dna.color
-        self.shape = pygame.Rect(x, y, dna.size, dna.size)
+        self.color = dna.colorGene.color
+        self.shape = pygame.Rect(x, y, dna.sizeGene.size, dna.sizeGene.size)
         self.healthBar = HealthBar(x, y, self.shape.width, self.calculate_max_health())
         self.energyBar = EnergyBar(x, y, self.shape.width, self.calculate_max_energy())
+        self.health = self.calculate_max_health() * Organism.STARTING_HEALTH_RATIO
+        self.energy = self.calculate_max_energy() * Organism.STARTING_ENERGY_RATIO
     
     @abstractmethod
     def update(self):
@@ -65,10 +65,10 @@ class Organism(ABC):
             self.energy = newEnergy  
             
     def calculate_max_energy(self) -> float:
-        return self.dna.size * Organism.SIZE_TO_ENERGY_RATIO
+        return self.shape.size[0] * Organism.SIZE_TO_ENERGY_RATIO
     
     def calculate_max_health(self):
-        return self.dna.size * Organism.SIZE_TO_HEALTH_RATIO
+        return self.shape.size[0] * Organism.SIZE_TO_HEALTH_RATIO
     
     def calculate_energy_ratio(self) -> float:
         ratio = self.energy / self.calculate_max_energy()

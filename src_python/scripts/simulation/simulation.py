@@ -4,18 +4,21 @@ import random
 import neat
 from scripts.entities.animal import Animal
 from scripts.entities.plant import Plant
-from src_python.scripts.entities.DNA.dna import DNA
+from scripts.entities.DNA.dna import DNA
+from scripts.entities.DNA.gene import ColorGene, SizeGene
 
 class Simulation:
     ANIMALS_MAX_HEALTH = 100
     ANIMALS_MAX_ENERGY = 100
-    ANIMALS_MAX_SIZE = 10
+    ANIMALS_MIN_STARTING_SIZE = 1
+    ANIMALS_MAX_STARTING_SIZE = 10
     
     PLANTS_MAX_HEALTH = 100
     PLANTS_MAX_ENERGY = 100
-    PLANTS_MAX_SIZE = 10
+    PLANTS_MIN_STARTING_SIZE = 1
+    PLANTS_MAX_STARTING_SIZE = 10
 
-    MAX_ANIMALS = 200
+    MAX_ANIMALS = 100
     MAX_PLANTS = 500
     SPAWN_NEW_ANIMALS_THRESHOLD = 50  # Threshold below which we start spawning new animals
     
@@ -93,7 +96,7 @@ class Simulation:
         for plant in self.plants[:]:
             if plant.isAlive() and animal.shape.colliderect(plant.shape):
                 self.plants.remove(plant)   #TODO add proper plant consumption
-                animal.gainEnergy(10 * plant.shape.size[0]) #TODO add proper variable for this
+                animal.gainEnergy(10 * plant.shape.size[0] * plant.shape.size[1]) #TODO add proper variable for this
 
     def handleAnimalReproduction(self, animal: Animal):
         """
@@ -128,7 +131,7 @@ class Simulation:
                 random.randint(0, self.screen.get_width()), 
                 random.randint(0, self.screen.get_height()), 
                 DNA(
-                    self.ANIMALS_MAX_SIZE,
+                    SizeGene(random.randint(self.ANIMALS_MIN_STARTING_SIZE, self.ANIMALS_MAX_STARTING_SIZE)),
                 ),
                 self.initial_genome,
                 self.config
@@ -143,8 +146,8 @@ class Simulation:
                 random.randint(0, self.screen.get_width()), 
                 random.randint(0, self.screen.get_height()),
                 DNA(
-                    self.PLANTS_MAX_SIZE,
-                    color = pygame.Color(random.randint(0, 30), random.randint(50, 150), random.randint(0, 30))
+                    SizeGene(random.randint(self.PLANTS_MIN_STARTING_SIZE, self.PLANTS_MAX_STARTING_SIZE)),
+                    ColorGene(pygame.Color(random.randint(0, 30), random.randint(50, 150), random.randint(0, 30)))
                 )
             )
         )   

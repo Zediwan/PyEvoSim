@@ -2,15 +2,16 @@ import random
 import neat
 import pygame
 from scripts.entities.organism import Organism
-from src_python.scripts.entities.DNA.dna import DNA
+from scripts.entities.DNA.dna import DNA
 from scripts.entities.plant import Plant
 
 
 class Animal(Organism):
     MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .6
+    MIN_PERCENTAGE_ENERGY_TO_REPRODUCE = .6
     MAX_SPEED = 3
-    ENERGY_SPENT_TO_HEALTH_GAINED_RATIO = 1
-    ENERGY_TO_SPEED_RATIO = .01
+    ENERGY_SPENT_TO_HEALTH_GAINED_RATIO = .8
+    ENERGY_TO_SPEED_RATIO = .001
     
     def __init__(self, x, y, dna: DNA, genome, config):
         super().__init__(x, y, dna)
@@ -71,7 +72,7 @@ class Animal(Organism):
         Returns:
             None
         """
-        energy_spent = (movement_vector.length_squared()*self.ENERGY_TO_SPEED_RATIO) * (self.shape.width * self.shape.height) + 0.1
+        energy_spent = (movement_vector.length_squared()*self.ENERGY_TO_SPEED_RATIO) * (self.shape.width * self.shape.height) + 0.2
         self.spendEnergy(energy_spent)
         self.shape.move_ip(movement_vector)
     
@@ -95,7 +96,7 @@ class Animal(Organism):
         self.gainHealth(usedEnergy*Animal.ENERGY_SPENT_TO_HEALTH_GAINED_RATIO)
 
     def can_reproduce(self):
-        return self.calculate_health_ratio() >= Animal.MIN_PERCENTAGE_HEALTH_TO_REPRODUCE
+        return self.calculate_energy_ratio() >= Animal.MIN_PERCENTAGE_ENERGY_TO_REPRODUCE
 
     def reproduce(self, config):
         if self.can_reproduce() and random.randint(1, 50) == 1: #TODO transform chance intor a variable

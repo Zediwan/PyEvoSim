@@ -1,20 +1,21 @@
-import pygame
-import random
+from scripts.entities.DNA.gene import ColorGene, SizeGene
 
 class DNA:
-    MIN_SIZE = 1
-    def __init__(self, max_size: int, color = None):
-        if max_size < DNA.MIN_SIZE:
-            self.size = DNA.MIN_SIZE
+    def __init__(self, sizeGene: SizeGene, colorGene: ColorGene | None = None):        
+        if sizeGene == None:
+            self.sizeGene = SizeGene()
         else:
-            self.size = random.randint(int(max_size/2), max_size)
-        if(self.size < DNA.MIN_SIZE):
-            self.size = DNA.MIN_SIZE
-        if color == None:
-            self.color = pygame.Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            self.sizeGene = sizeGene
+        
+        if colorGene == None:
+            self.colorGene = ColorGene()
         else:
-            self.color = color
+            self.colorGene = colorGene
         
     def copy(self):
-        copy_dna = DNA(self.size + random.randint(-2,2), self.color)
+        copy_dna = DNA(self.sizeGene.copy(), self.colorGene.copy())
         return copy_dna
+    
+    def mutate(self):
+        self.sizeGene.mutate()
+        self.colorGene.mutate()
