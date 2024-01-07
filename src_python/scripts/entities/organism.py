@@ -80,3 +80,6 @@ class Organism(ABC):
         ratio = self.health / self.calculate_max_health()
         assert ratio <= 1, "Health Ratio is bigger than 1"
         return ratio
+    
+    def getPosition(self):
+        return pygame.math.Vector2(self.shape.center)

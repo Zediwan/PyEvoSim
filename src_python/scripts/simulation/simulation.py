@@ -1,6 +1,7 @@
 import sys
 import pygame
 import random
+import neat
 from scripts.entities.animal import Animal
 from scripts.entities.plant import Plant
 from scripts.entities.dna import DNA
@@ -9,20 +10,27 @@ class Simulation:
     ANIMALS_MAX_HEALTH = 100
     ANIMALS_MAX_ENERGY = 100
     ANIMALS_MAX_SIZE = 10
-    ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .7
     
     PLANTS_MAX_HEALTH = 100
     PLANTS_MAX_ENERGY = 100
     PLANTS_MAX_SIZE = 10
 
-    MAX_ANIMALS = 1000
-    MAX_PLANTS = 1000
-    SPAWN_NEW_ANIMALS_THRESHOLD = 30  # Threshold below which we start spawning new animals
+    MAX_ANIMALS = 200
+    MAX_PLANTS = 500
+    SPAWN_NEW_ANIMALS_THRESHOLD = 50  # Threshold below which we start spawning new animals
     
     def __init__(self, width, height, num_animals):
         self.width = width
         self.height = height
+        
+        self.config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                     neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                     'src_python/config/neat_config.txt')
     
+        # Initial genome (random or predefined)
+        self.initial_genome = neat.DefaultGenome(self.config.genome_config)
+        self.initial_genome.configure_new(self.config.genome_config)
+
         num_animals = min(num_animals, self.MAX_ANIMALS)
         self.animals: list[Animal] = [
                     Animal(
@@ -30,7 +38,9 @@ class Simulation:
                         random.randint(0, height), 
                         DNA(
                             self.ANIMALS_MAX_SIZE,
-                        )
+                        ),
+                        self.initial_genome,
+                        self.config
                     ) for _ in range(num_animals)
         ]        
         self.plants: list[Plant] = []
@@ -50,33 +60,38 @@ class Simulation:
                     sys.exit()
                 
             self.screen.fill((255, 255, 255))  # Fill the screen with a white background
-            
-            if len(self.animals) < self.SPAWN_NEW_ANIMALS_THRESHOLD:
-                self.spawn_animals()
 
-            for animal in self.animals[:]:
-                animal.move()                
+            for animal in self.animals[:]:              
                 if animal.isAlive():
+                    animal.update(self.plants) 
                     for plant in self.plants[:]:
                         if plant.isAlive():
                             if animal.shape.colliderect(plant.shape):
                                 self.plants.remove(plant)
-                                animal.gainEnergy(100)  #TODO create variable for this
-                                animal.heal()
-                            else:
-                                plant.update()
-                                plant.draw(self.screen)
+                                animal.gainEnergy(10 * plant.shape.size[0])  #TODO create variable for this d
                         else:
-                            self.plants.remove(plant)
-                            
-                    if(animal.calculate_health_ratio() >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE):
-                        if len(self.animals) < self.MAX_ANIMALS and random.random() * animal.calculate_health_ratio() >= self.ANIMALS_MIN_PERCENTAGE_HEALTH_TO_REPRODUCE:
-                            self.animals.append(animal.give_birth())
+                            self.plants.remove(plant)  
+                    
+                    if len(self.animals) < self.MAX_ANIMALS:
+                        a = animal.reproduce(self.config)
+                        if a != None:
+                            self.animals.append(a)
                     
                     animal.draw(self.screen)
                 else:
-                    self.animals.remove(animal)
+                    self.animals.remove(animal) #TODO add meat spawning
 
+            for plant in self.plants[:]:
+                if plant.isAlive():
+                    plant.update()
+                    plant.draw(self.screen)
+                else:
+                    self.plants.remove(plant)   #TODO add dead plants still being edible for some time
+
+            if len(self.animals) < self.SPAWN_NEW_ANIMALS_THRESHOLD:
+                self.spawn_animals()
+            
+            
             self.spawn_plants()
             
             pygame.display.update()
@@ -84,13 +99,16 @@ class Simulation:
 
     def spawn_animals(self):
             # Function to spawn new animals if below threshold
+            self.initial_genome.configure_new(self.config.genome_config)
             while len(self.animals) < self.SPAWN_NEW_ANIMALS_THRESHOLD:
                 new_animal = Animal(
                     random.randint(0, self.screen.get_width()), 
                     random.randint(0, self.screen.get_height()), 
                     DNA(
                         self.ANIMALS_MAX_SIZE,
-                    )
+                    ),
+                    self.initial_genome,
+                    self.config
                 )
                 self.animals.append(new_animal)
                 if len(self.animals) >= self.MAX_ANIMALS:
