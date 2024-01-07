@@ -109,7 +109,7 @@ class Simulation:
         """
         Spawns new animals if the number of animals is below the threshold.
         """
-        if len(self.animals) < self.MAX_ANIMALS:
+        if len(self.animals) < self.MAX_ANIMALS and len(self.animals) <= self.SPAWN_NEW_ANIMALS_THRESHOLD:
             self.spawn_animal()
 
     def spawnNewPlants(self):
