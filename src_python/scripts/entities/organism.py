@@ -4,8 +4,8 @@ from scripts.information.bar import EnergyBar, HealthBar
 from abc import ABC, abstractmethod
 
 class Organism(ABC):
-    SIZE_TO_ENERGY_RATIO = 4
-    SIZE_TO_HEALTH_RATIO = 2
+    SIZE_TO_ENERGY_RATIO = 20
+    SIZE_TO_HEALTH_RATIO = 10
     STARTING_ENERGY_RATIO = .5
     STARTING_HEALTH_RATIO = 1
     
