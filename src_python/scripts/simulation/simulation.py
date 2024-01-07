@@ -4,7 +4,7 @@ import random
 import neat
 from scripts.entities.animal import Animal
 from scripts.entities.plant import Plant
-from scripts.entities.dna import DNA
+from src_python.scripts.entities.DNA.dna import DNA
 
 class Simulation:
     ANIMALS_MAX_HEALTH = 100

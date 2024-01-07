@@ -1,5 +1,5 @@
 import pygame
-from scripts.entities.dna import DNA
+from src_python.scripts.entities.DNA.dna import DNA
 from scripts.information.bar import EnergyBar, HealthBar
 from abc import ABC, abstractmethod
 

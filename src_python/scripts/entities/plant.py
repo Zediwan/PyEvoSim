@@ -1,5 +1,5 @@
 import random
-from scripts.entities.dna import DNA
+from src_python.scripts.entities.DNA.dna import DNA
 from scripts.entities.organism import Organism
 
 class Plant(Organism):

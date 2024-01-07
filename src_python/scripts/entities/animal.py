@@ -2,7 +2,7 @@ import random
 import neat
 import pygame
 from scripts.entities.organism import Organism
-from scripts.entities.dna import DNA
+from src_python.scripts.entities.DNA.dna import DNA
 from scripts.entities.plant import Plant
 
 
