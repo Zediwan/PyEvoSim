@@ -7,7 +7,7 @@ from scripts.entities.plant import Plant
 
 
 class Animal(Organism):
-    MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .7
+    MIN_PERCENTAGE_HEALTH_TO_REPRODUCE = .6
     MAX_SPEED = 3
     ENERGY_SPENT_TO_HEALTH_GAINED_RATIO = 1
     ENERGY_TO_SPEED_RATIO = .01
@@ -92,13 +92,13 @@ class Animal(Organism):
     
     def heal(self, usedEnergy: float = 1.0):
         self.spendEnergy(usedEnergy)
-        self.gainHealth(usedEnergy*Animal.MIN_PERCENTAGE_HEALTH_TO_REPRODUCE)
+        self.gainHealth(usedEnergy*Animal.ENERGY_SPENT_TO_HEALTH_GAINED_RATIO)
 
     def can_reproduce(self):
-        return self.calculate_energy_ratio() >= Animal.MIN_PERCENTAGE_HEALTH_TO_REPRODUCE
+        return self.calculate_health_ratio() >= Animal.MIN_PERCENTAGE_HEALTH_TO_REPRODUCE
 
     def reproduce(self, config):
-        if self.can_reproduce() and random.randint(1, 10) == 1: #TODO transform chance intor a variable
+        if self.can_reproduce() and random.randint(1, 50) == 1: #TODO transform chance intor a variable
             return self.copy(config)
         return None
     
