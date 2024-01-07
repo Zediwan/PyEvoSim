@@ -3,7 +3,7 @@ import random
 
 class DNA:
     MIN_SIZE = 1
-    def __init__(self, max_size, color = None):
+    def __init__(self, max_size: int, color = None):
         if max_size < DNA.MIN_SIZE:
             self.size = DNA.MIN_SIZE
         else:

@@ -9,7 +9,7 @@ class Organism(ABC):
     STARTING_ENERGY_RATIO = .5
     STARTING_HEALTH_RATIO = 1
     
-    def __init__(self, x, y, dna: DNA):
+    def __init__(self, x: int, y:int, dna: DNA):
         self.dna = dna
         self.health = self.calculate_max_health() * Organism.STARTING_HEALTH_RATIO
         self.energy = self.calculate_max_energy() * Organism.STARTING_ENERGY_RATIO
@@ -34,10 +34,10 @@ class Organism(ABC):
         self.draw_bars(screen)
     
     ### Getter and Setter 
-    def isAlive(self):
+    def isAlive(self) -> bool:
         return self.health > 0
 
-    def gainHealth(self, healthGained):
+    def gainHealth(self, healthGained: float):
         assert healthGained >= 0, "Health gained is negative"
         
         newHealth = self.health + healthGained
@@ -46,7 +46,7 @@ class Organism(ABC):
         else:
             self.health = self.calculate_max_health()
     
-    def gainEnergy(self, energyGained):
+    def gainEnergy(self, energyGained: float):
         assert energyGained >= 0, "Energy gained is negative"
         
         newEnergy = self.energy + energyGained
@@ -55,7 +55,7 @@ class Organism(ABC):
         else:
             self.energy = self.calculate_max_energy()
             
-    def spendEnergy(self, energySpent):
+    def spendEnergy(self, energySpent: float):
         assert energySpent >= 0, "Energy spent is negative"
         
         newEnergy = self.energy - energySpent
@@ -64,21 +64,21 @@ class Organism(ABC):
         else:
             self.energy = newEnergy  
             
-    def calculate_max_energy(self):
+    def calculate_max_energy(self) -> float:
         return self.dna.size * Organism.SIZE_TO_ENERGY_RATIO
     
     def calculate_max_health(self):
         return self.dna.size * Organism.SIZE_TO_HEALTH_RATIO
     
-    def calculate_energy_ratio(self):
+    def calculate_energy_ratio(self) -> float:
         ratio = self.energy / self.calculate_max_energy()
         assert ratio <= 1, "Energy Ratio is bigger than 1"
         return ratio
     
-    def calculate_health_ratio(self):
+    def calculate_health_ratio(self) -> float:
         ratio = self.health / self.calculate_max_health()
         assert ratio <= 1, "Health Ratio is bigger than 1"
         return ratio
     
-    def getPosition(self):
+    def getPosition(self) -> pygame.math.Vector2:
         return pygame.math.Vector2(self.shape.center)

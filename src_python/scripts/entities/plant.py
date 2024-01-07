@@ -5,7 +5,7 @@ from scripts.entities.organism import Organism
 class Plant(Organism):
     ENERGY_GAINED_FROM_SUN = 0.1
     
-    def __init__(self, x, y, dna: DNA):
+    def __init__(self, x: int, y: int, dna: DNA):
         super().__init__(x, y, dna)
         
     def update(self):
