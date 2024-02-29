@@ -20,6 +20,7 @@ class Animal(Organism):
         
     def update(self, plants: list[Plant]):
         movement, amountToHeal = self.think(plants) 
+        self.movement = movement
         self.move(movement)
         self.heal(amountToHeal)
         
@@ -108,3 +109,7 @@ class Animal(Organism):
         new_genome.configure_new(config.genome_config)
         new_genome.mutate(config.genome_config) #TODO avoid mutation in copy method
         return Animal(self.shape.left, self.shape.top, self.dna.copy(), new_genome, config)
+    
+    def draw(self, screen):
+        super().draw(screen)
+        pygame.draw.aaline(screen, pygame.Color(0,0,0) , self.shape.center, self.shape.center + self.movement) # Drawing of direction vector
