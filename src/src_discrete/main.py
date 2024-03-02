@@ -5,4 +5,5 @@ if __name__ == "__main__":
     TILE_SIZE = 20
     
     simulation = Simulation(WIDTH, HEIGHT, TILE_SIZE)
-    simulation.run()
+    simulation.build_world()
+    #simulation.run()
