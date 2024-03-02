@@ -10,6 +10,7 @@ class Grid():
         self.cols = cols
         self.tile_size = tile_size
         self.tiles = [[self.create_tile(col, row) for col in range(self.cols)] for row in range(self.rows)]
+        
     
     def update(self):
         for row in range(self.rows):
@@ -28,3 +29,16 @@ class Grid():
         else:
             tile = GrassTile(rect, self.tile_size, random.randint(0,10))
         return tile
+    
+    # def add_cell_neighbours(self):
+    #     for y in range(self.rows):
+    #         for x in range(self.cols):
+    #             tile = self.tiles[y][x]
+    #             if y > 0:
+    #                 tile.addNeighbour(NORTH, self.tiles[y - 1][x])
+    #             if x < self.cols - 1:
+    #                 tile.addNeighbour(EAST, self.tiles[y][x + 1])
+    #             if y < self.rows - 1:
+    #                 tile.addNeighbour(SOUTH, self.tiles[y + 1][x])
+    #             if x > 0:
+    #                 tile.addNeighbour(WEST, self.tiles[y][x - 1])
