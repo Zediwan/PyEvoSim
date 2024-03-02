@@ -7,7 +7,7 @@ class Grid():
         self.rows = rows
         self.cols = cols
         self.grid_size = tile_size
-        self.cells = [[Tile(pygame.Rect(col * self.grid_size, row * self.grid_size, self.grid_size, self.grid_size), tile_size, value = random.randint(1, 10)) for col in range(cols)] for row in range(rows)]
+        self.cells = [[Tile(pygame.Rect(col * self.grid_size, row * self.grid_size, self.grid_size, self.grid_size), tile_size, value = random.randint(0, 10)) for col in range(cols)] for row in range(rows)]
     
     def update(self):
         for row in range(self.rows):
