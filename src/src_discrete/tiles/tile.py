@@ -1,4 +1,5 @@
 import pygame
+from config import *
 
 class Tile():
     MIN_TILE_SIZE = 4
@@ -10,10 +11,8 @@ class Tile():
         self.rect = rect
     
     def update(self):
-        base_color = pygame.Color(235, 242, 230)
-        max_growth_color = pygame.Color(76, 141, 29)
-        self.color = base_color.lerp(max_growth_color, self.value / 10)
-    
+        self.color = dirt_color.lerp(min_grass_color, self.value / 10).lerp(max_grass_color, self.value / 10)
+
     def draw(self, screen : pygame.Surface):
         pygame.draw.rect(screen, self.color, self.rect)
     
