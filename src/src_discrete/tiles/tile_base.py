@@ -8,6 +8,8 @@ class Tile():
         self.cell_size = max(cell_size, self.MIN_TILE_SIZE)
         self.color = color
         self.rect = rect
+        
+        self.neighbours = dict()
     
     def update(self):
         pass
@@ -16,12 +18,12 @@ class Tile():
         pygame.draw.rect(screen, pygame.Color("black"), self.rect, tile_outline_thickness)
         pygame.draw.rect(screen, self.color, self.rect)
         
-    # # Getter & Setter  
-    # def addNeighbour(self, direction, tile):
-    #     self.neighbours[direction] = tile
+    # Getter & Setter  
+    def addNeighbour(self, direction, tile):
+        self.neighbours[direction] = tile
 
-    # def getNeighbour(self, direction):
-    #     return self.neighbours[direction]
+    def getNeighbour(self, direction):
+        return self.neighbours[direction]
 
-    # def getDirections(self):
-    #     return list(self.neighbours.keys())
+    def getDirections(self):
+        return list(self.neighbours.keys())
