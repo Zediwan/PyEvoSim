@@ -1,6 +1,6 @@
 import math
 import pygame
-from grid import Grid
+from grids.grid_ground import GridGround
 
 class World():
     def __init__(self, height : int, width : int, tile_size : int):
@@ -9,9 +9,9 @@ class World():
         self.grid_size = tile_size
         
         rows = math.floor(height / tile_size)
-        cols = math.floor(height / tile_size)
+        cols = math.floor(width / tile_size)
         
-        self.ground = Grid(rows , cols, tile_size)
+        self.ground = GridGround(rows , cols, tile_size)
         #self.surface = Grid(rows , cols, tile_size)
         #self.sky = Grid(rows , cols, tile_size)
         

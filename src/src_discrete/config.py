@@ -8,7 +8,6 @@ LAND_PERCENTAGE = .9
 DRAW_WATER_LEVEL = True
 SURROUNDED_BY_WATER = True
 
-
 tile_outline_thickness = 1
 
 # Colors

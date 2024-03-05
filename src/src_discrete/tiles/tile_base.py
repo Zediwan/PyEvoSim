@@ -1,7 +1,8 @@
 import pygame
 from config import *
+from abc import ABC, abstractmethod
 
-class Tile():
+class Tile(ABC):
     MIN_TILE_SIZE = 4
     def __init__(self, rect : pygame.Rect, cell_size : int, color : pygame.Color = pygame.Color("white")):
         assert cell_size >= 4, "Cell size is below minimum."
@@ -11,6 +12,7 @@ class Tile():
         
         self.neighbours = dict()
     
+    @abstractmethod
     def update(self):
         pass
 

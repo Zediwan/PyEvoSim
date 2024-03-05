@@ -1,10 +1,10 @@
 import random
 import pygame
-from tiles.tile_grass import GrassTile
-from tiles.tile_water import WaterTile
+from abc import ABC, abstractmethod
+from tiles.tile_base import Tile
 from config import *
 
-class Grid():
+class Grid(ABC):
     def __init__(self, rows : int, cols : int, tile_size : int):
         self.rows = rows
         self.cols = cols
@@ -28,16 +28,9 @@ class Grid():
             for col in range(self.cols):
                 self.tiles[row][col].draw(screen)
                 
-    def create_tile(self, col, row):
-        rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
-        
-        if SURROUNDED_BY_WATER and (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1):
-            tile = WaterTile(rect, self.tile_size, random.randint(0,10))
-        elif random.random() >= LAND_PERCENTAGE:
-            tile = WaterTile(rect, self.tile_size, random.randint(0,10))
-        else:
-            tile = GrassTile(rect, self.tile_size, random.randint(0,10))
-        return tile
+    @abstractmethod
+    def create_tile(self, col, row) -> Tile:
+        pass
     
     def add_cell_neighbours(self):
         for row in range(self.rows):
