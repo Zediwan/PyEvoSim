@@ -1,7 +1,11 @@
 import pygame
 
+MIN_WATER_VALUE = 0
+MAX_WATER_VALUE = 10
+
 # Settings
-WATER_PERCENTAGE = 0
+LAND_PERCENTAGE = .9
+DRAW_WATER_LEVEL = True
 
 
 tile_outline_thickness = 1

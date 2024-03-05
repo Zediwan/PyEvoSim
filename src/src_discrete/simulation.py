@@ -4,12 +4,12 @@ from world import World
 
 class Simulation:
     def __init__(self, height: int, width: int, tile_size : int):
-        self.world = World(height, width, tile_size)
-        
         pygame.init()
         pygame.display.set_caption("Evolution Simulation")
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
+        
+        self.world = World(height, width, tile_size)
 
     def run(self):
         """

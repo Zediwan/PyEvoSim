@@ -13,9 +13,15 @@ class Grid():
         self.add_cell_neighbours()
     
     def update(self):
-        for row in range(self.rows):
-            for col in range(self.cols):
-                self.tiles[row][col].update()
+        # Create a list of all tiles
+        tiles_list = [tile for row in self.tiles for tile in row]
+        
+        # Shuffle the list
+        random.shuffle(tiles_list)
+        
+        # Update each tile
+        for tile in tiles_list:
+            tile.update()
             
     def draw(self, screen : pygame.Surface):
         for row in range(self.rows):
@@ -24,7 +30,7 @@ class Grid():
                 
     def create_tile(self, col, row):
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
-        if random.random() >= WATER_PERCENTAGE:
+        if random.random() >= LAND_PERCENTAGE:
             tile = WaterTile(rect, self.tile_size, random.randint(0,10))
         else:
             tile = GrassTile(rect, self.tile_size, random.randint(0,10))
