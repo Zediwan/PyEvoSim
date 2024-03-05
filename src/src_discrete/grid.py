@@ -24,7 +24,7 @@ class Grid():
                 
     def create_tile(self, col, row):
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
-        if random.random() >= .8:
+        if random.random() >= WATER_PERCENTAGE:
             tile = WaterTile(rect, self.tile_size, random.randint(0,10))
         else:
             tile = GrassTile(rect, self.tile_size, random.randint(0,10))

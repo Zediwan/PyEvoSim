@@ -1,5 +1,9 @@
 import pygame
 
+# Settings
+WATER_PERCENTAGE = 0
+
+
 tile_outline_thickness = 1
 
 # Colors
