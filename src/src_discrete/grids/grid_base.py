@@ -37,10 +37,10 @@ class Grid(ABC):
             for col in range(self.cols):
                 tile = self.tiles[row][col]
                 if row > 0:
-                    tile.addNeighbour(NORTH, self.tiles[row - 1][col])
+                    tile.add_neighbor(Direction.NORTH, self.tiles[row - 1][col])
                 if col < self.cols - 1:
-                    tile.addNeighbour(EAST, self.tiles[row][col + 1])
+                    tile.add_neighbor(Direction.EAST, self.tiles[row][col + 1])
                 if row < self.rows - 1:
-                    tile.addNeighbour(SOUTH, self.tiles[row + 1][col])
+                    tile.add_neighbor(Direction.SOUTH, self.tiles[row + 1][col])
                 if col > 0:
-                    tile.addNeighbour(WEST, self.tiles[row][col - 1])
+                    tile.add_neighbor(Direction.WEST, self.tiles[row][col - 1])

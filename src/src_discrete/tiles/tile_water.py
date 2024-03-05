@@ -1,23 +1,26 @@
 import pygame
-import random
-from tiles.tile_base import Tile
+from tiles.tile_ground import GroundTile
 from config import *
 
-class WaterTile(Tile):
+class WaterTile(GroundTile):
     
     def __init__(self, rect: pygame.Rect, cell_size: int, value: int = MIN_WATER_VALUE):
         super().__init__(rect, cell_size)
-        self.font = pygame.font.Font(None, 24)  # Choose the font and size
+        self.font = pygame.font.Font(None, 24)  # TODO: make the numbers be centered in the tiles
         self.water_value = value
         
     def update(self):
-        self.color = min_water_color.lerp(max_water_color, self.water_value / MAX_WATER_VALUE)
-        neigbour = self.neighbours[random.choice(self.getDirections())]
+        super().update()
+        
+        neigbour = self.get_random_neigbor()
         if isinstance(neigbour, WaterTile):
             if self.water_value >= neigbour.water_value:
                 self.transfer_water(1, neigbour) #TODO: make this a variable
         
         self.invariant()
+        
+    def updateColor(self):
+        self.color = min_water_color.lerp(max_water_color, self.water_value / MAX_WATER_VALUE)
                     
     def draw(self, screen):
         super().draw(screen)  # Draw the tile as usual
@@ -40,7 +43,7 @@ class WaterTile(Tile):
         self.invariant()
     
     def is_neighbour(self, tile):        
-        for direction in self.getDirections():
+        for direction in self.get_directions():
             neigbour = self.neighbours[direction]
             if neigbour == tile:
                 return True
