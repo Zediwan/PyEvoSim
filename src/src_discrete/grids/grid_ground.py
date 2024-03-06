@@ -18,7 +18,7 @@ class GridGround(Grid):
         n = random.random()
         
         if SURROUNDED_BY_WATER and (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1):
-            tile : Tile = WaterTile(rect, self.tile_size, random.randint(0,10))
+            tile : Tile = WaterTile(rect, self.tile_size, 10)
         elif n >= LAND_PERCENTAGE:
             tile : Tile = WaterTile(rect, self.tile_size, random.randint(0,10))
         else:
