@@ -24,7 +24,7 @@ class Simulation:
                     pygame.quit()
                     sys.exit()
 
-            self.screen.fill((255, 255, 255))  # Fill the screen with a white background
+            self.screen.fill((pygame.Color("white")))  # Fill the screen with a white background
             
             self.world.update()
             self.world.draw(self.screen)
