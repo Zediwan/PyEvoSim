@@ -10,24 +10,19 @@ class Grid(ABC):
         self.rows = rows
         self.cols = cols
         self.tile_size = tile_size
-        self.tiles = [[self.create_tile(col, row) for col in range(self.cols)] for row in range(self.rows)]
+        self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.add_cell_neighbours()
     
     def update(self):
-        # Create a list of all tiles
-        tiles_list = [tile for row in self.tiles for tile in row]
-        
-        # Shuffle the list
-        random.shuffle(tiles_list)
-        
-        # Update each tile
-        for tile in tiles_list:
+        random.shuffle(self.tiles)
+        for tile in self.tiles:
             tile.update()
             
     def draw(self, screen : pygame.Surface):
-        for row in range(self.rows):
-            for col in range(self.cols):
-                self.tiles[row][col].draw(screen)
+        temp_surface = pygame.Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
+        for tile in self.tiles:
+            tile.draw(temp_surface)
+        screen.blit(temp_surface, (0, 0))
                 
     @abstractmethod
     def create_tile(self, col, row) -> Tile:
@@ -36,12 +31,14 @@ class Grid(ABC):
     def add_cell_neighbours(self):
         for row in range(self.rows):
             for col in range(self.cols):
-                tile = self.tiles[row][col]
+                tile = self.tiles[row * self.cols + col]
+                neighbours = {}
                 if row > 0:
-                    tile.add_neighbor(Direction.NORTH, self.tiles[row - 1][col])
+                    neighbours[Direction.NORTH] = self.tiles[(row - 1) * self.cols + col]
                 if col < self.cols - 1:
-                    tile.add_neighbor(Direction.EAST, self.tiles[row][col + 1])
+                    neighbours[Direction.EAST] = self.tiles[row * self.cols + col + 1]
                 if row < self.rows - 1:
-                    tile.add_neighbor(Direction.SOUTH, self.tiles[row + 1][col])
+                    neighbours[Direction.SOUTH] = self.tiles[(row + 1) * self.cols + col]
                 if col > 0:
-                    tile.add_neighbor(Direction.WEST, self.tiles[row][col - 1])
+                    neighbours[Direction.WEST] = self.tiles[row * self.cols + col - 1]
+                tile.neighbours = neighbours
