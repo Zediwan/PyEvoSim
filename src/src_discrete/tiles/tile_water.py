@@ -8,6 +8,7 @@ class WaterTile(GroundTile):
         super().__init__(rect, cell_size)
         self.font = pygame.font.Font(None, 24)  # TODO: make the numbers be centered in the tiles
         self.water_value = value
+        self.updateColor()
         
     def update(self):
         super().update()
@@ -26,7 +27,8 @@ class WaterTile(GroundTile):
         super().draw(screen)  # Draw the tile as usual
         if(DRAW_WATER_LEVEL):
             text = self.font.render(str(self.water_value), True, (0, 0, 0))  # Create a text surface
-            screen.blit(text, (self.rect.x, self.rect.y))  # Draw the text surface on the screen at the tile's position
+            text.set_alpha(ground_font_alpha)
+            screen.blit(text, self.rect.topleft)  # Draw the text surface on the screen at the tile's position
 
     def transfer_water(self, amount : int, water_tile):
         assert isinstance(water_tile, WaterTile), "water_tile must be an instance of WaterTile"

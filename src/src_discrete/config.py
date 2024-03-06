@@ -1,3 +1,4 @@
+from __future__ import annotations
 import pygame
 
 MIN_WATER_VALUE = 0
@@ -15,16 +16,17 @@ tile_outline_thickness = 1
 
 # Alpha values for grids
 ground_alpha = 255
+ground_font_alpha = 100
 surface_alpha = 255
 sky_alpha = 100
 
 # Colors
-tile_border_color = pygame.Color(255, 255, 255, 255)
-dirt_color = pygame.Color(155, 118, 83)
-min_grass_color = pygame.Color(235, 242, 230)
-max_grass_color = pygame.Color(76, 141, 29)
-min_water_color = pygame.Color(204, 229, 233)
-max_water_color = pygame.Color(26, 136, 157)
+tile_border_color = pygame.Color("black")
+dirt_color = pygame.Color(155, 118, 83, ground_alpha)
+min_grass_color = pygame.Color(235, 242, 230, ground_alpha)
+max_grass_color = pygame.Color(76, 141, 29, ground_alpha)
+min_water_color = pygame.Color(204, 229, 233, ground_alpha)
+max_water_color = pygame.Color(26, 136, 157, ground_alpha)
 
 from enum import Enum
 
@@ -39,5 +41,6 @@ class Direction(ExtendedEnum):
     SOUTH = 2
     WEST = 3
     
-    def is_valid_direction(direction) -> bool:
+    @staticmethod
+    def is_valid_direction(direction : Direction) -> bool:
         return direction in Direction.get_options()

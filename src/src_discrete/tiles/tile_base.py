@@ -34,6 +34,7 @@ class Tile(ABC):
         """
         pass
 
+    # TODO: this method does not currently work / display the borders, find a way to fix it
     def draw(self, screen: pygame.Surface):
         """
         Draws the tile on the screen.
@@ -42,7 +43,8 @@ class Tile(ABC):
             screen (pygame.Surface): The surface to draw the tile on.
         """
         pygame.draw.rect(self.temp_surface, tile_border_color, self.rect, tile_outline_thickness)
-        screen.blit(self.temp_surface, (self.rect.x, self.rect.y))
+        #pygame.draw.rect(screen, tile_border_color, self.rect, tile_outline_thickness)
+        screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
 
     def add_neighbor(self, direction: Direction, tile: 'Tile'):
         """
@@ -56,8 +58,8 @@ class Tile(ABC):
         if tile is None:
             raise ValueError("Tile is None")
 
-        if not Direction.is_valid_direction(direction):
-            raise ValueError("Invalid direction")
+        #if not Direction.is_valid_direction(direction):
+        #    raise ValueError("Invalid direction", direction)
         
         self.neighbours[direction] = tile
 
