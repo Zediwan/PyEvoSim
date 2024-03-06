@@ -18,11 +18,11 @@ class Animal(Organism):
         super().update()
         
         if isinstance(self.tile, WaterTile):
-            self.health -= self.tile.water_value
+            self.health -= self.tile.water_value * 10
         elif isinstance(self.tile, GrassTile):
             if self.tile.growth_value >= 1:
-                self.health += self.tile.growth_value
-                self.tile.growth_value -= 1
+                self.health += self.tile.growth_value * 5
+                self.tile.growth_value -= min(1, self.tile.growth_value)
         
         direction = self.think()
         if direction:
