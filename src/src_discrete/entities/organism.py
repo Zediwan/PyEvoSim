@@ -73,6 +73,10 @@ class Organism(ABC):
         assert self.health <= 0, "Organism tries to die despite not being dead."
         self.tile.leave()
     
+    @abstractmethod
+    def copy(self, tile: tile.Tile):
+        pass 
+    
     def invariant(self):
         assert self.tile, "Organism does not have a tile!"
         assert self.tile.organism == self, "Tiles Organism and Organisms tile are not equal."
