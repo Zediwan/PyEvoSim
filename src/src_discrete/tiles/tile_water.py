@@ -5,10 +5,12 @@ from config import *
 class WaterTile(GroundTile):
     MIN_WATER_VALUE, MAX_WATER_VALUE= 0, 10
     STARTING_WATER_LEVEL = 8
+    DRAW_WATER_LEVEL = False
+    min_water_color = pygame.Color(204, 229, 233, ground_alpha)
+    max_water_color = pygame.Color(26, 136, 157, ground_alpha)
     
     def __init__(self, rect: pygame.Rect, cell_size: int, value: int = STARTING_WATER_LEVEL):
         super().__init__(rect, cell_size)
-        self.font = pygame.font.Font(None, 24)  # TODO: make the numbers be centered in the tiles
         self.water_value = value
         self.updateColor()
         
@@ -23,14 +25,23 @@ class WaterTile(GroundTile):
         self.invariant()
         
     def updateColor(self):
-        self.color = min_water_color.lerp(max_water_color, self.water_value / self.MAX_WATER_VALUE)
+        self.color = self.min_water_color.lerp(self.max_water_color, self.water_value / self.MAX_WATER_VALUE)
                     
     def draw(self, screen):
         super().draw(screen)  # Draw the tile as usual
-        if(DRAW_WATER_LEVEL):
-            text = self.font.render(str(self.water_value), True, (0, 0, 0))  # Create a text surface
+        if(self.DRAW_WATER_LEVEL):
+            text = font.render(str(self.water_value), True, (0, 0, 0))  # Create a text surface
             text.set_alpha(ground_font_alpha)
-            screen.blit(text, self.rect.topleft)  # Draw the text surface on the screen at the tile's position
+            
+            # Calculate the center of the tile
+            center_x = self.rect.x + self.rect.width // 2
+            center_y = self.rect.y + self.rect.height // 2
+
+            # Adjust the position by half the width and height of the text surface
+            text_x = center_x - text.get_width() // 2
+            text_y = center_y - text.get_height() // 2
+
+            screen.blit(text, (text_x, text_y))
 
     def transfer_water(self, amount : int, water_tile):
         assert isinstance(water_tile, WaterTile), "water_tile must be an instance of WaterTile"

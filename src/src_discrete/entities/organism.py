@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import math
 import pygame
 from config import *
 
@@ -18,6 +19,7 @@ class Organism(ABC):
         self.energy = energy
         self.shape = shape
         self.color = color
+        self.health_lost: int = 0
         
         self.tile = tile
         tile.enter(self)
@@ -89,6 +91,8 @@ class Organism(ABC):
         
         dif = self.health - health_lost
         self.health = max(dif, self.MIN_ORGANISM_HEALTH) 
+        # Display the health lost on the tile
+        self.health_lost = math.floor(health_lost) #TODO: implement displaying of health loss
         
     def is_alive(self) -> bool:
         is_alive = self.health > 0

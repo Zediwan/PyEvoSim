@@ -17,7 +17,7 @@ class Animal(Organism):
     BASE_ANIMAL_HEALTH = MAX_ANIMAL_HEALTH - 50
     BASE_ANIMAL_ENERGY = MAX_ANIMAL_ENERGY - 50
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, health: int = BASE_ANIMAL_HEALTH, energy: int = BASE_ANIMAL_ENERGY,
-                 waterAffinity: BoundedVariable = BoundedVariable(5, 1, 10), landAffinity: BoundedVariable = BoundedVariable(10, 1, 10)):
+                 waterAffinity: BoundedVariable = BoundedVariable(5, 1, WaterTile.MAX_WATER_VALUE), landAffinity: BoundedVariable = BoundedVariable(10, 1, GrassTile.MAX_GRASS_VALUE)):
         
         if not shape:
             shape = tile.rect
@@ -62,7 +62,6 @@ class Animal(Organism):
     
     def draw(self, screen: Surface):
         super().draw(screen)
-        pass
     
     def copy(self, tile: Tile):
         newWA = self.waterAffinity.copy()
