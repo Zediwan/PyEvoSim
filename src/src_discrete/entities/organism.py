@@ -50,6 +50,19 @@ class Organism(ABC):
         
         self.health = new_health
         
+    def gain_enery(self, energy_gained):
+        assert energy_gained >= 0, "Energy gained is negative."
+        
+        dif = self.energy + energy_gained
+        self.energy = min(dif, MAX_ORGANISM_ENERGY)
+        if dif > MAX_ORGANISM_ENERGY:
+            self.gain_health(dif - MAX_ORGANISM_ENERGY)
+        
+    def gain_health(self, health_gained):
+        assert health_gained >= 0, "Health gained is negative."
+        dif = self.health + health_gained
+        self.healht = min(dif, MAX_ORGANISM_HEALTH)  
+        
     def is_alive(self) -> bool:
         is_alive = self.health > 0
         if not is_alive:

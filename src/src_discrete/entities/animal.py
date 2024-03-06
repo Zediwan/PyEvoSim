@@ -1,6 +1,7 @@
 from pygame import Color, Rect, Surface
 from entities.organism import Organism
 from config import *
+from tiles.tile_grass import GrassTile
 from tiles.tile_water import WaterTile
 from tiles.tile_base import Tile
 
@@ -18,6 +19,10 @@ class Animal(Organism):
         
         if isinstance(self.tile, WaterTile):
             self.health -= self.tile.water_value
+        elif isinstance(self.tile, GrassTile):
+            if self.tile.growth_value >= 1:
+                self.health += self.tile.growth_value
+                self.tile.growth_value -= 1
         
         direction = self.think()
         if direction:
