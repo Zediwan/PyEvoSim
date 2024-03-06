@@ -118,3 +118,21 @@ class Tile(ABC):
             raise ValueError("No neighbors available")
         
         return self.neighbours[random.choice(self.get_directions())]
+    
+    def get_random_unoccupied_neighbor(self) -> Tile|None:
+        """
+        Returns a random unoccupied neighbor tile.
+
+        Returns:
+            A random unoccupied neighbor tile.
+        """
+        if not self.neighbours:
+            raise ValueError("No neighbors available")
+        
+        unoccupied_neighbors = [tile for direction, tile in self.neighbours.items() if not tile.is_occupied()]
+        
+        if not unoccupied_neighbors:
+            #raise ValueError("No unoccupied neighbors available")
+            return None
+        
+        return random.choice(unoccupied_neighbors)

@@ -21,7 +21,8 @@ class GroundTile(Tile):
         super().draw(screen)
         
         if self.organism:
-            self.temp_surface.fill(self.organism.color)
+            if self.organism.is_alive():
+                self.organism.draw(screen)
         else:
             self.updateColor()
             self.temp_surface.fill(self.color)

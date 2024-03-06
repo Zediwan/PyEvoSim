@@ -19,10 +19,12 @@ class Animal(Organism):
         if isinstance(self.tile, WaterTile):
             self.health -= self.tile.water_value
         
-        self.enter_tile(self.think())
+        direction = self.think()
+        if direction:
+            self.enter_tile(direction)
         
-    def think(self) -> Tile:
-        return self.tile.get_random_neigbor()
+    def think(self) -> Tile|None:
+        return self.tile.get_random_unoccupied_neighbor()
     
     def draw(self, screen: Surface):
         super().draw(screen)

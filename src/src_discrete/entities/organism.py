@@ -15,18 +15,26 @@ class Organism(ABC):
         self.invariant()
     
     def update(self):
+        if not self.is_alive():
+            self.die()
+            return
+        
         if self.energy <= 0:
             self.health -= 1
         else:
             self.energy -= 1 #TODO: make this a variable in config
-        
-        #self.invariant()
+            
+        self.invariant()
     
     @abstractmethod
     def draw(self, screen: pygame.Surface):
+        assert self.is_alive(), "Animal is being drawn despite being dead"
+        self.tile.temp_surface.fill(self.color)
         pass
     
     def enter_tile(self, tile: tile.Tile):
+        assert not tile.is_occupied(), "Tile is already occupied."
+        
         try:
             self.tile.leave()
         except AttributeError:  
@@ -42,12 +50,14 @@ class Organism(ABC):
         
         self.health = new_health
         
-    def is_alive(self):
-        return self.health > 0
+    def is_alive(self) -> bool:
+        is_alive = self.health > 0
+        if not is_alive:
+            self.die()
+        return is_alive
     
     def die(self):
-        assert self.is_alive(), "Organism tries to die despite not being dead."
-        
+        assert self.health <= 0, "Organism tries to die despite not being dead."
         self.tile.leave()
     
     def invariant(self):
