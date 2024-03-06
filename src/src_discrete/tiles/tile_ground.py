@@ -19,6 +19,10 @@ class GroundTile(Tile):
     
     def draw(self, screen : pygame.Surface):
         super().draw(screen)
-        self.updateColor()
-        self.temp_surface.fill(self.color)
+        
+        if self.organism:
+            self.temp_surface.fill(self.organism.color)
+        else:
+            self.updateColor()
+            self.temp_surface.fill(self.color)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))

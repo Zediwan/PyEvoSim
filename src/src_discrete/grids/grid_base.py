@@ -1,6 +1,7 @@
 import random
 import pygame
 from abc import ABC, abstractmethod
+from entities.organism import Organism
 from tiles.tile_base import Tile
 from config import *
 

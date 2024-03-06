@@ -4,6 +4,8 @@ import random
 from config import *
 from abc import ABC, abstractmethod
 
+import entities.organism as organism
+
 """
 The Tile class represents a tile in a game. It is an abstract base class (ABC) that provides common functionality for different types of tiles.
 
@@ -21,18 +23,24 @@ Methods:
     get_random_neigbor() -> Tile: Returns a random neighbor tile.
 """
 class Tile(ABC):
-    def __init__(self, rect: pygame.Rect, cell_size: int):
+    def __init__(self, rect: pygame.Rect, cell_size: int, organism: organism.Organism|None = None):
         self.cell_size = max(cell_size, MIN_TILE_SIZE)
         self.rect = rect
         self.neighbours = {}
         self.temp_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+        
+        if organism:
+            self.organism = organism
+        else:
+            self.organism = None
 
     @abstractmethod
     def update(self):
         """
         Abstract method that should be implemented by subclasses to update the tile's state.
         """
-        pass
+        if self.organism:
+            self.organism.update()
 
     # TODO: this method does not currently work / display the borders, find a way to fix it
     def draw(self, screen: pygame.Surface):
@@ -45,6 +53,17 @@ class Tile(ABC):
         pygame.draw.rect(self.temp_surface, tile_border_color, self.rect, tile_outline_thickness)
         #pygame.draw.rect(screen, tile_border_color, self.rect, tile_outline_thickness)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
+        
+    def leave(self):
+        self.organism = None
+        
+    def enter(self, organism: organism.Organism):
+        self.organism = organism
+        
+        assert self.organism.tile == self, "Tiles Organism and Organisms tile are not equal."
+        
+    def is_occupied(self):
+        return self.organism is not None
 
     def add_neighbor(self, direction: Direction, tile: 'Tile'):
         """
