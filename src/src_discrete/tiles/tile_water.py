@@ -3,8 +3,10 @@ from tiles.tile_ground import GroundTile
 from config import *
 
 class WaterTile(GroundTile):
+    MIN_WATER_VALUE, MAX_WATER_VALUE= 0, 10
+    STARTING_WATER_LEVEL = 8
     
-    def __init__(self, rect: pygame.Rect, cell_size: int, value: int = MIN_WATER_VALUE):
+    def __init__(self, rect: pygame.Rect, cell_size: int, value: int = STARTING_WATER_LEVEL):
         super().__init__(rect, cell_size)
         self.font = pygame.font.Font(None, 24)  # TODO: make the numbers be centered in the tiles
         self.water_value = value
@@ -21,7 +23,7 @@ class WaterTile(GroundTile):
         self.invariant()
         
     def updateColor(self):
-        self.color = min_water_color.lerp(max_water_color, self.water_value / MAX_WATER_VALUE)
+        self.color = min_water_color.lerp(max_water_color, self.water_value / self.MAX_WATER_VALUE)
                     
     def draw(self, screen):
         super().draw(screen)  # Draw the tile as usual
@@ -36,8 +38,8 @@ class WaterTile(GroundTile):
         assert self.water_value >= water_tile.water_value, "Water flow is wrong."
         assert self.is_neighbour(water_tile), "Tile to transfer to is not a neighbour."
         
-        if self.water_value - amount >= MIN_WATER_VALUE and self.water_value - amount <= MAX_WATER_VALUE :
-            if water_tile.get_value() + amount >= MIN_WATER_VALUE and water_tile.get_value() + amount <= MAX_WATER_VALUE :
+        if self.water_value - amount >= self.MIN_WATER_VALUE and self.water_value - amount <= self.MAX_WATER_VALUE :
+            if water_tile.get_value() + amount >= self.MIN_WATER_VALUE and water_tile.get_value() + amount <= self.MAX_WATER_VALUE :
                 self.add_to_value(-amount)
                 water_tile.add_to_value(amount)
         
@@ -55,26 +57,26 @@ class WaterTile(GroundTile):
     def water_level_allowed(self, value = None):
         if(value == None):
             value = self.water_value
-        return value >= MIN_WATER_VALUE and value <= MAX_WATER_VALUE
+        return value >= self.MIN_WATER_VALUE and value <= self.MAX_WATER_VALUE
     
     def get_value(self):
         return self.water_value
     
     def set_value(self, value):
-        assert value >= MIN_WATER_VALUE, "Value is smaller than minimum."
-        assert value <= MAX_WATER_VALUE, "Value is larger than maximum."
+        assert value >= self.MIN_WATER_VALUE, "Value is smaller than minimum."
+        assert value <= self.MAX_WATER_VALUE, "Value is larger than maximum."
         self.water_value = value
         
         self.invariant()
         
     def add_to_value(self, change):
-        assert self.water_value + change >= MIN_WATER_VALUE, "Water level would be below minimum."
-        assert self.water_value + change <= MAX_WATER_VALUE, "Water level would be above maximum."
+        assert self.water_value + change >= self.MIN_WATER_VALUE, "Water level would be below minimum."
+        assert self.water_value + change <= self.MAX_WATER_VALUE, "Water level would be above maximum."
         
         self.water_value += change
         
         self.invariant()
     
     def invariant(self):
-        assert self.water_value >= MIN_WATER_VALUE, "Value is smaller than minimum. " ; self.water_value
-        assert self.water_value <= MAX_WATER_VALUE, "Value is larger than maximum. " ; self.water_value
+        assert self.water_value >= self.MIN_WATER_VALUE, "Value is smaller than minimum. " ; self.water_value
+        assert self.water_value <= self.MAX_WATER_VALUE, "Value is larger than maximum. " ; self.water_value
