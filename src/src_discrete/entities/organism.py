@@ -5,7 +5,7 @@ from config import *
 import tiles.tile_base as tile
 
 class Organism(ABC):
-    ORGANISM_MAINTANANCE_ENERGY = 10
+    ORGANISM_MAINTANANCE_ENERGY = 1
 
     MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH = 0, 100
     MIN_ORGANISM_ENERGY, MAX_ORGANISM_ENERGY = 0, 100
@@ -19,7 +19,9 @@ class Organism(ABC):
         self.shape = shape
         self.color = color
         
-        self.enter_tile(tile)
+        self.tile = tile
+        tile.enter(self)
+        
         self.invariant()
     
     def update(self):
@@ -27,25 +29,22 @@ class Organism(ABC):
             self.die()
             return
         
-        self.use_enery(self.ORGANISM_MAINTANANCE_ENERGY) #TODO: make this a variable in config
-            
-        self.invariant()
-    
+        self.use_enery(self.ORGANISM_MAINTANANCE_ENERGY)
+                
     @abstractmethod
     def draw(self, screen: pygame.Surface):
         if not self.is_alive():
             raise ValueError("Animal is being drawn despite being dead")
+        
         self.tile.temp_surface.fill(self.color)
-        pass
     
     def enter_tile(self, tile: tile.Tile):
         if tile.is_occupied():
             raise ValueError("Tile is already occupied.")
-        
-        try:
+            
+        if self.tile:
             self.tile.leave()
-        except AttributeError:  
-            pass
+        
         self.tile = tile
         tile.enter(self)
         
@@ -71,21 +70,23 @@ class Organism(ABC):
     def use_enery(self, energy_used):
         if energy_used < 0:
             raise ValueError("Energy used is negative.")
-        
+    
         dif = self.energy - energy_used
-        self.energy = max(dif, self.MAX_ORGANISM_ENERGY)
+        self.energy = max(dif, self.MIN_ORGANISM_ENERGY)
         if dif <= self.MIN_ORGANISM_ENERGY:
             self.loose_health(-dif)     
         
     def gain_health(self, health_gained):
         if health_gained < 0:
             raise ValueError("Health gained is negative.")
+        
         dif = self.health + health_gained
         self.health = min(dif, self.MAX_ORGANISM_HEALTH)  
         
     def loose_health(self, health_lost):
         if health_lost < 0:
             raise ValueError("Health lost is negative.")
+        
         dif = self.health - health_lost
         self.health = max(dif, self.MIN_ORGANISM_HEALTH) 
         
@@ -98,7 +99,9 @@ class Organism(ABC):
     def die(self):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
+        
         self.tile.leave()
+        self.invariant()
     
     @abstractmethod
     def copy(self, tile: tile.Tile):

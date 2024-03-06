@@ -5,6 +5,7 @@ from tiles.tile_ground import GroundTile
 from config import *
 
 class GrassTile(GroundTile):
+    LAND_DAMAGE = 1
     def __init__(self, rect: pygame.Rect, cell_size: int, value: int = MIN_GRASS_VALUE):
         super().__init__(rect, cell_size)
         self.growth_value = value
