@@ -6,6 +6,8 @@ class WaterTile(GroundTile):
     MIN_WATER_VALUE, MAX_WATER_VALUE= 0, 10
     STARTING_WATER_LEVEL = 8
     DRAW_WATER_LEVEL = False
+    DOES_WATER_FLOW = True
+    WATER_FLOW_VALUE = 1
     min_water_color = pygame.Color(204, 229, 233, ground_alpha)
     max_water_color = pygame.Color(26, 136, 157, ground_alpha)
     
@@ -17,10 +19,11 @@ class WaterTile(GroundTile):
     def update(self):
         super().update()
         
-        neigbour = self.get_random_neigbor()
-        if isinstance(neigbour, WaterTile):
-            if self.water_value >= neigbour.water_value:
-                self.transfer_water(1, neigbour) #TODO: make this a variable
+        if self.DOES_WATER_FLOW:
+            neigbour = self.get_random_neigbor()
+            if isinstance(neigbour, WaterTile):
+                if self.water_value >= neigbour.water_value:
+                    self.transfer_water(self.WATER_FLOW_VALUE, neigbour) 
         
         self.invariant()
         
