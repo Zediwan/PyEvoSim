@@ -7,7 +7,7 @@ from tiles.tile_water import WaterTile
 from tiles.tile_base import Tile
 
 class Animal(Organism):
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color = pygame.Color("orangered4"), health: float = BASE_ANIMAL_HEALHT, energy: float = BASE_ANIMAL_ENERGY):
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color = pygame.Color("black"), health: float = BASE_ANIMAL_HEALHT, energy: float = BASE_ANIMAL_ENERGY):
         if not shape:
             shape = tile.rect
             
