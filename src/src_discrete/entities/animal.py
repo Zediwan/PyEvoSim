@@ -16,7 +16,9 @@ class Animal(Organism):
 
     BASE_ANIMAL_HEALTH = MAX_ANIMAL_HEALTH - 50
     BASE_ANIMAL_ENERGY = MAX_ANIMAL_ENERGY - 50
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, health: int = BASE_ANIMAL_HEALTH, energy: int = BASE_ANIMAL_ENERGY):
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, health: int = BASE_ANIMAL_HEALTH, energy: int = BASE_ANIMAL_ENERGY,
+                 waterAffinity: BoundedVariable = BoundedVariable(5, 1, 10), landAffinity: BoundedVariable = BoundedVariable(10, 1, 10)):
+        
         if not shape:
             shape = tile.rect
             
@@ -24,8 +26,8 @@ class Animal(Organism):
             color = pygame.Color(random.randint(0,255), random.randint(0,255), random.randint(0,255))
             
         super().__init__(tile, shape, color, health, energy)
-        self.waterAffinity = BoundedVariable(5, 1, 10)
-        self.landAffintiy = BoundedVariable(10, 1, 10)
+        self.waterAffinity = waterAffinity
+        self.landAffintiy = landAffinity
         
     def update(self):
         super().update()
@@ -63,7 +65,11 @@ class Animal(Organism):
         pass
     
     def copy(self, tile: Tile):
-        return Animal(tile, color = self.color)
+        newWA = self.waterAffinity.copy()
+        newWA.mutate()
+        newLA = self.landAffintiy.copy()
+        newLA.mutate()
+        return Animal(tile, color = self.color, waterAffinity=newWA, landAffinity=newLA)
     
     def health_ratio(self):
         ratio = self.health / self.MAX_ANIMAL_HEALTH
