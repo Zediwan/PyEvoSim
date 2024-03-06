@@ -8,16 +8,22 @@ from tiles.tile_grass import GrassTile
 from tiles.tile_water import WaterTile
 
 class GridGround(Grid):
-    def __init__(self, rows : int, cols : int, tile_size : int):
+    def __init__(self, rows: int, cols: int, tile_size: int):
         super().__init__(rows, cols, tile_size)
     
-    def create_tile(self, col, row) -> Tile:
+    def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
         
-        n = noise.pnoise2(row / 20.0, col / 24.0)
-        #n = random.random()
+        match(WORLD_GENERATION_MODE):
+            case "Perlin":
+                n = noise.pnoise2(row / 20.0, col / 24.0)
+            case "Random":
+                n = random.random()
+            case _:
+                n = noise.pnoise2(row / 20.0, col / 24.0)
         
-        if SURROUNDED_BY_WATER and (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1):
+        
+        if SURROUNDED_BY_WATER and self.is_border_tile(col, row):
             tile : Tile = WaterTile(rect, self.tile_size, 10)
         elif n <= WATER_PERCENTAGE:
             tile : Tile = WaterTile(rect, self.tile_size, random.randint(0,10))
@@ -25,4 +31,6 @@ class GridGround(Grid):
             tile : Tile = GrassTile(rect, self.tile_size, random.randint(0,10))
             if random.random() <= STARTING_ANIMAL_PERCENTAGE:
                 Animal(tile)
+                
+        tile.is_border_tile = self.is_border_tile(col, row) 
         return tile

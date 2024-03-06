@@ -28,6 +28,7 @@ class Tile(ABC):
         self.rect = rect
         self.neighbours = {}
         self.temp_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+        self.is_border_tile = False
         
         if organism:
             self.organism = organism

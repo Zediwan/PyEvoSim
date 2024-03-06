@@ -42,3 +42,6 @@ class Grid(ABC):
                 if col > 0:
                     neighbours[Direction.WEST] = self.tiles[row * self.cols + col - 1]
                 tile.neighbours = neighbours
+    
+    def is_border_tile(self, row: int, col: int) -> bool:
+        return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
