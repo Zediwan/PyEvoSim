@@ -7,7 +7,7 @@ from tiles.tile_water import WaterTile
 from tiles.tile_base import Tile
 
 class Animal(Organism):
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color = pygame.Color("black"), health: float = BASE_ANIMAL_HEALHT, energy: float = BASE_ANIMAL_ENERGY):
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color = ANIMAL_COLOR, health: float = BASE_ANIMAL_HEALHT, energy: float = BASE_ANIMAL_ENERGY):
         if not shape:
             shape = tile.rect
             
@@ -17,12 +17,13 @@ class Animal(Organism):
         
     def update(self):
         super().update()
+        self.color = pygame.Color("grey").lerp(ANIMAL_COLOR, min(self.health_ratio(),.8))
         
         if isinstance(self.tile, WaterTile):
-            self.health -= self.tile.water_value * 10
+            self.loose_health(self.tile.water_value * 10) 
         elif isinstance(self.tile, GrassTile):
             if self.tile.growth_value >= 1:
-                self.health += self.tile.growth_value * 5
+                self.gain_health(self.tile.growth_value * 5)
                 self.tile.growth_value -= min(1, self.tile.growth_value)
         
         direction = self.think()
@@ -50,3 +51,9 @@ class Animal(Organism):
     
     def copy(self, tile: Tile):
         return Animal(tile)
+    
+    def health_ratio(self):
+        ratio = self.health / MAX_ANIMAL_HEALTH
+        assert ratio <= 1, "Health ratio is bigger than 1."
+        assert ratio >= 0, "Health ratio is smaller than 0."
+        return ratio
