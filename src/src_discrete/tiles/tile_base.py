@@ -58,6 +58,7 @@ class Tile(ABC):
         if tile is None:
             raise ValueError("Tile is None")
 
+        # TODO find out why this is not working properly and alway raising the error
         #if not Direction.is_valid_direction(direction):
         #    raise ValueError("Invalid direction", direction)
         
