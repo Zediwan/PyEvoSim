@@ -1,8 +1,10 @@
 from __future__ import annotations
 import pygame
 
-WIDTH, HEIGHT = 1500, 1000
-TILE_SIZE = 10
+JEREMY_BIG_SCREEN = (5200, 1300, 20)
+JEREMY_LAPTOP = (1400, 1000, 10)
+WIDTH, HEIGHT, TILE_SIZE = JEREMY_BIG_SCREEN
+ 
 
 # Settings
 WATER_PERCENTAGE = -.2
