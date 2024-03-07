@@ -1,5 +1,6 @@
 import random
 from pygame import Color, Rect
+from tiles.tile_water import WaterTile
 import tiles.tile_grass as gt
 from tiles.tile_ground import GroundTile
 from config import *
@@ -22,14 +23,24 @@ class GrassTile(GroundTile):
         
     def update(self):
         super().update()
-        if random.random() < .01:
+        growth_rate = 1  # default growth rate
+        growth_chance = .01
+        
+        # Check if any neighbour is a WaterTile
+        for neighbour in self.neighbours.values():
+            if isinstance(neighbour, WaterTile):
+                growth_rate = 1  # increase growth rate if near water
+                growth_chance += .01
+                break
+        
+        if random.random() < growth_chance:
             if self.growth_value < 5:
-                self.growth_value += 1  # or any other value you want to increase by
+                self.grow(growth_rate)
             else:
-                self.get_random_grass_tile_neigbor().grow(1)
+                self.get_random_grass_tile_neigbor().grow(growth_rate)
         
         if self.growth_value > 8:
-            if random.random() < .8:
+            if random.random() < .02:
                 self.growth_value -= 1
                 
     def draw(self, screen):
