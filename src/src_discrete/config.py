@@ -1,7 +1,7 @@
 from __future__ import annotations
 import pygame
 
-WIDTH, HEIGHT = 4000, 1400
+WIDTH, HEIGHT = 2000, 1000
 TILE_SIZE = 20
 
 # Settings
