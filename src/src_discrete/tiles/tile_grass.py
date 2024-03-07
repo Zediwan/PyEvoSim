@@ -7,7 +7,6 @@ from config import *
 class GrassTile(GroundTile):
     MIN_GRASS_VALUE, MAX_GRASS_VALUE = 0, 10
     LAND_DAMAGE = 1
-    DRAW_GROWTH_LEVEL = False
     DIRT_COLOR = pygame.Color(155, 118, 83, ground_alpha)
     MIN_GRASS_COLOR = pygame.Color(235, 242, 230, ground_alpha)
     MAX_GRASS_COLOR = pygame.Color(76, 141, 29, ground_alpha)
@@ -35,7 +34,8 @@ class GrassTile(GroundTile):
                 
     def draw(self, screen):
         super().draw(screen)  # Draw the tile as usual
-        if(self.DRAW_GROWTH_LEVEL):
+        from config import draw_growth_level
+        if(draw_growth_level):
             text = font.render(str(self.growth_value), True, (0, 0, 0))  # Create a text surface
             text.set_alpha(ground_font_alpha)
             

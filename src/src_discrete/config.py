@@ -11,6 +11,9 @@ SURROUNDED_BY_WATER = False
 WORLD_GENERATION_MODE = "Perlin"
 MIN_TILE_SIZE = 4
 
+draw_water_level: bool = False
+draw_growth_level = False
+
 pygame.font.init()
 font: pygame.font.Font = pygame.font.Font(None, 24) 
 

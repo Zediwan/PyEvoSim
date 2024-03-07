@@ -5,7 +5,6 @@ from config import *
 class WaterTile(GroundTile):
     MIN_WATER_VALUE, MAX_WATER_VALUE= 0, 10
     STARTING_WATER_LEVEL = 8
-    DRAW_WATER_LEVEL = False
     DOES_WATER_FLOW = True
     WATER_FLOW_VALUE = 1
     MIN_WATER_COLOR = pygame.Color(204, 229, 233, ground_alpha)
@@ -32,7 +31,8 @@ class WaterTile(GroundTile):
                     
     def draw(self, screen):
         super().draw(screen)  # Draw the tile as usual
-        if(self.DRAW_WATER_LEVEL):
+        from config import draw_water_level
+        if(draw_water_level):
             text = font.render(str(self.water_value), True, (0, 0, 0))  # Create a text surface
             text.set_alpha(ground_font_alpha)
             
