@@ -19,11 +19,11 @@ class Animal(Organism):
     BASE_ANIMAL_ENERGY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_ENERGY, MIN_ANIMAL_ENERGY, MAX_ANIMAL_ENERGY)
     
     MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY = Tile.MIN_WATER_VALUE + 1, Tile.MAX_WATER_VALUE
-    BASE_ANIMAL_WATER_AFFINITY: int = 5
+    BASE_ANIMAL_WATER_AFFINITY: int = 2
     BASE_ANIMAL_WATER_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_WATER_AFFINITY, MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY)
     
     MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = Tile.MIN_GRASS_VALUE + 1, Tile.MAX_GRASS_VALUE
-    BASE_ANIMAL_LAND_AFFINITY: int = 10
+    BASE_ANIMAL_LAND_AFFINITY: int = 8
     BASE_ANIMAL_LAND_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_LAND_AFFINITY, MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY)
     
     GRASS_CONSUMPTION = 1
@@ -42,7 +42,7 @@ class Animal(Organism):
             shape = tile.rect
             
         if not color:
-            color = pygame.Color(random.randint(55,200), random.randint(55,200), random.randint(55,200))
+            color = pygame.Color(random.randint(20,230), random.randint(20,230), random.randint(20,230))
             
         super().__init__(tile, shape, color, health, energy)
         self.waterAffinity: BoundedVariable = waterAffinity.copy()
@@ -53,7 +53,7 @@ class Animal(Organism):
         #TODO: add visual that displays an animals health and energy
         
         if self.tile.water.value > Tile.DROWNABLE_WATER_THRESHOLD:
-            DROWNING_DAMAGE = math.floor(self.tile.water.value * 10 / self.waterAffinity.value)     # TODO: think of a good formula for this
+            DROWNING_DAMAGE = math.floor(self.tile.water.value / self.waterAffinity.value)     # TODO: think of a good formula for this
             self.loose_health(DROWNING_DAMAGE) 
         elif self.tile.water.value <= 0:
             LAND_SUFFOCATION_DAMAGE = math.floor(Tile.LAND_DAMAGE / self.landAffintiy.value)   # TODO: think of a good formula for this
