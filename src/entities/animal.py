@@ -1,5 +1,6 @@
 import math
 import random
+from typing import Optional
 from pygame import Color, Rect, Surface
 from entities.organism import Organism
 from config import *
@@ -34,7 +35,9 @@ class Animal(Organism):
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, 
                  health: BoundedVariable = BASE_ANIMAL_HEALTH_BOUND, 
                  energy: BoundedVariable = BASE_ANIMAL_ENERGY_BOUND,
+                 starting_water_affinity: Optional[int] = None,
                  waterAffinity: BoundedVariable = BASE_ANIMAL_WATER_AFFINITY_BOUND, 
+                 starting_land_affinity: Optional[int] = None,
                  landAffinity: BoundedVariable = BASE_ANIMAL_LAND_AFFINITY_BOUND
                  ):
         
@@ -46,7 +49,11 @@ class Animal(Organism):
             
         super().__init__(tile, shape, color, health, energy)
         self.waterAffinity: BoundedVariable = waterAffinity.copy()
+        if starting_water_affinity:
+            self.waterAffinity.value = starting_water_affinity
         self.landAffintiy: BoundedVariable = landAffinity.copy()
+        if starting_land_affinity:
+            self.landAffintiy.value = starting_land_affinity
         
     def update(self):
         super().update()
