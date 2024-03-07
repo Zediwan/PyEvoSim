@@ -1,5 +1,5 @@
 from __future__ import annotations
-import pygame
+from pygame import Rect, Surface, SRCALPHA, draw
 import random
 from config import *
 from abc import ABC, abstractmethod
@@ -23,11 +23,11 @@ Methods:
     get_random_neigbor() -> Tile: Returns a random neighbor tile.
 """
 class Tile(ABC):
-    def __init__(self, rect: pygame.Rect, cell_size: int, organism: organism.Organism|None = None):
-        self.cell_size = max(cell_size, MIN_TILE_SIZE)
+    def __init__(self, rect: Rect, tile_size: int, organism: organism.Organism|None = None):
+        self.tile_size = max(tile_size, MIN_TILE_SIZE)
         self.rect = rect
         self.neighbours = {}
-        self.temp_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+        self.temp_surface = Surface((self.rect.width, self.rect.height), SRCALPHA)
         self.is_border_tile = False
         
         if organism:
@@ -44,15 +44,14 @@ class Tile(ABC):
             self.organism.update()
 
     # TODO: this method does not currently work / display the borders, find a way to fix it
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen: Surface):
         """
         Draws the tile on the screen.
 
         Args:
             screen (pygame.Surface): The surface to draw the tile on.
         """
-        pygame.draw.rect(self.temp_surface, tile_border_color, self.rect, tile_outline_thickness)
-        #pygame.draw.rect(screen, tile_border_color, self.rect, tile_outline_thickness)
+        draw.rect(self.temp_surface, tile_border_color, self.rect, tile_outline_thickness)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
         
     def leave(self):
@@ -66,7 +65,7 @@ class Tile(ABC):
     def is_occupied(self):
         return self.organism is not None
 
-    def add_neighbor(self, direction: Direction, tile: 'Tile'):
+    def add_neighbor(self, direction: Direction, tile: Tile):
         """
         Adds a neighbor tile in the specified direction.
 
@@ -84,6 +83,15 @@ class Tile(ABC):
         
         self.neighbours[direction] = tile
 
+    def get_directions(self) -> list[Direction]:
+        """
+        Returns a list of directions to the tile's neighbors.
+
+        Returns:
+            A list of directions to the tile's neighbors.
+        """
+        return list(self.neighbours.keys())
+
     def get_neighbor(self, direction: Direction) -> Tile:
         """
         Returns the neighbor tile in the specified direction.
@@ -99,41 +107,33 @@ class Tile(ABC):
         
         return self.neighbours[direction]
 
-    def get_directions(self) -> list[Direction]:
+    def get_neighbors(self) -> list[Tile]|None:
         """
-        Returns a list of directions to the tile's neighbors.
+        Returns a list of all neighboring tiles.
 
         Returns:
-            A list of directions to the tile's neighbors.
-        """
-        return list(self.neighbours.keys())
-
-    def get_random_neigbor(self) -> Tile:
-        """
-        Returns a random neighbor tile.
-
-        Returns:
-            A random neighbor tile.
+            list[Tile]|None: A list of Tile objects that are neighbors to this tile, or None if there are no neighbors.
         """
         if not self.neighbours:
-            raise ValueError("No neighbors available")
-        
+            return None
+        return list(self.neighbours.values())
+
+    def get_random_neigbor(self) -> Tile|None:
         return self.neighbours[random.choice(self.get_directions())]
     
     def get_random_unoccupied_neighbor(self) -> Tile|None:
-        """
-        Returns a random unoccupied neighbor tile.
-
-        Returns:
-            A random unoccupied neighbor tile.
-        """
-        if not self.neighbours:
-            raise ValueError("No neighbors available")
-        
         unoccupied_neighbors = [tile for direction, tile in self.neighbours.items() if not tile.is_occupied()]
         
         if not unoccupied_neighbors:
-            #raise ValueError("No unoccupied neighbors available")
             return None
         
         return random.choice(unoccupied_neighbors)
+    
+    def is_neighbour(self, tile):        
+        for direction in self.get_directions():
+            neigbour = self.neighbours[direction]
+            if neigbour == tile:
+                return True
+            
+        return False
+    

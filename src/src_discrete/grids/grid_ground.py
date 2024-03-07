@@ -41,7 +41,7 @@ class GridGround(Grid):
         is_border = self.is_border_tile(row, col)
     
         if SURROUNDED_BY_WATER and is_border:
-            tile : Tile = WaterTile(rect, self.tile_size, 10)
+            tile : Tile = WaterTile(rect, self.tile_size)
         elif n <= WATER_PERCENTAGE:
             tile : Tile = WaterTile(rect, self.tile_size)
         else:

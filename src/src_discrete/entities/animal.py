@@ -14,50 +14,77 @@ class Animal(Organism):
     MIN_ANIMAL_HEALTH, MAX_ANIMAL_HEALTH = Organism.MIN_ORGANISM_HEALTH, Organism.MAX_ORGANISM_HEALTH
     MIN_ANIMAL_ENERGY, MAX_ANIMAL_ENERGY = Organism.MIN_ORGANISM_ENERGY, Organism.MAX_ORGANISM_ENERGY
 
-    BASE_ANIMAL_HEALTH = MAX_ANIMAL_HEALTH - 50
-    BASE_ANIMAL_ENERGY = MAX_ANIMAL_ENERGY - 50
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, health: int = BASE_ANIMAL_HEALTH, energy: int = BASE_ANIMAL_ENERGY,
-                 waterAffinity: BoundedVariable = BoundedVariable(5, 1, WaterTile.MAX_WATER_VALUE), landAffinity: BoundedVariable = BoundedVariable(10, 1, GrassTile.MAX_GRASS_VALUE)):
+    BASE_ANIMAL_HEALTH: int = MAX_ANIMAL_HEALTH - 50
+    BASE_ANIMAL_ENERGY: int = MAX_ANIMAL_ENERGY - 50
+    
+    BASE_ANIMAL_HEALTH_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_HEALTH, MIN_ANIMAL_HEALTH, MAX_ANIMAL_HEALTH)
+    BASE_ANIMAL_ENERGY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_ENERGY, MIN_ANIMAL_ENERGY, MAX_ANIMAL_ENERGY)
+    
+    MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY = WaterTile.MIN_WATER_VALUE + 1, WaterTile.MAX_WATER_VALUE
+    BASE_ANIMAL_WATER_AFFINITY: int = 5
+    BASE_ANIMAL_WATER_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_WATER_AFFINITY, MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY)
+    
+    MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = GrassTile.MIN_GRASS_VALUE + 1, GrassTile.MAX_GRASS_VALUE
+    BASE_ANIMAL_LAND_AFFINITY: int = 10
+    BASE_ANIMAL_LAND_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_LAND_AFFINITY, MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY)
+    
+    GRASS_CONSUMPTION = 1
+    ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD = .9
+    ANIMAL_REPRODUCTION_CHANCE = .01
+    DEATH_SOIL_NUTRITION = 1
+    
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, 
+                 health: BoundedVariable = BASE_ANIMAL_HEALTH_BOUND, 
+                 energy: BoundedVariable = BASE_ANIMAL_ENERGY_BOUND,
+                 waterAffinity: BoundedVariable = BASE_ANIMAL_WATER_AFFINITY_BOUND, 
+                 landAffinity: BoundedVariable = BASE_ANIMAL_LAND_AFFINITY_BOUND
+                 ):
         
         if not shape:
             shape = tile.rect
             
         if not color:
-            color = pygame.Color(random.randint(0,255), random.randint(0,255), random.randint(0,255))
+            color = pygame.Color(random.randint(55,200), random.randint(55,200), random.randint(55,200))
             
         super().__init__(tile, shape, color, health, energy)
-        self.waterAffinity = waterAffinity
-        self.landAffintiy = landAffinity
+        self.waterAffinity: BoundedVariable = waterAffinity.copy()
+        self.landAffintiy: BoundedVariable = landAffinity.copy()
         
     def update(self):
         super().update()
-        #self.color = pygame.Color("grey").lerp(self.ANIMAL_COLOR, min(self.health_ratio(),.8))
+        #TODO: add visual that displays an animals health and energy
         
         if isinstance(self.tile, WaterTile):
-            self.loose_health(self.tile.water_value * 10 / self.waterAffinity.value) 
+            DROWNING_DAMAGE = math.floor(self.tile.water.value * 10 / self.waterAffinity.value)     # TODO: think of a good formula for this
+            self.loose_health(DROWNING_DAMAGE) 
         elif isinstance(self.tile, GrassTile):
-            self.loose_health(GrassTile.LAND_DAMAGE / self.landAffintiy.value)
-            if self.tile.growth_value >= 1:
-                self.gain_enery(math.floor(self.tile.growth_value))
-                self.tile.growth_value -= min(1, self.tile.growth_value)
+            LAND_SUFFOCATION_DAMAGE = math.floor(GrassTile.LAND_DAMAGE / self.landAffintiy.value)   # TODO: think of a good formula for this
+            self.loose_health(LAND_SUFFOCATION_DAMAGE)
+            
+            GROWTH_NUTRITION = self.tile.growth.value   # TODO: think of a good formula for this
+            self.gain_enery(GROWTH_NUTRITION)
+            self.tile.growth.add_value(-self.GRASS_CONSUMPTION)
         
         direction = self.think()
         if direction:
             self.enter_tile(direction)
             
-        if self.health_ratio() >= .9:
+        self.reproduce()
+
+    def reproduce(self):
+        if self.ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD <= self.health.ratio():
             unoccupied_neighbor = self.tile.get_random_unoccupied_neighbor()
             if unoccupied_neighbor:
-                if random.random() <= .01:
-                    self.copy(unoccupied_neighbor)
+                if random.random() <= self.ANIMAL_REPRODUCTION_CHANCE:
+                    self.copy(unoccupied_neighbor) # Reproduce to a neighbor tile
         
     def think(self) -> Tile|None:
         return random.choice((self.tile.get_random_unoccupied_neighbor(), None))
     
     def die(self):
-        assert self.health <= 0, "Organism tries to die despite not being dead."
+        assert self.health.value <= self.MIN_ANIMAL_HEALTH, "Organism tries to die despite not being dead."
         if isinstance(self.tile, GrassTile):
-            self.tile.grow(1)
+            self.tile.grow(self.DEATH_SOIL_NUTRITION)
         self.tile.leave()
     
     def draw(self, screen: Surface):
@@ -69,9 +96,3 @@ class Animal(Organism):
         newLA = self.landAffintiy.copy()
         newLA.mutate()
         return Animal(tile, color = self.color, waterAffinity=newWA, landAffinity=newLA)
-    
-    def health_ratio(self):
-        ratio = self.health / self.MAX_ANIMAL_HEALTH
-        assert ratio <= 1, "Health ratio is bigger than 1."
-        assert ratio >= 0, "Health ratio is smaller than 0."
-        return ratio

@@ -1,4 +1,4 @@
-import pygame
+from pygame import Rect, Surface, SRCALPHA
 from config import *
 from tiles.tile_base import Tile
 from abc import abstractmethod
@@ -6,9 +6,9 @@ from abc import abstractmethod
 class GroundTile(Tile):
     color: pygame.Color
     
-    def __init__(self, rect: pygame.Rect, cell_size: int):
+    def __init__(self, rect: Rect, cell_size: int):
         super().__init__(rect, cell_size)
-        self.temp_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+        self.temp_surface = Surface((self.rect.width, self.rect.height), SRCALPHA)
     
     def update(self):
         super().update()
@@ -17,7 +17,7 @@ class GroundTile(Tile):
     def updateColor(self):
         pass
     
-    def draw(self, screen : pygame.Surface):
+    def draw(self, screen : Surface):
         super().draw(screen)
         
         if self.organism:
