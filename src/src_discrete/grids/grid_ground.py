@@ -38,7 +38,7 @@ class GridGround(Grid):
         """
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
         n = self.generate_noise_value(row, col)
-        is_border = self.is_border_tile(col, row)
+        is_border = self.is_border_tile(row, col)
     
         if SURROUNDED_BY_WATER and is_border:
             tile : Tile = WaterTile(rect, self.tile_size, 10)
