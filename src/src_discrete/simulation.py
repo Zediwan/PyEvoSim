@@ -37,9 +37,11 @@ class Simulation:
                 elif event.key == pygame.K_1 and pygame.key.get_mods() & pygame.KMOD_ALT: 
                     config.draw_water_level = not config.draw_water_level
                     self.world.draw(self.screen) 
+                    pygame.display.flip() 
                 elif event.key == pygame.K_2 and pygame.key.get_mods() & pygame.KMOD_ALT: 
                     config.draw_growth_level = not config.draw_growth_level
                     self.world.draw(self.screen) 
+                    pygame.display.flip() 
                 elif event.key == pygame.K_UP and pygame.key.get_mods() & pygame.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False
@@ -59,9 +61,8 @@ class Simulation:
                 self.screen.fill((pygame.Color("white")))  # Fill the screen with a white background
                 self.world.update()
                 self.world.draw(self.screen) 
-                
-            pygame.display.flip() 
-            self.clock.tick(self.game_speed)  
+                pygame.display.flip() 
+                self.clock.tick(self.game_speed)  
             
     def handle_game_speed(self):
         if self.game_speed <= 10:
