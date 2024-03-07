@@ -70,7 +70,7 @@ class Simulation:
                 self.world.update()
                 self.world.draw(self.screen) 
                 pg.display.flip() 
-                self.clock.tick(self.game_speed.value)  
+                print(self.clock.tick(self.game_speed.value))
             
     def handle_game_speed(self):
         if self.game_speed.value <= self.SMALL_BIG_GAME_SPEED_THRESHOLD:

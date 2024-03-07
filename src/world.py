@@ -1,6 +1,6 @@
 import math
 from pygame import sprite, Surface
-from grids.grid_ground import GridGround
+from grid import Grid
 
 class World(sprite.Sprite):
     """
@@ -29,7 +29,7 @@ class World(sprite.Sprite):
         rows = math.floor(self.height / self.tile_size)
         cols = math.floor(self.width / self.tile_size)
         
-        self.ground = GridGround(rows , cols, tile_size)
+        self.ground = Grid(rows , cols, tile_size)
         
     def update(self):
         self.ground.update()

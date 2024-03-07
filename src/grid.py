@@ -1,11 +1,14 @@
 import random
+from noise import pnoise2
 from pygame import sprite, Surface
-from abc import ABC, abstractmethod
+from entities.animal import Animal
 from entities.organism import Organism
 from tiles.tile_base import Tile
 from config import *
+from tiles.tile_grass import GrassTile
+from tiles.tile_water import WaterTile
 
-class Grid(ABC, sprite.Sprite):
+class Grid(sprite.Sprite):
     """
     The Grid class represents a grid of tiles in a game. It is an abstract base class (ABC) that provides common functionality for grids.
 
@@ -75,10 +78,6 @@ class Grid(ABC, sprite.Sprite):
         for tile in self.tiles:
             tile.draw(temp_surface)
         screen.blit(temp_surface, (0, 0))
-                
-    @abstractmethod
-    def create_tile(self, col, row) -> Tile:
-        pass
     
     def add_cell_neighbours(self):
         """
@@ -127,3 +126,52 @@ class Grid(ABC, sprite.Sprite):
             print(is_border)  # Output: True
         """
         return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
+    
+    def create_tile(self, col: int, row: int) -> Tile:
+        """
+        Creates a new ground tile at the specified column and row.
+
+        Args:
+            col (int): The column index of the tile.
+            row (int): The row index of the tile.
+
+        Returns:
+            Tile: The newly created ground tile.
+        """
+        rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
+        n = self.generate_noise_value(row, col)
+        is_border = self.is_border_tile(row, col)
+    
+        if SURROUNDED_BY_WATER and is_border:
+            tile : Tile = WaterTile(rect, self.tile_size)
+        elif n <= WATER_PERCENTAGE:
+            tile : Tile = WaterTile(rect, self.tile_size)
+        else:
+            tile : Tile = GrassTile(rect, self.tile_size, random.randint(0,10))
+            if random.random() <= STARTING_ANIMAL_PERCENTAGE:
+                Animal(tile)
+            
+        tile.is_border_tile = is_border 
+        return tile
+
+    def generate_noise_value(self, row: int, col: int) -> float:
+        """
+        Generates a noise value for the specified row and column.
+
+        Args:
+            row (int): The row index of the tile.
+            col (int): The column index of the tile.
+
+        Returns:
+            float: The generated noise value.
+
+        Raises:
+            None
+        """
+        match(WORLD_GENERATION_MODE):
+            case "Perlin":
+                return pnoise2(row / 20.0, col / 24.0)
+            case "Random":
+                return random.random()
+            case _:
+                return pnoise2(row / 20.0, col / 24.0)
