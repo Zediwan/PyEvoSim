@@ -25,6 +25,15 @@ class BoundedVariable:
             self._value = self._max_val
         else:
             self._value = new_value
+    
+    def add_value(self, add_val: int):
+        new_value = self._value + add_val
+        if new_value < self._min_val:
+            self._value = self._min_val
+        elif new_value > self._max_val:
+            self._value = self._max_val
+        else:
+            self._value = new_value
             
     def mutate(self):
         if self._value == self._min_val:
