@@ -62,7 +62,7 @@ class Simulation:
                 self.world.update()
                 self.world.draw(self.screen) 
                 pg.display.flip() 
-                self.clock.tick(self.game_speed)  
+                print(self.clock.tick(self.game_speed))
             
     def handle_game_speed(self):
         if self.game_speed <= 10:

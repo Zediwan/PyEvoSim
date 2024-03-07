@@ -3,7 +3,6 @@ import random
 from pygame import Color, Rect, Surface
 from entities.organism import Organism
 from config import *
-from bounded_variable import BoundedVariable
 from tiles.tile_grass import GrassTile
 from tiles.tile_water import WaterTile
 from tiles.tile_base import Tile
@@ -17,7 +16,7 @@ class Animal(Organism):
     BASE_ANIMAL_HEALTH = MAX_ANIMAL_HEALTH - 50
     BASE_ANIMAL_ENERGY = MAX_ANIMAL_ENERGY - 50
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, health: int = BASE_ANIMAL_HEALTH, energy: int = BASE_ANIMAL_ENERGY,
-                 waterAffinity: BoundedVariable = BoundedVariable(5, 1, WaterTile.MAX_WATER_VALUE), landAffinity: BoundedVariable = BoundedVariable(10, 1, GrassTile.MAX_GRASS_VALUE)):
+                 waterAffinity: int = 1, landAffinity: int = 10):
         
         if not shape:
             shape = tile.rect
@@ -34,9 +33,9 @@ class Animal(Organism):
         #self.color = pygame.Color("grey").lerp(self.ANIMAL_COLOR, min(self.health_ratio(),.8))
         
         if isinstance(self.tile, WaterTile):
-            self.loose_health(self.tile.water_value * 10 / self.waterAffinity.value) 
+            self.loose_health(self.tile.water_value * 10 / self.waterAffinity) 
         elif isinstance(self.tile, GrassTile):
-            self.loose_health(GrassTile.LAND_DAMAGE / self.landAffintiy.value)
+            self.loose_health(GrassTile.LAND_DAMAGE / self.landAffintiy)
             if self.tile.growth_value >= 1:
                 self.gain_enery(math.floor(self.tile.growth_value))
                 self.tile.growth_value -= min(1, self.tile.growth_value)
@@ -64,10 +63,10 @@ class Animal(Organism):
         super().draw(screen)
     
     def copy(self, tile: Tile):
-        newWA = self.waterAffinity.copy()
-        newWA.mutate()
-        newLA = self.landAffintiy.copy()
-        newLA.mutate()
+        newWA = self.waterAffinity
+        #newWA.mutate()
+        newLA = self.landAffintiy
+        #newLA.mutate()
         return Animal(tile, color = self.color, waterAffinity=newWA, landAffinity=newLA)
     
     def health_ratio(self):
