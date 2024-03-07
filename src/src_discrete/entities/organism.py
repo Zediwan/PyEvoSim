@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 import math
-import pygame
+from pygame import Color, Rect, sprite
 from config import *
 
 import tiles.tile_base as tile
 
-class Organism(ABC):
+class Organism(ABC, sprite.Sprite):
     ORGANISM_MAINTANANCE_ENERGY = 1
 
     MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH = 0, 100
@@ -14,7 +14,8 @@ class Organism(ABC):
     BASE_ORGANISM_HEALTH = MAX_ORGANISM_HEALTH
     BASE_ORGANISM_ENERGY = MAX_ORGANISM_ENERGY
     
-    def __init__(self, tile: tile.Tile, shape: pygame.Rect, color: pygame.Color, health: int = BASE_ORGANISM_HEALTH, energy: int = BASE_ORGANISM_ENERGY):
+    def __init__(self, tile: tile.Tile, shape: Rect, color: Color, health: int = BASE_ORGANISM_HEALTH, energy: int = BASE_ORGANISM_ENERGY):
+        sprite.Sprite.__init__(self)
         self.health = health
         self.energy = energy
         self.shape = shape

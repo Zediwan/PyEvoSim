@@ -1,8 +1,8 @@
 import math
-import pygame
+from pygame import sprite, Surface
 from grids.grid_ground import GridGround
 
-class World():
+class World(sprite.Sprite):
     """
     The World class represents a game world in a game environment.
 
@@ -19,6 +19,7 @@ class World():
         adjust_dimensions(height, width, tile_size): Adjusts the given height and width to be divisible by the tile size.
     """
     def __init__(self, height : int, width : int, tile_size : int):
+        sprite.Sprite.__init__(self)
         self.height = height
         self.width = width
         self.tile_size = tile_size
@@ -33,7 +34,7 @@ class World():
     def update(self):
         self.ground.update()
         
-    def draw(self, screen : pygame.Surface):
+    def draw(self, screen : Surface):
         self.ground.draw(screen)
         
     @staticmethod

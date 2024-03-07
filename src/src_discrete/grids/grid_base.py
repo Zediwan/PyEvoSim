@@ -1,11 +1,11 @@
 import random
-import pygame
+from pygame import sprite, Surface
 from abc import ABC, abstractmethod
 from entities.organism import Organism
 from tiles.tile_base import Tile
 from config import *
 
-class Grid(ABC):
+class Grid(ABC, sprite.Sprite):
     """
     The Grid class represents a grid of tiles in a game. It is an abstract base class (ABC) that provides common functionality for grids.
 
@@ -27,6 +27,7 @@ class Grid(ABC):
         This class is an abstract base class (ABC) and should not be instantiated directly. Subclasses should implement the create_tile method to create specific types of tiles for the grid.
     """
     def __init__(self, rows : int, cols : int, tile_size : int):
+        sprite.Sprite.__init__(self)
         self.rows = rows
         self.cols = cols
         self.tile_size = tile_size
@@ -53,7 +54,7 @@ class Grid(ABC):
         for tile in self.tiles:
             tile.update()
             
-    def draw(self, screen : pygame.Surface):
+    def draw(self, screen : Surface):
         """
         Draws all tiles in the grid on the specified screen surface.
 
@@ -70,7 +71,7 @@ class Grid(ABC):
             screen = pygame.display.set_mode((800, 600))
             grid.draw(screen)
         """
-        temp_surface = pygame.Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
+        temp_surface = Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
         for tile in self.tiles:
             tile.draw(temp_surface)
         screen.blit(temp_surface, (0, 0))

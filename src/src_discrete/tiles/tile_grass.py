@@ -1,5 +1,5 @@
 import random
-import pygame
+from pygame import Color, Rect
 import tiles.tile_grass as gt
 from tiles.tile_ground import GroundTile
 from config import *
@@ -7,12 +7,12 @@ from config import *
 class GrassTile(GroundTile):
     MIN_GRASS_VALUE, MAX_GRASS_VALUE = 0, 10
     LAND_DAMAGE = 1
-    DIRT_COLOR = pygame.Color(155, 118, 83, ground_alpha)
-    MIN_GRASS_COLOR = pygame.Color(235, 242, 230, ground_alpha)
-    MAX_GRASS_COLOR = pygame.Color(76, 141, 29, ground_alpha)
+    DIRT_COLOR = Color(155, 118, 83, ground_alpha)
+    MIN_GRASS_COLOR = Color(235, 242, 230, ground_alpha)
+    MAX_GRASS_COLOR = Color(76, 141, 29, ground_alpha)
     
         
-    def __init__(self, rect: pygame.Rect, cell_size: int, value: int = MIN_GRASS_VALUE):
+    def __init__(self, rect: Rect, cell_size: int, value: int = MIN_GRASS_VALUE):
         super().__init__(rect, cell_size)
         self.growth_value = value
         self.updateColor()

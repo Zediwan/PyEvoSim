@@ -1,4 +1,4 @@
-import pygame
+from pygame import Color, Rect
 from tiles.tile_ground import GroundTile
 from config import *
 
@@ -7,10 +7,10 @@ class WaterTile(GroundTile):
     STARTING_WATER_LEVEL = 8
     DOES_WATER_FLOW = True
     WATER_FLOW_VALUE = 1
-    MIN_WATER_COLOR = pygame.Color(204, 229, 233, ground_alpha)
-    MAX_WATER_COLOR = pygame.Color(26, 136, 157, ground_alpha)
+    MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
+    MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
     
-    def __init__(self, rect: pygame.Rect, cell_size: int, value: int = STARTING_WATER_LEVEL):
+    def __init__(self, rect: Rect, cell_size: int, value: int = STARTING_WATER_LEVEL):
         super().__init__(rect, cell_size)
         self.water_value = value
         self.updateColor()
@@ -79,6 +79,7 @@ class WaterTile(GroundTile):
     def set_value(self, value):
         assert value >= self.MIN_WATER_VALUE, "Value is smaller than minimum."
         assert value <= self.MAX_WATER_VALUE, "Value is larger than maximum."
+        
         self.water_value = value
         
         self.invariant()
