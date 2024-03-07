@@ -3,7 +3,7 @@ import pygame as pg
 import sys
 from world import World
 class Simulation:
-    STARTING_GAME_SPEED = 60
+    STARTING_GAME_SPEED = 120
     
     SMALL_BIG_GAME_SPEED_THRESHOLD = 10
     BIG_CHANGE_GAME_SPEED = 10
@@ -81,5 +81,5 @@ class Simulation:
             self.game_speed += change_in_game_speed
             #print(self.game_speed)
         if self.decrease_game_speed:
-            self.game_speed = max(self.game_speed-change_in_game_speed, self.MIN_GAME_SPEED)
+            self.game_speed = max(self.game_speed - change_in_game_speed, self.MIN_GAME_SPEED)
             #print(self.game_speed)   
