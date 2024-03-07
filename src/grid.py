@@ -3,10 +3,8 @@ from noise import pnoise2
 from pygame import sprite, Surface
 from entities.animal import Animal
 from entities.organism import Organism
-from tiles.tile_base import Tile
+from Tile import Tile
 from config import *
-from tiles.tile_grass import GrassTile
-from tiles.tile_water import WaterTile
 
 class Grid(sprite.Sprite):
     """
@@ -107,7 +105,7 @@ class Grid(sprite.Sprite):
                     neighbours[Direction.SOUTH] = self.tiles[(row + 1) * self.cols + col]
                 if col > 0:
                     neighbours[Direction.WEST] = self.tiles[row * self.cols + col - 1]
-                tile.neighbours = neighbours
+                tile.neighbors = neighbours
     
     def is_border_tile(self, row: int, col: int) -> bool:
         """
@@ -143,11 +141,11 @@ class Grid(sprite.Sprite):
         is_border = self.is_border_tile(row, col)
     
         if SURROUNDED_BY_WATER and is_border:
-            tile : Tile = WaterTile(rect, self.tile_size)
+            tile : Tile = Tile(rect, self.tile_size, height=-1, starting_water_level=10, starting_growth_level= random.randint(Tile.MIN_GRASS_VALUE, Tile.MIN_GRASS_VALUE+2))
         elif n <= WATER_PERCENTAGE:
-            tile : Tile = WaterTile(rect, self.tile_size)
+            tile : Tile = Tile(rect, self.tile_size, height=-1, starting_water_level=random.randint(Tile.MAX_WATER_VALUE-2, Tile.MAX_WATER_VALUE), starting_growth_level= random.randint(Tile.MIN_GRASS_VALUE, Tile.MIN_GRASS_VALUE+2))
         else:
-            tile : Tile = GrassTile(rect, self.tile_size, random.randint(0,10))
+            tile : Tile = Tile(rect, self.tile_size, starting_growth_level=random.randint(Tile.MAX_GRASS_VALUE-2, Tile.MAX_GRASS_VALUE))
             if random.random() <= STARTING_ANIMAL_PERCENTAGE:
                 Animal(tile)
             

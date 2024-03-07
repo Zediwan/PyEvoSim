@@ -4,9 +4,7 @@ from pygame import Color, Rect, Surface
 from entities.organism import Organism
 from config import *
 from bounded_variable import BoundedVariable
-from tiles.tile_grass import GrassTile
-from tiles.tile_water import WaterTile
-from tiles.tile_base import Tile
+from Tile import Tile
 
 class Animal(Organism):
     ANIMAL_COLOR = pygame.Color("black")
@@ -20,11 +18,11 @@ class Animal(Organism):
     BASE_ANIMAL_HEALTH_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_HEALTH, MIN_ANIMAL_HEALTH, MAX_ANIMAL_HEALTH)
     BASE_ANIMAL_ENERGY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_ENERGY, MIN_ANIMAL_ENERGY, MAX_ANIMAL_ENERGY)
     
-    MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY = WaterTile.MIN_WATER_VALUE + 1, WaterTile.MAX_WATER_VALUE
+    MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY = Tile.MIN_WATER_VALUE + 1, Tile.MAX_WATER_VALUE
     BASE_ANIMAL_WATER_AFFINITY: int = 5
     BASE_ANIMAL_WATER_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_WATER_AFFINITY, MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY)
     
-    MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = GrassTile.MIN_GRASS_VALUE + 1, GrassTile.MAX_GRASS_VALUE
+    MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = Tile.MIN_GRASS_VALUE + 1, Tile.MAX_GRASS_VALUE
     BASE_ANIMAL_LAND_AFFINITY: int = 10
     BASE_ANIMAL_LAND_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_LAND_AFFINITY, MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY)
     
@@ -54,11 +52,11 @@ class Animal(Organism):
         super().update()
         #TODO: add visual that displays an animals health and energy
         
-        if isinstance(self.tile, WaterTile):
+        if self.tile.water.value > Tile.DROWNABLE_WATER_THRESHOLD:
             DROWNING_DAMAGE = math.floor(self.tile.water.value * 10 / self.waterAffinity.value)     # TODO: think of a good formula for this
             self.loose_health(DROWNING_DAMAGE) 
-        elif isinstance(self.tile, GrassTile):
-            LAND_SUFFOCATION_DAMAGE = math.floor(GrassTile.LAND_DAMAGE / self.landAffintiy.value)   # TODO: think of a good formula for this
+        elif self.tile.water.value <= 0:
+            LAND_SUFFOCATION_DAMAGE = math.floor(Tile.LAND_DAMAGE / self.landAffintiy.value)   # TODO: think of a good formula for this
             self.loose_health(LAND_SUFFOCATION_DAMAGE)
             
             GROWTH_NUTRITION = self.tile.growth.value   # TODO: think of a good formula for this
@@ -83,9 +81,8 @@ class Animal(Organism):
     
     def die(self):
         assert self.health.value <= self.MIN_ANIMAL_HEALTH, "Organism tries to die despite not being dead."
-        if isinstance(self.tile, GrassTile):
-            self.tile.grow(self.DEATH_SOIL_NUTRITION)
-        self.tile.leave()
+        self.tile.growth.add_value(self.DEATH_SOIL_NUTRITION)
+        self.tile.leave(self)
     
     def draw(self, screen: Surface):
         super().draw(screen)

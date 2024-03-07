@@ -4,7 +4,7 @@ from pygame import Color, Rect, sprite, Surface
 from config import *
 from bounded_variable import BoundedVariable
 
-import tiles.tile_base as t
+import Tile as t
 
 class Organism(ABC, sprite.Sprite):
     MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH = 0, 100
@@ -46,7 +46,7 @@ class Organism(ABC, sprite.Sprite):
             raise ValueError("Tile is already occupied.")
             
         if self.tile:
-            self.tile.leave()
+            self.tile.leave(self)
         
         self.tile = tile
         tile.enter(self)
@@ -104,7 +104,7 @@ class Organism(ABC, sprite.Sprite):
         if self.health.value > 0:
             raise ValueError("Organism tries to die despite not being dead.")
         
-        self.tile.leave()
+        self.tile.leave(self)
         self.invariant()
     
     @abstractmethod
@@ -114,5 +114,6 @@ class Organism(ABC, sprite.Sprite):
     def invariant(self):
         if not self.tile:
             raise ValueError("Organism does not have a tile!")
-        if self.tile.organism != self:
-            raise ValueError("Tiles Organism and Organisms tile are not equal.")
+        if self.tile.organisms:
+            if self not in self.tile.organisms:
+                raise ValueError("Tiles Organism and Organisms tile are not equal.")
