@@ -8,9 +8,9 @@ class GrassTile(GroundTile):
     MIN_GRASS_VALUE, MAX_GRASS_VALUE = 0, 10
     LAND_DAMAGE = 1
     DRAW_GROWTH_LEVEL = False
-    dirt_color = pygame.Color(155, 118, 83, ground_alpha)
-    min_grass_color = pygame.Color(235, 242, 230, ground_alpha)
-    max_grass_color = pygame.Color(76, 141, 29, ground_alpha)
+    DIRT_COLOR = pygame.Color(155, 118, 83, ground_alpha)
+    MIN_GRASS_COLOR = pygame.Color(235, 242, 230, ground_alpha)
+    MAX_GRASS_COLOR = pygame.Color(76, 141, 29, ground_alpha)
     
         
     def __init__(self, rect: pygame.Rect, cell_size: int, value: int = MIN_GRASS_VALUE):
@@ -19,7 +19,7 @@ class GrassTile(GroundTile):
         self.updateColor()
         
     def updateColor(self):
-        self.color = self.dirt_color.lerp(self.min_grass_color, self.growth_value / self.MAX_GRASS_VALUE).lerp(self.max_grass_color, self.growth_value / self.MAX_GRASS_VALUE)
+        self.color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, self.growth_value / self.MAX_GRASS_VALUE).lerp(self.MAX_GRASS_COLOR, self.growth_value / self.MAX_GRASS_VALUE)
         
     def update(self):
         super().update()

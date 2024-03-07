@@ -8,8 +8,8 @@ class WaterTile(GroundTile):
     DRAW_WATER_LEVEL = False
     DOES_WATER_FLOW = True
     WATER_FLOW_VALUE = 1
-    min_water_color = pygame.Color(204, 229, 233, ground_alpha)
-    max_water_color = pygame.Color(26, 136, 157, ground_alpha)
+    MIN_WATER_COLOR = pygame.Color(204, 229, 233, ground_alpha)
+    MAX_WATER_COLOR = pygame.Color(26, 136, 157, ground_alpha)
     
     def __init__(self, rect: pygame.Rect, cell_size: int, value: int = STARTING_WATER_LEVEL):
         super().__init__(rect, cell_size)
@@ -28,7 +28,7 @@ class WaterTile(GroundTile):
         self.invariant()
         
     def updateColor(self):
-        self.color = self.min_water_color.lerp(self.max_water_color, self.water_value / self.MAX_WATER_VALUE)
+        self.color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, self.water_value / self.MAX_WATER_VALUE)
                     
     def draw(self, screen):
         super().draw(screen)  # Draw the tile as usual
