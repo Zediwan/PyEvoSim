@@ -5,7 +5,7 @@ from config import *
 class WaterTile(GroundTile):
     MIN_WATER_VALUE, MAX_WATER_VALUE= 0, 10
     STARTING_WATER_LEVEL = 8
-    DOES_WATER_FLOW = True
+    DOES_WATER_FLOW = False
     WATER_FLOW_VALUE = 1
     MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
     MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
