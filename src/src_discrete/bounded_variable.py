@@ -34,6 +34,12 @@ class BoundedVariable:
             self._value = self._max_val
         else:
             self._value = new_value
+        return max(new_value - self._max_val, 0)
+            
+    def ratio(self) -> float:
+        total_range = self._max_val - self._min_val
+        current_difference = self._value - self._min_val
+        return current_difference / total_range
             
     def mutate(self):
         if self._value == self._min_val:
