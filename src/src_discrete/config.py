@@ -1,8 +1,8 @@
 from __future__ import annotations
 import pygame
 
-WIDTH, HEIGHT = 2000, 1000
-TILE_SIZE = 20
+WIDTH, HEIGHT = 1500, 1000
+TILE_SIZE = 10
 
 # Settings
 WATER_PERCENTAGE = -.2
@@ -15,7 +15,8 @@ draw_water_level: bool = False
 draw_growth_level = False
 
 pygame.font.init()
-font: pygame.font.Font = pygame.font.Font(None, 24) 
+font_size = int(1.2 * TILE_SIZE)
+font: pygame.font.Font = pygame.font.Font(None, font_size) 
 
 tile_outline_thickness = 1
 
