@@ -3,7 +3,12 @@ import pygame as pg
 import sys
 from world import World
 class Simulation:
-    game_speed = 60
+    STARTING_GAME_SPEED = 60
+    
+    SMALL_BIG_GAME_SPEED_THRESHOLD = 10
+    BIG_CHANGE_GAME_SPEED = 10
+    SMALL_CHANGE_GAME_SPEED = 1
+    MIN_GAME_SPEED = 1
     
     def __init__(self, height: int, width: int, tile_size : int):
         pg.display.init()
@@ -12,6 +17,8 @@ class Simulation:
         self.screen = pg.display.set_mode((width, height), pg.HWSURFACE | pg.DOUBLEBUF)
         self.clock = pg.time.Clock()
         self.world = World(height, width, tile_size)
+        
+        self.game_speed = self.STARTING_GAME_SPEED
         self.increase_game_speed = False
         self.decrease_game_speed = False
 
@@ -65,14 +72,14 @@ class Simulation:
                 self.clock.tick(self.game_speed)  
             
     def handle_game_speed(self):
-        if self.game_speed <= 10:
-            change_in_game_speed = 1
-        elif self.game_speed > 10:
-            change_in_game_speed = 10
+        if self.game_speed <= self.SMALL_BIG_GAME_SPEED_THRESHOLD:
+            change_in_game_speed = self.SMALL_CHANGE_GAME_SPEED
+        elif self.game_speed > self.SMALL_BIG_GAME_SPEED_THRESHOLD:
+            change_in_game_speed = self.BIG_CHANGE_GAME_SPEED
                 
         if self.increase_game_speed:
             self.game_speed += change_in_game_speed
             #print(self.game_speed)
         if self.decrease_game_speed:
-            self.game_speed = max(self.game_speed-change_in_game_speed, 1)
+            self.game_speed = max(self.game_speed-change_in_game_speed, self.MIN_GAME_SPEED)
             #print(self.game_speed)   
