@@ -26,7 +26,7 @@ Methods:
 class Tile():
     # Water
     MIN_WATER_VALUE, MAX_WATER_VALUE= 0, 10
-    BASE_WATER_LEVEL = 0
+    BASE_WATER_LEVEL = 1
     WATER_BOUND = BoundedVariable(BASE_WATER_LEVEL, MIN_WATER_VALUE, MAX_WATER_VALUE)
     
     WATER_FLOW_AT_BORDER = 1
@@ -36,6 +36,7 @@ class Tile():
     MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
     
     WATER_EVAPORATE_THRESHOLD = 2
+    WATER_EVAPORATION_CHANCE = .02
     DROWNABLE_WATER_THRESHOLD = 3
     
     # Land
@@ -111,7 +112,8 @@ class Tile():
             if self.is_border_tile and self.height == -1:
                 self.water.add_value(self.WATER_FLOW_AT_BORDER)
             if self.water.value > 0: 
-                if  self.water.value <= self.WATER_EVAPORATE_THRESHOLD:
+                if  self.water.value <= self.WATER_EVAPORATE_THRESHOLD and random.random() <= self.WATER_EVAPORATION_CHANCE:
+                    self.growth.add_value(1) # TODO: rethink if this makes sense
                     self.water.add_value(-1)
                 
                 lowest_water_tiles = []
