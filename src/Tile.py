@@ -43,7 +43,7 @@ class Tile():
     BASE_GRASS_VALUE = MIN_GRASS_VALUE
     GROWTH_BOUND = BoundedVariable(BASE_GRASS_VALUE, MIN_GRASS_VALUE, MAX_GRASS_VALUE)
     
-    LAND_DAMAGE = 10
+    LAND_DAMAGE = 30
     
     DIRT_COLOR = Color(155, 118, 83, ground_alpha)
     MIN_GRASS_COLOR = Color(235, 242, 230, ground_alpha)
@@ -167,7 +167,7 @@ class Tile():
             w_ratio = self.water.ratio()
             water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, w_ratio)
             
-            self.color = self.DIRT_COLOR.lerp(growth_color, g_ratio).lerp(water_color, w_ratio)
+            self.color = growth_color.lerp(water_color, min(w_ratio,.75))
             self.temp_surface.fill(self.color)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
         
