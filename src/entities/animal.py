@@ -1,3 +1,4 @@
+from __future__ import annotations
 import math
 import random
 from typing import Optional
@@ -60,15 +61,15 @@ class Animal(Organism):
         #TODO: add visual that displays an animals health and energy
         
         if self.tile.water.value > Tile.DROWNABLE_WATER_THRESHOLD:
-            DROWNING_DAMAGE = math.floor(self.tile.water.value / self.waterAffinity.value)     # TODO: think of a good formula for this
+            DROWNING_DAMAGE = math.floor(self.tile.water.value * 3 / self.waterAffinity.value)     # TODO: think of a good formula for this
             self.loose_health(DROWNING_DAMAGE) 
         elif self.tile.water.value <= 0:
             LAND_SUFFOCATION_DAMAGE = math.floor(Tile.LAND_DAMAGE / self.landAffintiy.value)   # TODO: think of a good formula for this
             self.loose_health(LAND_SUFFOCATION_DAMAGE)
             
-            GROWTH_NUTRITION = self.tile.growth.value   # TODO: think of a good formula for this
-            self.gain_enery(GROWTH_NUTRITION)
-            self.tile.growth.add_value(-self.GRASS_CONSUMPTION)
+        GROWTH_NUTRITION = self.tile.growth.value   # TODO: think of a good formula for this
+        self.gain_enery(GROWTH_NUTRITION)
+        self.tile.growth.add_value(-self.GRASS_CONSUMPTION)
         
         direction = self.think()
         if direction:
@@ -94,7 +95,7 @@ class Animal(Organism):
     def draw(self, screen: Surface):
         super().draw(screen)
     
-    def copy(self, tile: Tile):
+    def copy(self, tile: Tile) -> Animal:
         newWA = self.waterAffinity.copy()
         newWA.mutate()
         newLA = self.landAffintiy.copy()
