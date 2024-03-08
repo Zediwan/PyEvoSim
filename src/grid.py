@@ -143,7 +143,7 @@ class Grid(sprite.Sprite):
         if SURROUNDED_BY_WATER and is_border:
             tile : Tile = Tile(rect, self.tile_size, height=-1, starting_water_level=10, starting_growth_level= random.randint(Tile.MIN_GRASS_VALUE, Tile.MIN_GRASS_VALUE+2))
         elif n <= WATER_PERCENTAGE:
-            tile : Tile = Tile(rect, self.tile_size, height=-1, starting_water_level=random.randint(Tile.MAX_WATER_VALUE-2, Tile.MAX_WATER_VALUE), starting_growth_level= random.randint(Tile.MIN_GRASS_VALUE, Tile.MIN_GRASS_VALUE+2))
+            tile : Tile = Tile(rect, self.tile_size, height=-1, starting_water_level=random.randint(Tile.MAX_WATER_VALUE-2, Tile.MAX_WATER_VALUE), starting_growth_level= random.randint(Tile.MAX_GRASS_VALUE-2, Tile.MAX_GRASS_VALUE))
             wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
             lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
             if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
