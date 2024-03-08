@@ -98,14 +98,13 @@ class Grid(sprite.Sprite):
                 tile = self.tiles[row * self.cols + col]
                 neighbours = {}
                 if row > 0:
-                    neighbours[Direction.NORTH] = self.tiles[(row - 1) * self.cols + col]
+                    tile.add_neighbor(Direction.NORTH, self.tiles[(row - 1) * self.cols + col])
                 if col < self.cols - 1:
-                    neighbours[Direction.EAST] = self.tiles[row * self.cols + col + 1]
+                    tile.add_neighbor(Direction.EAST, self.tiles[row * self.cols + col + 1])
                 if row < self.rows - 1:
-                    neighbours[Direction.SOUTH] = self.tiles[(row + 1) * self.cols + col]
+                    tile.add_neighbor(Direction.SOUTH, self.tiles[(row + 1) * self.cols + col])
                 if col > 0:
-                    neighbours[Direction.WEST] = self.tiles[row * self.cols + col - 1]
-                tile.neighbors = neighbours
+                    tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])
     
     def is_border_tile(self, row: int, col: int) -> bool:
         """

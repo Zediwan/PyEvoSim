@@ -65,7 +65,8 @@ class Tile():
                  starting_water_level: Optional[int] = None,
                  water: BoundedVariable = WATER_BOUND,
                  starting_growth_level: Optional[int] = None,
-                 growth: BoundedVariable = GROWTH_BOUND
+                 growth: BoundedVariable = GROWTH_BOUND,
+                 is_coast: bool = False
                  ):
         # Organisms
         if organisms:
@@ -93,6 +94,7 @@ class Tile():
         self.rect: Rect = rect
         self.is_border_tile: bool = False
         self.neighbors: dict[Direction, Tile] = {}
+        self.is_coast = is_coast
         
         # Drawing
         self.color: Color = Color(0,0,0,0)
@@ -168,6 +170,8 @@ class Tile():
             water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, w_ratio)
             
             self.color = growth_color.lerp(water_color, min(w_ratio,.75))
+            if self.is_coast and self.height == -1:
+                self.color = self.color.lerp(Color("black"), .05)
             self.temp_surface.fill(self.color)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
         
@@ -229,6 +233,7 @@ class Tile():
 
     def add_neighbor(self, direction: Direction, tile: Tile):
         # TODO find out why this is not working properly and alway raising the error
+        self.is_coast = self.is_coast or tile.height != self.height
         self.neighbors[direction] = tile
 
     def get_directions(self) -> List[Direction]:
