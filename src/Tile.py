@@ -205,30 +205,24 @@ class Tile():
         Args:
             screen (Surface): The surface on which the tile will be drawn.
         """
-        # Draw the tile's border
-        draw.rect(self.temp_surface, tile_border_color, self.rect, tile_outline_thickness)
-        screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
-
         # Draw organisms if present
         if self.organisms:
             for org in self.organisms:
                 if org.is_alive():
                     org.draw(screen)
         else:
-            # Calculate the color of the tile based on growth level and water level
-            g_ratio = self.growth.ratio()
-            growth_color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, g_ratio).lerp(self.MAX_GRASS_COLOR, g_ratio)
-            w_ratio = self.water.ratio()
-            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, w_ratio)
-            self.color = growth_color.lerp(water_color, min(w_ratio, .85))
+            growth_ratio = self.growth.ratio()
+            water_ratio = self.water.ratio()
+            height_ratio = pygame.math.clamp(self.height / 50, 0, 1)
+        
+            growth_color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, growth_ratio).lerp(self.MAX_GRASS_COLOR, growth_ratio)
+            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
+            height_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, height_ratio)
 
-            # Calculate the mountain color based on height
-            ratio = pygame.math.clamp(self.height / 50, 0, .8)
-            mountain_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, ratio)
-            self.color = self.color.lerp(mountain_color, ratio)
+            self.color = growth_color.lerp(water_color, pygame.math.clamp(water_ratio, 0, .75)).lerp(height_color, pygame.math.clamp(height_ratio, 0, .5))
 
-            # Fill the temporary surface with the tile's color
             self.temp_surface.fill(self.color)
+        
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
 
         # Render water level if enabled

@@ -39,7 +39,7 @@ class Organism(ABC, sprite.Sprite):
         if not self.is_alive():
             raise ValueError("Animal is being drawn despite being dead")
         
-        self.tile.temp_surface.fill(self.color.lerp(self.tile.color, min(0.5, self.tile.water.ratio())))
+        self.tile.temp_surface.fill(self.color.lerp(self.tile.color, pygame.math.clamp(self.tile.water.ratio(), 0, .5)))
     
     def enter_tile(self, tile: t.Tile):
         if tile.is_occupied():
