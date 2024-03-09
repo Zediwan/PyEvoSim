@@ -4,6 +4,7 @@ from pygame import Rect, Surface, SRCALPHA, draw, Color
 from bounded_variable import BoundedVariable
 import random
 from config import *
+import math
 
 import entities.organism as organism
 
@@ -34,6 +35,8 @@ class Tile():
     WATER_FLOW_BETWEEN_TILES = 1
     MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
     MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
+    MOUNTAIN_TOP_COLOR = Color("white")
+    MOUNTAIN_FLOOR_COLOR = Color("azure4")
     
     WATER_EVAPORATE_THRESHOLD = 2
     WATER_EVAPORATION_CHANCE = .001
@@ -87,7 +90,7 @@ class Tile():
         if starting_growth_level:
             self.growth.value = starting_growth_level
         else:
-            self.growth.value = random.randint(self.MIN_WATER_VALUE, self.MAX_WATER_VALUE)
+            self.growth.value = random.randint(self.MIN_GRASS_VALUE, self.MAX_GRASS_VALUE)
         
         # Tile
         self.tile_size: int = max(tile_size, MIN_TILE_SIZE)
@@ -100,6 +103,13 @@ class Tile():
         #    height += 1
         self.height:int = height
         self.height_contours = []
+        
+        if self.height > 10:
+            self.height_growth_penalty = (self.height / 10)
+            self.height_growth_penalty = pygame.math.clamp(self.height_growth_penalty, self.MIN_GRASS_VALUE, self.MAX_GRASS_VALUE)
+            self.height_growth_penalty = math.floor(self.height_growth_penalty)
+            self.height_growth_penalty = - self.height_growth_penalty
+            self.growth.add_value(self.height_growth_penalty)
         
         # Drawing
         self.color: Color = Color(0,0,0,0)
@@ -168,7 +178,11 @@ class Tile():
                 growth_rate += (int)(self.WATER_GROWTH_RATE_INCREASE * ratio)
                 growth_chance += (int)(self.WATER_GROWTH_CHANCE_INCREASE * ratio)
         
+        if self.height > 10:
+            growth_chance /= (self.height /10)
+        
         if random.random() < growth_chance:
+            growth_rate = math.floor(growth_rate)
             if self.growth.ratio() < self.COMMON_GROWTH_THRESHOLD_PERCENTAGE:
                 self.growth.add_value(growth_rate)
             else:
@@ -183,7 +197,6 @@ class Tile():
             if random.random() < self.GROWTH_LOSS_CHANCE:
                 self.growth.add_value(-self.GROWTH_LOSS)
         
-    # TODO: this method does not currently work / display the borders, find a way to fix it
     def draw(self, screen: Surface):
         draw.rect(self.temp_surface, tile_border_color, self.rect, tile_outline_thickness)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
@@ -198,6 +211,10 @@ class Tile():
             w_ratio = self.water.ratio()
             water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, w_ratio)
             self.color = growth_color.lerp(water_color, min(w_ratio,.85))
+            # TODO: make this robuster
+            ratio = pygame.math.clamp(self.height/50, 0, .8)
+            mountain_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, ratio)
+            self.color = self.color.lerp(mountain_color, ratio)
             
             self.temp_surface.fill(self.color)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))

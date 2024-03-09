@@ -23,7 +23,7 @@ MIN_TILE_SIZE = 4
 
 draw_water_level: bool = False
 draw_growth_level = False
-draw_height_level = True
+draw_height_level = False
 draw_height_lines = False
 
 pygame.font.init()
