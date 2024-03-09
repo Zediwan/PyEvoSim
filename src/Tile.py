@@ -198,75 +198,78 @@ class Tile():
                 self.growth.add_value(-self.GROWTH_LOSS)
         
     def draw(self, screen: Surface):
+        """
+        Renders the tile on the screen with its color, border, and any organisms present.
+        Displays the water level, growth level, and height level of the tile if the corresponding configuration options are enabled.
+
+        Args:
+            screen (Surface): The surface on which the tile will be drawn.
+        """
+        # Draw the tile's border
         draw.rect(self.temp_surface, tile_border_color, self.rect, tile_outline_thickness)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
-        
+
+        # Draw organisms if present
         if self.organisms:
             for org in self.organisms:
                 if org.is_alive():
                     org.draw(screen)
         else:
+            # Calculate the color of the tile based on growth level and water level
             g_ratio = self.growth.ratio()
             growth_color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, g_ratio).lerp(self.MAX_GRASS_COLOR, g_ratio)
             w_ratio = self.water.ratio()
             water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, w_ratio)
-            self.color = growth_color.lerp(water_color, min(w_ratio,.85))
-            # TODO: make this robuster
-            ratio = pygame.math.clamp(self.height/50, 0, .8)
+            self.color = growth_color.lerp(water_color, min(w_ratio, .85))
+
+            # Calculate the mountain color based on height
+            ratio = pygame.math.clamp(self.height / 50, 0, .8)
             mountain_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, ratio)
             self.color = self.color.lerp(mountain_color, ratio)
-            
+
+            # Fill the temporary surface with the tile's color
             self.temp_surface.fill(self.color)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
-        
+
+        # Render water level if enabled
         from config import draw_water_level
-        if(draw_water_level):
-            text = font.render(str(self.water.value), True, (0, 0, 0))  # Create a text surface
+        if draw_water_level:
+            text = font.render(str(self.water.value), True, (0, 0, 0))
             text.set_alpha(ground_font_alpha)
-            
-            # Calculate the center of the tile
-            center_x = self.rect.x + self.rect.width // 2
-            center_y = self.rect.y + self.rect.height // 2
+            self._render_text_centered(screen, text)
 
-            # Adjust the position by half the width and height of the text surface
-            text_x = center_x - text.get_width() // 2
-            text_y = center_y - text.get_height() // 2
-
-            screen.blit(text, (text_x, text_y))
-            
+        # Render growth level if enabled
         from config import draw_growth_level
-        if(draw_growth_level):
-            text = font.render(str(self.growth.value), True, (0, 0, 0))  # Create a text surface
+        if draw_growth_level:
+            text = font.render(str(self.growth.value), True, (0, 0, 0))
             text.set_alpha(ground_font_alpha)
-            
-            # Calculate the center of the tile
-            center_x = self.rect.x + self.rect.width // 2
-            center_y = self.rect.y + self.rect.height // 2
+            self._render_text_centered(screen, text)
 
-            # Adjust the position by half the width and height of the text surface
-            text_x = center_x - text.get_width() // 2
-            text_y = center_y - text.get_height() // 2
-
-            screen.blit(text, (text_x, text_y))
-            
+        # Render height level if enabled
         from config import draw_height_level
-        if(draw_height_level):
-            text = font.render(str(self.height), True, (0, 0, 0))  # Create a text surface
+        if draw_height_level:
+            text = font.render(str(self.height), True, (0, 0, 0))
             text.set_alpha(ground_font_alpha)
-            
-            # Calculate the center of the tile
-            center_x = self.rect.x + self.rect.width // 2
-            center_y = self.rect.y + self.rect.height // 2
+            self._render_text_centered(screen, text)
 
-            # Adjust the position by half the width and height of the text surface
-            text_x = center_x - text.get_width() // 2
-            text_y = center_y - text.get_height() // 2
-
-            screen.blit(text, (text_x, text_y))
-        
+        # Draw height lines if enabled
         from config import draw_height_lines
         if draw_height_lines:
             self.draw_height_contours(screen)
+
+    def _render_text_centered(self, screen: Surface, text: Surface):
+        """
+        Renders the given text surface centered on the tile.
+
+        Args:
+            screen (Surface): The surface on which the text will be rendered.
+            text (Surface): The text surface to be rendered.
+        """
+        center_x = self.rect.x + self.rect.width // 2
+        center_y = self.rect.y + self.rect.height // 2
+        text_x = center_x - text.get_width() // 2
+        text_y = center_y - text.get_height() // 2
+        screen.blit(text, (text_x, text_y))
         
     def transfer_water(self, amount : int, tile: Tile):
         if amount < 0:
