@@ -90,14 +90,16 @@ class Tile():
             self.growth.value = random.randint(self.MIN_WATER_VALUE, self.MAX_WATER_VALUE)
         
         # Tile
-        #if height == 0:
-        #    height += 1
-        self.height:int = height
         self.tile_size: int = max(tile_size, MIN_TILE_SIZE)
         self.rect: Rect = rect
         self.is_border_tile: bool = False
         self.neighbors: dict[Direction, Tile] = {}
         self.is_coast = is_coast
+        
+        #if height == 0:
+        #    height += 1
+        self.height:int = height
+        self.height_contours = []
         
         # Drawing
         self.color: Color = Color(0,0,0,0)
@@ -195,10 +197,8 @@ class Tile():
             growth_color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, g_ratio).lerp(self.MAX_GRASS_COLOR, g_ratio)
             w_ratio = self.water.ratio()
             water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, w_ratio)
-            
             self.color = growth_color.lerp(water_color, min(w_ratio,.85))
-            #if self.is_coast and self.height == -1:
-            #    self.color = self.color.lerp(Color("black"), .05)
+            
             self.temp_surface.fill(self.color)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
         
@@ -246,6 +246,10 @@ class Tile():
             text_y = center_y - text.get_height() // 2
 
             screen.blit(text, (text_x, text_y))
+        
+        from config import draw_height_lines
+        if draw_height_lines:
+            self.draw_height_contours(screen)
         
     def transfer_water(self, amount : int, tile: Tile):
         if amount < 0:
@@ -302,3 +306,29 @@ class Tile():
             return False
         return tile in self.neighbors.values()
     
+    def calculate_height_contours(self):
+        # This method calculates the contour lines based on the current height and neighbors
+        # and stores them in self.height_contours
+        self.height_contours.clear()
+        for direction, neighbor in self.neighbors.items():
+            if neighbor.height != self.height:
+                color = Color(0, 0, 0)  # Adjust as needed
+                thickness = abs(neighbor.height - self.height)  # Example logic
+                if direction == Direction.NORTH:
+                    start_pos = self.rect.topleft
+                    end_pos = self.rect.topright
+                elif direction == Direction.SOUTH:
+                    start_pos = self.rect.bottomleft
+                    end_pos = self.rect.bottomright
+                elif direction == Direction.EAST:
+                    start_pos = self.rect.topright
+                    end_pos = self.rect.bottomright
+                elif direction == Direction.WEST:
+                    start_pos = self.rect.topleft
+                    end_pos = self.rect.bottomleft
+                self.height_contours.append((start_pos, end_pos, color, thickness))
+
+    def draw_height_contours(self, screen: Surface):
+        for line_info in self.height_contours:
+            start_pos, end_pos, color, thickness = line_info
+            draw.line(screen, color, start_pos, end_pos, thickness)

@@ -47,6 +47,7 @@ class Grid(sprite.Sprite):
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.add_cell_neighbours()
+        self.calculate_height_lines()
     
     def update(self):
         """
@@ -118,6 +119,12 @@ class Grid(sprite.Sprite):
                     tile.add_neighbor(Direction.SOUTH, self.tiles[(row + 1) * self.cols + col])
                 if col > 0:
                     tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])
+    
+    def calculate_height_lines(self):
+        for row in range(self.rows):
+            for col in range(self.cols):
+                tile = self.tiles[row * self.cols + col]
+                tile.calculate_height_contours()
     
     def is_border_tile(self, row: int, col: int) -> bool:
         """

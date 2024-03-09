@@ -56,6 +56,10 @@ class Simulation:
                 elif event.key == pg.K_3 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_height_level = not config.draw_height_level
                     self.world.draw(self.screen) 
+                    pg.display.flip()
+                elif event.key == pg.K_4 and pg.key.get_mods() & pg.KMOD_ALT: 
+                    config.draw_height_lines = not config.draw_height_lines
+                    self.world.draw(self.screen) 
                     pg.display.flip() 
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
