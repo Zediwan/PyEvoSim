@@ -67,8 +67,10 @@ class Simulation:
                 elif event.key == pg.K_DOWN and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = False
                     self.decrease_game_speed = True
-                elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_CTRL:
+                elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.world = World(self.height, self.width, self.tile_size)
+                    self.world.draw(self.screen) 
+                    pg.display.flip() 
             
             if event.type == pg.KEYUP:
                 if event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
