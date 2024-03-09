@@ -324,28 +324,35 @@ class Tile():
         return tile in self.neighbors.values()
     
     def calculate_height_contours(self):
-        # This method calculates the contour lines based on the current height and neighbors
-        # and stores them in self.height_contours
+        """
+        Calculates the contour lines based on the current height and neighbors
+        and stores them in self.height_contours.
+        """
         self.height_contours.clear()
+    
         for direction, neighbor in self.neighbors.items():
             if neighbor.height != self.height:
                 color = Color(0, 0, 0)  # Adjust as needed
                 thickness = abs(neighbor.height - self.height)  # Example logic
-                if direction == Direction.NORTH:
-                    start_pos = self.rect.topleft
-                    end_pos = self.rect.topright
-                elif direction == Direction.SOUTH:
-                    start_pos = self.rect.bottomleft
-                    end_pos = self.rect.bottomright
-                elif direction == Direction.EAST:
-                    start_pos = self.rect.topright
-                    end_pos = self.rect.bottomright
-                elif direction == Direction.WEST:
-                    start_pos = self.rect.topleft
-                    end_pos = self.rect.bottomleft
+            
+                if direction in [Direction.NORTH, Direction.SOUTH]:
+                    start_pos = self.rect.topleft if direction == Direction.NORTH else self.rect.bottomleft
+                    end_pos = self.rect.topright if direction == Direction.NORTH else self.rect.bottomright
+                else:
+                    start_pos = self.rect.topright if direction == Direction.EAST else self.rect.topleft
+                    end_pos = self.rect.bottomright if direction == Direction.EAST else self.rect.bottomleft
+            
                 self.height_contours.append((start_pos, end_pos, color, thickness))
 
     def draw_height_contours(self, screen: Surface):
-        for line_info in self.height_contours:
-            start_pos, end_pos, color, thickness = line_info
+        """
+        Draw height contours on the screen.
+
+        Args:
+            screen (Surface): A Surface object representing the screen.
+
+        Returns:
+            None
+        """
+        for start_pos, end_pos, color, thickness in self.height_contours:
             draw.line(screen, color, start_pos, end_pos, thickness)
