@@ -17,6 +17,9 @@ class Simulation:
         pg.display.set_caption("Evolution Simulation")
         self.screen = pg.display.set_mode((width, height), pg.HWSURFACE | pg.DOUBLEBUF)
         self.clock = pg.time.Clock()
+        self.height = height
+        self.width = width
+        self.tile_size = tile_size
         self.world = World(height, width, tile_size)
         
         self.game_speed: BoundedVariable = BoundedVariable(self.STARTING_GAME_SPEED, self.MIN_GAME_SPEED, 120)
@@ -60,6 +63,8 @@ class Simulation:
                 elif event.key == pg.K_DOWN and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = False
                     self.decrease_game_speed = True
+                elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_CTRL:
+                    self.world = World(self.height, self.width, self.tile_size)
             
             if event.type == pg.KEYUP:
                 if event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
