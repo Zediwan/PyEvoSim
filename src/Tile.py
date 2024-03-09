@@ -26,7 +26,7 @@ Methods:
 class Tile():
     # Water
     MIN_WATER_VALUE, MAX_WATER_VALUE= 0, 10
-    BASE_WATER_LEVEL = 1
+    BASE_WATER_LEVEL = 0
     WATER_BOUND = BoundedVariable(BASE_WATER_LEVEL, MIN_WATER_VALUE, MAX_WATER_VALUE)
     
     WATER_FLOW_AT_BORDER = 1
@@ -36,7 +36,7 @@ class Tile():
     MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
     
     WATER_EVAPORATE_THRESHOLD = 2
-    WATER_EVAPORATION_CHANCE = .02
+    WATER_EVAPORATION_CHANCE = .001
     DROWNABLE_WATER_THRESHOLD = 3
     
     # Land
@@ -79,7 +79,7 @@ class Tile():
         self.water: BoundedVariable = water.copy()
         if starting_water_level:
             self.water.value = starting_water_level
-        elif height == -1:
+        elif height < 0:
             self.water.value = random.randint(self.MIN_WATER_VALUE, self.MAX_WATER_VALUE)
             
         # Growth
@@ -90,6 +90,8 @@ class Tile():
             self.growth.value = random.randint(self.MIN_WATER_VALUE, self.MAX_WATER_VALUE)
         
         # Tile
+        #if height == 0:
+        #    height += 1
         self.height:int = height
         self.tile_size: int = max(tile_size, MIN_TILE_SIZE)
         self.rect: Rect = rect
@@ -107,28 +109,51 @@ class Tile():
             for org in self.organisms:
                 org.update()
                 
-        # Water Update # TODO: refactor into separate method
+        # Water Update
         if self.DOES_WATER_FLOW:
-            if self.is_border_tile and self.height == -1:
-                self.water.add_value(self.WATER_FLOW_AT_BORDER)
+            if self.is_border_tile and self.height < 0:
+                self.water.add_value(self.WATER_FLOW_AT_BORDER)    
+            
             if self.water.value > 0: 
-                if  self.water.value <= self.WATER_EVAPORATE_THRESHOLD and random.random() <= self.WATER_EVAPORATION_CHANCE:
-                    self.growth.add_value(1) # TODO: rethink if this makes sense
+                evaporate_chance = self.WATER_EVAPORATION_CHANCE
+                if self.water.value <= self.WATER_EVAPORATE_THRESHOLD:
+                    evaporate_chance *= 2                
+                if random.random() <= evaporate_chance:
+                    self.growth.add_value(1)
                     self.water.add_value(-1)
-                
+                    
+                # Step 1: Check if all neighbors and self are at MAX_WATER_VALUE
+                all_at_max_water = self.water.value == self.MAX_WATER_VALUE and all(neighbor.water.value == self.MAX_WATER_VALUE for neighbor in self.neighbors.values() if neighbor.height <= self.height)
+                # Existing logic for finding lowest water tiles, modified to include the new condition
                 lowest_water_tiles = []
                 lowest_water_value = self.MAX_WATER_VALUE + 1
-                
+                lowest_height = 10000
+
                 for neighbor in self.neighbors.values():
-                    if neighbor.height <= self.height and neighbor.water.value <= self.water.value and 0 < neighbor.water.value <= lowest_water_value:
-                        lowest_water_tiles.append(neighbor)
+                    # Allow for upward flow if all tiles are at max water value
+                    if all_at_max_water:
+                        if neighbor.height > self.height:  # Prioritize upward flow in this specific case
+                            lowest_water_tiles.append(neighbor)
+                            continue  # Skip the rest of the checks since we're handling a special case
+
+                    # Existing conditions for selecting lowest water tiles
+                    if neighbor.water.value >= self.MAX_WATER_VALUE or neighbor.height > self.height + 1:
+                        continue
+
+                    if neighbor.height <= self.height and neighbor.water.value < lowest_water_value:
+                        lowest_water_tiles = [neighbor]
                         lowest_water_value = neighbor.water.value
+                        lowest_height = neighbor.height
+                    elif neighbor.water.value == lowest_water_value and neighbor.height == lowest_height:
+                        lowest_water_tiles.append(neighbor)
+
+                # Step 2: Transfer water if suitable tiles are found
                 if lowest_water_tiles:
                     chosen_water_tile = random.choice(lowest_water_tiles)
-                    if chosen_water_tile:
-                        dif = self.water.value - lowest_water_value
-                        if dif > 0:
-                            self.transfer_water(min(self.WATER_FLOW_BETWEEN_TILES, dif), chosen_water_tile)
+                    dif = self.water.value - lowest_water_value
+                    if dif > 0 or all_at_max_water:  # Allow transfer if there's a difference or if all are at max
+                        transfer_amount = min(self.WATER_FLOW_BETWEEN_TILES, dif) if not all_at_max_water else 1  # Transfer only 1 unit if all are at max
+                        self.transfer_water(transfer_amount, chosen_water_tile)
                     
         # Growth Update # TODO: refactor into separate method
         growth_chance = self.BASE_GROWTH_CHANCE
@@ -171,9 +196,9 @@ class Tile():
             w_ratio = self.water.ratio()
             water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, w_ratio)
             
-            self.color = growth_color.lerp(water_color, min(w_ratio,.75))
-            if self.is_coast and self.height == -1:
-                self.color = self.color.lerp(Color("black"), .05)
+            self.color = growth_color.lerp(water_color, min(w_ratio,.85))
+            #if self.is_coast and self.height == -1:
+            #    self.color = self.color.lerp(Color("black"), .05)
             self.temp_surface.fill(self.color)
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
         
@@ -195,6 +220,21 @@ class Tile():
         from config import draw_growth_level
         if(draw_growth_level):
             text = font.render(str(self.growth.value), True, (0, 0, 0))  # Create a text surface
+            text.set_alpha(ground_font_alpha)
+            
+            # Calculate the center of the tile
+            center_x = self.rect.x + self.rect.width // 2
+            center_y = self.rect.y + self.rect.height // 2
+
+            # Adjust the position by half the width and height of the text surface
+            text_x = center_x - text.get_width() // 2
+            text_y = center_y - text.get_height() // 2
+
+            screen.blit(text, (text_x, text_y))
+            
+        from config import draw_height_level
+        if(draw_height_level):
+            text = font.render(str(self.height), True, (0, 0, 0))  # Create a text surface
             text.set_alpha(ground_font_alpha)
             
             # Calculate the center of the tile

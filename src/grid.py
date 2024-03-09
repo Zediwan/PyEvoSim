@@ -1,3 +1,4 @@
+import math
 import random
 from noise import pnoise2
 from pygame import sprite, Surface
@@ -32,6 +33,18 @@ class Grid(sprite.Sprite):
         self.rows = rows
         self.cols = cols
         self.tile_size = tile_size
+        
+        if WORLD_GENERATION_PARAM1 is not None and WORLD_GENERATION_PARAM2 is not None:
+            self.world_gen_param1: int = WORLD_GENERATION_PARAM1
+            self.world_gen_param2: int = WORLD_GENERATION_PARAM2
+        else:
+            self.world_gen_param1, self.world_gen_param2 = random.randint(-100, 100), random.randint(-100, 100)
+            if self.world_gen_param1 == 0:
+                self.world_gen_param1 += 1
+            if self.world_gen_param2 == 0:
+                self.world_gen_param2 += 1
+            print(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
+        
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.add_cell_neighbours()
     
@@ -136,19 +149,27 @@ class Grid(sprite.Sprite):
             Tile: The newly created ground tile.
         """
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
-        n = self.generate_noise_value(row, col)
+                
+        n = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
+        n += .20
+        n *= 10
+        if n < 0:
+            n = -(n**2)
+        else:   
+            n **= 2
+        n = math.floor(n)
         is_border = self.is_border_tile(row, col)
     
         if SURROUNDED_BY_WATER and is_border:
-            tile : Tile = Tile(rect, self.tile_size, height=-1, starting_water_level=10, starting_growth_level= random.randint(Tile.MIN_GRASS_VALUE, Tile.MIN_GRASS_VALUE+2))
-        elif n <= WATER_PERCENTAGE:
-            tile : Tile = Tile(rect, self.tile_size, height=-1, starting_water_level=random.randint(Tile.MAX_WATER_VALUE-2, Tile.MAX_WATER_VALUE), starting_growth_level= random.randint(Tile.MAX_GRASS_VALUE-2, Tile.MAX_GRASS_VALUE))
+            tile : Tile = Tile(rect, self.tile_size, height=n, starting_water_level=10, starting_growth_level= random.randint(Tile.MIN_GRASS_VALUE, Tile.MIN_GRASS_VALUE+2))
+        elif n < WATER_PERCENTAGE:
+            tile : Tile = Tile(rect, self.tile_size, height=n, starting_water_level=random.randint(Tile.MAX_WATER_VALUE, Tile.MAX_WATER_VALUE), starting_growth_level= random.randint(Tile.MAX_GRASS_VALUE-2, Tile.MAX_GRASS_VALUE))
             wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
             lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
             if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
                 Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         else:
-            tile : Tile = Tile(rect, self.tile_size, starting_growth_level=random.randint(Tile.MAX_GRASS_VALUE-2, Tile.MAX_GRASS_VALUE))
+            tile : Tile = Tile(rect, self.tile_size, height=n, starting_growth_level=random.randint(Tile.MAX_GRASS_VALUE-2, Tile.MAX_GRASS_VALUE))
             wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
             lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
             if random.random() <= STARTING_LAND_ANIMAL_PERCENTAGE:
@@ -159,7 +180,7 @@ class Grid(sprite.Sprite):
         tile.is_border_tile = is_border 
         return tile
 
-    def generate_noise_value(self, row: int, col: int) -> float:
+    def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> float:
         """
         Generates a noise value for the specified row and column.
 
@@ -175,8 +196,8 @@ class Grid(sprite.Sprite):
         """
         match(WORLD_GENERATION_MODE):
             case "Perlin":
-                return pnoise2(row / 20.0, col / 24.0)
+                return pnoise2(row / param1, col / param1)
             case "Random":
                 return random.random()
             case _:
-                return pnoise2(row / 20.0, col / 24.0)
+                return pnoise2(row / param1, col / param1)
