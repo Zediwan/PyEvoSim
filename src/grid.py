@@ -41,11 +41,12 @@ class Grid(sprite.Sprite):
             self.world_gen_param1: int = WORLD_GENERATION_PARAM1
             self.world_gen_param2: int = WORLD_GENERATION_PARAM2
         else:
-            self.world_gen_param1, self.world_gen_param2 = random.randint(-100, 100), random.randint(-100, 100)
-            if self.world_gen_param1 == 0:
-                self.world_gen_param1 += 1
-            if self.world_gen_param2 == 0:
-                self.world_gen_param2 += 1
+            self.world_gen_param1 = random.randint(-150, 150) 
+            self.world_gen_param2  = 100 - abs(self.world_gen_param1)  # Inversely proportional example
+            while abs(self.world_gen_param1) < 40: 
+                self.world_gen_param1 = random.randint(-150, 150) 
+            while abs(self.world_gen_param2) < 40:
+                self.world_gen_param2  = random.randint(-150, 150) 
             print(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
@@ -180,7 +181,6 @@ class Grid(sprite.Sprite):
             lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
             if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
                 Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
-            pass
         else:
             tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level=random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
             wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
@@ -251,6 +251,10 @@ class Grid(sprite.Sprite):
         match(WORLD_GENERATION_MODE):
             case "Perlin":
                 return pnoise2(row / param1, col / param1)
+            case "Perlin Summation":
+                base_noise = pnoise2(row / param1, col / param2)
+                detail_noise = pnoise2(row / (param1 * 0.5), col / (param2 * 0.5)) * 0.5  # Higher frequency, lower amplitude
+                return base_noise + detail_noise
             case "Random":
                 return random.random()
             case _:

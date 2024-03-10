@@ -194,6 +194,8 @@ class Tile():
             # Adjust spawn chance based on gradient
             spawn_chance = self.CHANCE_OF_MOUNTAIN_WATER_SPAWN * (1 + gradient / 10)
             if random.random() < spawn_chance:
+                if self.START_WITH_WATER_TILES:
+                    self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE += 5
                 self.water += self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE
             
     def handle_evaporation(self):
