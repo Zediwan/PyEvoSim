@@ -180,6 +180,7 @@ class Grid(sprite.Sprite):
             lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
             if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
                 Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+            pass
         else:
             tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level=random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
             wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
@@ -199,7 +200,7 @@ class Grid(sprite.Sprite):
                 potential_lake_centers.append(tile)
         
         # Step 2: Select a subset of these tiles to become lakes
-        MAX_LAKES = 5
+        MAX_LAKES = 10
         selected_centers = random.sample(potential_lake_centers, k=min(len(potential_lake_centers), MAX_LAKES))
         
         # Step 3 & 4: Determine lake size and shape, and lower the height of the lake tiles
@@ -222,16 +223,16 @@ class Grid(sprite.Sprite):
             # Apply lake properties to the selected tiles
             for tile in lake_tiles:
                 tile.is_lake = True
-                LAKE_DEPTH_ADJUSTMENT = 10
+                LAKE_DEPTH_ADJUSTMENT = 15
                 tile.height -= LAKE_DEPTH_ADJUSTMENT
                 max_possible_starting_water = 10 * LAKE_DEPTH_ADJUSTMENT
-                tile.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
+                tile.water = pygame.math.clamp(random.random(), .8, .9) * max_possible_starting_water
                 tile.tile_hardness = 3
 
     def is_potential_lake_location(self, tile):
         # Implement logic to determine if a tile is a good candidate for a lake
         # This could involve checking the surrounding tiles' heights, terrain types, etc.
-        return tile.height > Tile.MOUNTAIN_LAKE_MIN_HEIGHT
+        return tile.height > Tile.MOUNTAIN_LAKE_MIN_HEIGHT or not Tile.START_WITH_WATER_TILES
 
     def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> float:
         """

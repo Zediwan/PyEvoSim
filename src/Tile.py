@@ -27,6 +27,7 @@ Methods:
 class Tile():
     ### Water
     DOES_WATER_FLOW = True
+    START_WITH_WATER_TILES = False
     WATER_DROWNING_HEIGHT: float = 3   # Water value at which animals can drown
     
     MIN_WATER_VALUE: float = 0
@@ -70,7 +71,7 @@ class Tile():
     # Mountains
     MOUNTAIN_LAKE_MIN_HEIGHT:float = 20
     MAX_WATER_AT_MOUNTAIN_SOURCE_TO_SPAWN_WATER: float = 1
-    CHANCE_OF_MOUNTAIN_WATER_SPAWN: float = .5
+    CHANCE_OF_MOUNTAIN_WATER_SPAWN: float = 1
     MOUNTAIN_TOP_COLOR = Color("white")
     MOUNTAIN_FLOOR_COLOR = Color("azure4")
     
@@ -91,7 +92,7 @@ class Tile():
         # Water
         if starting_water_level:
             self.water = starting_water_level
-        elif height < 0:
+        elif self.START_WITH_WATER_TILES and height < 0:
             max_possible_starting_water = 10 * -height
             self.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
         self.is_lake = False
