@@ -33,6 +33,7 @@ class Organism(ABC, sprite.Sprite):
     def update(self):
         if not self.is_alive():
             self.die()
+        self.use_enery(2)
                 
     @abstractmethod
     def draw(self, screen: Surface):
