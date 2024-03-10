@@ -223,7 +223,7 @@ class Grid(sprite.Sprite):
             # Apply lake properties to the selected tiles
             for tile in lake_tiles:
                 tile.is_lake = True
-                LAKE_DEPTH_ADJUSTMENT = 15
+                LAKE_DEPTH_ADJUSTMENT = 2
                 tile.height -= LAKE_DEPTH_ADJUSTMENT
                 max_possible_starting_water = 10 * LAKE_DEPTH_ADJUSTMENT
                 tile.water = pygame.math.clamp(random.random(), .8, .9) * max_possible_starting_water
