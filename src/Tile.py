@@ -283,6 +283,11 @@ class Tile():
 
             self.temp_surface.fill(self.color)
         
+        from config import draw_water_sources
+        if draw_water_sources:
+            if self.is_lake:
+                self.temp_surface.fill(Color("fuchsia"))
+        
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
 
         # Render water level if enabled
