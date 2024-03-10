@@ -163,8 +163,6 @@ class Tile():
         if self.growth.ratio() > self.POSSIBLE_GROWTH_LOSS_THRESHOLD_PERCENTAGE:
             if random.random() < self.GROWTH_LOSS_CHANCE:
                 self.growth.add_value(-self.GROWTH_LOSS)
-                
-        self.update_erosion()
 
     def update_water(self):
         self.spawn_new_water()
@@ -215,6 +213,7 @@ class Tile():
         max_transfer = pygame.math.clamp(amount, 0, self.water)
         self.water = pygame.math.clamp(self.water - max_transfer, 0, self.water)
         tile.water = pygame.math.clamp(tile.water + max_transfer, tile.water, float("inf"))
+        self.update_erosion(max_transfer)
         
     def calculate_effective_height(self) -> float:
         """
@@ -227,25 +226,25 @@ class Tile():
         water_height_effect = self.water / 10
         return self.height + water_height_effect
 
-    def update_erosion(self):
+    def update_erosion(self, waterflow):
         """
         Updates the erosion based on water flow and terrain hardness.
         """
         # Example erosion calculation
         # Adjust these values based on your game's scale and desired erosion rate
-        EROSION_RATE = 0.001  # Base erosion rate
-        WATER_FLOW_FACTOR = 0.1  # How much water flow affects erosion
+        EROSION_RATE = 0.01  # Base erosion rate
+        WATER_FLOW_FACTOR = 1 # How much water flow affects erosion
 
         # Calculate erosion based on water level and flow
         # This is a simplified example; you might want to factor in flow rate and direction
-        erosion_effect = EROSION_RATE * self.water * WATER_FLOW_FACTOR * (1 - self.tile_hardness)
+        erosion_effect = EROSION_RATE * waterflow * WATER_FLOW_FACTOR * (1 - self.tile_hardness)
 
         # Accumulate erosion effect over time
         self.erosion_accumulator += erosion_effect
 
         # If enough erosion has accumulated, lower the terrain height
         if self.erosion_accumulator >= 1.0:
-            self.height -= 1  # Lower the height by 1 unit
+            self.height -= 0.1  # Lower the height by 1 unit
             self.erosion_accumulator = 0.0  # Reset the accumulator
 
             # Ensure height does not go below a certain threshold
@@ -334,7 +333,7 @@ class Tile():
         for direction, neighbor in self.neighbors.items():
             if neighbor.height != self.height:
                 color = Color(0, 0, 0)  # Adjust as needed
-                thickness = abs(neighbor.height - self.height)  # Example logic
+                thickness = pygame.math.clamp(abs(math.floor(neighbor.height - self.height)), 0, 8)  # Example logic
             
                 if direction in [Direction.NORTH, Direction.SOUTH]:
                     start_pos = self.rect.topleft if direction == Direction.NORTH else self.rect.bottomleft

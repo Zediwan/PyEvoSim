@@ -226,6 +226,7 @@ class Grid(sprite.Sprite):
                 tile.height -= LAKE_DEPTH_ADJUSTMENT
                 max_possible_starting_water = 10 * LAKE_DEPTH_ADJUSTMENT
                 tile.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
+                tile.tile_hardness = 3
 
     def is_potential_lake_location(self, tile):
         # Implement logic to determine if a tile is a good candidate for a lake
