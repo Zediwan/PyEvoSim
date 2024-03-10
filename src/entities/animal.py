@@ -24,7 +24,7 @@ class Animal(Organism):
     BASE_ANIMAL_WATER_AFFINITY: int = 2
     BASE_ANIMAL_WATER_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_WATER_AFFINITY, MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY)
     
-    MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = Tile.MIN_GRASS_VALUE + 1, Tile.MAX_GRASS_VALUE
+    MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = Tile.MIN_GROWTH_VALUE + 1, Tile.MAX_GROWTH_VALUE
     BASE_ANIMAL_LAND_AFFINITY: int = 8
     BASE_ANIMAL_LAND_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_LAND_AFFINITY, MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY)
     
@@ -60,7 +60,7 @@ class Animal(Organism):
         super().update()
         #TODO: add visual that displays an animals health and energy
         
-        if self.tile.water.value > Tile.DROWNABLE_WATER_THRESHOLD:
+        if self.tile.water.value > Tile.WATER_DROWNING_HEIGHT:
             DROWNING_DAMAGE = math.floor(self.tile.water.value * 3 / self.waterAffinity.value)     # TODO: think of a good formula for this
             self.loose_health(DROWNING_DAMAGE) 
         elif self.tile.water.value <= 0:
