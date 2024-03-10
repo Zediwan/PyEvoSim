@@ -28,6 +28,9 @@ class Grid(sprite.Sprite):
     Note:
         This class is an abstract base class (ABC) and should not be instantiated directly. Subclasses should implement the create_tile method to create specific types of tiles for the grid.
     """
+    highest_tile = float("inf")
+    lowest_tile = float("-inf")
+    
     def __init__(self, rows : int, cols : int, tile_size : int):
         sprite.Sprite.__init__(self)
         self.rows = rows
@@ -47,6 +50,7 @@ class Grid(sprite.Sprite):
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.add_cell_neighbours()
+        self.create_potential_lake_areas()
         self.calculate_height_lines()
     
     def update(self):
@@ -157,35 +161,76 @@ class Grid(sprite.Sprite):
         """
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
                 
-        n = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
-        n += .20
-        n *= 10
-        if n < 0:
-            n = -(n**2)
+        height = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
+        height += .20
+        height *= 10
+        if height < 0:
+            height = -(height**2)
         else:   
-            n **= 2
-        n = math.floor(n)
+            height **= 2
+        height = math.floor(height)
         is_border = self.is_border_tile(row, col)
+        
+        self.highest_tile = max(self.highest_tile, height)
+        self.lowest_tile = min(self.lowest_tile, height)
     
-        if SURROUNDED_BY_WATER and is_border:
-            tile : Tile = Tile(rect, self.tile_size, height=n, starting_water_level=10, starting_growth_level= random.randint(Tile.MIN_GROWTH_VALUE, Tile.MIN_GROWTH_VALUE+2))
-        elif n < WATER_PERCENTAGE:
-            tile : Tile = Tile(rect, self.tile_size, height=n, starting_water_level=random.randint(Tile.MAX_WATER_VALUE-2, Tile.MAX_WATER_VALUE), starting_growth_level= random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
+        if height < WATER_PERCENTAGE:
+            tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level= random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
             wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
             lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
             if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
                 Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         else:
-            tile : Tile = Tile(rect, self.tile_size, height=n, starting_growth_level=random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
+            tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level=random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
             wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
             lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
             if random.random() <= STARTING_LAND_ANIMAL_PERCENTAGE:
                 Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
-            
         
-            
         tile.is_border_tile = is_border 
         return tile
+
+    
+    def create_potential_lake_areas(self):
+        potential_lake_centers = []
+        # Step 1: Identify potential lake center tiles
+        for tile in self.tiles:
+            if self.is_potential_lake_location(tile):
+                potential_lake_centers.append(tile)
+        
+        # Step 2: Select a subset of these tiles to become lakes
+        MAX_LAKES = 5
+        selected_centers = random.sample(potential_lake_centers, k=min(len(potential_lake_centers), MAX_LAKES))
+        
+        # Step 3 & 4: Determine lake size and shape, and lower the height of the lake tiles
+        for center_tile in selected_centers:
+            lake_tiles = [center_tile]
+            expansion_chance = 0.5  # 50% chance to expand in any direction
+            lake_size = random.randint(10, 15)  # Randomize the target size of the lake
+
+            while len(lake_tiles) < lake_size:
+                new_lake_tiles = []
+                for tile in lake_tiles:
+                    for neighbor in tile.get_neighbors():  # Assuming a method to get neighboring tiles
+                        if neighbor not in lake_tiles and neighbor not in new_lake_tiles:
+                            if random.random() < expansion_chance:
+                                new_lake_tiles.append(neighbor)
+                lake_tiles.extend(new_lake_tiles)
+                if not new_lake_tiles:  # Stop if no new tiles were added
+                    break
+
+            # Apply lake properties to the selected tiles
+            for tile in lake_tiles:
+                tile.is_lake = True
+                LAKE_DEPTH_ADJUSTMENT = 10
+                tile.height -= LAKE_DEPTH_ADJUSTMENT
+                max_possible_starting_water = 10 * LAKE_DEPTH_ADJUSTMENT
+                tile.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
+
+    def is_potential_lake_location(self, tile):
+        # Implement logic to determine if a tile is a good candidate for a lake
+        # This could involve checking the surrounding tiles' heights, terrain types, etc.
+        return tile.height > Tile.MOUNTAIN_LAKE_MIN_HEIGHT
 
     def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> float:
         """

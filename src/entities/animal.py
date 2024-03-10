@@ -20,7 +20,7 @@ class Animal(Organism):
     BASE_ANIMAL_HEALTH_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_HEALTH, MIN_ANIMAL_HEALTH, MAX_ANIMAL_HEALTH)
     BASE_ANIMAL_ENERGY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_ENERGY, MIN_ANIMAL_ENERGY, MAX_ANIMAL_ENERGY)
     
-    MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY = Tile.MIN_WATER_VALUE + 1, Tile.MAX_WATER_VALUE
+    MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY = 1, 10
     BASE_ANIMAL_WATER_AFFINITY: int = 2
     BASE_ANIMAL_WATER_AFFINITY_BOUND: BoundedVariable = BoundedVariable(BASE_ANIMAL_WATER_AFFINITY, MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY)
     
@@ -60,10 +60,10 @@ class Animal(Organism):
         super().update()
         #TODO: add visual that displays an animals health and energy
         
-        if self.tile.water.value > Tile.WATER_DROWNING_HEIGHT:
-            DROWNING_DAMAGE = math.floor(self.tile.water.value * 3 / self.waterAffinity.value)     # TODO: think of a good formula for this
+        if self.tile.water > Tile.WATER_DROWNING_HEIGHT:
+            DROWNING_DAMAGE = math.floor(pygame.math.clamp(self.tile.water, 0, 10) / self.waterAffinity.value)
             self.loose_health(DROWNING_DAMAGE) 
-        elif self.tile.water.value <= 0:
+        elif self.tile.water <= 0:
             LAND_SUFFOCATION_DAMAGE = math.floor(Tile.LAND_DAMAGE / self.landAffintiy.value)   # TODO: think of a good formula for this
             self.loose_health(LAND_SUFFOCATION_DAMAGE)
             
