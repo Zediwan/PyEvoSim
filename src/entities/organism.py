@@ -91,6 +91,7 @@ class Organism(ABC, sprite.Sprite):
             raise ValueError("Health lost is negative.")
         
         self.health.add_value(-health_lost)
+        #print(health_lost)
         # Display the health lost on the tile
         #self.health_lost = math.floor(health_lost) #TODO: implement displaying of health loss
         

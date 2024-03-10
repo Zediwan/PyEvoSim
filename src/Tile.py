@@ -53,7 +53,7 @@ class Tile():
     TERRAIN_HARDNESS: float = 0.5
     
     # TODO: improve names
-    LAND_DAMAGE = 30
+    LAND_DAMAGE = 50
     GROWTH_BASE_RATE = 1
     GROWTH_BASE_CHANCE = .01
     WATER_GROWTH_RATE_INCREASE = 5
