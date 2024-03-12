@@ -25,7 +25,7 @@ Methods:
 class Tile():
     ### Water
     DOES_WATER_FLOW = True
-    START_WITH_WATER_TILES = False
+    START_WITH_WATER_TILES = True
     WATER_DROWNING_HEIGHT: float = 3   # Water value at which animals can drown
     
     MIN_WATER_VALUE: float = 0
@@ -69,7 +69,7 @@ class Tile():
     # Mountains
     MOUNTAIN_LAKE_MIN_HEIGHT:float = 20
     MAX_WATER_AT_MOUNTAIN_SOURCE_TO_SPAWN_WATER: float = 1
-    CHANCE_OF_MOUNTAIN_WATER_SPAWN: float = 1
+    CHANCE_OF_MOUNTAIN_WATER_SPAWN: float = .01
     MOUNTAIN_TOP_COLOR = Color("white")
     MOUNTAIN_FLOOR_COLOR = Color("azure4")
     

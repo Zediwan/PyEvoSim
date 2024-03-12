@@ -2,7 +2,7 @@ from pygame import Surface, SRCALPHA, Color, sprite
 import math
 
 class Sun(sprite.Sprite):
-    def __init__(self, cycle_length=24, max_light_intensity=1.0, max_temperature=35):
+    def __init__(self, cycle_length=240, max_light_intensity=1.0, max_temperature=35):
         sprite.Sprite.__init__(self)
         
         self.cycle_length = cycle_length

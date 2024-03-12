@@ -7,6 +7,9 @@ from config import *
 import random
 from noise import pnoise2
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class World(sprite.Sprite):
     """
     The World class represents a game world in a game environment.
@@ -34,22 +37,39 @@ class World(sprite.Sprite):
         self.rows = math.floor(self.height / self.tile_size)
         self.cols = math.floor(self.width / self.tile_size)
         
-        if WORLD_GENERATION_PARAM1 is not None and WORLD_GENERATION_PARAM2 is not None:
-            self.world_gen_param1: int = WORLD_GENERATION_PARAM1
-            self.world_gen_param2: int = WORLD_GENERATION_PARAM2
-        else:
-            self.world_gen_param1 = random.randint(-150, 150) 
-            self.world_gen_param2  = 100 - abs(self.world_gen_param1)  # Inversely proportional example
-            while abs(self.world_gen_param1) < 40: 
-                self.world_gen_param1 = random.randint(-150, 150) 
-            while abs(self.world_gen_param2) < 40:
-                self.world_gen_param2  = random.randint(-150, 150) 
-            print(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
+        self.generate_world_parameters()
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.sun = Sun()
         self.add_cell_neighbours()
         self.create_potential_lake_areas()
+
+    def generate_world_parameters(self, seed=None):
+        if seed is not None:
+            random.seed(seed)  # Initialize the random number generator with the seed
+
+        RANDOM_VALUE_RANGE = (-150, 150)
+        MIN_PARAM_VALUE_THRESHOLD = 40
+
+        if WORLD_GENERATION_PARAM1 is not None:
+            self.world_gen_param1: int = WORLD_GENERATION_PARAM1
+        else:
+            self.world_gen_param1 = random.randint(*RANDOM_VALUE_RANGE) 
+            while True:
+                if abs(self.world_gen_param1) >= MIN_PARAM_VALUE_THRESHOLD:
+                    break
+                self.world_gen_param1 = random.randint(*RANDOM_VALUE_RANGE) 
+                
+        if WORLD_GENERATION_PARAM2 is not None:
+            self.world_gen_param2: int = WORLD_GENERATION_PARAM2
+        else:
+            self.world_gen_param2  = 100 - abs(self.world_gen_param1)  # Inversely proportional example
+            while True:
+                if abs(self.world_gen_param2) >= MIN_PARAM_VALUE_THRESHOLD:
+                    break
+                self.world_gen_param2  = random.randint(*RANDOM_VALUE_RANGE) 
+
+        logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
         
     def update(self):
         self.sun.update()
