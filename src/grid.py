@@ -177,16 +177,16 @@ class Grid(sprite.Sprite):
     
         if height < WATER_PERCENTAGE:
             tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level= random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
-            wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
-            lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
-            if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
-                Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+            # wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
+            # lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
+            # if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
+            #     Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         else:
             tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level=random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
-            wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
-            lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
-            if random.random() <= STARTING_LAND_ANIMAL_PERCENTAGE:
-                Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+            # wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
+            # lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
+            # if random.random() <= STARTING_LAND_ANIMAL_PERCENTAGE:
+            #     Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         
         tile.is_border_tile = is_border 
         return tile
