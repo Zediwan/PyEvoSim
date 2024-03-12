@@ -1,5 +1,6 @@
 import math
 from pygame import sprite, Surface
+from sun import Sun
 from tile import Tile
 from animal import Animal
 from config import *
@@ -46,6 +47,7 @@ class World(sprite.Sprite):
             print(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
+        self.sun = Sun()
         self.add_cell_neighbours()
         self.create_potential_lake_areas()
         
@@ -59,6 +61,8 @@ class World(sprite.Sprite):
         temp_surface = Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
         for tile in self.tiles:
             tile.draw(temp_surface)
+            
+        self.sun.draw(temp_surface)
         screen.blit(temp_surface, (0, 0))
         
     def add_cell_neighbours(self):

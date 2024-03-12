@@ -21,7 +21,7 @@ class Sun(sprite.Sprite):
         temp_surface.set_alpha(100)
         
         night_color = Color(12, 20, 69)
-        day_color = Color(252, 229, 112)
+        day_color = Color(252, 229, 112, 50)
         sun_color = night_color.lerp(day_color, self.get_light_intensity())
         
         temp_surface.fill(sun_color)
