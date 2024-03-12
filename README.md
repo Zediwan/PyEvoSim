@@ -4,8 +4,6 @@
 ## Description
 
 In this project, we aim to simulate an ecosystem consisting of diverse procedural organisms like animals and plants. The world is displayed as a grid with different tiles, each representing a unique environment that can affect and be affected by the organisms living within it. The simulation includes advanced features such as organisms' ability to move, eat, reproduce, and mutate their genes. Additionally, we incorporate a neural network to model animal behavior and decision-making, providing a complex and dynamic ecosystem.
-
-Key environmental features include water flow, evaporation, and growth dynamics on the tiles, simulating realistic conditions that organisms must adapt to survive. Tiles can spawn water, experience evaporation, and support growth, affecting the organisms' survival and reproduction.
 ---
 
 ## Installation
