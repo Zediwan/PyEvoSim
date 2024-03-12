@@ -3,10 +3,10 @@ import math
 import random
 from typing import Optional
 from pygame import Color, Rect, Surface
-from entities.organism import Organism
+from organism import Organism
 from config import *
 from bounded_variable import BoundedVariable
-from Tile import Tile
+from tile import Tile
 
 class Animal(Organism):
     ANIMAL_COLOR = pygame.Color("black")

@@ -6,8 +6,6 @@ import random
 from config import *
 import math
 
-import entities.organism as organism
-
 """
 The Tile class represents a tile in a game. It is an abstract base class (ABC) that provides common functionality for different types of tiles.
 
@@ -76,7 +74,7 @@ class Tile():
     MOUNTAIN_FLOOR_COLOR = Color("azure4")
     
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
-                 organisms: Optional[List[organism.Organism]] = None,
+                 organisms = None,
                  starting_water_level: Optional[float] = None,
                  starting_growth_level: Optional[int] = None,
                  growth: BoundedVariable = GROWTH_BOUND,
@@ -84,9 +82,9 @@ class Tile():
                  ):
         # Organisms
         if organisms:
-            self.organisms: list[organism.Organism] = organisms
+            self.organisms = organisms
         else:
-            self.organisms: list[organism.Organism] = []
+            self.organisms = []
                 
         self.water: float = 0
         # Water
@@ -265,6 +263,7 @@ class Tile():
         Args:
             screen (Surface): The surface on which the tile will be drawn.
         """
+        self.calculate_height_contours()
         # Draw organisms if present
         if self.organisms:
             for org in self.organisms:
@@ -365,11 +364,11 @@ class Tile():
         for start_pos, end_pos, color, thickness in self.height_contours:
             draw.line(screen, color, start_pos, end_pos, thickness)
         
-    def leave(self, organism: organism.Organism):
+    def leave(self, organism):
         if self.organisms:
             self.organisms.remove(organism)
         
-    def enter(self, organism: organism.Organism):
+    def enter(self, organism):
         if not self.organisms:
             self.organisms.append(organism)
         
