@@ -1,6 +1,5 @@
-from pygame import Rect, Surface, SRCALPHA, Color, sprite
+from pygame import Surface, SRCALPHA, Color, sprite
 import math
-from config import *
 
 class Sun(sprite.Sprite):
     def __init__(self, cycle_length=240, max_light_intensity=1.0, max_temperature=35):
