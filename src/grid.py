@@ -190,8 +190,7 @@ class Grid(sprite.Sprite):
         
         tile.is_border_tile = is_border 
         return tile
-
-    
+     
     def create_potential_lake_areas(self):
         potential_lake_centers = []
         # Step 1: Identify potential lake center tiles

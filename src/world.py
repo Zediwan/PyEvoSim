@@ -1,6 +1,7 @@
 import math
 from pygame import sprite, Surface
 from grid import Grid
+from sun import Sun
 
 class World(sprite.Sprite):
     """
@@ -30,12 +31,16 @@ class World(sprite.Sprite):
         cols = math.floor(self.width / self.tile_size)
         
         self.ground = Grid(rows , cols, tile_size)
+        self.sun = Sun()
         
     def update(self):
+        self.sun.update()
         self.ground.update()
         
     def draw(self, screen : Surface):
         self.ground.draw(screen)
+        self.sun.draw(screen)
+
         
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
