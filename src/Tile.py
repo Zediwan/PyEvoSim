@@ -1,12 +1,13 @@
 from __future__ import annotations
 from typing import List, Optional
-from direction import Direction
-from pygame import Rect, Surface, SRCALPHA, draw, Color
-from bounded_variable import BoundedVariable
 import random
-from config import *
 import math
 
+from pygame import Rect, Surface, SRCALPHA, draw, Color
+
+from config import *
+from direction import Direction
+from bounded_variable import BoundedVariable
 from sun import Sun
 
 """
@@ -27,54 +28,59 @@ Methods:
 """
 class Tile():
     ### Water
-    DOES_WATER_FLOW = True
-    START_WITH_WATER_TILES = True
-    WATER_DROWNING_HEIGHT: float = 3   # Water value at which animals can drown
-    
+    DOES_WATER_FLOW: bool = True
+    DO_TILES_START_WITH_WATER: bool = True
+    MIN_WATER_HEIGHT_FOR_DROWING: float = 3
     MIN_WATER_VALUE: float = 0
+    MAX_WATER_VALUE: float = float("inf")
     BASE_WATER_LEVEL: float = 0
     
-    MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
-    #MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
-    MAX_WATER_COLOR =  Color("dodgerblue4")
-    
     # Water spawning
-    WATER_SPAWNING_AT_MOUNTAIN_SOURCE: float = 0
+    DOES_WATER_ARTIFICALY_SPAWN: bool = False
+    AMOUNT_OF_WATER_SPAWNING_AT_MOUNTAIN_SOURCE: float = 1
 
     # Water Evaporation
-    EVAPORATION_BASE_CHANCE: float = .01
-    EVAPORATION_INCREASING_THRESHOLD: float = 2        # If the water value is less than this then the chance of evaporation is increased
-    EVAPORTAION_INCREASED_CHANCE_MULTIPLIER: float = 2 # Multiplier applied to chance of evaporation if water value is below Threshold
-    MAX_EVAPORATION: float = 2                             # How much water evaporates at once
-    EVAPORATION_GROWTH_INCREASE: float = 1             # How much evaporation increases growth on its tile
+    BASE_EVAPORATION_CHANCE: float = .01
+    MIN_WATER_TO_INCREASE_EVAPORATION: float = 2        # If the water value is less than this then the chance of evaporation is increased
+    LOW_WATER_EVAPORATION_CHANCE_MULTIPLIER: float = 2  
+    MIN_EVAPORATION: float = 0.1
+    MAX_EVAPORATION: float = 2                    
+    GROWTH_INCREASE_BY_EVAPORATION: float = 1
     
     ### Land
     MIN_GROWTH_VALUE, MAX_GROWTH_VALUE = 0, 10
     BASE_GROWTH_VALUE = MIN_GROWTH_VALUE
     GROWTH_BOUND = BoundedVariable(BASE_GROWTH_VALUE, MIN_GROWTH_VALUE, MAX_GROWTH_VALUE)
+    
+    BASE_GROWTH_RATE = 1
+    BASE_GROWTH_CHANCE = .01
+    GROWTH_RATE_INCREASE_BY_WATER = 5
+    GROWTH_CHANCE_INCREASE_BY_WATER = .05
+    GROW_FOR_YOURSELF_UNTIL_THRESHOLD = .5
+    NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD = .9
+    NATURAL_GROWTH_LOSS_CHANCE = .02
+    NATURAL_GROWTH_LOSS_AMOUNT = 1
+    
+    # Erosion
     TERRAIN_HARDNESS: float = 0.5
     
-    # TODO: improve names
-    LAND_DAMAGE = 50
-    GROWTH_BASE_RATE = 1
-    GROWTH_BASE_CHANCE = .01
-    WATER_GROWTH_RATE_INCREASE = 5
-    WATER_GROWTH_CHANCE_INCREASE = .05
-    COMMON_GROWTH_THRESHOLD_PERCENTAGE = .5
-    POSSIBLE_GROWTH_LOSS_THRESHOLD_PERCENTAGE = .9
-    GROWTH_LOSS_CHANCE = .02
-    GROWTH_LOSS = 1
+    # Mountains
+    MIN_HEIGHT_FOR_MOUNTAIN_LAKE:float = 20
+    MOUNTAIN_WATER_SPAWN_CHANCE: float = 1
     
+    #### TODO: improve names
+    LAND_DAMAGE = 50
+    ####
+    
+    # Colors
     DIRT_COLOR = Color(155, 118, 83, ground_alpha)
     MIN_GRASS_COLOR = Color(235, 242, 230, ground_alpha)
     MAX_GRASS_COLOR = Color(76, 141, 29, ground_alpha)
-    
-    # Mountains
-    MOUNTAIN_LAKE_MIN_HEIGHT:float = 20
-    MAX_WATER_AT_MOUNTAIN_SOURCE_TO_SPAWN_WATER: float = 1
-    CHANCE_OF_MOUNTAIN_WATER_SPAWN: float = 1
     MOUNTAIN_TOP_COLOR = Color("white")
     MOUNTAIN_FLOOR_COLOR = Color("azure4")
+    MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
+    #MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
+    MAX_WATER_COLOR =  Color("dodgerblue4")
     
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
                  organisms = None,
@@ -93,7 +99,7 @@ class Tile():
         # Water
         if starting_water_level:
             self.water = starting_water_level
-        elif self.START_WITH_WATER_TILES and height < 0:
+        elif self.DO_TILES_START_WITH_WATER and height < 0:
             max_possible_starting_water = 10 * -height
             self.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
         self.is_lake = False
@@ -144,8 +150,8 @@ class Tile():
         self.update_clouds()
                     
         # Growth Update # TODO: refactor into separate method
-        growth_chance = self.GROWTH_BASE_CHANCE
-        growth_rate = self.GROWTH_BASE_RATE
+        growth_chance = self.BASE_GROWTH_CHANCE
+        growth_rate = self.BASE_GROWTH_RATE
         
         # # Check if neighbour has water
         # for neighbor in self.neighbors.values():
@@ -160,7 +166,7 @@ class Tile():
         
         if random.random() < growth_chance:
             growth_rate = math.floor(growth_rate)
-            if self.growth.ratio() < self.COMMON_GROWTH_THRESHOLD_PERCENTAGE:
+            if self.growth.ratio() < self.GROW_FOR_YOURSELF_UNTIL_THRESHOLD:
                 self.growth.add_value(growth_rate)
             else:
                 neighbor = self.get_random_neigbor()
@@ -170,9 +176,9 @@ class Tile():
                     tile = self
                 tile.growth.add_value(growth_rate)
         
-        if self.growth.ratio() > self.POSSIBLE_GROWTH_LOSS_THRESHOLD_PERCENTAGE:
-            if random.random() < self.GROWTH_LOSS_CHANCE:
-                self.growth.add_value(-self.GROWTH_LOSS)
+        if self.growth.ratio() > self.NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD:
+            if random.random() < self.NATURAL_GROWTH_LOSS_CHANCE:
+                self.growth.add_value(-self.NATURAL_GROWTH_LOSS_AMOUNT)
 
     def adjust_temperature(self, sun: Sun):
         environmental_temperature = sun.get_temperature()
@@ -191,7 +197,8 @@ class Tile():
         self.surface_temperature += temperature_adjustment
 
     def update_water(self, sun: Sun):
-        self.spawn_new_water()
+        if self.DOES_WATER_ARTIFICALY_SPAWN and self.is_lake:
+            self.spawn_new_water()
         
         if self.water > 0:
             self.handle_evaporation(sun)
@@ -208,26 +215,25 @@ class Tile():
                     self.transfer_water(water_to_transfer, lower_tile)
                 
     def spawn_new_water(self):
-        if self.is_lake:
-            # Calculate gradient
-            height_differences = [self.height - neighbor.height for neighbor in self.neighbors.values()]
-            gradient = sum(height_differences) / len(self.neighbors)
+        # Calculate gradient
+        height_differences = [self.height - neighbor.height for neighbor in self.neighbors.values()]
+        gradient = sum(height_differences) / len(self.neighbors)
             
-            # Adjust spawn chance based on gradient
-            spawn_chance = self.CHANCE_OF_MOUNTAIN_WATER_SPAWN * (1 + gradient / 10)
-            if random.random() < spawn_chance:
-                # if not self.START_WITH_WATER_TILES:
-                #     self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE += 5
-                self.water += self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE
+        # Adjust spawn chance based on gradient
+        spawn_chance = self.MOUNTAIN_WATER_SPAWN_CHANCE * (1 + gradient / 10)
+        if random.random() < spawn_chance:
+            # if not self.START_WITH_WATER_TILES:
+            #     self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE += 5
+            self.water += self.AMOUNT_OF_WATER_SPAWNING_AT_MOUNTAIN_SOURCE
             
     def handle_evaporation(self, sun: Sun):
         # Adjust the base evaporation chance based on sunlight intensity
         sunlight_intensity = sun.get_light_intensity()
-        adjusted_evaporation_chance = self.EVAPORATION_BASE_CHANCE * sunlight_intensity
+        adjusted_evaporation_chance = self.BASE_EVAPORATION_CHANCE * sunlight_intensity
         
         # Increase chance if water is below the threshold
-        if self.water <= self.EVAPORATION_INCREASING_THRESHOLD:
-            adjusted_evaporation_chance *= self.EVAPORTAION_INCREASED_CHANCE_MULTIPLIER
+        if self.water <= self.MIN_WATER_TO_INCREASE_EVAPORATION:
+            adjusted_evaporation_chance *= self.LOW_WATER_EVAPORATION_CHANCE_MULTIPLIER
         
         temperature_factor = self.surface_temperature / sun.max_temperature
         adjusted_evaporation_amount = self.MAX_EVAPORATION * temperature_factor

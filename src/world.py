@@ -174,7 +174,7 @@ class World(sprite.Sprite):
     def is_potential_lake_location(self, tile):
         # Implement logic to determine if a tile is a good candidate for a lake
         # This could involve checking the surrounding tiles' heights, terrain types, etc.
-        return tile.height > Tile.MOUNTAIN_LAKE_MIN_HEIGHT or not Tile.START_WITH_WATER_TILES
+        return tile.height > Tile.MIN_HEIGHT_FOR_MOUNTAIN_LAKE or not Tile.DO_TILES_START_WITH_WATER
     
     def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> float:
         """

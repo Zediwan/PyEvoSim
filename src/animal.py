@@ -60,7 +60,7 @@ class Animal(Organism):
         super().update()
         #TODO: add visual that displays an animals health and energy
         
-        if self.tile.water > Tile.WATER_DROWNING_HEIGHT:
+        if self.tile.water > Tile.MIN_WATER_HEIGHT_FOR_DROWING:
             DROWNING_DAMAGE = math.floor(pygame.math.clamp(self.tile.water, 0, 10) / self.waterAffinity.value)
             self.loose_health(DROWNING_DAMAGE) 
         elif self.tile.water <= 0:
