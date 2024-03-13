@@ -6,6 +6,7 @@ from animal import Animal
 from config import *
 import random
 from noise import pnoise2
+from direction import Direction
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

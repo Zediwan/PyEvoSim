@@ -2,7 +2,7 @@ import random
 from config import *
 import math
 from pygame import Surface
-from config import Direction
+from direction import Direction
 
 class Wind:
     MIN_WIND_SPEED = 0
