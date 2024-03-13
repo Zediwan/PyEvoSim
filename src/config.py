@@ -27,6 +27,8 @@ draw_height_level = False
 draw_height_lines = False
 draw_water_sources = False
 draw_temperature_level = False
+draw_wind_speed = False
+draw_wind_direction = False
 
 pygame.font.init()
 font_size = int(1.2 * TILE_SIZE)
