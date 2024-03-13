@@ -308,8 +308,8 @@ class Tile():
     def update_clouds(self):
         if self.evaporated_water > 1:
             self.move_clouds()
-            can_rain =  self.evaporated_water > 5
-            chance_to_rain = .2 * (self.evaporated_water / 5)
+            can_rain =  self.evaporated_water > 20
+            chance_to_rain = .2 * (self.evaporated_water / 20)
             if can_rain and random.random() <= chance_to_rain:
                 self.rain()
                 return
@@ -363,11 +363,11 @@ class Tile():
             if self.is_lake:
                 self.temp_surface.fill(Color("fuchsia"))
                 
-        MIN_EVAP_WATER_TO_CLOUD = 5
+        MIN_EVAP_WATER_TO_CLOUD = 10
         if self.evaporated_water > MIN_EVAP_WATER_TO_CLOUD:
             light_cloud_color = Color("grey70")
             heavy_cloud_color = Color("grey30")
-            heaviness = pygame.math.clamp(self.evaporated_water / 40, 0, 1)
+            heaviness = pygame.math.clamp(self.evaporated_water / (MIN_EVAP_WATER_TO_CLOUD*2), 0, 1)
             cloud_color = light_cloud_color.lerp(heavy_cloud_color, heaviness)
             self.temp_surface.fill(cloud_color)
             
