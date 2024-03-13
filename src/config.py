@@ -2,7 +2,7 @@ from __future__ import annotations
 import pygame
 
 JEREMY_BIG_SCREEN = (5200, 1300, 20)
-JEREMY_LAPTOP = (1400, 1000, 14)
+JEREMY_LAPTOP = (1000, 1000, 10)
 WIDTH, HEIGHT, TILE_SIZE = JEREMY_LAPTOP
  
 
