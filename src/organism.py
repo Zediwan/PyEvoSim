@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-import math
 from pygame import Color, Rect, sprite, Surface
 from config import *
 from bounded_variable import BoundedVariable
 
-import Tile as t
+from tile import Tile
 
 class Organism(ABC, sprite.Sprite):
     MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH = 0, 100
@@ -16,7 +15,7 @@ class Organism(ABC, sprite.Sprite):
     BASE_ORGANISM_HEALTH_BOUND: BoundedVariable = BoundedVariable(BASE_ORGANISM_HEALTH, MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH)
     BASE_ORGANISM_ENERGY_BOUND: BoundedVariable = BoundedVariable(BASE_ORGANISM_ENERGY, MIN_ORGANISM_ENERGY, MAX_ORGANISM_ENERGY)
     
-    def __init__(self, tile: t.Tile, shape: Rect, color: Color, 
+    def __init__(self, tile: Tile, shape: Rect, color: Color, 
                  health: BoundedVariable = BASE_ORGANISM_HEALTH_BOUND, 
                  energy: BoundedVariable = BASE_ORGANISM_ENERGY_BOUND
                  ):
@@ -26,7 +25,7 @@ class Organism(ABC, sprite.Sprite):
         self.shape: Rect = shape
         self.color: Color = color
         
-        self.tile: t.Tile = tile
+        self.tile: Tile = tile
         tile.enter(self)
         self.invariant()
     
@@ -42,7 +41,7 @@ class Organism(ABC, sprite.Sprite):
         
         self.tile.temp_surface.fill(self.color.lerp(self.tile.color, pygame.math.clamp(self.tile.water / 100, 0, 1)))
     
-    def enter_tile(self, tile: t.Tile):
+    def enter_tile(self, tile: Tile):
         if tile.is_occupied():
             raise ValueError("Tile is already occupied.")
             
@@ -110,7 +109,7 @@ class Organism(ABC, sprite.Sprite):
         self.invariant()
     
     @abstractmethod
-    def copy(self, tile: t.Tile):
+    def copy(self, tile: Tile):
         pass 
     
     def invariant(self):
@@ -119,3 +118,4 @@ class Organism(ABC, sprite.Sprite):
         if self.tile.organisms:
             if self not in self.tile.organisms:
                 raise ValueError("Tiles Organism and Organisms tile are not equal.")
+            

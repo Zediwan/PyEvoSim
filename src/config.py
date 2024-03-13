@@ -26,6 +26,9 @@ draw_growth_level = False
 draw_height_level = False
 draw_height_lines = False
 draw_water_sources = False
+draw_temperature_level = False
+draw_wind_speed = False
+draw_wind_direction = False
 
 pygame.font.init()
 font_size = int(1.2 * TILE_SIZE)
@@ -41,20 +44,3 @@ sky_alpha = 100
 
 # Colors
 tile_border_color = pygame.Color("black")
-
-from enum import Enum
-
-class ExtendedEnum(Enum):
-    @classmethod
-    def get_options(cls):
-        return list(map(lambda c: c.value, cls))
-
-class Direction(ExtendedEnum):
-    NORTH = 0
-    EAST = 1
-    SOUTH = 2
-    WEST = 3
-    
-    @staticmethod
-    def is_valid_direction(direction : Direction) -> bool:
-        return direction in Direction.get_options()
