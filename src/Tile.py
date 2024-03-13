@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import List, Optional
+from direction import Direction
 from pygame import Rect, Surface, SRCALPHA, draw, Color
 from bounded_variable import BoundedVariable
 import random
@@ -117,6 +118,7 @@ class Tile():
         self.height_contours = []
         self.surface_temperature: float = 0
         self.is_raining = False
+        self.last_cloud_direction = None
         
         if self.height > 10:
             self.height_growth_penalty = (self.height / 10)
@@ -316,9 +318,17 @@ class Tile():
         self.is_raining = False
         
     def move_clouds(self):
+        if not self.last_cloud_direction:
+            self.last_cloud_direction = random.choice(self.get_directions())        
         if self.evaporated_water > 1:
-            self.evaporated_water -= 1
-            self.get_random_neigbor().evaporated_water += 1
+            directions = Direction.get_neighboring_directions(self.last_cloud_direction)
+            directions.append(self.last_cloud_direction)
+            direction = random.choice(directions)
+            self.last_cloud_direction = direction
+            neighbor = self.get_neighbor(direction)
+            if neighbor:
+                self.evaporated_water -= 1
+                neighbor.evaporated_water += 1
         self.is_raining = False
         
     def rain(self):
