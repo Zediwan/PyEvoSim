@@ -51,3 +51,16 @@ class Sun(sprite.Sprite):
         # Temperature variation follows the same pattern as light intensity
         intensity = self.get_light_intensity()
         return intensity * self.max_temperature
+    
+    def is_night(self):
+        """
+        Determines if it's currently night time based on the light intensity.
+
+        Returns:
+            bool: True if it's night time, False otherwise.
+        """
+        # Define a threshold below which it's considered night time
+        night_threshold = 0.2  # This value can be adjusted based on desired dusk/dawn times
+        current_light_intensity = self.get_light_intensity()
+        
+        return current_light_intensity < night_threshold

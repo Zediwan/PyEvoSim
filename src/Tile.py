@@ -6,6 +6,8 @@ import random
 from config import *
 import math
 
+from sun import Sun
+
 """
 The Tile class represents a tile in a game. It is an abstract base class (ABC) that provides common functionality for different types of tiles.
 
@@ -36,13 +38,13 @@ class Tile():
     MAX_WATER_COLOR =  Color("dodgerblue4")
     
     # Water spawning
-    WATER_SPAWNING_AT_MOUNTAIN_SOURCE: float = 1
+    WATER_SPAWNING_AT_MOUNTAIN_SOURCE: float = 0.1
 
     # Water Evaporation
-    EVAPORATION_BASE_CHANCE: float = .001
+    EVAPORATION_BASE_CHANCE: float = .01
     EVAPORATION_INCREASING_THRESHOLD: float = 2        # If the water value is less than this then the chance of evaporation is increased
     EVAPORTAION_INCREASED_CHANCE_MULTIPLIER: float = 2 # Multiplier applied to chance of evaporation if water value is below Threshold
-    EVAPORATION: float = 1                             # How much water evaporates at once
+    MAX_EVAPORATION: float = 2                             # How much water evaporates at once
     EVAPORATION_GROWTH_INCREASE: float = 1             # How much evaporation increases growth on its tile
     
     ### Land
@@ -69,7 +71,7 @@ class Tile():
     # Mountains
     MOUNTAIN_LAKE_MIN_HEIGHT:float = 20
     MAX_WATER_AT_MOUNTAIN_SOURCE_TO_SPAWN_WATER: float = 1
-    CHANCE_OF_MOUNTAIN_WATER_SPAWN: float = .01
+    CHANCE_OF_MOUNTAIN_WATER_SPAWN: float = 1
     MOUNTAIN_TOP_COLOR = Color("white")
     MOUNTAIN_FLOOR_COLOR = Color("azure4")
     
@@ -94,6 +96,7 @@ class Tile():
             max_possible_starting_water = 10 * -height
             self.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
         self.is_lake = False
+        self.evaporated_water = random.randint(0,3)
             
         # Growth
         self.growth: BoundedVariable = growth.copy()
@@ -112,6 +115,8 @@ class Tile():
         self.tile_hardness: float = self.TERRAIN_HARDNESS
         self.height: float = height
         self.height_contours = []
+        self.surface_temperature: float = 0
+        self.is_raining = False
         
         if self.height > 10:
             self.height_growth_penalty = (self.height / 10)
@@ -124,13 +129,17 @@ class Tile():
         self.color: Color = Color(0,0,0,0)
         self.temp_surface: Surface = Surface((self.rect.width, self.rect.height), SRCALPHA)
 
-    def update(self):
+    def update(self, sun: Sun):
         if self.organisms:
             for org in self.organisms:
                 org.update()
                 
+        self.adjust_temperature(sun)
+        
         # Water Update
-        self.update_water()
+        self.update_water(sun)
+        
+        self.update_clouds()
                     
         # Growth Update # TODO: refactor into separate method
         growth_chance = self.GROWTH_BASE_CHANCE
@@ -163,18 +172,31 @@ class Tile():
             if random.random() < self.GROWTH_LOSS_CHANCE:
                 self.growth.add_value(-self.GROWTH_LOSS)
 
-    def update_water(self):
+    def adjust_temperature(self, sun: Sun):
+        environmental_temperature = sun.get_temperature()
+        water_cooling_effect = max(0, (100 - min(self.water,100)) / 100)
+        
+        # Apply a stronger cooling effect at night for higher altitudes
+        if sun.is_night():
+            altitude_factor = max(0, 1 - (self.height * 0.05))
+        else:
+            altitude_factor = max(0, 1 - (self.height * 0.01))
+        
+        # Modify temperature adjustment rate based on water level
+        water_adjustment_factor = 1 - (min(self.water,100) / 100)  # Assuming 100 is the max water level
+        temperature_adjustment = ((environmental_temperature - self.surface_temperature) * water_cooling_effect * altitude_factor * 0.1) * water_adjustment_factor   
+             
+        self.surface_temperature += temperature_adjustment
+
+    def update_water(self, sun: Sun):
         self.spawn_new_water()
         
         if self.water > 0:
-            self.handle_evaporation()
+            self.handle_evaporation(sun)
             
             # Step 1 & 2: Distribute water to lower tiles
             lower_tiles = sorted([neighbor for neighbor in self.neighbors.values() if neighbor.calculate_effective_height() < self.calculate_effective_height()], key=lambda x: x.calculate_effective_height())
-            if lower_tiles:
-                # Calculate total height difference
-                total_height_diff = sum(self.calculate_effective_height() - neighbor.calculate_effective_height() for neighbor in lower_tiles)
-                
+            if lower_tiles:                
                 # Distribute water based on height difference
                 for lower_tile in lower_tiles:
                     height_diff = self.calculate_effective_height() - lower_tile.calculate_effective_height()
@@ -192,20 +214,48 @@ class Tile():
             # Adjust spawn chance based on gradient
             spawn_chance = self.CHANCE_OF_MOUNTAIN_WATER_SPAWN * (1 + gradient / 10)
             if random.random() < spawn_chance:
-                if self.START_WITH_WATER_TILES:
-                    self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE += 5
+                # if not self.START_WITH_WATER_TILES:
+                #     self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE += 5
                 self.water += self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE
             
-    def handle_evaporation(self):
-        evaporate_chance = self.EVAPORATION_BASE_CHANCE
+    def handle_evaporation(self, sun: Sun):
+        # Adjust the base evaporation chance based on sunlight intensity
+        sunlight_intensity = sun.get_light_intensity()
+        adjusted_evaporation_chance = self.EVAPORATION_BASE_CHANCE * sunlight_intensity
+        
+        # Increase chance if water is below the threshold
         if self.water <= self.EVAPORATION_INCREASING_THRESHOLD:
-            evaporate_chance *= self.EVAPORTAION_INCREASED_CHANCE_MULTIPLIER   
-                               
-        if random.random() <= evaporate_chance:
-            # TODO: rethink if this does even make sense?
-            # TODO: retink if this should be turned into a formula that is in relation to evaporated water value
-            self.growth.add_value(1) 
-            self.water = pygame.math.clamp(self.water - self.EVAPORATION, 0, self.water)
+            adjusted_evaporation_chance *= self.EVAPORTAION_INCREASED_CHANCE_MULTIPLIER
+        
+        temperature_factor = self.surface_temperature / sun.max_temperature
+        adjusted_evaporation_amount = self.MAX_EVAPORATION * temperature_factor
+        amount_evaporated = pygame.math.clamp(adjusted_evaporation_amount, 0, self.water)
+        
+        EVAPORATION_TEMPERATURE_THRESHOLD = sun.max_temperature * .5
+        if self.surface_temperature > EVAPORATION_TEMPERATURE_THRESHOLD and random.random() <= adjusted_evaporation_chance:
+            #self.growth.add_value(1)  # Adjust growth based on evaporation if needed
+            self.water -= pygame.math.clamp(amount_evaporated, 0, self.water)
+            self.evaporated_water += amount_evaporated
+            
+        # condition_met, sufficient_neighbors, evaporated_water = self.has_sufficient_evaporation_and_neighbors()
+        # if condition_met:
+        #     # Create a new cloud
+        #     new_cloud = Cloud(sufficient_neighbors, evaporated_water)
+        #     pass
+    
+    # def adjust_growth_due_to_evaporation(self):
+    #     # Example condition: Increase growth if water level is within an optimal range
+    #     if self.MIN_OPTIMAL_WATER_LEVEL <= self.water <= self.MAX_OPTIMAL_WATER_LEVEL:
+    #         # Adjust growth based on a function of water level and evaporation rate
+    #         growth_increase = calculate_growth_increase(self.water, self.EVAPORATION)
+    #         self.growth.add_value(growth_increase)
+    #     # Optionally, handle conditions of drought or waterlogging
+    #     elif self.water < self.MIN_OPTIMAL_WATER_LEVEL:
+    #         # Drought condition might slow down or reduce growth
+    #         self.growth.add_value(-self.DROUGHT_GROWTH_PENALTY)
+    #     elif self.water > self.MAX_OPTIMAL_WATER_LEVEL:
+    #         # Waterlogging condition might also negatively affect growth
+    #         self.growth.add_value(-self.WATERLOGGING_GROWTH_PENALTY)
     
     def transfer_water(self, amount : float, tile: Tile):
         if not self.is_neighbor(tile):
@@ -234,7 +284,7 @@ class Tile():
         # Example erosion calculation
         # Adjust these values based on your game's scale and desired erosion rate
         EROSION_RATE = 0.01  # Base erosion rate
-        WATER_FLOW_FACTOR = 1 # How much water flow affects erosion
+        WATER_FLOW_FACTOR = 0.1 # How much water flow affects erosion
 
         # Calculate erosion based on water level and flow
         # This is a simplified example; you might want to factor in flow rate and direction
@@ -255,6 +305,32 @@ class Tile():
         # For example, terrain might become softer as it erodes
         self.tile_hardness = max(self.tile_hardness - 0.01, 0.0)
     
+    def update_clouds(self):
+        if self.evaporated_water > 1:
+            self.move_clouds()
+            can_rain =  self.evaporated_water > 5
+            chance_to_rain = .2 * (self.evaporated_water / 5)
+            if can_rain and random.random() <= chance_to_rain:
+                self.rain()
+                return
+        self.is_raining = False
+        
+    def move_clouds(self):
+        if self.evaporated_water > 1:
+            self.evaporated_water -= 1
+            self.get_random_neigbor().evaporated_water += 1
+        self.is_raining = False
+        
+    def rain(self):
+        if self.evaporated_water > 1:
+            rain_frequency = .3
+            if random.random() <= rain_frequency:
+                self.is_raining = True
+                self.water += 1
+                self.evaporated_water -= 1
+                return
+        self.is_raining = False
+            
     def draw(self, screen: Surface):
         """
         Renders the tile on the screen with its color, border, and any organisms present.
@@ -286,6 +362,18 @@ class Tile():
         if draw_water_sources:
             if self.is_lake:
                 self.temp_surface.fill(Color("fuchsia"))
+                
+        MIN_EVAP_WATER_TO_CLOUD = 5
+        if self.evaporated_water > MIN_EVAP_WATER_TO_CLOUD:
+            light_cloud_color = Color("grey70")
+            heavy_cloud_color = Color("grey30")
+            heaviness = pygame.math.clamp(self.evaporated_water / 40, 0, 1)
+            cloud_color = light_cloud_color.lerp(heavy_cloud_color, heaviness)
+            self.temp_surface.fill(cloud_color)
+            
+        if self.is_raining:
+            rain_color = Color("navy")
+            pygame.draw.circle(self.temp_surface, rain_color, self.temp_surface.get_rect().center, radius = self.rect.width / 2, draw_bottom_left=True, draw_bottom_right=True)
         
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
 
@@ -309,12 +397,25 @@ class Tile():
             text = font.render(str(math.floor(self.height)), True, (0, 0, 0))
             text.set_alpha(ground_font_alpha)
             self._render_text_centered(screen, text)
+            
+        # Render temperature if enabled
+        from config import draw_temperature_level
+        if draw_temperature_level:
+            text = font.render(str(math.floor(self.surface_temperature)), True, (0, 0, 0))
+            text.set_alpha(ground_font_alpha)
+            self._render_text_centered(screen, text)
 
         # Draw height lines if enabled
         from config import draw_height_lines
         if draw_height_lines:
             self.calculate_height_contours()
             self.draw_height_contours(screen)
+            
+        draw_cloud_level = False
+        if draw_cloud_level:
+            text = font.render(str(math.floor(self.evaporated_water)), True, (0, 0, 0))
+            text.set_alpha(ground_font_alpha)
+            self._render_text_centered(screen, text)
 
     def _render_text_centered(self, screen: Surface, text: Surface):
         """

@@ -2,7 +2,7 @@ from __future__ import annotations
 import pygame
 
 JEREMY_BIG_SCREEN = (5200, 1300, 20)
-JEREMY_LAPTOP = (1400, 1000, 10)
+JEREMY_LAPTOP = (1400, 1000, 14)
 WIDTH, HEIGHT, TILE_SIZE = JEREMY_LAPTOP
  
 
@@ -26,6 +26,7 @@ draw_growth_level = False
 draw_height_level = False
 draw_height_lines = False
 draw_water_sources = False
+draw_temperature_level = False
 
 pygame.font.init()
 font_size = int(1.2 * TILE_SIZE)

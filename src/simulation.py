@@ -65,6 +65,10 @@ class Simulation:
                     config.draw_water_sources = not config.draw_water_sources
                     self.world.draw(self.screen) 
                     pg.display.flip() 
+                elif event.key == pg.K_6 and pg.key.get_mods() & pg.KMOD_ALT: 
+                    config.draw_temperature_level = not config.draw_temperature_level
+                    self.world.draw(self.screen) 
+                    pg.display.flip() 
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False

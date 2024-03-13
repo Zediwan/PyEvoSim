@@ -75,7 +75,7 @@ class World(sprite.Sprite):
         self.sun.update()
         random.shuffle(self.tiles)
         for tile in self.tiles:
-            tile.update()
+            tile.update(self.sun)
         
     def draw(self, screen : Surface):
         temp_surface = Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
