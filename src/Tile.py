@@ -38,7 +38,7 @@ class Tile():
     MAX_WATER_COLOR =  Color("dodgerblue4")
     
     # Water spawning
-    WATER_SPAWNING_AT_MOUNTAIN_SOURCE: float = 0.1
+    WATER_SPAWNING_AT_MOUNTAIN_SOURCE: float = 0
 
     # Water Evaporation
     EVAPORATION_BASE_CHANCE: float = .01
