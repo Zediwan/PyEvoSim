@@ -47,6 +47,12 @@ class Tile():
     MAX_EVAPORATION: float = 2                    
     GROWTH_INCREASE_BY_EVAPORATION: float = 1
     
+    MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
+    #MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
+    MAX_WATER_COLOR =  Color("dodgerblue4")
+    
+    #################################################################################################################################
+    
     ### Land
     MIN_GROWTH_VALUE, MAX_GROWTH_VALUE = 0, 10
     BASE_GROWTH_VALUE = MIN_GROWTH_VALUE
@@ -61,26 +67,24 @@ class Tile():
     NATURAL_GROWTH_LOSS_CHANCE = .02
     NATURAL_GROWTH_LOSS_AMOUNT = 1
     
+    MIN_GRASS_COLOR = Color(235, 242, 230, ground_alpha)
+    MAX_GRASS_COLOR = Color(76, 141, 29, ground_alpha)
+    
+    # Soil
+    DIRT_COLOR = Color(155, 118, 83, ground_alpha)
+    
     # Erosion
     TERRAIN_HARDNESS: float = 0.5
     
     # Mountains
     MIN_HEIGHT_FOR_MOUNTAIN_LAKE:float = 20
     MOUNTAIN_WATER_SPAWN_CHANCE: float = 1
+    MOUNTAIN_TOP_COLOR = Color("white")
+    MOUNTAIN_FLOOR_COLOR = Color("azure4")
     
     #### TODO: improve names
     LAND_DAMAGE = 50
     ####
-    
-    # Colors
-    DIRT_COLOR = Color(155, 118, 83, ground_alpha)
-    MIN_GRASS_COLOR = Color(235, 242, 230, ground_alpha)
-    MAX_GRASS_COLOR = Color(76, 141, 29, ground_alpha)
-    MOUNTAIN_TOP_COLOR = Color("white")
-    MOUNTAIN_FLOOR_COLOR = Color("azure4")
-    MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
-    #MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
-    MAX_WATER_COLOR =  Color("dodgerblue4")
     
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
                  organisms = None,
