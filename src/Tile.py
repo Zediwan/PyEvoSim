@@ -365,15 +365,23 @@ class Tile():
                 
         MIN_EVAP_WATER_TO_CLOUD = 10
         if self.evaporated_water > MIN_EVAP_WATER_TO_CLOUD:
-            light_cloud_color = Color("grey70")
-            heavy_cloud_color = Color("grey30")
             heaviness = pygame.math.clamp(self.evaporated_water / (MIN_EVAP_WATER_TO_CLOUD*2), 0, 1)
-            cloud_color = light_cloud_color.lerp(heavy_cloud_color, heaviness)
-            self.temp_surface.fill(cloud_color)
+            alpha = math.floor(pygame.math.lerp(0, 200, heaviness))
             
-        if self.is_raining:
-            rain_color = Color("navy")
-            pygame.draw.circle(self.temp_surface, rain_color, self.temp_surface.get_rect().center, radius = self.rect.width / 2, draw_bottom_left=True, draw_bottom_right=True)
+            cloud_surface = self.temp_surface.copy()
+            cloud_surface.set_alpha(alpha)
+
+            light_cloud_color: Color = Color("grey100")
+            heavy_cloud_color: Color = Color("grey0")
+            #cloud_color = light_cloud_color.lerp(heavy_cloud_color, heaviness)
+            cloud_color: Color = light_cloud_color
+            
+            if self.is_raining:
+                rain_color = heavy_cloud_color
+                cloud_color = rain_color
+                
+            cloud_surface.fill(cloud_color)
+            self.temp_surface.blit(cloud_surface, (0, 0))
         
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
 
