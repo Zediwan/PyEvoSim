@@ -7,7 +7,6 @@ from pygame import Rect, Surface, SRCALPHA, draw, Color
 
 from config import *
 from direction import Direction
-from bounded_variable import BoundedVariable
 from sun import Sun
 
 """
@@ -30,10 +29,11 @@ class Tile():
     ### Water
     DOES_WATER_FLOW: bool = True
     DO_TILES_START_WITH_WATER: bool = True
+    AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL = 10
+    SEA_LEVEL = 0
     MIN_WATER_HEIGHT_FOR_DROWING: float = 3
     MIN_WATER_VALUE: float = 0
     MAX_WATER_VALUE: float = float("inf")
-    BASE_WATER_LEVEL: float = 0
     
     # Water spawning
     DOES_WATER_ARTIFICALY_SPAWN: bool = False
@@ -42,7 +42,9 @@ class Tile():
     # Water Evaporation
     BASE_EVAPORATION_CHANCE: float = .01
     MIN_WATER_TO_INCREASE_EVAPORATION: float = 2        # If the water value is less than this then the chance of evaporation is increased
-    LOW_WATER_EVAPORATION_CHANCE_MULTIPLIER: float = 2  
+    LOW_WATER_EVAPORATION_CHANCE_MULTIPLIER: float = 2 
+    MIN_STARTING_EVAPORATION: float = 0
+    MAX_STARTING_EVAPORATION: float = 3 
     MIN_EVAPORATION: float = 0.1
     MAX_EVAPORATION: float = 2                    
     GROWTH_INCREASE_BY_EVAPORATION: float = 1
@@ -54,24 +56,24 @@ class Tile():
     #################################################################################################################################
     
     ### Land
-    MIN_GROWTH_VALUE, MAX_GROWTH_VALUE = 0, 10
-    BASE_GROWTH_VALUE = MIN_GROWTH_VALUE
-    GROWTH_BOUND = BoundedVariable(BASE_GROWTH_VALUE, MIN_GROWTH_VALUE, MAX_GROWTH_VALUE)
+    MIN_GROWTH_VALUE: float = 0
+    MAX_GROWTH_VALUE: float = 10
+        
+    BASE_GROWTH_RATE: float = 1
+    BASE_GROWTH_CHANCE: float = .01
+    GROWTH_RATE_INCREASE_BY_WATER: float = 5
+    GROWTH_CHANCE_INCREASE_BY_WATER: float = .05
+    GROW_FOR_YOURSELF_UNTIL_THRESHOLD: float = .5
+    NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD: float = .9
+    NATURAL_GROWTH_LOSS_CHANCE: float = .02
+    NATURAL_GROWTH_LOSS_AMOUNT: float = 1
     
-    BASE_GROWTH_RATE = 1
-    BASE_GROWTH_CHANCE = .01
-    GROWTH_RATE_INCREASE_BY_WATER = 5
-    GROWTH_CHANCE_INCREASE_BY_WATER = .05
-    GROW_FOR_YOURSELF_UNTIL_THRESHOLD = .5
-    NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD = .9
-    NATURAL_GROWTH_LOSS_CHANCE = .02
-    NATURAL_GROWTH_LOSS_AMOUNT = 1
-    
-    MIN_GRASS_COLOR = Color(235, 242, 230, ground_alpha)
-    MAX_GRASS_COLOR = Color(76, 141, 29, ground_alpha)
+    MIN_GRASS_COLOR: Color = Color(235, 242, 230, ground_alpha)
+    MAX_GRASS_COLOR: Color = Color(76, 141, 29, ground_alpha)
     
     # Soil
-    DIRT_COLOR = Color(155, 118, 83, ground_alpha)
+    DIRT_COLOR: Color = Color(155, 118, 83, ground_alpha)
+    SAND_COLOR: Color = Color("lightgoldenrod")
     
     # Erosion
     TERRAIN_HARDNESS: float = 0.5
@@ -79,67 +81,78 @@ class Tile():
     # Mountains
     MIN_HEIGHT_FOR_MOUNTAIN_LAKE:float = 20
     MOUNTAIN_WATER_SPAWN_CHANCE: float = 1
-    MOUNTAIN_TOP_COLOR = Color("white")
-    MOUNTAIN_FLOOR_COLOR = Color("azure4")
+    MOUNTAIN_TOP_COLOR: Color = Color("white")
+    MOUNTAIN_FLOOR_COLOR: Color = Color("azure4")
     
     #### TODO: improve names
-    LAND_DAMAGE = 50
+    LAND_DAMAGE: int = 50
     ####
     
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
                  organisms = None,
                  starting_water_level: Optional[float] = None,
-                 starting_growth_level: Optional[int] = None,
-                 growth: BoundedVariable = GROWTH_BOUND,
+                 starting_growth_level: Optional[float] = None,
                  is_coast: bool = False
                  ):
+        # Tile
+        self.is_border_tile: bool = False
+        self.rect: Rect = rect
+        self.tile_size: int = tile_size
+        self.neighbors: dict[Direction, Tile] = {}
+        
+        # Height
+        self.height: float = height
+        self.height_contours = []
+        
         # Organisms
         if organisms:
             self.organisms = organisms
         else:
             self.organisms = []
-                
+            
+        # Plants
+        # self.plants = []
+        # self.cloud = None
+        # self.water = None
+        # self.organisms = []
+                    
+        # Growth
+        self.growth: float = 0
+        if starting_growth_level:
+            self.growth = starting_growth_level
+        else:
+            self.growth = random.random() * self.MAX_GROWTH_VALUE
+        
+        # Water      
         self.water: float = 0
-        # Water
         if starting_water_level:
             self.water = starting_water_level
-        elif self.DO_TILES_START_WITH_WATER and height < 0:
-            max_possible_starting_water = 10 * -height
+        elif self.DO_TILES_START_WITH_WATER and height < self.SEA_LEVEL:
+            max_possible_starting_water = (self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * abs(height))
             self.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
-        self.is_lake = False
-        self.evaporated_water = random.randint(0,3)
-            
-        # Growth
-        self.growth: BoundedVariable = growth.copy()
-        if starting_growth_level:
-            self.growth.value = starting_growth_level
-        else:
-            self.growth.value = random.randint(self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
+        self.evaporated_water = random.random() * self.MAX_STARTING_EVAPORATION
         
-        # Tile
-        self.tile_size: int = max(tile_size, MIN_TILE_SIZE)
-        self.rect: Rect = rect
-        self.is_border_tile: bool = False
-        self.neighbors: dict[Direction, Tile] = {}
+        self.is_lake = False
         self.is_coast = is_coast
-        self.erosion_accumulator: float = 0.0
-        self.tile_hardness: float = self.TERRAIN_HARDNESS
-        self.height: float = height
-        self.height_contours = []
-        self.surface_temperature: float = 0
         self.is_raining = False
+        
+        # Clouds
         self.last_cloud_direction = None
         
-        if self.height > 10:
-            self.height_growth_penalty = (self.height / 10)
-            self.height_growth_penalty = pygame.math.clamp(self.height_growth_penalty, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
-            self.height_growth_penalty = math.floor(self.height_growth_penalty)
-            self.height_growth_penalty = - self.height_growth_penalty
-            self.growth.add_value(self.height_growth_penalty)
+        # Erosion
+        self.tile_hardness: float = self.TERRAIN_HARDNESS
+        self.erosion_accumulator: float = 0.0
+        
+        # Temparature
+        self.surface_temperature: float = 0
         
         # Drawing
         self.color: Color = Color(0,0,0,0)
-        self.temp_surface: Surface = Surface((self.rect.width, self.rect.height), SRCALPHA)
+        self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
+        
+        # Growth penalties
+        if self.height >= 0:
+            self.growth -= pygame.math.clamp((self.height / 20), self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
     def update(self, sun: Sun):
         if self.organisms:
@@ -150,8 +163,6 @@ class Tile():
         
         # Water Update
         self.update_water(sun)
-        
-        self.update_clouds()
                     
         # Growth Update # TODO: refactor into separate method
         growth_chance = self.BASE_GROWTH_CHANCE
@@ -165,24 +176,24 @@ class Tile():
         #         growth_rate += (int)(self.WATER_GROWTH_RATE_INCREASE * ratio)
         #         growth_chance += (int)(self.WATER_GROWTH_CHANCE_INCREASE * ratio)
         
-        if self.height > 0:
+        if self.height > self.SEA_LEVEL:
             growth_chance /= (self.height / 100)
         
         if random.random() < growth_chance:
-            growth_rate = math.floor(growth_rate)
-            if self.growth.ratio() < self.GROW_FOR_YOURSELF_UNTIL_THRESHOLD:
-                self.growth.add_value(growth_rate)
+            if self.growth_ratio() < self.GROW_FOR_YOURSELF_UNTIL_THRESHOLD:
+                tile_to_grow = self
             else:
-                neighbor = self.get_random_neigbor()
-                if neighbor:
-                    tile = random.choice((self, neighbor))
-                else:
-                    tile = self
-                tile.growth.add_value(growth_rate)
+                options = self.get_neighbors()
+                options.append(self)
+                tile_to_grow = random.choice(options)
+                
+            tile_to_grow.growth += growth_rate
+            tile_to_grow.growth = pygame.math.clamp(tile_to_grow.growth, tile_to_grow.MIN_GROWTH_VALUE, tile_to_grow.MAX_GROWTH_VALUE)
         
-        if self.growth.ratio() > self.NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD:
+        if self.growth_ratio() > self.NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD:
             if random.random() < self.NATURAL_GROWTH_LOSS_CHANCE:
-                self.growth.add_value(-self.NATURAL_GROWTH_LOSS_AMOUNT)
+                self.growth -= self.NATURAL_GROWTH_LOSS_AMOUNT
+                self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
     def adjust_temperature(self, sun: Sun):
         environmental_temperature = sun.get_temperature()
@@ -190,9 +201,9 @@ class Tile():
         
         # Apply a stronger cooling effect at night for higher altitudes
         if sun.is_night():
-            altitude_factor = max(0, 1 - (self.height * 0.05))
+            altitude_factor = max(0, 1 - (self.height * 0.08))
         else:
-            altitude_factor = max(0, 1 - (self.height * 0.01))
+            altitude_factor = max(0, 1 - (self.height * 0.05))
         
         # Modify temperature adjustment rate based on water level
         water_adjustment_factor = 1 - (min(self.water,100) / 100)  # Assuming 100 is the max water level
@@ -255,7 +266,7 @@ class Tile():
         #     new_cloud = Cloud(sufficient_neighbors, evaporated_water)
         #     pass
     
-    # def adjust_growth_due_to_evaporation(self):
+    def adjust_growth_due_to_evaporation(self):
     #     # Example condition: Increase growth if water level is within an optimal range
     #     if self.MIN_OPTIMAL_WATER_LEVEL <= self.water <= self.MAX_OPTIMAL_WATER_LEVEL:
     #         # Adjust growth based on a function of water level and evaporation rate
@@ -268,6 +279,7 @@ class Tile():
     #     elif self.water > self.MAX_OPTIMAL_WATER_LEVEL:
     #         # Waterlogging condition might also negatively affect growth
     #         self.growth.add_value(-self.WATERLOGGING_GROWTH_PENALTY)
+        pass
     
     def transfer_water(self, amount : float, tile: Tile):
         if not self.is_neighbor(tile):
@@ -317,40 +329,6 @@ class Tile():
         # For example, terrain might become softer as it erodes
         self.tile_hardness = max(self.tile_hardness - 0.01, 0.0)
     
-    def update_clouds(self):
-        if self.evaporated_water > 1:
-            self.move_clouds()
-            can_rain =  self.evaporated_water > 20
-            chance_to_rain = .2 * (self.evaporated_water / 20)
-            if can_rain and random.random() <= chance_to_rain:
-                self.rain()
-                return
-        self.is_raining = False
-        
-    def move_clouds(self):
-        if not self.last_cloud_direction:
-            self.last_cloud_direction = random.choice(self.get_directions())        
-        if self.evaporated_water > 1:
-            directions = Direction.get_neighboring_directions(self.last_cloud_direction)
-            directions.append(self.last_cloud_direction)
-            direction = random.choice(directions)
-            self.last_cloud_direction = direction
-            neighbor = self.get_neighbor(direction)
-            if neighbor:
-                self.evaporated_water -= 1
-                neighbor.evaporated_water += 1
-        self.is_raining = False
-        
-    def rain(self):
-        if self.evaporated_water > 1:
-            rain_frequency = .3
-            if random.random() <= rain_frequency:
-                self.is_raining = True
-                self.water += 1
-                self.evaporated_water -= 1
-                return
-        self.is_raining = False
-            
     def draw(self, screen: Surface):
         """
         Renders the tile on the screen with its color, border, and any organisms present.
@@ -366,7 +344,7 @@ class Tile():
                 if org.is_alive():
                     org.draw(screen)
         else:
-            growth_ratio = self.growth.ratio()
+            growth_ratio = self.growth_ratio()
             water_ratio = pygame.math.clamp(self.water / 10, 0, 1)
             height_ratio = pygame.math.clamp(self.height / 50, 0, 1)
         
@@ -383,7 +361,7 @@ class Tile():
             if self.is_lake:
                 self.temp_surface.fill(Color("fuchsia"))
                 
-        MIN_EVAP_WATER_TO_CLOUD = 10
+        MIN_EVAP_WATER_TO_CLOUD = 4
         if self.evaporated_water > MIN_EVAP_WATER_TO_CLOUD:
             heaviness = pygame.math.clamp(self.evaporated_water / (MIN_EVAP_WATER_TO_CLOUD*2), 0, 1)
             alpha = math.floor(pygame.math.lerp(0, 200, heaviness))
@@ -415,7 +393,7 @@ class Tile():
         # Render growth level if enabled
         from config import draw_growth_level
         if draw_growth_level:
-            text = font.render(str(self.growth.value), True, (0, 0, 0))
+            text = font.render(str(math.floor(self.growth)), True, (0, 0, 0))
             text.set_alpha(ground_font_alpha)
             self._render_text_centered(screen, text)
 
@@ -534,3 +512,6 @@ class Tile():
         if not self.neighbors.values():
             return False
         return tile in self.neighbors.values()
+    
+    def growth_ratio(self) -> float:
+        return pygame.math.clamp(self.growth / self.MAX_GROWTH_VALUE, 0, 1)

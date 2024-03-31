@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from pygame import Color, Rect, sprite, Surface
 from config import *
-from bounded_variable import BoundedVariable
 
 from tile import Tile
 
@@ -11,17 +10,14 @@ class Organism(ABC, sprite.Sprite):
 
     BASE_ORGANISM_HEALTH = MAX_ORGANISM_HEALTH
     BASE_ORGANISM_ENERGY = MAX_ORGANISM_ENERGY
-    
-    BASE_ORGANISM_HEALTH_BOUND: BoundedVariable = BoundedVariable(BASE_ORGANISM_HEALTH, MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH)
-    BASE_ORGANISM_ENERGY_BOUND: BoundedVariable = BoundedVariable(BASE_ORGANISM_ENERGY, MIN_ORGANISM_ENERGY, MAX_ORGANISM_ENERGY)
-    
+        
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
-                 health: BoundedVariable = BASE_ORGANISM_HEALTH_BOUND, 
-                 energy: BoundedVariable = BASE_ORGANISM_ENERGY_BOUND
+                 health: float = BASE_ORGANISM_HEALTH, 
+                 energy: float = BASE_ORGANISM_ENERGY
                  ):
         sprite.Sprite.__init__(self)
-        self.health: BoundedVariable = health.copy()
-        self.energy: BoundedVariable = energy.copy()
+        self.health: float = health
+        self.energy: float = energy
         self.shape: Rect = shape
         self.color: Color = color
         
@@ -53,56 +49,56 @@ class Organism(ABC, sprite.Sprite):
         
         self.invariant()
         
-    def set_health(self, new_health: int):
+    def set_health(self, new_health: float):
         if new_health < self.MIN_ORGANISM_HEALTH:
             raise ValueError("New health is below organism min.")
         if new_health > self.MAX_ORGANISM_HEALTH:
             raise ValueError("New health is above organism max.")
         
-        self.health.value = new_health
+        self.health = new_health
         
-    def gain_enery(self, energy_gained: int):
+    def gain_enery(self, energy_gained: float):
         if energy_gained < 0:
             raise ValueError("Energy gained is negative.")
         
-        dif = self.energy.value + energy_gained
-        self.energy.value = dif
+        dif = self.energy + energy_gained
+        self.energy = dif
         dif -= self.MAX_ORGANISM_ENERGY
         if dif > 0:
             self.gain_health(dif)
        
-    def use_enery(self, energy_used: int):
+    def use_enery(self, energy_used: float):
         if energy_used < 0:
             raise ValueError("Energy used is negative.")
     
-        dif = self.energy.value - energy_used
-        self.energy.value = dif
+        dif = self.energy - energy_used
+        self.energy = dif
         if dif <= self.MIN_ORGANISM_ENERGY:
             self.loose_health(-dif)     
         
-    def gain_health(self, health_gained: int):
+    def gain_health(self, health_gained: float):
         if health_gained < 0:
             raise ValueError("Health gained is negative.")
         
-        self.health.add_value(health_gained)
+        self.health = pygame.math.clamp(self.health + health_gained, 0, self.MAX_ORGANISM_HEALTH)
         
-    def loose_health(self, health_lost: int):
+    def loose_health(self, health_lost: float):
         if health_lost < 0:
             raise ValueError("Health lost is negative.")
         
-        self.health.add_value(-health_lost)
+        self.health = pygame.math.clamp(self.health - health_lost, 0, self.MAX_ORGANISM_HEALTH)
         #print(health_lost)
         # Display the health lost on the tile
         #self.health_lost = math.floor(health_lost) #TODO: implement displaying of health loss
         
     def is_alive(self) -> bool:
-        is_alive = self.health.value > 0
+        is_alive = self.health > 0
         if not is_alive:
             self.die()
         return is_alive
     
     def die(self):
-        if self.health.value > 0:
+        if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
         
         self.tile.leave(self)

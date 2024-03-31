@@ -2,7 +2,6 @@ import math
 from pygame import sprite, Surface
 from sun import Sun
 from tile import Tile
-from animal import Animal
 from config import *
 import random
 from noise import pnoise2
@@ -119,13 +118,13 @@ class World(sprite.Sprite):
         self.lowest_tile = min(self.lowest_tile, height)
     
         if height < WATER_PERCENTAGE:
-            tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level= random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
+            tile : Tile = Tile(rect, self.tile_size, height=height)
             # wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
             # lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
             # if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
             #     Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         else:
-            tile : Tile = Tile(rect, self.tile_size, height=height, starting_growth_level=random.randint(Tile.MAX_GROWTH_VALUE-2, Tile.MAX_GROWTH_VALUE))
+            tile : Tile = Tile(rect, self.tile_size, height=height)
             # wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
             # lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
             # if random.random() <= STARTING_LAND_ANIMAL_PERCENTAGE:
