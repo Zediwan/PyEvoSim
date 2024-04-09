@@ -5,11 +5,11 @@ from config import *
 from tile import Tile
 
 class Organism(ABC, sprite.Sprite):
-    MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH = 0, 100
-    MIN_ORGANISM_ENERGY, MAX_ORGANISM_ENERGY = 0, 100
+    MIN_ORGANISM_HEALTH, MAX_ORGANISM_HEALTH = 0, 100 #TODO make the maximum a setting option
+    MIN_ORGANISM_ENERGY, MAX_ORGANISM_ENERGY = 0, 100 #TODO make the maximum a setting option
 
-    BASE_ORGANISM_HEALTH = MAX_ORGANISM_HEALTH
-    BASE_ORGANISM_ENERGY = MAX_ORGANISM_ENERGY
+    BASE_ORGANISM_HEALTH = MAX_ORGANISM_HEALTH #TODO rethink if this is the best way to set the base
+    BASE_ORGANISM_ENERGY = MAX_ORGANISM_ENERGY #TODO rethink if this is the best way to set the base
         
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
                  health: float = BASE_ORGANISM_HEALTH, 
@@ -28,7 +28,7 @@ class Organism(ABC, sprite.Sprite):
     def update(self):
         if not self.is_alive():
             self.die()
-        self.use_enery(2)
+        self.use_enery(2) #TODO make this a variable
                 
     @abstractmethod
     def draw(self, screen: Surface):
