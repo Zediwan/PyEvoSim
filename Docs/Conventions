@@ -1,9 +1,0 @@
-Vector2D
-    -if no values are given in the constructor, the null vector is being created
-Transform
-    -size is by default 10
-Organism
-    -age is by default 0
-    -if the location of an organism isn't defined it spawns randomly
-Animal
-    -if the location of an animal isn't defined it spawns randomly

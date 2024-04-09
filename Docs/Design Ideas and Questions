@@ -1,4 +1,0 @@
-How to handle the huge amount of different constructors?
-    I think there is a pattern for that...
-Implement getter and setter for all classes
-Remove all calls to mag() with magSq() for better performance
