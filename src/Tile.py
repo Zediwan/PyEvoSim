@@ -7,7 +7,6 @@ from pygame import Rect, Surface, SRCALPHA, draw, Color
 
 from config import *
 from direction import Direction
-from sun import Sun
 
 """
 The Tile class represents a tile in a game. It is an abstract base class (ABC) that provides common functionality for different types of tiles.
@@ -154,15 +153,13 @@ class Tile():
         if self.height >= 0:
             self.growth -= pygame.math.clamp((self.height / 20), self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
-    def update(self, sun: Sun):
+    def update(self):
         if self.organisms:
             for org in self.organisms:
                 org.update()
-                
-        self.adjust_temperature(sun)
-        
+                        
         # Water Update
-        self.update_water(sun)
+        self.update_water()
                     
         # Growth Update # TODO: refactor into separate method
         growth_chance = self.BASE_GROWTH_CHANCE
@@ -195,29 +192,11 @@ class Tile():
                 self.growth -= self.NATURAL_GROWTH_LOSS_AMOUNT
                 self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
-    def adjust_temperature(self, sun: Sun):
-        environmental_temperature = sun.get_temperature()
-        water_cooling_effect = max(0, (100 - min(self.water,100)) / 100)
-        
-        # Apply a stronger cooling effect at night for higher altitudes
-        if sun.is_night():
-            altitude_factor = max(0, 1 - (self.height * 0.08))
-        else:
-            altitude_factor = max(0, 1 - (self.height * 0.05))
-        
-        # Modify temperature adjustment rate based on water level
-        water_adjustment_factor = 1 - (min(self.water,100) / 100)  # Assuming 100 is the max water level
-        temperature_adjustment = ((environmental_temperature - self.surface_temperature) * water_cooling_effect * altitude_factor * 0.1) * water_adjustment_factor   
-             
-        self.surface_temperature += temperature_adjustment
-
-    def update_water(self, sun: Sun):
+    def update_water(self):
         if self.DOES_WATER_ARTIFICALY_SPAWN and self.is_lake:
             self.spawn_new_water()
         
-        if self.water > 0:
-            self.handle_evaporation(sun)
-            
+        if self.water > 0:    
             # Step 1 & 2: Distribute water to lower tiles
             lower_tiles = sorted([neighbor for neighbor in self.neighbors.values() if neighbor.calculate_effective_height() < self.calculate_effective_height()], key=lambda x: x.calculate_effective_height())
             if lower_tiles:                
@@ -240,46 +219,6 @@ class Tile():
             # if not self.START_WITH_WATER_TILES:
             #     self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE += 5
             self.water += self.AMOUNT_OF_WATER_SPAWNING_AT_MOUNTAIN_SOURCE
-            
-    def handle_evaporation(self, sun: Sun):
-        # Adjust the base evaporation chance based on sunlight intensity
-        sunlight_intensity = sun.get_light_intensity()
-        adjusted_evaporation_chance = self.BASE_EVAPORATION_CHANCE * sunlight_intensity
-        
-        # Increase chance if water is below the threshold
-        if self.water <= self.MIN_WATER_TO_INCREASE_EVAPORATION:
-            adjusted_evaporation_chance *= self.LOW_WATER_EVAPORATION_CHANCE_MULTIPLIER
-        
-        temperature_factor = self.surface_temperature / sun.max_temperature
-        adjusted_evaporation_amount = self.MAX_EVAPORATION * temperature_factor
-        amount_evaporated = pygame.math.clamp(adjusted_evaporation_amount, 0, self.water)
-        
-        EVAPORATION_TEMPERATURE_THRESHOLD = sun.max_temperature * .5
-        if self.surface_temperature > EVAPORATION_TEMPERATURE_THRESHOLD and random.random() <= adjusted_evaporation_chance:
-            #self.growth.add_value(1)  # Adjust growth based on evaporation if needed
-            self.water -= pygame.math.clamp(amount_evaporated, 0, self.water)
-            self.evaporated_water += amount_evaporated
-            
-        # condition_met, sufficient_neighbors, evaporated_water = self.has_sufficient_evaporation_and_neighbors()
-        # if condition_met:
-        #     # Create a new cloud
-        #     new_cloud = Cloud(sufficient_neighbors, evaporated_water)
-        #     pass
-    
-    def adjust_growth_due_to_evaporation(self):
-    #     # Example condition: Increase growth if water level is within an optimal range
-    #     if self.MIN_OPTIMAL_WATER_LEVEL <= self.water <= self.MAX_OPTIMAL_WATER_LEVEL:
-    #         # Adjust growth based on a function of water level and evaporation rate
-    #         growth_increase = calculate_growth_increase(self.water, self.EVAPORATION)
-    #         self.growth.add_value(growth_increase)
-    #     # Optionally, handle conditions of drought or waterlogging
-    #     elif self.water < self.MIN_OPTIMAL_WATER_LEVEL:
-    #         # Drought condition might slow down or reduce growth
-    #         self.growth.add_value(-self.DROUGHT_GROWTH_PENALTY)
-    #     elif self.water > self.MAX_OPTIMAL_WATER_LEVEL:
-    #         # Waterlogging condition might also negatively affect growth
-    #         self.growth.add_value(-self.WATERLOGGING_GROWTH_PENALTY)
-        pass
     
     def transfer_water(self, amount : float, tile: Tile):
         if not self.is_neighbor(tile):

@@ -1,6 +1,5 @@
 import math
 from pygame import sprite, Surface
-from sun import Sun
 from tile import Tile
 from config import *
 import random
@@ -40,7 +39,6 @@ class World(sprite.Sprite):
         self.generate_world_parameters()
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
-        self.sun = Sun()
         self.add_cell_neighbours()
         self.create_potential_lake_areas()
 
@@ -72,17 +70,15 @@ class World(sprite.Sprite):
         logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
         
     def update(self):
-        self.sun.update()
         random.shuffle(self.tiles)
         for tile in self.tiles:
-            tile.update(self.sun)
+            tile.update()
         
     def draw(self, screen : Surface):
         temp_surface = Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
         for tile in self.tiles:
             tile.draw(temp_surface)
             
-        self.sun.draw(temp_surface)
         screen.blit(temp_surface, (0, 0))
         
     def add_cell_neighbours(self):
