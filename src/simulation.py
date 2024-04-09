@@ -1,7 +1,6 @@
 import config
 import pygame as pg
 import sys
-from bounded_variable import BoundedVariable
 from world import World
 class Simulation:
     STARTING_GAME_SPEED: int = 120
@@ -22,7 +21,7 @@ class Simulation:
         self.tile_size = tile_size
         self.world = World(height, width, tile_size)
         
-        self.game_speed: BoundedVariable = BoundedVariable(self.STARTING_GAME_SPEED, self.MIN_GAME_SPEED, 120)
+        self.game_speed: int = self.STARTING_GAME_SPEED
         self.increase_game_speed = False
         self.decrease_game_speed = False
 
@@ -93,17 +92,17 @@ class Simulation:
                 self.world.update()
                 self.world.draw(self.screen) 
                 pg.display.flip() 
-                self.clock.tick(self.game_speed.value)
+                self.clock.tick(self.game_speed)
             
     def handle_game_speed(self):
-        if self.game_speed.value <= self.SMALL_BIG_GAME_SPEED_THRESHOLD:
+        if self.game_speed <= self.SMALL_BIG_GAME_SPEED_THRESHOLD:
             change_in_game_speed: int = self.SMALL_CHANGE_GAME_SPEED
         else:
             change_in_game_speed: int = self.BIG_CHANGE_GAME_SPEED
                 
         if self.increase_game_speed:
-            self.game_speed.add_value(change_in_game_speed)
+            self.game_speed += change_in_game_speed
             #print(self.game_speed)
-        if self.decrease_game_speed:
-            self.game_speed.add_value(-change_in_game_speed)
+        if self.decrease_game_speed and self.game_speed >= change_in_game_speed:
+            self.game_speed -= change_in_game_speed
             #print(self.game_speed)   
