@@ -26,27 +26,11 @@ Methods:
 """
 class Tile():
     ### Water
-    DOES_WATER_FLOW: bool = True
-    DO_TILES_START_WITH_WATER: bool = True
     AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL = 10
     SEA_LEVEL = 0
     MIN_WATER_HEIGHT_FOR_DROWING: float = 3
     MIN_WATER_VALUE: float = 0
     MAX_WATER_VALUE: float = float("inf")
-    
-    # Water spawning
-    DOES_WATER_ARTIFICALY_SPAWN: bool = False
-    AMOUNT_OF_WATER_SPAWNING_AT_MOUNTAIN_SOURCE: float = 1
-
-    # Water Evaporation
-    BASE_EVAPORATION_CHANCE: float = .01
-    MIN_WATER_TO_INCREASE_EVAPORATION: float = 2        # If the water value is less than this then the chance of evaporation is increased
-    LOW_WATER_EVAPORATION_CHANCE_MULTIPLIER: float = 2 
-    MIN_STARTING_EVAPORATION: float = 0
-    MAX_STARTING_EVAPORATION: float = 3 
-    MIN_EVAPORATION: float = 0.1
-    MAX_EVAPORATION: float = 2                    
-    GROWTH_INCREASE_BY_EVAPORATION: float = 1
     
     MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
     #MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
@@ -74,9 +58,6 @@ class Tile():
     DIRT_COLOR: Color = Color(155, 118, 83, ground_alpha)
     SAND_COLOR: Color = Color("lightgoldenrod")
     
-    # Erosion
-    TERRAIN_HARDNESS: float = 0.5
-    
     # Mountains
     MIN_HEIGHT_FOR_MOUNTAIN_LAKE:float = 20
     MOUNTAIN_WATER_SPAWN_CHANCE: float = 1
@@ -89,12 +70,9 @@ class Tile():
     
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
                  organisms = None,
-                 starting_water_level: Optional[float] = None,
-                 starting_growth_level: Optional[float] = None,
-                 is_coast: bool = False
+                 starting_growth_level: Optional[float] = None
                  ):
         # Tile
-        self.is_border_tile: bool = False
         self.rect: Rect = rect
         self.tile_size: int = tile_size
         self.neighbors: dict[Direction, Tile] = {}
@@ -124,42 +102,21 @@ class Tile():
         
         # Water      
         self.water: float = 0
-        if starting_water_level:
-            self.water = starting_water_level
-        elif self.DO_TILES_START_WITH_WATER and height < self.SEA_LEVEL:
-            max_possible_starting_water = (self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * abs(height))
-            self.water = pygame.math.clamp(random.random(), .8, 1) * max_possible_starting_water
-        self.evaporated_water = random.random() * self.MAX_STARTING_EVAPORATION
-        
-        self.is_lake = False
-        self.is_coast = is_coast
-        self.is_raining = False
-        
-        # Clouds
-        self.last_cloud_direction = None
-        
-        # Erosion
-        self.tile_hardness: float = self.TERRAIN_HARDNESS
-        self.erosion_accumulator: float = 0.0
-        
-        # Temparature
-        self.surface_temperature: float = 0
+        if height <= self.SEA_LEVEL:
+            self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(height) + 1)
         
         # Drawing
         self.color: Color = Color(0,0,0,0)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         
         # Growth penalties
-        if self.height >= 0:
-            self.growth -= pygame.math.clamp((self.height / 20), self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
+        #if self.height >= 0:
+        #    self.growth -= pygame.math.clamp((self.height / 20), self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
     def update(self):
         if self.organisms:
             for org in self.organisms:
                 org.update()
-                        
-        # Water Update
-        self.update_water()
                     
         # Growth Update # TODO: refactor into separate method
         growth_chance = self.BASE_GROWTH_CHANCE
@@ -191,43 +148,7 @@ class Tile():
             if random.random() < self.NATURAL_GROWTH_LOSS_CHANCE:
                 self.growth -= self.NATURAL_GROWTH_LOSS_AMOUNT
                 self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
-
-    def update_water(self):
-        if self.DOES_WATER_ARTIFICALY_SPAWN and self.is_lake:
-            self.spawn_new_water()
-        
-        if self.water > 0:    
-            # Step 1 & 2: Distribute water to lower tiles
-            lower_tiles = sorted([neighbor for neighbor in self.neighbors.values() if neighbor.calculate_effective_height() < self.calculate_effective_height()], key=lambda x: x.calculate_effective_height())
-            if lower_tiles:                
-                # Distribute water based on height difference
-                for lower_tile in lower_tiles:
-                    height_diff = self.calculate_effective_height() - lower_tile.calculate_effective_height()
-                    water_to_transfer = (height_diff / 2)*10
-                                        
-                    # Transfer water
-                    self.transfer_water(water_to_transfer, lower_tile)
-                
-    def spawn_new_water(self):
-        # Calculate gradient
-        height_differences = [self.height - neighbor.height for neighbor in self.neighbors.values()]
-        gradient = sum(height_differences) / len(self.neighbors)
-            
-        # Adjust spawn chance based on gradient
-        spawn_chance = self.MOUNTAIN_WATER_SPAWN_CHANCE * (1 + gradient / 10)
-        if random.random() < spawn_chance:
-            # if not self.START_WITH_WATER_TILES:
-            #     self.WATER_SPAWNING_AT_MOUNTAIN_SOURCE += 5
-            self.water += self.AMOUNT_OF_WATER_SPAWNING_AT_MOUNTAIN_SOURCE
     
-    def transfer_water(self, amount : float, tile: Tile):
-        if not self.is_neighbor(tile):
-            raise ValueError("Tile to transfer to is not a neighbour.")
-        
-        max_transfer = pygame.math.clamp(amount, 0, self.water)
-        self.water = pygame.math.clamp(self.water - max_transfer, 0, self.water)
-        tile.water = pygame.math.clamp(tile.water + max_transfer, tile.water, float("inf"))
-        self.update_erosion(max_transfer)
         
     def calculate_effective_height(self) -> float:
         """
@@ -240,34 +161,6 @@ class Tile():
         water_height_effect = self.water / 10
         return self.height + water_height_effect
 
-    def update_erosion(self, waterflow):
-        """
-        Updates the erosion based on water flow and terrain hardness.
-        """
-        # Example erosion calculation
-        # Adjust these values based on your game's scale and desired erosion rate
-        EROSION_RATE = 0.01  # Base erosion rate
-        WATER_FLOW_FACTOR = 0.1 # How much water flow affects erosion
-
-        # Calculate erosion based on water level and flow
-        # This is a simplified example; you might want to factor in flow rate and direction
-        erosion_effect = EROSION_RATE * waterflow * WATER_FLOW_FACTOR * (1 - self.tile_hardness)
-
-        # Accumulate erosion effect over time
-        self.erosion_accumulator += erosion_effect
-
-        # If enough erosion has accumulated, lower the terrain height
-        if self.erosion_accumulator >= 1.0:
-            self.height -= 0.1  # Lower the height by 1 unit
-            self.erosion_accumulator = 0.0  # Reset the accumulator
-
-            # Ensure height does not go below a certain threshold
-            self.height = max(self.height, -100)
-
-        # Optionally, adjust terrain hardness based on erosion
-        # For example, terrain might become softer as it erodes
-        self.tile_hardness = max(self.tile_hardness - 0.01, 0.0)
-    
     def draw(self, screen: Surface):
         """
         Renders the tile on the screen with its color, border, and any organisms present.
@@ -295,31 +188,6 @@ class Tile():
 
             self.temp_surface.fill(self.color)
         
-        from config import draw_water_sources
-        if draw_water_sources:
-            if self.is_lake:
-                self.temp_surface.fill(Color("fuchsia"))
-                
-        MIN_EVAP_WATER_TO_CLOUD = 4
-        if self.evaporated_water > MIN_EVAP_WATER_TO_CLOUD:
-            heaviness = pygame.math.clamp(self.evaporated_water / (MIN_EVAP_WATER_TO_CLOUD*2), 0, 1)
-            alpha = math.floor(pygame.math.lerp(0, 200, heaviness))
-            
-            cloud_surface = self.temp_surface.copy()
-            cloud_surface.set_alpha(alpha)
-
-            light_cloud_color: Color = Color("grey100")
-            heavy_cloud_color: Color = Color("grey0")
-            #cloud_color = light_cloud_color.lerp(heavy_cloud_color, heaviness)
-            cloud_color: Color = light_cloud_color
-            
-            if self.is_raining:
-                rain_color = heavy_cloud_color
-                cloud_color = rain_color
-                
-            cloud_surface.fill(cloud_color)
-            self.temp_surface.blit(cloud_surface, (0, 0))
-        
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
 
         # Render water level if enabled
@@ -342,25 +210,12 @@ class Tile():
             text = font.render(str(math.floor(self.height)), True, (0, 0, 0))
             text.set_alpha(ground_font_alpha)
             self._render_text_centered(screen, text)
-            
-        # Render temperature if enabled
-        from config import draw_temperature_level
-        if draw_temperature_level:
-            text = font.render(str(math.floor(self.surface_temperature)), True, (0, 0, 0))
-            text.set_alpha(ground_font_alpha)
-            self._render_text_centered(screen, text)
 
         # Draw height lines if enabled
         from config import draw_height_lines
         if draw_height_lines:
             self.calculate_height_contours()
             self.draw_height_contours(screen)
-            
-        draw_cloud_level = False
-        if draw_cloud_level:
-            text = font.render(str(math.floor(self.evaporated_water)), True, (0, 0, 0))
-            text.set_alpha(ground_font_alpha)
-            self._render_text_centered(screen, text)
 
     def _render_text_centered(self, screen: Surface, text: Surface):
         """
@@ -425,7 +280,6 @@ class Tile():
 
     def add_neighbor(self, direction: Direction, tile: Tile):
         # TODO find out why this is not working properly and alway raising the error
-        self.is_coast = self.is_coast or tile.height != self.height
         self.neighbors[direction] = tile
 
     def get_directions(self) -> List[Direction]:
