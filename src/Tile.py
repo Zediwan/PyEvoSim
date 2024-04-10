@@ -108,12 +108,14 @@ class Tile():
             for org in self.organisms:
                 org.update()
                     
+        self.update_growth()
+
+    def update_growth(self):
         # Growth Update # TODO: refactor into separate method
         growth_chance = self.BASE_GROWTH_CHANCE
         growth_rate = self.BASE_GROWTH_RATE
     
-        if self.height > self.SEA_LEVEL:
-            growth_chance /= (self.height / 100)
+        growth_chance -= self.calculate_growth_height_penalty(growth_chance)
         
         if random.random() < growth_chance:
             if self.growth_ratio() < self.GROW_FOR_YOURSELF_UNTIL_THRESHOLD:
@@ -130,6 +132,13 @@ class Tile():
             if random.random() < self.NATURAL_GROWTH_LOSS_CHANCE:
                 self.growth -= self.NATURAL_GROWTH_LOSS_AMOUNT
                 self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
+
+    def calculate_growth_height_penalty(self, growth_chance: float) -> float:
+        height_threshold_for_growth_penalty = 20
+        if self.height > height_threshold_for_growth_penalty:
+            return -(growth_chance * (self.height / 100))
+        else:
+            return 0
 
     def draw(self, screen: Surface):
         if self.organisms:
