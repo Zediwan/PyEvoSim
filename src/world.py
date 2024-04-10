@@ -2,6 +2,7 @@ import math
 from pygame import sprite, Surface
 from tile import Tile
 from config import *
+from animal import Animal
 import random
 from noise import pnoise2
 from direction import Direction
@@ -54,8 +55,20 @@ class World(sprite.Sprite):
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
                 
         height = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
-    
-        return Tile(rect, self.tile_size, height=height)
+        
+        if height < WATER_PERCENTAGE:
+            tile : Tile = Tile(rect, self.tile_size, height=height)
+            wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
+            lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
+            if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
+                Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+        else:
+            tile : Tile = Tile(rect, self.tile_size, height=height)
+            wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
+            lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
+            if random.random() <= STARTING_LAND_ANIMAL_PERCENTAGE:
+                Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+        return tile
     
     def add_cell_neighbours(self):
         for row in range(self.rows):
