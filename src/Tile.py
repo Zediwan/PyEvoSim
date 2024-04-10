@@ -87,19 +87,12 @@ class Tile():
             self.organisms: List[Organism] = organisms
         else:
             self.organisms: List[Organism] = []
-            
-        # Plants
-        # self.plants = []
-        # self.cloud = None
-        # self.water = None
-        # self.organisms = []
                     
         # Growth
-        self.growth: float = 0
         if starting_growth_level:
-            self.growth = starting_growth_level
+            self.growth: float = starting_growth_level
         else:
-            self.growth = random.random() * self.MAX_GROWTH_VALUE
+            self.growth: float = random.random() * self.MAX_GROWTH_VALUE
         
         # Water      
         self.water: float = 0
@@ -109,10 +102,6 @@ class Tile():
         # Drawing
         self.color: Color = Color(0,0,0,0)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
-        
-        # Growth penalties
-        #if self.height >= 0:
-        #    self.growth -= pygame.math.clamp((self.height / 20), self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
     def update(self):        
         if self.organisms:
@@ -249,8 +238,7 @@ class Tile():
             self.organisms.remove(organism)
         
     def enter(self, organism):
-        if not self.organisms:
-            self.organisms.append(organism)
+        self.organisms.append(organism)
         
         assert organism.tile == self, "Tiles Organism and Organisms tile are not equal."
         
