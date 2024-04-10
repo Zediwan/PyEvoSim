@@ -57,19 +57,41 @@ class World(sprite.Sprite):
                 
         height = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
         
-        if height < WATER_PERCENTAGE:
-            tile : Tile = Tile(rect, self.tile_size, height=height)
-            wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
-            lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
-            if random.random() <= STARTING_WATER_ANIMAL_PERCENTAGE:
-                Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
-        else:
-            tile : Tile = Tile(rect, self.tile_size, height=height)
-            wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
-            lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
-            if random.random() <= STARTING_LAND_ANIMAL_PERCENTAGE:
-                Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+        tile : Tile = Tile(rect, self.tile_size, height=height)
+        self.spawn_animal(tile,
+                          chance_to_spawn = STARTING_ANIMAL_PERCENTAGE, 
+                          chance_of_land_animals = STARTING_LAND_ANIMAL_PERCENTAGE, 
+                          chance_of_water_animals = STARTING_WATER_ANIMAL_PERCENTAGE
+                          )
+            
         return tile
+    
+    def spawn_animals(self, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
+        for tile in self.tiles:
+            self.spawn_animal(tile, 
+                              chance_to_spawn = chance_to_spawn,
+                              chance_of_land_animals = chance_of_land_animals,
+                              chance_of_water_animals = chance_of_water_animals)
+    
+    def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
+        if random.random() <= chance_to_spawn:
+            if tile.water > 0:
+                self.spawn_water_animal(tile, chance_of_water_animals)
+            else:
+                self.spawn_land_animal(tile, chance_of_land_animals)
+            
+    def spawn_water_animal(self, tile: Tile, chance_to_spawn: float = 1):
+        wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
+        lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
+        if random.random() <= chance_to_spawn:
+            Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+            
+    def spawn_land_animal(self, tile: Tile, chance_to_spawn: float = 1):
+        wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
+        lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
+        if random.random() <= chance_to_spawn:
+            Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
+        
     
     def add_cell_neighbours(self):
         for row in range(self.rows):
@@ -89,6 +111,7 @@ class World(sprite.Sprite):
             for col in range(self.cols):
                 tile: Tile = self.tiles[row * self.cols + col]
                 tile.calculate_height_contours()
+        print("Height Contours completely calculated")
     
     def generate_world_parameters(self, seed=None):
         if seed is not None:

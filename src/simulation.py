@@ -42,8 +42,17 @@ class Simulation:
                 sys.exit()
             
             if event.type == pg.KEYDOWN:
+                print("Key Pressed", event.key)
                 if event.key == pg.K_SPACE:
                     is_paused  = not is_paused
+                elif event.key == 13: #TODO: find out enter key name
+                    chance_to_spawn_animals = .01
+                    chance_of_water_animals = .2
+                    chance_of_land_animals = .5
+                    self.world.spawn_animals(chance_to_spawn = chance_to_spawn_animals,
+                                             chance_of_water_animals = chance_of_water_animals,
+                                             chance_of_land_animals = chance_of_land_animals
+                                             )
                 elif event.key == pg.K_1 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_water_level = not config.draw_water_level
                     self.world.draw(self.screen) 
