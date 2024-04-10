@@ -132,7 +132,6 @@ class Tile():
                 self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
     def draw(self, screen: Surface):
-        # Draw organisms if present
         if self.organisms:
             for org in self.organisms:
                 if org.is_alive():
@@ -143,22 +142,18 @@ class Tile():
         
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
 
-        # Render water level if enabled
         from config import draw_water_level
         if draw_water_level:
             self.draw_stat(self.water, screen)
 
-        # Render growth level if enabled
         from config import draw_growth_level
         if draw_growth_level:
             self.draw_stat(self.growth, screen)
 
-        # Render height level if enabled
         from config import draw_height_level
         if draw_height_level:
             self.draw_stat(self.height, screen)
 
-        # Draw height lines if enabled
         from config import draw_height_lines
         if draw_height_lines:
             self.draw_height_contours(screen)
