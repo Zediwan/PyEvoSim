@@ -79,13 +79,14 @@ class Tile():
         
         # Height
         self.height: float = height
-        self.height_contours = []
-        
+        self.height_contours = []  
+              
         # Organisms
+        from organism import Organism
         if organisms:
-            self.organisms = organisms
+            self.organisms: List[Organism] = organisms
         else:
-            self.organisms = []
+            self.organisms: List[Organism] = []
             
         # Plants
         # self.plants = []
@@ -113,7 +114,7 @@ class Tile():
         #if self.height >= 0:
         #    self.growth -= pygame.math.clamp((self.height / 20), self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
-    def update(self):
+    def update(self):        
         if self.organisms:
             for org in self.organisms:
                 org.update()
@@ -121,15 +122,7 @@ class Tile():
         # Growth Update # TODO: refactor into separate method
         growth_chance = self.BASE_GROWTH_CHANCE
         growth_rate = self.BASE_GROWTH_RATE
-        
-        # # Check if neighbour has water
-        # for neighbor in self.neighbors.values():
-        #     water_height = neighbor.calculate_effective_height() - self.calculate_effective_height()
-        #     ratio = neighbor.water.ratio()
-        #     if ratio > 0 and self.water.value < 3:
-        #         growth_rate += (int)(self.WATER_GROWTH_RATE_INCREASE * ratio)
-        #         growth_chance += (int)(self.WATER_GROWTH_CHANCE_INCREASE * ratio)
-        
+    
         if self.height > self.SEA_LEVEL:
             growth_chance /= (self.height / 100)
         
@@ -148,18 +141,6 @@ class Tile():
             if random.random() < self.NATURAL_GROWTH_LOSS_CHANCE:
                 self.growth -= self.NATURAL_GROWTH_LOSS_AMOUNT
                 self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
-    
-        
-    def calculate_effective_height(self) -> float:
-        """
-        Calculates the effective height of the tile considering both its physical height and water level.
-        Every 10 units of water is considered equivalent to an increase of 1 in height.
-
-        Returns:
-            float: The effective height of the tile.
-        """
-        water_height_effect = self.water / 10
-        return self.height + water_height_effect
 
     def draw(self, screen: Surface):
         """
@@ -213,7 +194,7 @@ class Tile():
         # Draw height lines if enabled
         from config import draw_height_lines
         if draw_height_lines:
-            self.calculate_height_contours()
+            #self.calculate_height_contours()
             self.draw_height_contours(screen)
 
     def _render_text_centered(self, screen: Surface, text: Surface):
@@ -234,9 +215,7 @@ class Tile():
         """
         Calculates the contour lines based on the current height and neighbors
         and stores them in self.height_contours.
-        """
-        self.height_contours.clear()
-    
+        """    
         for direction, neighbor in self.neighbors.items():
             if neighbor.height != self.height:
                 color = Color(0, 0, 0)  # Adjust as needed
@@ -250,6 +229,7 @@ class Tile():
                     end_pos = self.rect.bottomright if direction == Direction.EAST else self.rect.bottomleft
             
                 self.height_contours.append((start_pos, end_pos, color, thickness))
+        print("Calculated height contours")
 
     def draw_height_contours(self, screen: Surface):
         """
