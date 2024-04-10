@@ -30,9 +30,9 @@ class Animal(Organism):
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, 
                  health: float = BASE_ANIMAL_HEALTH, 
                  energy: float = BASE_ANIMAL_ENERGY,
-                 starting_water_affinity: Optional[int] = None,
+                 starting_water_affinity: Optional[float] = None,
                  waterAffinity: float = BASE_ANIMAL_WATER_AFFINITY, 
-                 starting_land_affinity: Optional[int] = None,
+                 starting_land_affinity: Optional[float] = None,
                  landAffinity: float = BASE_ANIMAL_LAND_AFFINITY
                  ):
         
