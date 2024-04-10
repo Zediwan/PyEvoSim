@@ -169,7 +169,6 @@ class Tile():
         Args:
             screen (Surface): The surface on which the tile will be drawn.
         """
-        self.calculate_height_contours()
         # Draw organisms if present
         if self.organisms:
             for org in self.organisms:
