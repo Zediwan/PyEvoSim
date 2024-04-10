@@ -132,29 +132,13 @@ class Tile():
                 self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
 
     def draw(self, screen: Surface):
-        """
-        Renders the tile on the screen with its color, border, and any organisms present.
-        Displays the water level, growth level, and height level of the tile if the corresponding configuration options are enabled.
-
-        Args:
-            screen (Surface): The surface on which the tile will be drawn.
-        """
         # Draw organisms if present
         if self.organisms:
             for org in self.organisms:
                 if org.is_alive():
                     org.draw(screen)
         else:
-            growth_ratio = self.growth_ratio()
-            water_ratio = pygame.math.clamp(self.water / 10, 0, 1)
-            height_ratio = pygame.math.clamp(self.height / 50, 0, 1)
-        
-            growth_color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, growth_ratio).lerp(self.MAX_GRASS_COLOR, growth_ratio)
-            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
-            height_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, height_ratio)
-
-            self.color = growth_color.lerp(water_color, pygame.math.clamp(water_ratio, 0, .75)).lerp(height_color, pygame.math.clamp(height_ratio, 0, .5))
-
+            self.set_color()
             self.temp_surface.fill(self.color)
         
         screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
@@ -162,29 +146,39 @@ class Tile():
         # Render water level if enabled
         from config import draw_water_level
         if draw_water_level:
-            text = font.render(str(math.floor(self.water)), True, (0, 0, 0))
-            text.set_alpha(ground_font_alpha)
-            self._render_text_centered(screen, text)
+            self.draw_stat(self.water, screen)
 
         # Render growth level if enabled
         from config import draw_growth_level
         if draw_growth_level:
-            text = font.render(str(math.floor(self.growth)), True, (0, 0, 0))
-            text.set_alpha(ground_font_alpha)
-            self._render_text_centered(screen, text)
+            self.draw_stat(self.growth, screen)
 
         # Render height level if enabled
         from config import draw_height_level
         if draw_height_level:
-            text = font.render(str(math.floor(self.height)), True, (0, 0, 0))
-            text.set_alpha(ground_font_alpha)
-            self._render_text_centered(screen, text)
+            self.draw_stat(self.height, screen)
 
         # Draw height lines if enabled
         from config import draw_height_lines
         if draw_height_lines:
-            #self.calculate_height_contours()
             self.draw_height_contours(screen)
+
+    def set_color(self):
+        growth_ratio = self.growth_ratio()
+        water_ratio = pygame.math.clamp(self.water / 10, 0, 1)
+        height_ratio = pygame.math.clamp(self.height / 50, 0, 1)
+        
+        growth_color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, growth_ratio).lerp(self.MAX_GRASS_COLOR, growth_ratio)
+        water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
+        height_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, height_ratio)
+
+        self.color = growth_color.lerp(water_color, pygame.math.clamp(water_ratio, 0, .75)).lerp(height_color, pygame.math.clamp(height_ratio, 0, .5))
+
+    def draw_stat(self, stat: float, screen: Surface):
+        stat_alpha = 255
+        text = font.render(str(math.floor(stat)), True, (0, 0, 0))
+        screen.set_alpha(stat_alpha)
+        self._render_text_centered(screen, text)
 
     def _render_text_centered(self, screen: Surface, text: Surface):
         """
