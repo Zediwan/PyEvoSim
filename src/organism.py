@@ -22,18 +22,20 @@ class Organism(ABC, sprite.Sprite):
         self.color: Color = color
         
         self.tile: Tile = tile
-        tile.enter(self)
+        self.tile.enter(self)
         self.invariant()
     
     def update(self):
+        self.use_enery(2) #TODO make this a variable
+        
         if not self.is_alive():
             self.die()
-        self.use_enery(2) #TODO make this a variable
+            return
                 
     @abstractmethod
     def draw(self, screen: Surface):
         if not self.is_alive():
-            raise ValueError("Animal is being drawn despite being dead")
+            raise ValueError("Animal is being drawn despite being dead. ", self.health)
         
         self.tile.temp_surface.fill(self.color.lerp(self.tile.color, pygame.math.clamp(self.tile.water/50, 0, .9)))
     
@@ -92,17 +94,13 @@ class Organism(ABC, sprite.Sprite):
         #self.health_lost = math.floor(health_lost) #TODO: implement displaying of health loss
         
     def is_alive(self) -> bool:
-        is_alive = self.health > 0
-        if not is_alive:
-            self.die()
-        return is_alive
+        return self.health > 0
     
     def die(self):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
         
         self.tile.leave(self)
-        self.invariant()
     
     @abstractmethod
     def copy(self, tile: Tile):

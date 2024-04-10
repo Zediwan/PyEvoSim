@@ -134,8 +134,7 @@ class Tile():
     def draw(self, screen: Surface):
         if self.organisms:
             for org in self.organisms:
-                if org.is_alive():
-                    org.draw(screen)
+                org.draw(screen)
         else:
             self.set_color()
             self.temp_surface.fill(self.color)
@@ -223,8 +222,7 @@ class Tile():
             draw.line(screen, color, start_pos, end_pos, thickness)
         
     def leave(self, organism):
-        if self.organisms:
-            self.organisms.remove(organism)
+        self.organisms.remove(organism)
         
     def enter(self, organism):
         self.organisms.append(organism)
@@ -235,7 +233,6 @@ class Tile():
         return bool(self.organisms)
 
     def add_neighbor(self, direction: Direction, tile: Tile):
-        # TODO find out why this is not working properly and alway raising the error
         self.neighbors[direction] = tile
 
     def get_directions(self) -> List[Direction]:

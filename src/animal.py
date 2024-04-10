@@ -51,9 +51,9 @@ class Animal(Organism):
             self.landAffintiy = starting_land_affinity
         
     def update(self):
-        super().update()
+        self.use_enery(2) #TODO make this a variable
         #TODO: add visual that displays an animals health and energy
-        
+    
         if self.tile.water > Tile.MIN_WATER_HEIGHT_FOR_DROWING:
             DROWNING_DAMAGE = pygame.math.clamp(self.tile.water / (self.waterAffinity*10), 0, float("inf"))
             self.loose_health(DROWNING_DAMAGE) 
@@ -70,6 +70,10 @@ class Animal(Organism):
             self.enter_tile(direction)
             
         self.reproduce()
+        
+        if not self.is_alive():
+            self.die()
+            return
 
     def reproduce(self):
         if self.ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD <= self.health / self.MAX_ANIMAL_HEALTH:
@@ -80,11 +84,6 @@ class Animal(Organism):
         
     def think(self) -> Tile|None:
         return random.choice((self.tile.get_random_unoccupied_neighbor(), None))
-    
-    def die(self):
-        assert self.health <= self.MIN_ANIMAL_HEALTH, "Organism tries to die despite not being dead."
-        self.tile.growth = pygame.math.clamp(self.tile.growth + self.DEATH_SOIL_NUTRITION, 0, self.tile.MAX_GROWTH_VALUE)
-        self.tile.leave(self)
     
     def draw(self, screen: Surface):
         super().draw(screen)
