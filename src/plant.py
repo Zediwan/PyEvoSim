@@ -4,6 +4,7 @@ from organism import Organism
 from tile import Tile
 from random import randint, random, choice
 from config import *
+from math import floor
     
 class Plant(Organism):
     @property
@@ -36,10 +37,10 @@ class Plant(Organism):
             shape = tile.rect
             
         if not health:
-            health = self.MAX_HEALTH * math.clamp(random(), 0.4, 0.6)
+            health = self.MAX_HEALTH * math.clamp(random(), 0.8, 1)                
             
         if not energy:
-            energy = self.MAX_ENERGY * math.clamp(random(), 0.4, 0.6)
+            energy = self.MAX_ENERGY * math.clamp(random(), 0.8, 1)
             
         if not color:
             color = self.MIN_PLANT_COLOR
@@ -50,10 +51,17 @@ class Plant(Organism):
         self.tile.add_plant(self)
                 
         self.growth: float = self.BASE_GROWTH
+        if self.tile.height > 0:
+            self.growth *= 1-(self.tile.height/100)
+            self.energy *= 1-(self.tile.height/100)
+            self.health *= 1-(self.tile.height/100)   
         
     def update(self):
-        self.use_energy(random() * 2) #TODO make this a variable
-        self.gain_energy(random() * 3)
+        self.use_energy(random() * 5) #TODO make this a variable
+        self.gain_energy(random() * 5 * 1.2)
+        
+        if self.tile.water > 0:
+            self.gain_energy(random())
         
         if self.energy > 0:
             self.grow()
@@ -78,9 +86,15 @@ class Plant(Organism):
         return self.BASE_GROWTH_CHANCE - self.tile.calculate_growth_height_penalty(self.BASE_GROWTH_CHANCE)
     
     def draw(self, screen: Surface):
+        if not self.is_alive():
+            raise ValueError("Plant is being drawn despite being dead. ", self.health)
+        
         self.color: Color = self.MIN_PLANT_COLOR.lerp(self.MAX_PLANT_COLOR, self.health_ratio())
-        super().draw(screen)
-    
+        alpha = floor(pygame.math.lerp(0, 200, self.health_ratio()))
+        self.temp_surface.fill(self.color)
+        self.temp_surface.set_alpha(alpha)
+        screen.blit(self.temp_surface, (0, 0))
+            
     def die(self):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
@@ -88,4 +102,4 @@ class Plant(Organism):
         self.tile.plant = None
     
     def copy(self, tile: Tile):
-        return Plant(tile)
+        return Plant(tile, health = self.MAX_HEALTH * .1)
