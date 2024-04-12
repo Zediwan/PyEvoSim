@@ -45,7 +45,14 @@ class World(sprite.Sprite):
         random.shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
-        
+            if tile.is_border or tile.water > 0 or tile.height <= 1:
+                chance_to_spawn_animal_at_border = .0001
+                chance_to_spawn_plant_at_border = .001
+                if random.random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
+                    self.spawn_animal(tile)
+                if random.random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
+                    self.spawn_plant(tile)
+                    
     def draw(self, screen : Surface):
         temp_surface = Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
         for tile in self.tiles:
@@ -53,12 +60,15 @@ class World(sprite.Sprite):
             
         screen.blit(temp_surface, (0, 0))  
     
+    def is_border_tile(self, row: int, col: int) -> bool:
+        return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
+    
     def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
                 
         height = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
         
-        tile : Tile = Tile(rect, self.tile_size, height=height)
+        tile : Tile = Tile(rect, self.tile_size, height=height, is_border = self.is_border_tile(row = row, col = col))
         self.spawn_animal(tile,
                           chance_to_spawn = STARTING_ANIMAL_PERCENTAGE, 
                           chance_of_land_animals = STARTING_LAND_ANIMAL_PERCENTAGE, 
@@ -71,10 +81,11 @@ class World(sprite.Sprite):
     
     def spawn_animals(self, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
         for tile in self.tiles:
-            self.spawn_animal(tile, 
-                              chance_to_spawn = chance_to_spawn,
-                              chance_of_land_animals = chance_of_land_animals,
-                              chance_of_water_animals = chance_of_water_animals)
+            if not tile.has_animal():
+                self.spawn_animal(tile, 
+                                chance_to_spawn = chance_to_spawn,
+                                chance_of_land_animals = chance_of_land_animals,
+                                chance_of_water_animals = chance_of_water_animals)
     
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
         if random.random() <= chance_to_spawn:
