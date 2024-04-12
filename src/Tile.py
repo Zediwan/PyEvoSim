@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import List, Optional
 import random
-import math
+from math import floor
 
-from pygame import Rect, Surface, SRCALPHA, draw, Color
+from pygame import Rect, Surface, SRCALPHA, draw, Color, math
 
 from config import *
 from direction import Direction
@@ -69,6 +69,7 @@ class Tile():
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
                  animal = None,
                  plant = None,
+                 is_border = False
                  ):
         # Tile
         self.rect: Rect = rect
@@ -92,12 +93,16 @@ class Tile():
             self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(height) + 1)
         
         # Drawing
-        # self.color: Color = Color(0,0,0,0) #TODO: implement proper tile materials
         self.color: Color = self.DIRT_COLOR
+        hr = math.clamp(self.height / 10, 0, 1)
+        self.color: Color = self.DIRT_COLOR.lerp(
+            self.MOUNTAIN_TOP_COLOR, hr
+        )
         # self.color.r += random.randint(0,5)
         # self.color.g += random.randint(0,5)
         # self.color.b += random.randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
+        self.is_border = is_border
 
     def update(self):        
         if self.animal:
@@ -114,18 +119,19 @@ class Tile():
             return 0
 
     def draw(self, screen: Surface):
+        self.temp_surface.fill(self.color)
+
         if self.animal:
             self.animal.draw(self.temp_surface)
         elif self.plant:
             self.plant.draw(self.temp_surface)
-        else:
-            self.temp_surface.fill(self.calculate_color())
+            
         screen.blit(self.temp_surface, self.rect.topleft)
         
         if self.water > 0:
             water_surface: Surface = Surface(self.rect.size, SRCALPHA)
             water_ratio = pygame.math.clamp(self.water / 11, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
-            alpha = math.floor(pygame.math.lerp(0, 255, water_ratio))
+            alpha = floor(pygame.math.lerp(0, 255, water_ratio))
             water_surface.set_alpha(alpha)
             water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
             water_surface.fill(water_color)
@@ -143,16 +149,9 @@ class Tile():
         if draw_height_lines:
             self.draw_height_contours(screen)
 
-    def calculate_color(self) -> Color:
-        height_ratio = pygame.math.clamp(self.height / 50, 0, 1)
-        
-        height_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, height_ratio)
-
-        return self.color.lerp(height_color, pygame.math.clamp(height_ratio, 0, .5))
-
     def draw_stat(self, stat: float, screen: Surface):
         stat_alpha = 255
-        text = font.render(str(math.floor(stat)), True, (0, 0, 0))
+        text = font.render(str(floor(stat)), True, (0, 0, 0))
         screen.set_alpha(stat_alpha)
         self._render_text_centered(screen, text)
 
@@ -178,7 +177,7 @@ class Tile():
         for direction, neighbor in self.neighbors.items():
             if neighbor.height != self.height:
                 color = Color(0, 0, 0)  # Adjust as needed
-                thickness = pygame.math.clamp(abs(math.floor(neighbor.height - self.height)), 0, 8)  # Example logic
+                thickness = pygame.math.clamp(abs(floor(neighbor.height - self.height)), 0, 8)  # Example logic
             
                 if direction in [Direction.NORTH, Direction.SOUTH]:
                     start_pos = self.rect.topleft if direction == Direction.NORTH else self.rect.bottomleft
