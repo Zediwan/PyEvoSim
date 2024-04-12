@@ -1,7 +1,8 @@
 from __future__ import annotations
-from random import random, randint, choice
+from random import random, randint, shuffle
 from typing import Optional
 from pygame import Color, Rect, Surface, math
+from direction import Direction
 from organism import Organism
 from config import *
 from tile import Tile
@@ -25,7 +26,7 @@ class Animal(Organism):
     
     GRASS_CONSUMPTION = 1
     ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD = .9
-    ANIMAL_REPRODUCTION_CHANCE = .01
+    ANIMAL_REPRODUCTION_CHANCE = .001
     DEATH_SOIL_NUTRITION = 1
     
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, 
@@ -71,10 +72,10 @@ class Animal(Organism):
             LAND_SUFFOCATION_DAMAGE = pygame.math.clamp(Tile.LAND_DAMAGE / self.landAffintiy, 0, float("inf"))   # TODO: think of a good formula for this
             self.loose_health(LAND_SUFFOCATION_DAMAGE)
             
-        damage = 10
+        damage = 5
         if self.tile.plant:
             self.tile.plant.loose_health(damage)
-            self.gain_energy(damage)
+            self.gain_energy(damage * .8)
         
         direction = self.think()
         if direction:
@@ -94,7 +95,19 @@ class Animal(Organism):
                     self.copy(unoccupied_neighbor) # Reproduce to a neighbor tile
         
     def think(self) -> Tile|None:
-        return choice((self.tile.get_random_neigbor(no_animal=True), None))
+        best_growth = 0
+        destination = self.tile.get_random_neigbor(no_animal=True)
+        
+        ns = self.tile.get_neighbors()
+        shuffle(ns)
+        for n in ns:
+            if n.has_animal(): continue
+            if not n.plant: continue
+            if n.plant.health > 1.5 * best_growth:
+                best_growth = n.plant.health
+                destination = n
+            
+        return destination
     
     def draw(self, screen: Surface):
         super().draw(screen)
