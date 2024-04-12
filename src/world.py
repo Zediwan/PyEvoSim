@@ -1,5 +1,6 @@
 import math
 from pygame import sprite, Surface
+from plant import Plant
 from tile import Tile
 from config import *
 from animal import Animal
@@ -63,6 +64,8 @@ class World(sprite.Sprite):
                           chance_of_land_animals = STARTING_LAND_ANIMAL_PERCENTAGE, 
                           chance_of_water_animals = STARTING_WATER_ANIMAL_PERCENTAGE
                           )
+        
+        self.spawn_plant(tile)
             
         return tile
     
@@ -79,6 +82,10 @@ class World(sprite.Sprite):
                 self.spawn_water_animal(tile, chance_of_water_animals)
             else:
                 self.spawn_land_animal(tile, chance_of_land_animals)
+                
+    def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
+        if random.random() <= chance_to_spawn:
+            Plant(tile)
             
     def spawn_water_animal(self, tile: Tile, chance_to_spawn: float = 1):
         wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
@@ -92,7 +99,6 @@ class World(sprite.Sprite):
         if random.random() <= chance_to_spawn:
             Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         
-    
     def add_cell_neighbours(self):
         for row in range(self.rows):
             for col in range(self.cols):
@@ -146,19 +152,20 @@ class World(sprite.Sprite):
                 value = pnoise2(row / param1, col / param1)
             case "Perlin Summation":
                 base_noise = pnoise2(row / param1, col / param2)
-                detail_noise = pnoise2(row / (param1 * 0.5), col / (param2 * 0.5)) * 0.5  # Higher frequency, lower amplitude
+                detail_noise = pnoise2(row / (param1 * 2), col / (param2 * 2)) * 1  # Higher frequency, lower amplitude
                 value = base_noise + detail_noise
             case "Random":
                 value = random.random()
             case _:
                 value = pnoise2(row / param1, col / param1)
-            
-        value += .9
-        value *= 2
-        if value < 0:
-            value = -(value**1.5)
+        
+        value *= 2  
+        value += 1
+        if value <= 0:
+            value -= 1
+            value = -(value**3)
         else:   
-            value **= 1.5
+            value **= 3
                     
         return math.floor(value)
     
