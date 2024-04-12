@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pygame import Color, Rect, Surface
+from pygame import Color, Rect, Surface, math
 from organism import Organism
 from tile import Tile
 from random import randint, random, choice
@@ -35,26 +35,29 @@ class Plant(Organism):
         if not shape:
             shape = tile.rect
             
-        if not color:
-            color = Color(randint(20,230), randint(20,230), randint(20,230))
-            
         if not health:
-            health = self.MAX_HEALTH / 2
+            health = self.MAX_HEALTH * math.clamp(random(), 0.4, 0.6)
             
         if not energy:
-            energy = self.MAX_ENERGY / 2
+            energy = self.MAX_ENERGY * math.clamp(random(), 0.4, 0.6)
+            
+        if not color:
+            color = self.MIN_PLANT_COLOR
             
         super().__init__(tile, shape, color, health, energy)
         
+        self.tile: Tile = tile
+        self.tile.add_plant(self)
+                
         self.growth: float = self.BASE_GROWTH
         
     def update(self):
-        self.use_energy(2) #TODO make this a variable
-        self.gain_energy(random() * 4)
+        self.use_energy(random() * 2) #TODO make this a variable
+        self.gain_energy(random() * 3)
         
         if self.energy > 0:
             self.grow()
-        
+            
         if not self.is_alive():
             self.die()
             return
@@ -65,13 +68,24 @@ class Plant(Organism):
                 self.use_energy(self.growth)
                 self.gain_health(self.growth)
                 
-            # if self.energy_ratio() > 0.5:
-            #     options: List[Tile] = self.tile.get_neighbors()
-            #     tile_to_grow: Tile = choice(options)
-            #     tile_to_grow.add_plant()
+            if self.energy_ratio() > 0.75:
+                option = self.tile.get_random_neigbor(no_plant=True)
+                if option:
+                    self.use_energy(self.MAX_ENERGY / 2)
+                    self.copy(option)
                 
     def growth_chance(self):
         return self.BASE_GROWTH_CHANCE - self.tile.calculate_growth_height_penalty(self.BASE_GROWTH_CHANCE)
     
     def draw(self, screen: Surface):
-        pass
+        self.color: Color = self.MIN_PLANT_COLOR.lerp(self.MAX_PLANT_COLOR, self.health_ratio())
+        super().draw(screen)
+    
+    def die(self):
+        if self.health > 0:
+            raise ValueError("Organism tries to die despite not being dead.")
+        
+        self.tile.plant = None
+    
+    def copy(self, tile: Tile):
+        return Plant(tile)

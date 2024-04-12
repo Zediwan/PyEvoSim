@@ -33,8 +33,8 @@ class Tile():
     MAX_WATER_VALUE: float = float("inf")
     
     MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
-    #MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
-    MAX_WATER_COLOR =  Color("dodgerblue4")
+    MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
+    #MAX_WATER_COLOR =  Color("dodgerblue4")
     
     #################################################################################################################################
     
@@ -67,9 +67,8 @@ class Tile():
     ####
     
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
-                 animals = None,
-                 plants = None,
-                 starting_growth_level: Optional[float] = None
+                 animal = None,
+                 plant = None,
                  ):
         # Tile
         self.rect: Rect = rect
@@ -82,22 +81,10 @@ class Tile():
               
         # Organisms
         from animal import Animal
-        if animals:
-            self.animals: List[Animal] = animals
-        else:
-            self.animals: List[Animal] = []
+        self.animal: Animal | None = animal
             
         from plant import Plant
-        if plants:
-            self.plants: List[Plant] = plants
-        else:
-            self.plants: List[Plant] = []
-                    
-        # Growth
-        if starting_growth_level:
-            self.growth: float = starting_growth_level
-        else:
-            self.growth: float = random.random() * self.MAX_GROWTH_VALUE
+        self.plant: Plant | None = plant
         
         # Water      
         self.water: float = 0
@@ -105,37 +92,19 @@ class Tile():
             self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(height) + 1)
         
         # Drawing
-        self.color: Color = Color(0,0,0,0)
+        # self.color: Color = Color(0,0,0,0) #TODO: implement proper tile materials
+        self.color: Color = self.DIRT_COLOR
+        # self.color.r += random.randint(0,5)
+        # self.color.g += random.randint(0,5)
+        # self.color.b += random.randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
 
     def update(self):        
-        if self.animals:
-            for org in self.animals:
-                org.update()
-                    
-        self.update_growth()
-
-    def update_growth(self):
-        growth_chance = self.BASE_GROWTH_CHANCE
-        growth_rate = self.BASE_GROWTH_RATE
-    
-        growth_chance -= self.calculate_growth_height_penalty(growth_chance)
+        if self.animal:
+            self.animal.update()
         
-        if random.random() < growth_chance:
-            if self.growth_ratio() < self.GROW_FOR_YOURSELF_UNTIL_THRESHOLD:
-                tile_to_grow = self
-            else:
-                options = self.get_neighbors()
-                options.append(self)
-                tile_to_grow = random.choice(options)
-                
-            tile_to_grow.growth += growth_rate
-            tile_to_grow.growth = pygame.math.clamp(tile_to_grow.growth, tile_to_grow.MIN_GROWTH_VALUE, tile_to_grow.MAX_GROWTH_VALUE)
-        
-        if self.growth_ratio() > self.NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD:
-            if random.random() < self.NATURAL_GROWTH_LOSS_CHANCE:
-                self.growth -= self.NATURAL_GROWTH_LOSS_AMOUNT
-                self.growth = pygame.math.clamp(self.growth, self.MIN_GROWTH_VALUE, self.MAX_GROWTH_VALUE)
+        if self.plant:
+            self.plant.update()          
 
     def calculate_growth_height_penalty(self, growth_chance: float) -> float:
         height_threshold_for_growth_penalty = 20
@@ -145,22 +114,26 @@ class Tile():
             return 0
 
     def draw(self, screen: Surface):
-        if self.animals:
-            for org in self.animals:
-                org.draw(screen)
+        if self.animal:
+            self.animal.draw(self.temp_surface)
+        elif self.plant:
+            self.plant.draw(self.temp_surface)
         else:
-            self.set_color()
-            self.temp_surface.fill(self.color)
+            self.temp_surface.fill(self.calculate_color())
+        screen.blit(self.temp_surface, self.rect.topleft)
         
-        screen.blit(self.temp_surface, (self.rect.left, self.rect.top))
-
+        if self.water > 0:
+            water_surface: Surface = Surface(self.rect.size, SRCALPHA)
+            water_ratio = pygame.math.clamp(self.water / 11, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
+            alpha = math.floor(pygame.math.lerp(0, 255, water_ratio))
+            water_surface.set_alpha(alpha)
+            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
+            water_surface.fill(water_color)
+            screen.blit(water_surface, self.rect.topleft)
+        
         from config import draw_water_level
         if draw_water_level:
             self.draw_stat(self.water, screen)
-
-        from config import draw_growth_level
-        if draw_growth_level:
-            self.draw_stat(self.growth, screen)
 
         from config import draw_height_level
         if draw_height_level:
@@ -170,16 +143,12 @@ class Tile():
         if draw_height_lines:
             self.draw_height_contours(screen)
 
-    def set_color(self):
-        growth_ratio = self.growth_ratio()
-        water_ratio = pygame.math.clamp(self.water / 10, 0, 1)
+    def calculate_color(self) -> Color:
         height_ratio = pygame.math.clamp(self.height / 50, 0, 1)
         
-        growth_color = self.DIRT_COLOR.lerp(self.MIN_GRASS_COLOR, growth_ratio).lerp(self.MAX_GRASS_COLOR, growth_ratio)
-        water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
         height_color = self.MOUNTAIN_FLOOR_COLOR.lerp(self.MOUNTAIN_TOP_COLOR, height_ratio)
 
-        self.color = growth_color.lerp(water_color, pygame.math.clamp(water_ratio, 0, .75)).lerp(height_color, pygame.math.clamp(height_ratio, 0, .5))
+        return self.color.lerp(height_color, pygame.math.clamp(height_ratio, 0, .5))
 
     def draw_stat(self, stat: float, screen: Surface):
         stat_alpha = 255
@@ -219,7 +188,7 @@ class Tile():
                     end_pos = self.rect.bottomright if direction == Direction.EAST else self.rect.bottomleft
             
                 self.height_contours.append((start_pos, end_pos, color, thickness))
-        print("Calculated height contours")
+        #print("Calculated height contours")
 
     def draw_height_contours(self, screen: Surface):
         """
@@ -234,20 +203,27 @@ class Tile():
         for start_pos, end_pos, color, thickness in self.height_contours:
             draw.line(screen, color, start_pos, end_pos, thickness)
         
-    def leave(self, animal):
-        self.animals.remove(animal)
+    def leave(self):
+        self.animal = None
         
     def enter(self, animal):
-        self.animals.append(animal)
+        assert self.animal == None, "Tile already occupied by an animal"
+        
+        self.animal = animal
         
         assert animal.tile == self, "Tiles Organism and Organisms tile are not equal."
         
     def add_plant(self, plant):
-        self.plants.append(plant)
+        assert self.plant == None, "Tile is already occupied by a plant"
+        
+        self.plant = plant
         assert plant.tile == self, "Tiles Plant and plants tile are not equal."    
     
-    def is_occupied(self) -> bool:
-        return bool(self.animals)
+    def has_animal(self) -> bool:
+        return self.animal is not None
+    
+    def has_plant(self) -> bool:
+        return self.plant is not None
 
     def add_neighbor(self, direction: Direction, tile: Tile):
         self.neighbors[direction] = tile
@@ -261,20 +237,21 @@ class Tile():
     def get_neighbor(self, direction: Direction) -> Tile|None:
         return self.neighbors.get(direction, None)
 
-    def get_random_neigbor(self) -> Tile:
-        return self.neighbors[random.choice(self.get_directions())]
-    
-    def get_random_unoccupied_neighbor(self) -> Tile|None:
-        unoccupied_neighbors = [tile for tile in self.neighbors.values() if not tile.is_occupied()]
-
-        if not unoccupied_neighbors:
+    def get_random_neigbor(self, no_plant = False, no_animal = False) -> Tile | None:
+        options = []
+        has_options = False
+        for tile in self.neighbors.values():
+            if no_plant and tile.has_plant(): continue 
+            if no_animal and tile.has_animal(): continue
+            options.append(tile)
+            has_options = True
+            
+        if has_options:
+            return random.choice(options)
+        else:
             return None
-        return random.choice(unoccupied_neighbors)
     
     def is_neighbor(self, tile: Tile) -> bool:  
         if not self.neighbors.values():
             return False
         return tile in self.neighbors.values()
-    
-    def growth_ratio(self) -> float:
-        return pygame.math.clamp(self.growth / self.MAX_GROWTH_VALUE, 0, 1)

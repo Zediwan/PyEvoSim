@@ -1,7 +1,7 @@
 from __future__ import annotations
-import random
+from random import random, randint, choice
 from typing import Optional
-from pygame import Color, Rect, Surface
+from pygame import Color, Rect, Surface, math
 from organism import Organism
 from config import *
 from tile import Tile
@@ -40,15 +40,18 @@ class Animal(Organism):
             shape = tile.rect
             
         if not color:
-            color = pygame.Color(random.randint(20,230), random.randint(20,230), random.randint(20,230))
+            color = pygame.Color(randint(20,230), randint(20,230), randint(20,230))
             
         if not health:
-            health = self.MAX_HEALTH / 2
+            health = self.MAX_HEALTH * math.clamp(random(), 0.4, 0.6)
             
         if not energy:
-            energy = self.MAX_ENERGY / 2
+            energy = self.MAX_ENERGY * math.clamp(random(), 0.4, 0.6)
             
         super().__init__(tile, shape, color, health, energy)
+        
+        self.tile: Tile = tile
+        self.tile.enter(self)
         
         self.waterAffinity: float = waterAffinity
         if starting_water_affinity:
@@ -68,9 +71,10 @@ class Animal(Organism):
             LAND_SUFFOCATION_DAMAGE = pygame.math.clamp(Tile.LAND_DAMAGE / self.landAffintiy, 0, float("inf"))   # TODO: think of a good formula for this
             self.loose_health(LAND_SUFFOCATION_DAMAGE)
             
-        GROWTH_NUTRITION = self.tile.growth   # TODO: think of a good formula for this
-        self.gain_energy(GROWTH_NUTRITION)
-        self.tile.growth = pygame.math.clamp(self.tile.growth - self.GRASS_CONSUMPTION, 0, self.tile.MAX_GROWTH_VALUE)
+        damage = 10
+        if self.tile.plant:
+            self.tile.plant.loose_health(damage)
+            self.gain_energy(damage)
         
         direction = self.think()
         if direction:
@@ -84,20 +88,26 @@ class Animal(Organism):
 
     def reproduce(self):
         if self.ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD <= self.health / self.MAX_HEALTH:
-            unoccupied_neighbor = self.tile.get_random_unoccupied_neighbor()
+            unoccupied_neighbor = self.tile.get_random_neigbor(no_animal=True)
             if unoccupied_neighbor:
-                if random.random() <= self.ANIMAL_REPRODUCTION_CHANCE:
+                if random() <= self.ANIMAL_REPRODUCTION_CHANCE:
                     self.copy(unoccupied_neighbor) # Reproduce to a neighbor tile
         
     def think(self) -> Tile|None:
-        return random.choice((self.tile.get_random_unoccupied_neighbor(), None))
+        return choice((self.tile.get_random_neigbor(no_animal=True), None))
     
     def draw(self, screen: Surface):
         super().draw(screen)
+        
+    def die(self):
+        if self.health > 0:
+            raise ValueError("Organism tries to die despite not being dead.")
+        
+        self.tile.leave()
     
     def copy(self, tile: Tile) -> Animal:
         newWA = self.waterAffinity
-        newWA += random.random() - .5
+        newWA += random() - .5
         newLA = self.landAffintiy 
-        newWA += random.random() - .5
+        newWA += random() - .5
         return Animal(tile, color = self.color, waterAffinity=newWA, landAffinity=newLA)
