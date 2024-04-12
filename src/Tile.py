@@ -59,17 +59,16 @@ class Tile():
     SAND_COLOR: Color = Color("lightgoldenrod")
     
     # Mountains
-    MIN_HEIGHT_FOR_MOUNTAIN_LAKE:float = 20
-    MOUNTAIN_WATER_SPAWN_CHANCE: float = 1
     MOUNTAIN_TOP_COLOR: Color = Color("white")
     MOUNTAIN_FLOOR_COLOR: Color = Color("azure4")
     
     #### TODO: improve names
-    LAND_DAMAGE: int = 50
+    LAND_DAMAGE: int = 10
     ####
     
     def __init__(self, rect: Rect, tile_size: int, height: int = 0,
-                 organisms = None,
+                 animals = None,
+                 plants = None,
                  starting_growth_level: Optional[float] = None
                  ):
         # Tile
@@ -82,11 +81,17 @@ class Tile():
         self.height_contours = []  
               
         # Organisms
-        from organism import Organism
-        if organisms:
-            self.organisms: List[Organism] = organisms
+        from animal import Animal
+        if animals:
+            self.animals: List[Animal] = animals
         else:
-            self.organisms: List[Organism] = []
+            self.animals: List[Animal] = []
+            
+        from plant import Plant
+        if plants:
+            self.plants: List[Plant] = plants
+        else:
+            self.plants: List[Plant] = []
                     
         # Growth
         if starting_growth_level:
@@ -104,14 +109,13 @@ class Tile():
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
 
     def update(self):        
-        if self.organisms:
-            for org in self.organisms:
+        if self.animals:
+            for org in self.animals:
                 org.update()
                     
         self.update_growth()
 
     def update_growth(self):
-        # Growth Update # TODO: refactor into separate method
         growth_chance = self.BASE_GROWTH_CHANCE
         growth_rate = self.BASE_GROWTH_RATE
     
@@ -141,8 +145,8 @@ class Tile():
             return 0
 
     def draw(self, screen: Surface):
-        if self.organisms:
-            for org in self.organisms:
+        if self.animals:
+            for org in self.animals:
                 org.draw(screen)
         else:
             self.set_color()
@@ -230,16 +234,20 @@ class Tile():
         for start_pos, end_pos, color, thickness in self.height_contours:
             draw.line(screen, color, start_pos, end_pos, thickness)
         
-    def leave(self, organism):
-        self.organisms.remove(organism)
+    def leave(self, animal):
+        self.animals.remove(animal)
         
-    def enter(self, organism):
-        self.organisms.append(organism)
+    def enter(self, animal):
+        self.animals.append(animal)
         
-        assert organism.tile == self, "Tiles Organism and Organisms tile are not equal."
+        assert animal.tile == self, "Tiles Organism and Organisms tile are not equal."
         
+    def add_plant(self, plant):
+        self.plants.append(plant)
+        assert plant.tile == self, "Tiles Plant and plants tile are not equal."    
+    
     def is_occupied(self) -> bool:
-        return bool(self.organisms)
+        return bool(self.animals)
 
     def add_neighbor(self, direction: Direction, tile: Tile):
         self.neighbors[direction] = tile
