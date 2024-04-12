@@ -44,6 +44,8 @@ class Plant(Organism):
             
         if not color:
             color = self.MIN_PLANT_COLOR
+            # extra: Color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
+            # color = color.lerp(extra, .2)
             
         super().__init__(tile, shape, color, health, energy)
         
