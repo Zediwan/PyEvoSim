@@ -153,12 +153,12 @@ class World(sprite.Sprite):
             case _:
                 value = pnoise2(row / param1, col / param1)
             
-        value += .20
-        value *= 10
+        value += .9
+        value *= 2
         if value < 0:
-            value = -(value**2)
+            value = -(value**1.5)
         else:   
-            value **= 2
+            value **= 1.5
                     
         return math.floor(value)
     
