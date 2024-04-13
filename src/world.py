@@ -1,12 +1,11 @@
 import math
-from typing import List
 from pygame import sprite, Surface
 from plant import Plant
 from tile import Tile
 from config import *
 from animal import Animal
 import random
-from noise import pnoise2
+from noise import snoise2
 from direction import Direction
 
 import logging
@@ -181,9 +180,13 @@ class World(sprite.Sprite):
         logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
     
     def generate_frequency(self):
-        frequency_max = 7
+        #TODO add a slider for this in world gen mode
+        frequency_max = 7 #TODO make this a setting
         self.frequency_x = random.random() * frequency_max
         self.frequency_y = random.random() * frequency_max
+        #TODO make use of the wavelength
+        self.wavelentgh_x = 1/self.frequency_x
+        self.wavelentgh_y = 1/self.frequency_y
         
         logging.info(f"Frequency parameters: [{self.frequency_x}, {self.frequency_y}]")
     
@@ -191,23 +194,63 @@ class World(sprite.Sprite):
         x = row / param1
         y = col / param2
         match(WORLD_GENERATION_MODE):
-            case "Perlin":
-                value = pnoise2(x, y)
-            case "Perlin Summation":
-                base_noise = pnoise2(x, y)
-                detail_noise = pnoise2(x * self.frequency_x, y * self.frequency_y)
-                value = base_noise + detail_noise
+            case "Simplex Changing Frequency":
+                value = snoise2(x * self.frequency_x, y * self.frequency_y)
+            case "Simplex Summation Normalised":
+                freq_x1 = 1
+                freq_y1 = 1
+                freq_x2 = 2
+                freq_y2 = 2
+                freq_x3 = 4
+                freq_y3 = 4
+                scale_1 = 1
+                scale_2 = .5
+                scale_3 = .25
+                offset_x1 = 0
+                offset_y1 = 0
+                offset_x2 = 4.7
+                offset_y2 = 2.3
+                offset_x3 = 19.1
+                offset_y3 = 16.6
+                
+                value = (
+                    snoise2(x * freq_x1 + offset_x1, y * freq_y1 + offset_y1) * scale_1 + 
+                    snoise2(x * freq_x2 + offset_x2, y * freq_y2 + offset_y2) * scale_2 +
+                    snoise2(x * freq_x3 + offset_x3, y * freq_y3 + offset_y3) * scale_3
+                    )
+                value /= scale_1 * scale_2 * scale_3 # Normalize back in range -1 to 1
+            case "Simplex Summation Non-Normalised":
+                freq_x1 = 1
+                freq_y1 = 1
+                freq_x2 = 2
+                freq_y2 = 2
+                freq_x3 = 4
+                freq_y3 = 4
+                scale_1 = 1
+                scale_2 = .5
+                scale_3 = .25
+                offset_x1 = 0
+                offset_y1 = 0
+                offset_x2 = 4.7
+                offset_y2 = 2.3
+                offset_x3 = 19.1
+                offset_y3 = 16.6
+                                
+                value = (
+                    snoise2(x * freq_x1 + offset_x1, y * freq_y1 + offset_y1) * scale_1 + 
+                    snoise2(x * freq_x2 + offset_x2, y * freq_y2 + offset_y2) * scale_2 +
+                    snoise2(x * freq_x3 + offset_x3, y * freq_y3 + offset_y3) * scale_3
+                    )
             case "Random":
                 value = random.random()
             case _:
-                value = pnoise2(row / param1, col / param1)
+                value = snoise2(x, y)
         
-        value += .4
-        value *= 10
-        # if value <= 0:
-        #     value **= 3
-        # else:   
-        #     value **= 2
+        power = 1 #TODO make this a slider in the settings
+        is_neg = value < 0
+        value = math.pow(abs(value), power) 
+        if is_neg:
+            value *= -1
                     
         return value
     
