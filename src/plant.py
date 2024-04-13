@@ -54,9 +54,9 @@ class Plant(Organism):
                 
         self.growth: float = self.BASE_GROWTH
         if self.tile.height > 0:
-            self.growth *= 1-(self.tile.height/100)
-            self.energy *= 1-(self.tile.height/100)
-            self.health *= 1-(self.tile.height/100)   
+            self.growth *= math.clamp(1-(self.tile.height/100),.1 , 1)
+            self.energy *= math.clamp(1-(self.tile.height/100),.1 , 1)
+            self.health *= math.clamp(1-(self.tile.height/100),.1 , 1)  
         
     def update(self):
         self.use_energy(random() * 5) #TODO make this a variable
