@@ -1,4 +1,5 @@
 import math
+from typing import List
 from pygame import sprite, Surface
 from plant import Plant
 from tile import Tile
@@ -154,6 +155,8 @@ class World(sprite.Sprite):
         if seed is not None:
             random.seed(seed)  # Initialize the random number generator with the seed
 
+        self.generate_frequency()
+
         RANDOM_VALUE_RANGE = (-150, 150)
         MIN_PARAM_VALUE_THRESHOLD = 40
 
@@ -177,13 +180,22 @@ class World(sprite.Sprite):
 
         logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
     
+    def generate_frequency(self):
+        frequency_max = 7
+        self.frequency_x = random.random() * frequency_max
+        self.frequency_y = random.random() * frequency_max
+        
+        logging.info(f"Frequency parameters: [{self.frequency_x}, {self.frequency_y}]")
+    
     def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> float:
+        x = row / param1
+        y = col / param2
         match(WORLD_GENERATION_MODE):
             case "Perlin":
-                value = pnoise2(row / param1, col / param1)
+                value = pnoise2(x, y)
             case "Perlin Summation":
-                base_noise = pnoise2(row / param1, col / param2)
-                detail_noise = pnoise2(row / (param1 * 2), col / (param2 * 2)) * 1  # Higher frequency, lower amplitude
+                base_noise = pnoise2(x, y)
+                detail_noise = pnoise2(x * self.frequency_x, y * self.frequency_y)
                 value = base_noise + detail_noise
             case "Random":
                 value = random.random()
