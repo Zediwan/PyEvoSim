@@ -27,8 +27,8 @@ Methods:
 """
 class Tile():
     ### Water
-    AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL = 10
-    SEA_LEVEL = 0
+    AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL: float = 10
+    SEA_LEVEL: float = 0
     MIN_WATER_HEIGHT_FOR_DROWING: float = 3
     MIN_WATER_VALUE: float = 0
     MAX_WATER_VALUE: float = float("inf")
@@ -64,7 +64,7 @@ class Tile():
     MOUNTAIN_FLOOR_COLOR: Color = Color("azure4")
     
     #### TODO: improve names
-    LAND_DAMAGE: int = 10
+    LAND_DAMAGE: float = 10
     ####
     
     def __init__(self, rect: Rect, tile_size: int, height: float = 0,
