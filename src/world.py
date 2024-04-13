@@ -38,8 +38,7 @@ class World(sprite.Sprite):
         self.generate_world_parameters()
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
-        self.add_cell_neighbours()
-        self.calculate_height_contours()
+        self.define_neighbor_attributes()
    
     def update(self):
         random.shuffle(self.tiles)
@@ -110,25 +109,22 @@ class World(sprite.Sprite):
         if random.random() <= chance_to_spawn:
             Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         
-    def add_cell_neighbours(self):
+    def define_neighbor_attributes(self):
         for row in range(self.rows):
             for col in range(self.cols):
                 tile: Tile = self.tiles[row * self.cols + col]
-                if row > 0:
-                    tile.add_neighbor(Direction.NORTH, self.tiles[(row - 1) * self.cols + col])
-                if col < self.cols - 1:
-                    tile.add_neighbor(Direction.EAST, self.tiles[row * self.cols + col + 1])
-                if row < self.rows - 1:
-                    tile.add_neighbor(Direction.SOUTH, self.tiles[(row + 1) * self.cols + col])
-                if col > 0:
-                    tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])  
-    
-    def calculate_height_contours(self):
-        for row in range(self.rows):
-            for col in range(self.cols):
-                tile: Tile = self.tiles[row * self.cols + col]
-                tile.calculate_height_contours()
-        print("Height Contours completely calculated")
+                self.add_neighbors(row, col, tile) 
+                tile.calculate_height_contours() 
+
+    def add_neighbors(self, row, col, tile: Tile):
+        if row > 0:
+            tile.add_neighbor(Direction.NORTH, self.tiles[(row - 1) * self.cols + col])
+        if col < self.cols - 1:
+            tile.add_neighbor(Direction.EAST, self.tiles[row * self.cols + col + 1])
+        if row < self.rows - 1:
+            tile.add_neighbor(Direction.SOUTH, self.tiles[(row + 1) * self.cols + col])
+        if col > 0:
+            tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])
     
     def generate_world_parameters(self, seed=None):
         if seed is not None:
