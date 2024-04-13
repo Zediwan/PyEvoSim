@@ -218,7 +218,7 @@ class World(sprite.Sprite):
                     snoise2(x * freq_x2 + offset_x2, y * freq_y2 + offset_y2) * scale_2 +
                     snoise2(x * freq_x3 + offset_x3, y * freq_y3 + offset_y3) * scale_3
                     )
-                value /= scale_1 * scale_2 * scale_3 # Normalize back in range -1 to 1
+                value /= (scale_1 + scale_2 + scale_3) # Normalize back in range -1 to 1
             case "Simplex Summation Non-Normalised":
                 freq_x1 = 1
                 freq_y1 = 1
@@ -246,12 +246,13 @@ class World(sprite.Sprite):
             case _:
                 value = snoise2(x, y)
         
-        power = 1 #TODO make this a slider in the settings
+        power = 2 #TODO make this a slider in the settings
         is_neg = value < 0
-        value = math.pow(abs(value), power) 
+        fudge_factor = 1.2 # Should be a number near 1
+        value = math.pow(abs(value * fudge_factor), power) 
         if is_neg:
             value *= -1
-                    
+                
         return value
     
     @staticmethod
