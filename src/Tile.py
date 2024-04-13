@@ -4,6 +4,7 @@ import random
 from math import floor
 
 from pygame import Rect, Surface, SRCALPHA, draw, Color, math
+from sklearn import neighbors
 
 from config import *
 from direction import Direction
@@ -66,7 +67,7 @@ class Tile():
     LAND_DAMAGE: int = 10
     ####
     
-    def __init__(self, rect: Rect, tile_size: int, height: int = 0,
+    def __init__(self, rect: Rect, tile_size: int, height: float = 0,
                  animal = None,
                  plant = None,
                  is_border = False
@@ -89,7 +90,7 @@ class Tile():
         
         # Water      
         self.water: float = 0
-        if height <= self.SEA_LEVEL:
+        if self.height <= self.SEA_LEVEL:
             self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(height) + 1)
         
         # Drawing
@@ -103,6 +104,7 @@ class Tile():
         # self.color.b += random.randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         self.is_border = is_border
+        self.steepest_decline_direction: Direction | None = None
 
     def update(self):        
         if self.animal:
@@ -130,10 +132,10 @@ class Tile():
         
         if self.water > 0:
             water_surface: Surface = Surface(self.rect.size, SRCALPHA)
-            water_ratio = pygame.math.clamp(self.water / 11, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
-            alpha = floor(pygame.math.lerp(0, 255, water_ratio))
+            water_ratio = pygame.math.clamp(self.water / 100, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
+            alpha = floor(pygame.math.lerp(0, 255, pygame.math.clamp(water_ratio + .7, 0, 1)))
             water_surface.set_alpha(alpha)
-            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
+            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, pygame.math.clamp((water_ratio * 10)+.2, 0, 1))
             water_surface.fill(water_color)
             screen.blit(water_surface, self.rect.topleft)
         
@@ -151,7 +153,12 @@ class Tile():
 
     def draw_stat(self, stat: float, screen: Surface):
         stat_alpha = 255
-        text = font.render(str(floor(stat)), True, (0, 0, 0))
+        # if abs(stat) < 10:
+        #     stat = round(stat, 0)
+        # else:
+        #     stat = round(stat, 0)
+        
+        text = font.render(str(round(stat)), True, (0, 0, 0))
         screen.set_alpha(stat_alpha)
         self._render_text_centered(screen, text)
 
@@ -174,10 +181,25 @@ class Tile():
         Calculates the contour lines based on the current height and neighbors
         and stores them in self.height_contours.
         """    
-        for direction, neighbor in self.neighbors.items():
-            if neighbor.height != self.height:
+        steepest_decline = 1
+        steepest_decline_direction = None
+        
+        
+        for direction in self.get_directions():
+            neighbor = self.get_neighbor(direction)
+            if neighbor == None: continue
+            
+            difference_in_height = neighbor.height - self.height
+            if difference_in_height < steepest_decline or (difference_in_height == steepest_decline and random.random() < .5):
+                steepest_decline = difference_in_height
+                steepest_decline_direction = direction
+            
+            self.steepest_decline_direction = steepest_decline_direction
+            
+            floored_dif_height = abs(floor(round(self.height, 0) - round(neighbor.height, 0)))
+            if floored_dif_height >= 1:
                 color = Color(0, 0, 0)  # Adjust as needed
-                thickness = pygame.math.clamp(abs(floor(neighbor.height - self.height)), 0, 8)  # Example logic
+                thickness = pygame.math.clamp(floored_dif_height, 0, 8)  # Example logic
             
                 if direction in [Direction.NORTH, Direction.SOUTH]:
                     start_pos = self.rect.topleft if direction == Direction.NORTH else self.rect.bottomleft
@@ -228,10 +250,14 @@ class Tile():
         self.neighbors[direction] = tile
 
     def get_directions(self) -> List[Direction]:
-        return list(self.neighbors.keys())
+        dirs = list(self.neighbors.keys())
+        random.shuffle(dirs)
+        return dirs
     
     def get_neighbors(self) -> List[Tile]:
-        return list(self.neighbors.values())
+        ns = list(self.neighbors.values())
+        random.shuffle(ns)
+        return ns
 
     def get_neighbor(self, direction: Direction) -> Tile|None:
         return self.neighbors.get(direction, None)

@@ -28,6 +28,9 @@ class World(sprite.Sprite):
         adjust_dimensions(height, width, tile_size): Adjusts the given height and width to be divisible by the tile size.
     """
     
+    highest_tile: Tile = Tile(pygame.rect.Rect(0, 0, 0, 0), 0, height= 0)
+    lowest_tile: Tile
+    
     def __init__(self, height : int, width : int, tile_size : int):
         sprite.Sprite.__init__(self)
         self.tile_size = tile_size
@@ -39,14 +42,15 @@ class World(sprite.Sprite):
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.define_neighbor_attributes()
+        self.create_river()
    
     def update(self):
         random.shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
             if tile.is_border or tile.water > 0 or tile.height <= 1:
-                chance_to_spawn_animal_at_border = .0001
-                chance_to_spawn_plant_at_border = .001
+                chance_to_spawn_animal_at_border = .000001
+                chance_to_spawn_plant_at_border = .00001
                 if random.random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
                     self.spawn_animal(tile)
                 if random.random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
@@ -62,12 +66,32 @@ class World(sprite.Sprite):
     def is_border_tile(self, row: int, col: int) -> bool:
         return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
     
+    def create_river(self, tile_to_start: Tile | None = None):
+        if not tile_to_start:
+            tile = self.highest_tile
+        else:
+            tile = tile_to_start
+        while tile != None and tile.steepest_decline_direction != None and tile.water <= 0:
+            tile.water = pygame.math.lerp(10, 1, tile.height/self.highest_tile.height)
+            tile: Tile | None = tile.get_neighbor(tile.steepest_decline_direction)
+            river_branch_chance = 0.2 * random.random()
+            if random.random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
+                branch_of = tile.get_neighbor(random.choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
+                self.create_river(branch_of)
+    
     def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
                 
         height = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
         
         tile : Tile = Tile(rect, self.tile_size, height=height, is_border = self.is_border_tile(row = row, col = col))
+        
+        if self.highest_tile:
+            if height > self.highest_tile.height and random.random() < .75:
+                self.highest_tile = tile
+        else:
+            self.highest_tile = tile
+            
         self.spawn_animal(tile,
                           chance_to_spawn = STARTING_ANIMAL_PERCENTAGE, 
                           chance_of_land_animals = STARTING_LAND_ANIMAL_PERCENTAGE, 
@@ -153,7 +177,7 @@ class World(sprite.Sprite):
 
         logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
     
-    def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> int:
+    def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> float:
         match(WORLD_GENERATION_MODE):
             case "Perlin":
                 value = pnoise2(row / param1, col / param1)
@@ -173,7 +197,7 @@ class World(sprite.Sprite):
         # else:   
         #     value **= 2
                     
-        return math.floor(value)
+        return value
     
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
