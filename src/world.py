@@ -1,5 +1,6 @@
 import math
 from pygame import sprite, Surface
+from plant import Plant
 from tile import Tile
 from config import *
 from animal import Animal
@@ -44,7 +45,14 @@ class World(sprite.Sprite):
         random.shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
-        
+            if tile.is_border or tile.water > 0 or tile.height <= 1:
+                chance_to_spawn_animal_at_border = .0001
+                chance_to_spawn_plant_at_border = .001
+                if random.random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
+                    self.spawn_animal(tile)
+                if random.random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
+                    self.spawn_plant(tile)
+                    
     def draw(self, screen : Surface):
         temp_surface = Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
         for tile in self.tiles:
@@ -52,26 +60,32 @@ class World(sprite.Sprite):
             
         screen.blit(temp_surface, (0, 0))  
     
+    def is_border_tile(self, row: int, col: int) -> bool:
+        return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
+    
     def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
                 
         height = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
         
-        tile : Tile = Tile(rect, self.tile_size, height=height)
+        tile : Tile = Tile(rect, self.tile_size, height=height, is_border = self.is_border_tile(row = row, col = col))
         self.spawn_animal(tile,
                           chance_to_spawn = STARTING_ANIMAL_PERCENTAGE, 
                           chance_of_land_animals = STARTING_LAND_ANIMAL_PERCENTAGE, 
                           chance_of_water_animals = STARTING_WATER_ANIMAL_PERCENTAGE
                           )
+        
+        self.spawn_plant(tile)
             
         return tile
     
     def spawn_animals(self, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
         for tile in self.tiles:
-            self.spawn_animal(tile, 
-                              chance_to_spawn = chance_to_spawn,
-                              chance_of_land_animals = chance_of_land_animals,
-                              chance_of_water_animals = chance_of_water_animals)
+            if not tile.has_animal():
+                self.spawn_animal(tile, 
+                                chance_to_spawn = chance_to_spawn,
+                                chance_of_land_animals = chance_of_land_animals,
+                                chance_of_water_animals = chance_of_water_animals)
     
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
         if random.random() <= chance_to_spawn:
@@ -79,6 +93,10 @@ class World(sprite.Sprite):
                 self.spawn_water_animal(tile, chance_of_water_animals)
             else:
                 self.spawn_land_animal(tile, chance_of_land_animals)
+                
+    def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
+        if random.random() <= chance_to_spawn:
+            Plant(tile)
             
     def spawn_water_animal(self, tile: Tile, chance_to_spawn: float = 1):
         wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
@@ -92,7 +110,6 @@ class World(sprite.Sprite):
         if random.random() <= chance_to_spawn:
             Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         
-    
     def add_cell_neighbours(self):
         for row in range(self.rows):
             for col in range(self.cols):
@@ -146,19 +163,19 @@ class World(sprite.Sprite):
                 value = pnoise2(row / param1, col / param1)
             case "Perlin Summation":
                 base_noise = pnoise2(row / param1, col / param2)
-                detail_noise = pnoise2(row / (param1 * 0.5), col / (param2 * 0.5)) * 0.5  # Higher frequency, lower amplitude
+                detail_noise = pnoise2(row / (param1 * 2), col / (param2 * 2)) * 1  # Higher frequency, lower amplitude
                 value = base_noise + detail_noise
             case "Random":
                 value = random.random()
             case _:
                 value = pnoise2(row / param1, col / param1)
-            
-        value += .20
+        
+        value += .4
         value *= 10
-        if value < 0:
-            value = -(value**2)
-        else:   
-            value **= 2
+        # if value <= 0:
+        #     value **= 3
+        # else:   
+        #     value **= 2
                     
         return math.floor(value)
     
