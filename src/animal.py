@@ -38,8 +38,10 @@ class Animal(Organism):
                  landAffinity: float = BASE_ANIMAL_LAND_AFFINITY
                  ):
         if not shape:
-            shape = tile.rect
-            
+            shape = tile.rect.copy()
+            shape.x = 0
+            shape.y = 0
+                        
         if not color:
             color = pygame.Color(randint(20,230), randint(20,230), randint(20,230))
             

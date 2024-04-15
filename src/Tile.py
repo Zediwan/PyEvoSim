@@ -4,6 +4,7 @@ import random
 from math import floor
 
 from pygame import Rect, Surface, SRCALPHA, draw, Color, math
+from sklearn import neighbors
 
 from config import *
 from direction import Direction
@@ -26,8 +27,8 @@ Methods:
 """
 class Tile():
     ### Water
-    AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL = 10
-    SEA_LEVEL = 0
+    AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL: float = 10
+    SEA_LEVEL: float = 0
     MIN_WATER_HEIGHT_FOR_DROWING: float = 3
     MIN_WATER_VALUE: float = 0
     MAX_WATER_VALUE: float = float("inf")
@@ -63,10 +64,10 @@ class Tile():
     MOUNTAIN_FLOOR_COLOR: Color = Color("azure4")
     
     #### TODO: improve names
-    LAND_DAMAGE: int = 10
+    LAND_DAMAGE: float = 10
     ####
     
-    def __init__(self, rect: Rect, tile_size: int, height: int = 0,
+    def __init__(self, rect: Rect, tile_size: int, height: float = 0, moisture: float = 0,
                  animal = None,
                  plant = None,
                  is_border = False
@@ -78,7 +79,11 @@ class Tile():
         
         # Height
         self.height: float = height
-        self.height_contours = []  
+        self.height_contours = []
+        
+        self.moisture: float = moisture      
+        self.water: float = 0
+        self.color: Color = self.get_biome_color(self.height, self.moisture)
               
         # Organisms
         from animal import Animal
@@ -87,22 +92,12 @@ class Tile():
         from plant import Plant
         self.plant: Plant | None = plant
         
-        # Water      
-        self.water: float = 0
-        if height <= self.SEA_LEVEL:
-            self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(height) + 1)
-        
-        # Drawing
-        self.color: Color = self.DIRT_COLOR
-        hr = math.clamp(self.height / 10, 0, 1)
-        self.color: Color = self.DIRT_COLOR.lerp(
-            self.MOUNTAIN_TOP_COLOR, hr
-        )
         # self.color.r += random.randint(0,5)
         # self.color.g += random.randint(0,5)
         # self.color.b += random.randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         self.is_border = is_border
+        self.steepest_decline_direction: Direction | None = None
 
     def update(self):        
         if self.animal:
@@ -111,6 +106,7 @@ class Tile():
         if self.plant:
             self.plant.update()          
 
+    #TODO rework this for new height values
     def calculate_growth_height_penalty(self, growth_chance: float) -> float:
         height_threshold_for_growth_penalty = 20
         if self.height > height_threshold_for_growth_penalty:
@@ -130,10 +126,10 @@ class Tile():
         
         if self.water > 0:
             water_surface: Surface = Surface(self.rect.size, SRCALPHA)
-            water_ratio = pygame.math.clamp(self.water / 11, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
-            alpha = floor(pygame.math.lerp(0, 255, water_ratio))
+            water_ratio = pygame.math.clamp(self.water / 100, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
+            alpha = floor(pygame.math.lerp(0, 255, pygame.math.clamp(water_ratio + .7, 0, 1)))
             water_surface.set_alpha(alpha)
-            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, water_ratio)
+            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, pygame.math.clamp((water_ratio * 10)+.2, 0, 1))
             water_surface.fill(water_color)
             screen.blit(water_surface, self.rect.topleft)
         
@@ -143,15 +139,60 @@ class Tile():
 
         from config import draw_height_level
         if draw_height_level:
-            self.draw_stat(self.height, screen)
+            self.draw_stat(self.height * 99, screen)
 
         from config import draw_height_lines
         if draw_height_lines:
             self.draw_height_contours(screen)
 
+    def get_biome_color(self, height: float, moisture: float) -> Color:
+        if (height < 0.1):
+            self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(height) + 1)
+            return self.DIRT_COLOR #OCEAN TODO think of better color
+        if (height < 0.12): 
+            return Color(228,232,202) #SAND
+        
+        if (height > 0.8):
+            if (moisture < 0.1): 
+                return Color(153, 153, 153) #SCORCHED
+            if (moisture < 0.2): 
+                return Color(187, 187, 187) #BARE
+            if (moisture < 0.5): 
+                return Color(221,221,187) #TUNDRA
+            return Color(248,248,248) # SNOW
+
+        if (height > 0.6):
+            if (moisture < 0.33): 
+                return Color(228,232,202) #TEMPERATE_DESERT
+            if (moisture < 0.66): 
+                return Color(195,204,187) #SHRUBLAND
+            return Color(203,212,187) #TAIGA
+
+        if (height > 0.3):
+            if (moisture < 0.16): 
+                return Color(228,232,202) #TEMPERATE_DESERT
+            if (moisture < 0.50): 
+                return Color(196,212,170) #GRASSLAND
+            if (moisture < 0.83): 
+                return Color(180,200,169) #TEMPERATE_DECIDUOUS_FOREST
+            return Color(163,196,168) #TEMPERATE_RAIN_FOREST
+
+        if (moisture < 0.16): 
+            return Color(233,220,198) #SUBTROPICAL_DESERT
+        if (moisture < 0.33): 
+            return Color(196,212,170) #GRASSLAND
+        if (moisture < 0.66): 
+            return Color(169,204,163) #TROPICAL_SEASONAL_FOREST
+        return Color(156,187,169) #TROPICAL_RAIN_FOREST:
+
     def draw_stat(self, stat: float, screen: Surface):
         stat_alpha = 255
-        text = font.render(str(floor(stat)), True, (0, 0, 0))
+        # if abs(stat) < 10:
+        #     stat = round(stat, 0)
+        # else:
+        #     stat = round(stat, 0)
+        
+        text = font.render(str(round(stat)), True, (0, 0, 0))
         screen.set_alpha(stat_alpha)
         self._render_text_centered(screen, text)
 
@@ -168,16 +209,33 @@ class Tile():
         text_x = center_x - text.get_width() // 2
         text_y = center_y - text.get_height() // 2
         screen.blit(text, (text_x, text_y))
-     
+    
+    # TODO rework for new height properties
     def calculate_height_contours(self):
         """
         Calculates the contour lines based on the current height and neighbors
         and stores them in self.height_contours.
         """    
-        for direction, neighbor in self.neighbors.items():
-            if neighbor.height != self.height:
+        steepest_decline = 1
+        steepest_decline_direction = None
+        
+        for direction in self.get_directions():
+            neighbor = self.get_neighbor(direction)
+            if neighbor == None: continue
+            
+            n_height = round(neighbor.height * 100)
+            s_height = round(self.height * 100)
+    
+            difference_in_height = n_height - s_height
+            if difference_in_height < steepest_decline or (difference_in_height == steepest_decline and random.random() < .5):
+                steepest_decline = difference_in_height
+                steepest_decline_direction = direction
+            
+            self.steepest_decline_direction = steepest_decline_direction
+            
+            if abs(difference_in_height) >= 0:
                 color = Color(0, 0, 0)  # Adjust as needed
-                thickness = pygame.math.clamp(abs(floor(neighbor.height - self.height)), 0, 8)  # Example logic
+                thickness = pygame.math.clamp(round(abs(difference_in_height)), 0, 5)  # Example logic
             
                 if direction in [Direction.NORTH, Direction.SOUTH]:
                     start_pos = self.rect.topleft if direction == Direction.NORTH else self.rect.bottomleft
@@ -228,10 +286,14 @@ class Tile():
         self.neighbors[direction] = tile
 
     def get_directions(self) -> List[Direction]:
-        return list(self.neighbors.keys())
+        dirs = list(self.neighbors.keys())
+        random.shuffle(dirs)
+        return dirs
     
     def get_neighbors(self) -> List[Tile]:
-        return list(self.neighbors.values())
+        ns = list(self.neighbors.values())
+        random.shuffle(ns)
+        return ns
 
     def get_neighbor(self, direction: Direction) -> Tile|None:
         return self.neighbors.get(direction, None)

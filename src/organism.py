@@ -44,7 +44,7 @@ class Organism(ABC, sprite.Sprite):
     def draw(self, screen: Surface):
         if not self.is_alive():
             raise ValueError("Organism is being drawn despite being dead. ", self.health)
-        self.temp_surface.fill(self.color)
+        pygame.draw.rect(self.temp_surface, self.color, self.shape)
         self.temp_surface.set_alpha(255)
         screen.blit(self.temp_surface, (0, 0))
     

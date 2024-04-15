@@ -13,7 +13,7 @@ STARTING_LAND_ANIMAL_PERCENTAGE = .5
 STARTING_WATER_ANIMAL_PERCENTAGE = .5
 SURROUNDED_BY_WATER = False
 
-WORLD_GENERATION_MODE = "Perlin Summation"
+WORLD_GENERATION_MODE = "Simplex Summation Normalised"
 #WORLD_GENERATION_PARAMS = 20, 24
 WORLD_GENERATION_PARAMS = None, None
 WORLD_GENERATION_PARAM1 = WORLD_GENERATION_PARAMS[0]
@@ -34,13 +34,8 @@ pygame.font.init()
 font_size = int(1.2 * TILE_SIZE)
 font: pygame.font.Font = pygame.font.Font(None, font_size) 
 
-tile_outline_thickness = 1
-
 # Alpha values for grids
 ground_alpha = 255
 ground_font_alpha = 100
 surface_alpha = 255
 sky_alpha = 100
-
-# Colors
-tile_border_color = pygame.Color("black")
