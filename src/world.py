@@ -98,7 +98,7 @@ class World(sprite.Sprite):
                           chance_of_water_animals = STARTING_WATER_ANIMAL_PERCENTAGE
                           )
         
-        #self.spawn_plant(tile)
+        self.spawn_plant(tile)
             
         return tile
     

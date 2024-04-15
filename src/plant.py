@@ -87,13 +87,14 @@ class Plant(Organism):
     def growth_chance(self):
         return self.BASE_GROWTH_CHANCE - self.tile.calculate_growth_height_penalty(self.BASE_GROWTH_CHANCE)
     
+    #TODO rethink plant drawing with biomes now being implemented
     def draw(self, screen: Surface):
         if not self.is_alive():
             raise ValueError("Plant is being drawn despite being dead. ", self.health)
         
         self.color: Color = self.MIN_PLANT_COLOR.lerp(self.MAX_PLANT_COLOR, self.health_ratio())
         alpha = floor(pygame.math.lerp(0, 200, self.health_ratio()))
-        self.temp_surface.fill(self.color)
+        pygame.draw.circle(self.temp_surface, self.color, self.temp_surface.get_rect().center, self.shape.width/4)
         self.temp_surface.set_alpha(alpha)
         screen.blit(self.temp_surface, (0, 0))
             
