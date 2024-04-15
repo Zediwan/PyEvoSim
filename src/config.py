@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import pygame
 
 JEREMY_BIG_SCREEN = (5200, 1300, 20)

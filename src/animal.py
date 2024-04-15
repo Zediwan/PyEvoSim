@@ -1,10 +1,13 @@
 from __future__ import annotations
-from random import random, randint, shuffle
 from typing import Optional
-from pygame import Color, Rect, Surface, math
-from direction import Direction
-from organism import Organism
+
+from pygame import Color, Rect, Surface
+
+from pygame.math import clamp
+from random import random, randint, shuffle
+
 from config import *
+from organism import Organism
 from tile import Tile
 
 class Animal(Organism):
@@ -46,10 +49,10 @@ class Animal(Organism):
             color = pygame.Color(randint(20,230), randint(20,230), randint(20,230))
             
         if not health:
-            health = self.MAX_HEALTH * math.clamp(random(), 0.4, 0.6)
+            health = self.MAX_HEALTH * clamp(random(), 0.4, 0.6)
             
         if not energy:
-            energy = self.MAX_ENERGY * math.clamp(random(), 0.4, 0.6)
+            energy = self.MAX_ENERGY * clamp(random(), 0.4, 0.6)
             
         super().__init__(tile, shape, color, health, energy)
         
@@ -68,10 +71,10 @@ class Animal(Organism):
         #TODO: add visual that displays an animals health and energy
     
         if self.tile.water > Tile.MIN_WATER_HEIGHT_FOR_DROWING:
-            DROWNING_DAMAGE = pygame.math.clamp(self.tile.water / (self.waterAffinity*10), 0, float("inf"))
+            DROWNING_DAMAGE = clamp(self.tile.water / (self.waterAffinity*10), 0, float("inf"))
             self.loose_health(DROWNING_DAMAGE) 
         elif self.tile.water <= 0:
-            LAND_SUFFOCATION_DAMAGE = pygame.math.clamp(Tile.LAND_DAMAGE / self.landAffintiy, 0, float("inf"))   # TODO: think of a good formula for this
+            LAND_SUFFOCATION_DAMAGE = clamp(Tile.LAND_DAMAGE / self.landAffintiy, 0, float("inf"))   # TODO: think of a good formula for this
             self.loose_health(LAND_SUFFOCATION_DAMAGE)
             
         damage = 5

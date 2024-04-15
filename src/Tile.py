@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import List
-import random
-from math import floor
 
-from pygame import Rect, Surface, SRCALPHA, draw, Color, math
+from pygame import Rect, Surface, SRCALPHA, draw, Color
+
+from pygame.math import clamp, lerp
+from math import floor
+from random import random, choice, shuffle
 
 from config import *
 from direction import Direction
@@ -91,9 +93,9 @@ class Tile():
         from plant import Plant
         self.plant: Plant | None = plant
         
-        # self.color.r += random.randint(0,5)
-        # self.color.g += random.randint(0,5)
-        # self.color.b += random.randint(0,5)
+        # self.color.r += randint(0,5)
+        # self.color.g += randint(0,5)
+        # self.color.b += randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         self.is_border = is_border
         self.steepest_decline_direction: Direction | None = None
@@ -125,10 +127,10 @@ class Tile():
         
         if self.water > 0:
             water_surface: Surface = Surface(self.rect.size, SRCALPHA)
-            water_ratio = pygame.math.clamp(self.water / 100, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
-            alpha = floor(pygame.math.lerp(0, 255, pygame.math.clamp(water_ratio + .7, 0, 1)))
+            water_ratio = clamp(self.water / 100, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
+            alpha = floor(lerp(0, 255, clamp(water_ratio + .7, 0, 1)))
             water_surface.set_alpha(alpha)
-            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, pygame.math.clamp((water_ratio * 10)+.2, 0, 1))
+            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, clamp((water_ratio * 10)+.2, 0, 1))
             water_surface.fill(water_color)
             screen.blit(water_surface, self.rect.topleft)
         
@@ -226,7 +228,7 @@ class Tile():
             s_height = round(self.height * 100)
     
             difference_in_height = n_height - s_height
-            if difference_in_height < steepest_decline or (difference_in_height == steepest_decline and random.random() < .5):
+            if difference_in_height < steepest_decline or (difference_in_height == steepest_decline and random() < .5):
                 steepest_decline = difference_in_height
                 steepest_decline_direction = direction
             
@@ -234,7 +236,7 @@ class Tile():
             
             if abs(difference_in_height) >= 0:
                 color = Color(0, 0, 0)  # Adjust as needed
-                thickness = pygame.math.clamp(round(abs(difference_in_height)), 0, 5)  # Example logic
+                thickness = clamp(round(abs(difference_in_height)), 0, 5)  # Example logic
             
                 if direction in [Direction.NORTH, Direction.SOUTH]:
                     start_pos = self.rect.topleft if direction == Direction.NORTH else self.rect.bottomleft
@@ -286,12 +288,12 @@ class Tile():
 
     def get_directions(self) -> List[Direction]:
         dirs = list(self.neighbors.keys())
-        random.shuffle(dirs)
+        shuffle(dirs)
         return dirs
     
     def get_neighbors(self) -> List[Tile]:
         ns = list(self.neighbors.values())
-        random.shuffle(ns)
+        shuffle(ns)
         return ns
 
     def get_neighbor(self, direction: Direction) -> Tile|None:
@@ -307,7 +309,7 @@ class Tile():
             has_options = True
             
         if has_options:
-            return random.choice(options)
+            return choice(options)
         else:
             return None
     

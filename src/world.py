@@ -1,12 +1,15 @@
-import math
 from pygame import sprite, Surface
+
+from pygame.math import clamp, lerp
+from math import pow, floor
+from random import random, shuffle, choice, randint
+
+from config import *
 from plant import Plant
 from tile import Tile
-from config import *
 from animal import Animal
-import random
-from noise import snoise2
 from direction import Direction
+from noise import snoise2
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,8 +38,8 @@ class World(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.height, self.width = World.adjust_dimensions(height, width, self.tile_size)
-        self.rows = math.floor(self.height / self.tile_size)
-        self.cols = math.floor(self.width / self.tile_size)
+        self.rows = floor(self.height / self.tile_size)
+        self.cols = floor(self.width / self.tile_size)
         
         self.generate_world_parameters()
         
@@ -45,15 +48,15 @@ class World(sprite.Sprite):
         self.create_river()
    
     def update(self):
-        random.shuffle(self.tiles)
+        shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
             if tile.is_border or tile.water > 0 or tile.height <= tile.SEA_LEVEL * 1.1:
                 chance_to_spawn_animal_at_border = .000001
                 chance_to_spawn_plant_at_border = .00001
-                if random.random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
+                if random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
                     self.spawn_animal(tile)
-                if random.random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
+                if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
                     self.spawn_plant(tile)
                     
     def draw(self, screen : Surface):
@@ -72,11 +75,11 @@ class World(sprite.Sprite):
         else:
             tile = tile_to_start
         while tile != None and tile.steepest_decline_direction != None and tile.water <= 0:
-            tile.water = pygame.math.lerp(10, 1, tile.height/self.highest_tile.height)
+            tile.water = lerp(10, 1, tile.height/self.highest_tile.height)
             tile: Tile | None = tile.get_neighbor(tile.steepest_decline_direction)
-            river_branch_chance = 0.2 * random.random()
-            if random.random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
-                branch_of = tile.get_neighbor(random.choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
+            river_branch_chance = 0.2 * random()
+            if random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
+                branch_of = tile.get_neighbor(choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
                 self.create_river(branch_of)
     
     def create_tile(self, col: int, row: int) -> Tile:
@@ -87,7 +90,7 @@ class World(sprite.Sprite):
         tile : Tile = Tile(rect, self.tile_size, height=height, moisture = moisture, is_border = self.is_border_tile(row = row, col = col))
         
         if self.highest_tile:
-            if height > self.highest_tile.height and random.random() < .75:
+            if height > self.highest_tile.height and random() < .75:
                 self.highest_tile = tile
         else:
             self.highest_tile = tile
@@ -111,26 +114,26 @@ class World(sprite.Sprite):
                                 chance_of_water_animals = chance_of_water_animals)
     
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
-        if random.random() <= chance_to_spawn:
+        if random() <= chance_to_spawn:
             if tile.water > 0:
                 self.spawn_water_animal(tile, chance_of_water_animals)
             else:
                 self.spawn_land_animal(tile, chance_of_land_animals)
                 
     def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
-        if random.random() <= chance_to_spawn:
+        if random() <= chance_to_spawn:
             Plant(tile)
             
     def spawn_water_animal(self, tile: Tile, chance_to_spawn: float = 1):
         wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
         lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
-        if random.random() <= chance_to_spawn:
+        if random() <= chance_to_spawn:
             Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
             
     def spawn_land_animal(self, tile: Tile, chance_to_spawn: float = 1):
         wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
         lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
-        if random.random() <= chance_to_spawn:
+        if random() <= chance_to_spawn:
             Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         
     def define_neighbor_attributes(self):
@@ -152,7 +155,7 @@ class World(sprite.Sprite):
     
     def generate_world_parameters(self, seed=None):
         if seed is not None:
-            random.seed(seed)  # Initialize the random number generator with the seed
+            seed(seed)  # Initialize the random number generator with the seed
 
         self.generate_frequency()
 
@@ -162,11 +165,11 @@ class World(sprite.Sprite):
         if WORLD_GENERATION_PARAM1 is not None:
             self.world_gen_param1: int = WORLD_GENERATION_PARAM1
         else:
-            self.world_gen_param1 = random.randint(*RANDOM_VALUE_RANGE) 
+            self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
             while True:
                 if abs(self.world_gen_param1) >= MIN_PARAM_VALUE_THRESHOLD:
                     break
-                self.world_gen_param1 = random.randint(*RANDOM_VALUE_RANGE) 
+                self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
                 
         if WORLD_GENERATION_PARAM2 is not None:
             self.world_gen_param2: int = WORLD_GENERATION_PARAM2
@@ -175,15 +178,15 @@ class World(sprite.Sprite):
             while True:
                 if abs(self.world_gen_param2) >= MIN_PARAM_VALUE_THRESHOLD:
                     break
-                self.world_gen_param2  = random.randint(*RANDOM_VALUE_RANGE) 
+                self.world_gen_param2  = randint(*RANDOM_VALUE_RANGE) 
 
         logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
     
     def generate_frequency(self):
         #TODO add a slider for this in world gen mode
         frequency_max = 7 #TODO make this a setting
-        self.frequency_x = random.random() * frequency_max
-        self.frequency_y = random.random() * frequency_max
+        self.frequency_x = random() * frequency_max
+        self.frequency_y = random() * frequency_max
         #TODO make use of the wavelength
         self.wavelentgh_x = 1/self.frequency_x
         self.wavelentgh_y = 1/self.frequency_y
@@ -223,9 +226,9 @@ class World(sprite.Sprite):
         if island_mode:
             nx =  2 * col * self.tile_size / self.width - 1
             ny = 2 * row * self.tile_size / self.height - 1
-            d = 1 - (1 - math.pow(nx, 2)) * (1 - math.pow(ny, 2))
+            d = 1 - (1 - pow(nx, 2)) * (1 - pow(ny, 2))
             mix = .5
-            height = pygame.math.lerp(height, 1 - d, mix)
+            height = lerp(height, 1 - d, mix)
           
         terraces = False
         if terraces:
@@ -235,7 +238,7 @@ class World(sprite.Sprite):
             power = 2 #TODO make this a slider in the settings
             is_neg = height < 0
             fudge_factor = 1.2 # Should be a number near 1
-            height = pygame.math.clamp(math.pow(abs(height * fudge_factor), power), 0, 1)
+            height = clamp(pow(abs(height * fudge_factor), power), 0, 1)
             if is_neg:
                 height *= -1 
                 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from pygame import SRCALPHA, Color, Rect, sprite, Surface, draw
-from config import *
+from pygame import SRCALPHA, Color, Rect, sprite, Surface
 
+from config import *
 from tile import Tile
 
 class Organism(ABC, sprite.Sprite):

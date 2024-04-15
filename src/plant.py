@@ -1,10 +1,14 @@
-from typing import Optional, List
-from pygame import Color, Rect, Surface, math
+from typing import Optional
+
+from pygame import Color, Rect, Surface
+
+from pygame.math import clamp, lerp
+from math import floor
+from random import random
+
+from config import *
 from organism import Organism
 from tile import Tile
-from random import randint, random, choice
-from config import *
-from math import floor
     
 class Plant(Organism):
     @property
@@ -37,10 +41,10 @@ class Plant(Organism):
             shape = tile.rect
             
         if not health:
-            health = self.MAX_HEALTH * math.clamp(random(), 0.8, 1)                
+            health = self.MAX_HEALTH * clamp(random(), 0.8, 1)                
             
         if not energy:
-            energy = self.MAX_ENERGY * math.clamp(random(), 0.8, 1)
+            energy = self.MAX_ENERGY * clamp(random(), 0.8, 1)
             
         if not color:
             color = self.MIN_PLANT_COLOR
@@ -54,9 +58,9 @@ class Plant(Organism):
                 
         self.growth: float = self.BASE_GROWTH
         if self.tile.height > 0:
-            self.growth *= math.clamp(1-(self.tile.height/100),.1 , 1)
-            self.energy *= math.clamp(1-(self.tile.height/100),.1 , 1)
-            self.health *= math.clamp(1-(self.tile.height/100),.1 , 1)  
+            self.growth *= clamp(1-(self.tile.height/100),.1 , 1)
+            self.energy *= clamp(1-(self.tile.height/100),.1 , 1)
+            self.health *= clamp(1-(self.tile.height/100),.1 , 1)  
         
     def update(self):
         self.use_energy(random() * 5) #TODO make this a variable
@@ -93,7 +97,7 @@ class Plant(Organism):
             raise ValueError("Plant is being drawn despite being dead. ", self.health)
         
         self.color: Color = self.MIN_PLANT_COLOR.lerp(self.MAX_PLANT_COLOR, self.health_ratio())
-        alpha = floor(pygame.math.lerp(0, 200, self.health_ratio()))
+        alpha = floor(lerp(0, 200, self.health_ratio()))
         pygame.draw.circle(self.temp_surface, self.color, self.temp_surface.get_rect().center, self.shape.width/4)
         self.temp_surface.set_alpha(alpha)
         screen.blit(self.temp_surface, (0, 0))
