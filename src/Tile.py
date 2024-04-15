@@ -9,23 +9,6 @@ from random import random, choice, shuffle
 
 from config import *
 from direction import Direction
-
-"""
-The Tile class represents a tile in a game. It is an abstract base class (ABC) that provides common functionality for different types of tiles.
-
-Attributes:
-    rect (pygame.Rect): The rectangle representing the tile's position and size.
-    cell_size (int): The size of the tile in pixels.
-    neighbours (dict): A dictionary of the tile's neighboring tiles, with directions as keys and Tile objects as values.
-
-Methods:
-    update(): Abstract method that should be implemented by subclasses to update the tile's state.
-    draw(screen: pygame.Surface): Draws the tile on the screen.
-    add_neighbor(direction: Direction, tile: Tile): Adds a neighbor tile in the specified direction.
-    get_neighbor(direction: Direction) -> Tile: Returns the neighbor tile in the specified direction.
-    get_directions() -> list[Direction]: Returns a list of directions to the tile's neighbors.
-    get_random_neigbor() -> Tile: Returns a random neighbor tile.
-"""
 class Tile():
     ### Water
     AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL: float = 10
@@ -97,7 +80,10 @@ class Tile():
         # self.color.g += randint(0,5)
         # self.color.b += randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
+        
         self.is_border = is_border
+        self.is_coast = False
+        
         self.steepest_decline_direction: Direction | None = None
 
     def update(self):        
@@ -285,6 +271,7 @@ class Tile():
 
     def add_neighbor(self, direction: Direction, tile: Tile):
         self.neighbors[direction] = tile
+        self.is_coast = tile.water > 0 and self.water == 0
 
     def get_directions(self) -> List[Direction]:
         dirs = list(self.neighbors.keys())
