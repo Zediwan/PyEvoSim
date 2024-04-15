@@ -1,10 +1,9 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List
 import random
 from math import floor
 
 from pygame import Rect, Surface, SRCALPHA, draw, Color, math
-from sklearn import neighbors
 
 from config import *
 from direction import Direction
