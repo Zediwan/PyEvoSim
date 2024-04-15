@@ -48,7 +48,7 @@ class World(sprite.Sprite):
         random.shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
-            if tile.is_border or tile.water > 0 or tile.height <= 1:
+            if tile.is_border or tile.water > 0 or tile.height <= tile.SEA_LEVEL * 1.1:
                 chance_to_spawn_animal_at_border = .000001
                 chance_to_spawn_plant_at_border = .00001
                 if random.random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
@@ -82,9 +82,9 @@ class World(sprite.Sprite):
     def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
                 
-        height = self.generate_noise_value(row, col, self.world_gen_param1, self.world_gen_param2)
+        height, moisture = self.generate_noise_values(row, col, self.world_gen_param1, self.world_gen_param2)
         
-        tile : Tile = Tile(rect, self.tile_size, height=height, is_border = self.is_border_tile(row = row, col = col))
+        tile : Tile = Tile(rect, self.tile_size, height=height, moisture = moisture, is_border = self.is_border_tile(row = row, col = col))
         
         if self.highest_tile:
             if height > self.highest_tile.height and random.random() < .75:
@@ -98,7 +98,7 @@ class World(sprite.Sprite):
                           chance_of_water_animals = STARTING_WATER_ANIMAL_PERCENTAGE
                           )
         
-        self.spawn_plant(tile)
+        #self.spawn_plant(tile)
             
         return tile
     
@@ -190,70 +190,58 @@ class World(sprite.Sprite):
         
         logging.info(f"Frequency parameters: [{self.frequency_x}, {self.frequency_y}]")
     
-    def generate_noise_value(self, row: int, col: int, param1: int, param2: int) -> float:
+    def generate_noise_values(self, row: int, col: int, param1: int, param2: int) -> tuple[float, float]:
         x = row / param1
         y = col / param2
-        match(WORLD_GENERATION_MODE):
-            case "Simplex Changing Frequency":
-                value = snoise2(x * self.frequency_x, y * self.frequency_y)
-            case "Simplex Summation Normalised":
-                freq_x1 = 1
-                freq_y1 = 1
-                freq_x2 = 2
-                freq_y2 = 2
-                freq_x3 = 4
-                freq_y3 = 4
-                scale_1 = 1
-                scale_2 = .5
-                scale_3 = .25
-                offset_x1 = 0
-                offset_y1 = 0
-                offset_x2 = 4.7
-                offset_y2 = 2.3
-                offset_x3 = 19.1
-                offset_y3 = 16.6
+        freq_x1 = 1
+        freq_y1 = 1
+        freq_x2 = 2
+        freq_y2 = 2
+        freq_x3 = 4
+        freq_y3 = 4
+        scale_1 = 1
+        scale_2 = .5
+        scale_3 = .25
+        offset_x1 = 0
+        offset_y1 = 0
+        offset_x2 = 4.7
+        offset_y2 = 2.3
+        offset_x3 = 19.1
+        offset_y3 = 16.6
                 
-                value = (
-                    snoise2(x * freq_x1 + offset_x1, y * freq_y1 + offset_y1) * scale_1 + 
-                    snoise2(x * freq_x2 + offset_x2, y * freq_y2 + offset_y2) * scale_2 +
-                    snoise2(x * freq_x3 + offset_x3, y * freq_y3 + offset_y3) * scale_3
-                    )
-                value /= (scale_1 + scale_2 + scale_3) # Normalize back in range -1 to 1
-            case "Simplex Summation Non-Normalised":
-                freq_x1 = 1
-                freq_y1 = 1
-                freq_x2 = 2
-                freq_y2 = 2
-                freq_x3 = 4
-                freq_y3 = 4
-                scale_1 = 1
-                scale_2 = .5
-                scale_3 = .25
-                offset_x1 = 0
-                offset_y1 = 0
-                offset_x2 = 4.7
-                offset_y2 = 2.3
-                offset_x3 = 19.1
-                offset_y3 = 16.6
-                                
-                value = (
-                    snoise2(x * freq_x1 + offset_x1, y * freq_y1 + offset_y1) * scale_1 + 
-                    snoise2(x * freq_x2 + offset_x2, y * freq_y2 + offset_y2) * scale_2 +
-                    snoise2(x * freq_x3 + offset_x3, y * freq_y3 + offset_y3) * scale_3
-                    )
-            case "Random":
-                value = random.random()
-            case _:
-                value = snoise2(x, y)
+        height = (
+            snoise2(x * freq_x1 + offset_x1, y * freq_y1 + offset_y1) * scale_1 + 
+            snoise2(x * freq_x2 + offset_x2, y * freq_y2 + offset_y2) * scale_2 +
+            snoise2(x * freq_x3 + offset_x3, y * freq_y3 + offset_y3) * scale_3
+            )
+        height /= (scale_1 + scale_2 + scale_3) # Normalize back in range -1 to 1
         
-        power = 2 #TODO make this a slider in the settings
-        is_neg = value < 0
-        fudge_factor = 1.2 # Should be a number near 1
-        value = math.pow(abs(value * fudge_factor), power) 
-        if is_neg:
-            value *= -1
+        height += 1
+        height /= 2
+        
+        island_mode = True
+        if island_mode:
+            nx =  2 * col * self.tile_size / self.width - 1
+            ny = 2 * row * self.tile_size / self.height - 1
+            d = 1 - (1 - math.pow(nx, 2)) * (1 - math.pow(ny, 2))
+            mix = .5
+            height = pygame.math.lerp(height, 1 - d, mix)
+          
+        terraces = False
+        if terraces:
+            n = 5
+            height = round(height * n) / n
+        else:
+            power = 2 #TODO make this a slider in the settings
+            is_neg = height < 0
+            fudge_factor = 1.2 # Should be a number near 1
+            height = pygame.math.clamp(math.pow(abs(height * fudge_factor), power), 0, 1)
+            if is_neg:
+                height *= -1 
                 
-        return value
+        assert -1 <= height <= 1
+        
+        return height, (snoise2(x * self.frequency_x, y * self.frequency_y)+1)/2
     
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
