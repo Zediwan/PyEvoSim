@@ -81,8 +81,8 @@ class Tile():
         # self.color.b += randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         
-        self.is_border = is_border
-        self.is_coast = False
+        self.is_border: bool = is_border
+        self.is_coast: bool = False
         
         self.steepest_decline_direction: Direction | None = None
 
