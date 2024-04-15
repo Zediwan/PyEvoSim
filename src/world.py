@@ -15,22 +15,6 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class World(sprite.Sprite):
-    """
-    The World class represents a game world in a game environment.
-
-    Attributes:
-        height (int): The height of the game world.
-        width (int): The width of the game world.
-        tile_size (int): The size of each tile in pixels.
-        ground (GridGround): The grid of ground tiles in the game world.
-
-    Methods:
-        __init__(self, height: int, width: int, tile_size: int): Initializes a new instance of the World class.
-        update(self): Updates the game world.
-        draw(self, screen: pygame.Surface): Draws the game world on the screen.
-        adjust_dimensions(height, width, tile_size): Adjusts the given height and width to be divisible by the tile size.
-    """
-    
     highest_tile: Tile = Tile(pygame.rect.Rect(0, 0, 0, 0), 0, height= 0)
     lowest_tile: Tile
     
