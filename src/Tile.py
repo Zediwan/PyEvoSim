@@ -29,9 +29,7 @@ class Tile():
         self.neighbors: dict[Direction, Tile] = {}
         
         # Height
-        self.height: float = height
-        self.height_contours = []
-        
+        self.height: float = height        
         self.moisture: float = moisture      
         self.water: float = 0
         self.color: Color = self.get_biome_color()
@@ -90,10 +88,6 @@ class Tile():
         from config import draw_height_level
         if draw_height_level:
             self.draw_stat(self.height * 99, screen)
-
-        from config import draw_height_lines
-        if draw_height_lines:
-            self.draw_height_contours(screen)
 
     def get_biome_color(self) -> Color:
         if (self.height < 0.1):
@@ -160,56 +154,6 @@ class Tile():
         text_y = center_y - text.get_height() // 2
         screen.blit(text, (text_x, text_y))
     
-    # TODO rework for new height properties
-    def calculate_height_contours(self):
-        """
-        Calculates the contour lines based on the current height and neighbors
-        and stores them in self.height_contours.
-        """    
-        steepest_decline = 1
-        steepest_decline_direction = None
-        
-        for direction in self.get_directions():
-            neighbor = self.get_neighbor(direction)
-            if neighbor == None: continue
-            
-            n_height = round(neighbor.height * 100)
-            s_height = round(self.height * 100)
-    
-            difference_in_height = n_height - s_height
-            if difference_in_height < steepest_decline or (difference_in_height == steepest_decline and random() < .5):
-                steepest_decline = difference_in_height
-                steepest_decline_direction = direction
-            
-            self.steepest_decline_direction = steepest_decline_direction
-            
-            if abs(difference_in_height) >= 0:
-                color = Color(0, 0, 0)  # Adjust as needed
-                thickness = clamp(round(abs(difference_in_height)), 0, 5)  # Example logic
-            
-                if direction in [Direction.NORTH, Direction.SOUTH]:
-                    start_pos = self.rect.topleft if direction == Direction.NORTH else self.rect.bottomleft
-                    end_pos = self.rect.topright if direction == Direction.NORTH else self.rect.bottomright
-                else:
-                    start_pos = self.rect.topright if direction == Direction.EAST else self.rect.topleft
-                    end_pos = self.rect.bottomright if direction == Direction.EAST else self.rect.bottomleft
-            
-                self.height_contours.append((start_pos, end_pos, color, thickness))
-        #print("Calculated height contours")
-
-    def draw_height_contours(self, screen: Surface):
-        """
-        Draw height contours on the screen.
-
-        Args:
-            screen (Surface): A Surface object representing the screen.
-
-        Returns:
-            None
-        """
-        for start_pos, end_pos, color, thickness in self.height_contours:
-            draw.line(screen, color, start_pos, end_pos, thickness)
-        
     def leave(self):
         self.animal = None
         

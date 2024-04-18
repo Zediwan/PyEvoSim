@@ -67,10 +67,6 @@ class Simulation:
                     config.draw_height_level = not config.draw_height_level
                     self.world.draw(self.screen) 
                     pg.display.flip()
-                elif event.key == pg.K_4 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_height_lines = not config.draw_height_lines
-                    self.world.draw(self.screen) 
-                    pg.display.flip() 
                 elif event.key == pg.K_5 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_water_sources = not config.draw_water_sources
                     self.world.draw(self.screen) 
