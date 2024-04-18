@@ -52,7 +52,7 @@ class Plant(Organism):
             # color = color.lerp(extra, .2)
             
         super().__init__(tile, shape, color, health, energy)
-        
+              
         self.tile: Tile = tile
         self.tile.add_plant(self)
                 
@@ -83,13 +83,20 @@ class Plant(Organism):
                 self.gain_health(self.growth)
                 
             if self.energy_ratio() > 0.75:
-                option = self.tile.get_random_neigbor(no_plant=True)
+                option = self.tile.get_random_neighbor(no_plant=True)
                 if option:
                     self.use_energy(self.MAX_ENERGY / 2)
                     self.copy(option)
                 
     def growth_chance(self):
-        return self.BASE_GROWTH_CHANCE - self.tile.calculate_growth_height_penalty(self.BASE_GROWTH_CHANCE)
+        return self.BASE_GROWTH_CHANCE - self.calculate_growth_height_penalty()
+    
+    def calculate_growth_height_penalty(self) -> float:
+        height_threshold_for_growth_penalty = .5
+        if self.tile.height > height_threshold_for_growth_penalty:
+            return -(self.BASE_GROWTH_CHANCE * self.tile.height)
+        else:
+            return 0
     
     #TODO rethink plant drawing with biomes now being implemented
     def draw(self, screen: Surface):
@@ -98,15 +105,16 @@ class Plant(Organism):
         
         self.color: Color = self.MIN_PLANT_COLOR.lerp(self.MAX_PLANT_COLOR, self.health_ratio())
         alpha = floor(lerp(0, 200, self.health_ratio()))
-        pygame.draw.circle(self.temp_surface, self.color, self.temp_surface.get_rect().center, self.shape.width/4)
-        self.temp_surface.set_alpha(alpha)
-        screen.blit(self.temp_surface, (0, 0))
-            
-    def die(self):
-        if self.health > 0:
-            raise ValueError("Organism tries to die despite not being dead.")
-        
-        self.tile.plant = None
+        pygame.draw.circle(self.image, self.color, self.image.get_rect().center, self.shape.width/4)
+        self.image.set_alpha(alpha)
+        screen.blit(self.image, (0, 0))
     
     def copy(self, tile: Tile):
         return Plant(tile, health = self.MAX_HEALTH * .1)
+    
+    def enter_tile(self, tile: Tile):  
+        old_tile = self.tile 
+        self.tile = tile   
+        if old_tile:
+            old_tile.remove_plant(self)
+        self.tile.add_plant(self)

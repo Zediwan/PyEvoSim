@@ -4,7 +4,7 @@ from typing import Optional
 from pygame import Color, Rect, Surface
 
 from pygame.math import clamp
-from random import random, randint, shuffle
+from random import choice, random, randint, shuffle
 
 from config import *
 from organism import Organism
@@ -24,7 +24,7 @@ class Animal(Organism):
     MIN_ANIMAL_WATER_AFFINITY, MAX_ANIMAL_WATER_AFFINITY = 1, 10
     BASE_ANIMAL_WATER_AFFINITY: int = 2
     
-    MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = Tile.MIN_GROWTH_VALUE + 1, Tile.MAX_GROWTH_VALUE
+    MIN_ANIMAL_LAND_AFFINITY, MAX_ANIMAL_LAND_AFFINITY = 1, 10
     BASE_ANIMAL_LAND_AFFINITY: int = 8
     
     GRASS_CONSUMPTION = 1
@@ -57,7 +57,7 @@ class Animal(Organism):
         super().__init__(tile, shape, color, health, energy)
         
         self.tile: Tile = tile
-        self.tile.enter(self)
+        self.tile.add_animal(self)
         
         self.waterAffinity: float = waterAffinity
         if starting_water_affinity:
@@ -78,8 +78,8 @@ class Animal(Organism):
             self.loose_health(LAND_SUFFOCATION_DAMAGE)
             
         damage = 5
-        if self.tile.plant:
-            self.tile.plant.loose_health(damage)
+        if self.tile.plants.__bool__():
+            choice(self.tile.plants.sprites()).loose_health(damage)
             self.gain_energy(damage * .8)
         
         direction = self.think()
@@ -94,34 +94,31 @@ class Animal(Organism):
 
     def reproduce(self):
         if self.ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD <= self.health / self.MAX_HEALTH:
-            unoccupied_neighbor = self.tile.get_random_neigbor(no_animal=True)
+            unoccupied_neighbor = self.tile.get_random_neighbor(no_animal=True)
             if unoccupied_neighbor:
                 if random() <= self.ANIMAL_REPRODUCTION_CHANCE:
                     self.copy(unoccupied_neighbor) # Reproduce to a neighbor tile
         
     def think(self) -> Tile|None:
         best_growth = 0
-        destination = self.tile.get_random_neigbor(no_animal=True)
+        destination = self.tile.get_random_neighbor(no_animal=True)
         
         ns = self.tile.get_neighbors()
         shuffle(ns)
         for n in ns:
             if n.has_animal(): continue
-            if not n.plant: continue
-            if n.plant.health > 1.5 * best_growth:
-                best_growth = n.plant.health
+            if not n.has_plant(): continue
+            sum_growth = 0
+            for p in n.plants:
+                sum_growth += p.health
+            if sum_growth > 1.5 * best_growth:
+                best_growth = sum_growth
                 destination = n
             
         return destination
     
     def draw(self, screen: Surface):
         super().draw(screen)
-        
-    def die(self):
-        if self.health > 0:
-            raise ValueError("Organism tries to die despite not being dead.")
-        
-        self.tile.leave()
     
     def copy(self, tile: Tile) -> Animal:
         newWA = self.waterAffinity
@@ -129,3 +126,10 @@ class Animal(Organism):
         newLA = self.landAffintiy 
         newWA += random() - .5
         return Animal(tile, color = self.color, waterAffinity=newWA, landAffinity=newLA)
+    
+    def enter_tile(self, tile: Tile):  
+        old_tile = self.tile 
+        self.tile = tile   
+        if old_tile:
+            old_tile.remove_animal(self)
+        self.tile.add_animal(self)

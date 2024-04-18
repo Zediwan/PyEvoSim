@@ -31,34 +31,26 @@ class Organism(ABC, sprite.Sprite):
         self.shape: Rect = shape
         self.color: Color = color
         
-        self.temp_surface: Surface = Surface(self.shape.size, SRCALPHA)
+        self.image: Surface = Surface(self.shape.size, SRCALPHA)
     
     def update(self):
-        self.use_energy(2) #TODO make this a variable
+        organism_energy_maintenance_cost = 2
+        self.use_energy(organism_energy_maintenance_cost)
         
         if not self.is_alive():
             self.die()
-            return
                 
     @abstractmethod
     def draw(self, screen: Surface):
         if not self.is_alive():
             raise ValueError("Organism is being drawn despite being dead. ", self.health)
-        pygame.draw.rect(self.temp_surface, self.color, self.shape)
-        self.temp_surface.set_alpha(255)
-        screen.blit(self.temp_surface, (0, 0))
+        pygame.draw.rect(self.image, self.color, self.shape)
+        self.image.set_alpha(255)
+        screen.blit(self.image, (0, 0))
     
+    @abstractmethod
     def enter_tile(self, tile: Tile):
-        if tile.has_animal():
-            raise ValueError("Tile is already occupied.")
-            
-        if self.tile:
-            self.tile.leave()
-        
-        self.tile = tile
-        tile.enter(self)
-        
-        self.invariant()
+        pass
         
     def health_ratio(self) -> float:        
         ratio = self.health / self.MAX_HEALTH
@@ -114,17 +106,12 @@ class Organism(ABC, sprite.Sprite):
     def is_alive(self) -> bool:
         return self.health > 0
     
-    @abstractmethod
     def die(self):
-        pass
+        if self.health > 0:
+            raise ValueError("Organism tries to die despite not being dead.")
+        
+        self.kill()
     
     @abstractmethod
     def copy(self, tile: Tile):
         pass 
-    
-    def invariant(self):
-        if not self.tile:
-            raise ValueError("Organism does not have a tile!")
-        if self.tile.animal:
-            if self != self.tile.animal:
-                raise ValueError("Tiles Organism and Organisms tile are not equal.")
