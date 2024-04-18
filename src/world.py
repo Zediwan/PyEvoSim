@@ -125,7 +125,6 @@ class World(sprite.Sprite):
             for col in range(self.cols):
                 tile: Tile = self.tiles[row * self.cols + col]
                 self.add_neighbors(row, col, tile) 
-                tile.calculate_height_contours() 
 
     def add_neighbors(self, row, col, tile: Tile):
         if row > 0:
