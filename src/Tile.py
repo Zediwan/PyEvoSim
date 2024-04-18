@@ -8,7 +8,9 @@ from math import floor
 from random import random, choice, shuffle
 
 from config import *
+from colors import *
 from direction import Direction
+
 class Tile():
     ### Water
     AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL: float = 10
@@ -16,46 +18,11 @@ class Tile():
     MIN_WATER_HEIGHT_FOR_DROWING: float = 3
     MIN_WATER_VALUE: float = 0
     MAX_WATER_VALUE: float = float("inf")
-    
-    MIN_WATER_COLOR = Color(204, 229, 233, ground_alpha)
-    MAX_WATER_COLOR = Color(26, 136, 157, ground_alpha)
-    #MAX_WATER_COLOR =  Color("dodgerblue4")
-    
-    #################################################################################################################################
-    
-    ### Land
-    MIN_GROWTH_VALUE: float = 0
-    MAX_GROWTH_VALUE: float = 10
-        
-    BASE_GROWTH_RATE: float = 1
-    BASE_GROWTH_CHANCE: float = .01
-    GROWTH_RATE_INCREASE_BY_WATER: float = 5
-    GROWTH_CHANCE_INCREASE_BY_WATER: float = .05
-    GROW_FOR_YOURSELF_UNTIL_THRESHOLD: float = .5
-    NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD: float = .9
-    NATURAL_GROWTH_LOSS_CHANCE: float = .02
-    NATURAL_GROWTH_LOSS_AMOUNT: float = 1
-    
-    MIN_GRASS_COLOR: Color = Color(235, 242, 230, ground_alpha)
-    MAX_GRASS_COLOR: Color = Color(76, 141, 29, ground_alpha)
-    
-    # Soil
-    DIRT_COLOR: Color = Color(155, 118, 83, ground_alpha)
-    SAND_COLOR: Color = Color("lightgoldenrod")
-    
-    # Mountains
-    MOUNTAIN_TOP_COLOR: Color = Color("white")
-    MOUNTAIN_FLOOR_COLOR: Color = Color("azure4")
-    
     #### TODO: improve names
     LAND_DAMAGE: float = 10
     ####
     
-    def __init__(self, rect: Rect, tile_size: int, height: float = 0, moisture: float = 0,
-                 animal = None,
-                 plant = None,
-                 is_border = False
-                 ):
+    def __init__(self, rect: Rect, tile_size: int, height: float = 0, moisture: float = 0, is_border = False):
         # Tile
         self.rect: Rect = rect
         self.tile_size: int = tile_size
@@ -67,23 +34,19 @@ class Tile():
         
         self.moisture: float = moisture      
         self.water: float = 0
-        self.color: Color = self.get_biome_color(self.height, self.moisture)
+        self.color: Color = self.get_biome_color()
               
         # Organisms
         from animal import Animal
-        self.animal: Animal | None = animal
+        self.animal: Animal | None = None
             
         from plant import Plant
-        self.plant: Plant | None = plant
+        self.plant: Plant | None = None
         
-        # self.color.r += randint(0,5)
-        # self.color.g += randint(0,5)
-        # self.color.b += randint(0,5)
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         
         self.is_border: bool = is_border
         self.is_coast: bool = False
-        
         self.steepest_decline_direction: Direction | None = None
 
     def update(self):        
@@ -116,7 +79,7 @@ class Tile():
             water_ratio = clamp(self.water / 100, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
             alpha = floor(lerp(0, 255, clamp(water_ratio + .7, 0, 1)))
             water_surface.set_alpha(alpha)
-            water_color = self.MIN_WATER_COLOR.lerp(self.MAX_WATER_COLOR, clamp((water_ratio * 10)+.2, 0, 1))
+            water_color = WATER_COLOR
             water_surface.fill(water_color)
             screen.blit(water_surface, self.rect.topleft)
         
@@ -132,46 +95,46 @@ class Tile():
         if draw_height_lines:
             self.draw_height_contours(screen)
 
-    def get_biome_color(self, height: float, moisture: float) -> Color:
-        if (height < 0.1):
-            self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(height) + 1)
-            return self.DIRT_COLOR #OCEAN TODO think of better color
-        if (height < 0.12): 
-            return Color(228,232,202) #SAND
+    def get_biome_color(self) -> Color:
+        if (self.height < 0.1):
+            self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(self.height) + 1)
+            return WATER_COLOR
+        if (self.height < 0.12): 
+            return SAND_COLOR
         
-        if (height > 0.8):
-            if (moisture < 0.1): 
-                return Color(153, 153, 153) #SCORCHED
-            if (moisture < 0.2): 
-                return Color(187, 187, 187) #BARE
-            if (moisture < 0.5): 
-                return Color(221,221,187) #TUNDRA
-            return Color(248,248,248) # SNOW
+        if (self.height > 0.8):
+            if (self.moisture < 0.1): 
+                return SCORCHED_COLOR
+            if (self.moisture < 0.2): 
+                return BARE_COLOR
+            if (self.moisture < 0.5): 
+                return TUNDRA_COLOR
+            return SNOW_COLOR
 
-        if (height > 0.6):
-            if (moisture < 0.33): 
-                return Color(228,232,202) #TEMPERATE_DESERT
-            if (moisture < 0.66): 
-                return Color(195,204,187) #SHRUBLAND
-            return Color(203,212,187) #TAIGA
+        if (self.height > 0.6):
+            if (self.moisture < 0.33): 
+                return TEMPERATE_DESERT_COLOR
+            if (self.moisture < 0.66): 
+                return SHRUBLAND_COLOR
+            return TAIGA_COLOR
 
-        if (height > 0.3):
-            if (moisture < 0.16): 
-                return Color(228,232,202) #TEMPERATE_DESERT
-            if (moisture < 0.50): 
-                return Color(196,212,170) #GRASSLAND
-            if (moisture < 0.83): 
-                return Color(180,200,169) #TEMPERATE_DECIDUOUS_FOREST
-            return Color(163,196,168) #TEMPERATE_RAIN_FOREST
+        if (self.height > 0.3):
+            if (self.moisture < 0.16): 
+                return TEMPERATE_DESERT_COLOR
+            if (self.moisture < 0.50): 
+                return GRASSLAND_COLOR
+            if (self.moisture < 0.83): 
+                return TEMPERATE_DECIDUOUS_FOREST_COLOR
+            return TEMPERATE_RAIN_FOREST_COLOR
 
-        if (moisture < 0.16): 
-            return Color(233,220,198) #SUBTROPICAL_DESERT
-        if (moisture < 0.33): 
-            return Color(196,212,170) #GRASSLAND
-        if (moisture < 0.66): 
-            return Color(169,204,163) #TROPICAL_SEASONAL_FOREST
-        return Color(156,187,169) #TROPICAL_RAIN_FOREST:
-
+        if (self.moisture < 0.16): 
+            return SUBTROPICAL_DESERT_COLOR
+        if (self.moisture < 0.33): 
+            return GRASSLAND_COLOR
+        if (self.moisture < 0.66): 
+            return TROPICAL_SEASONAL_FOREST_COLOR
+        return TROPICAL_RAIN_FOREST_COLOR
+    
     def draw_stat(self, stat: float, screen: Surface):
         stat_alpha = 255
         # if abs(stat) < 10:
