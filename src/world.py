@@ -222,10 +222,13 @@ class World(sprite.Sprite):
             height = clamp(pow(abs(height * fudge_factor), power), 0, 1)
             if is_neg:
                 height *= -1 
-                
-        assert -1 <= height <= 1
         
-        return height, (snoise2(x * self.frequency_x, y * self.frequency_y)+1)/2
+        moisture = (snoise2(x * self.frequency_x, y * self.frequency_y)+1)/2
+        
+        assert 0 <= height <= 1
+        assert 0 <= moisture <= 1
+        
+        return height, moisture
     
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
