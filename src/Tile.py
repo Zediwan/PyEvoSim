@@ -10,15 +10,12 @@ from colors import *
 from direction import Direction
 
 class Tile():
-    ### Water
     AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL: float = 10
     SEA_LEVEL: float = 0
     MIN_WATER_HEIGHT_FOR_DROWING: float = 3
     MIN_WATER_VALUE: float = 0
     MAX_WATER_VALUE: float = float("inf")
-    #### TODO: improve names
-    LAND_DAMAGE: float = 10
-    ####
+    LAND_DAMAGE: float = 10 # TODO: improve name
     
     def __init__(self, rect: Rect, tile_size: int, height: float = 0, moisture: float = 0, is_border = False):
         # Tile
@@ -89,7 +86,7 @@ class Tile():
 
     def get_biome_color(self) -> Color:
         if (self.height < 0.1):
-            self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(self.height) + 1)
+            self.water = self.max_water()
             return WATER_COLOR
         if (self.height < 0.12): 
             return SAND_COLOR
@@ -126,6 +123,9 @@ class Tile():
         if (self.moisture < 0.66): 
             return TROPICAL_SEASONAL_FOREST_COLOR
         return TROPICAL_RAIN_FOREST_COLOR
+    
+    def max_water(self) -> float:
+        return self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(self.height) + 1)
     
     def draw_stat(self, stat: float, screen: Surface):
         stat_alpha = 255
