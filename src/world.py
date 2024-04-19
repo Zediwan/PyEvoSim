@@ -13,9 +13,6 @@ from direction import Direction
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class World(sprite.Sprite):
-    highest_tile: Tile = Tile(pygame.rect.Rect(0, 0, 0, 0), 0, height= 0)
-    lowest_tile: Tile
-    
     def __init__(self, height : int, width : int, tile_size : int):
         sprite.Sprite.__init__(self)
         self.tile_size = tile_size
@@ -33,24 +30,27 @@ class World(sprite.Sprite):
         shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
-            if tile.is_border and not tile.has_water:
-                chance_to_spawn_animal_at_border = .000001
-                chance_to_spawn_plant_at_border = .00001
-                if random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
-                    self.spawn_animal(tile)
-                if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
-                    self.spawn_plant(tile)
-            if tile.is_coast:
-                chance_to_spawn_plant_at_coast = .0001
-                if random() <= chance_to_spawn_plant_at_coast and not tile.has_plant():
-                    self.spawn_plant(tile)
+            self.handle_border_update(tile)
+            self.handle_coast_update(tile)
+
+    def handle_coast_update(self, tile):
+        if tile.is_coast:
+            chance_to_spawn_plant_at_coast = .0001
+            if random() <= chance_to_spawn_plant_at_coast and not tile.has_plant():
+                self.spawn_plant(tile)
+
+    def handle_border_update(self, tile: Tile):
+        if tile.is_border and not tile.has_water:
+            chance_to_spawn_animal_at_border = .000001
+            chance_to_spawn_plant_at_border = .00001
+            if random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
+                self.spawn_animal(tile)
+            if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
+                self.spawn_plant(tile)
                     
     def draw(self, screen : Surface):
-        temp_surface = Surface((self.cols * self.tile_size, self.rows * self.tile_size), pygame.SRCALPHA)
         for tile in self.tiles:
-            tile.draw(temp_surface)
-            
-        screen.blit(temp_surface, (0, 0))  
+            tile.draw(screen) 
     
     def is_border_tile(self, row: int, col: int) -> bool:
         return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
@@ -70,16 +70,9 @@ class World(sprite.Sprite):
     
     def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
-                
         height, moisture = self.generate_noise_values(row, col)
         
         tile : Tile = Tile(rect, self.tile_size, height=height, moisture = moisture, is_border = self.is_border_tile(row = row, col = col))
-        
-        if self.highest_tile:
-            if height > self.highest_tile.height and random() < .75:
-                self.highest_tile = tile
-        else:
-            self.highest_tile = tile
         
         if not tile.has_water:
             self.spawn_animal(tile, chance_to_spawn = STARTING_ANIMAL_PERCENTAGE)
@@ -89,15 +82,14 @@ class World(sprite.Sprite):
     
     def spawn_animals(self, chance_to_spawn: float = 1):
         for tile in self.tiles:
-            if not tile.has_animal() and not tile.has_water:
-                self.spawn_animal(tile, chance_to_spawn = chance_to_spawn)
+            self.spawn_animal(tile, chance_to_spawn = chance_to_spawn)
     
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
-        if random() <= chance_to_spawn and not tile.has_water:
+        if random() <= chance_to_spawn and not tile.has_water and not tile.has_animal():
             Animal(tile)
                 
     def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
-        if random() <= chance_to_spawn and not tile.has_water:
+        if random() <= chance_to_spawn and not tile.has_water and not tile.has_plant():
             Plant(tile)
         
     def define_neighbor_attributes(self):
