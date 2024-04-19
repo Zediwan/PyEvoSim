@@ -27,18 +27,22 @@ class World(sprite.Sprite):
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.define_neighbor_attributes()
-        self.create_river()
+        #self.create_river()
    
     def update(self):
         shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
-            if tile.is_border or tile.water > 0 or tile.height <= tile.SEA_LEVEL * 1.1:
+            if tile.is_border and not tile.has_water:
                 chance_to_spawn_animal_at_border = .000001
                 chance_to_spawn_plant_at_border = .00001
                 if random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
                     self.spawn_animal(tile)
                 if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
+                    self.spawn_plant(tile)
+            if tile.is_coast:
+                chance_to_spawn_plant_at_coast = .000001
+                if random() <= chance_to_spawn_plant_at_coast and not tile.has_plant():
                     self.spawn_plant(tile)
                     
     def draw(self, screen : Surface):
@@ -51,18 +55,18 @@ class World(sprite.Sprite):
     def is_border_tile(self, row: int, col: int) -> bool:
         return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
     
-    def create_river(self, tile_to_start: Tile | None = None):
-        if not tile_to_start:
-            tile = self.highest_tile
-        else:
-            tile = tile_to_start
-        while tile != None and tile.steepest_decline_direction != None and tile.water <= 0:
-            tile.water = lerp(10, 1, tile.height/self.highest_tile.height)
-            tile: Tile | None = tile.get_neighbor(tile.steepest_decline_direction)
-            river_branch_chance = 0.2 * random()
-            if random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
-                branch_of = tile.get_neighbor(choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
-                self.create_river(branch_of)
+    # def create_river(self, tile_to_start: Tile | None = None):
+    #     if not tile_to_start:
+    #         tile = self.highest_tile
+    #     else:
+    #         tile = tile_to_start
+    #     while tile != None and tile.steepest_decline_direction != None and tile.water <= 0:
+    #         tile.water = lerp(10, 1, tile.height/self.highest_tile.height)
+    #         tile: Tile | None = tile.get_neighbor(tile.steepest_decline_direction)
+    #         river_branch_chance = 0.2 * random()
+    #         if random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
+    #             branch_of = tile.get_neighbor(choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
+    #             self.create_river(branch_of)
     
     def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
@@ -76,47 +80,25 @@ class World(sprite.Sprite):
                 self.highest_tile = tile
         else:
             self.highest_tile = tile
-            
-        self.spawn_animal(tile,
-                          chance_to_spawn = STARTING_ANIMAL_PERCENTAGE, 
-                          chance_of_land_animals = STARTING_LAND_ANIMAL_PERCENTAGE, 
-                          chance_of_water_animals = STARTING_WATER_ANIMAL_PERCENTAGE
-                          )
         
-        self.spawn_plant(tile)
+        if not tile.has_water:
+            self.spawn_animal(tile, chance_to_spawn = STARTING_ANIMAL_PERCENTAGE)
+            self.spawn_plant(tile)
             
         return tile
     
-    def spawn_animals(self, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
+    def spawn_animals(self, chance_to_spawn: float = 1):
         for tile in self.tiles:
             if not tile.has_animal():
-                self.spawn_animal(tile, 
-                                chance_to_spawn = chance_to_spawn,
-                                chance_of_land_animals = chance_of_land_animals,
-                                chance_of_water_animals = chance_of_water_animals)
+                self.spawn_animal(tile, chance_to_spawn = chance_to_spawn)
     
-    def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1, chance_of_land_animals: float = 1, chance_of_water_animals: float = 1):
+    def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
         if random() <= chance_to_spawn:
-            if tile.water > 0:
-                self.spawn_water_animal(tile, chance_of_water_animals)
-            else:
-                self.spawn_land_animal(tile, chance_of_land_animals)
+            Animal(tile)
                 
     def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
         if random() <= chance_to_spawn:
             Plant(tile)
-            
-    def spawn_water_animal(self, tile: Tile, chance_to_spawn: float = 1):
-        wA = Animal.MAX_ANIMAL_WATER_AFFINITY - 2
-        lA = Animal.MIN_ANIMAL_LAND_AFFINITY + 5
-        if random() <= chance_to_spawn:
-            Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
-            
-    def spawn_land_animal(self, tile: Tile, chance_to_spawn: float = 1):
-        wA = Animal.MIN_ANIMAL_WATER_AFFINITY + 2
-        lA = Animal.MAX_ANIMAL_LAND_AFFINITY - 2
-        if random() <= chance_to_spawn:
-            Animal(tile, starting_land_affinity=lA, starting_water_affinity=wA)
         
     def define_neighbor_attributes(self):
         for row in range(self.rows):
@@ -208,7 +190,7 @@ class World(sprite.Sprite):
             nx =  2 * col * self.tile_size / self.width - 1
             ny = 2 * row * self.tile_size / self.height - 1
             d = 1 - (1 - pow(nx, 2)) * (1 - pow(ny, 2))
-            mix = .5
+            mix = .7
             height = lerp(height, 1 - d, mix)
           
         terraces = False

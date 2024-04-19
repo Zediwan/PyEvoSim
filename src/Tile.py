@@ -10,12 +10,7 @@ from colors import *
 from direction import Direction
 
 class Tile():
-    AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL: float = 10
-    SEA_LEVEL: float = 0
-    MIN_WATER_HEIGHT_FOR_DROWING: float = 3
-    MIN_WATER_VALUE: float = 0
-    MAX_WATER_VALUE: float = float("inf")
-    LAND_DAMAGE: float = 10 # TODO: improve name
+    WATER_LEVEL = .1
     
     def __init__(self, rect: Rect, tile_size: int, height: float = 0, moisture: float = 0, is_border = False):
         # Tile
@@ -26,7 +21,6 @@ class Tile():
         # Height
         self.height: float = height        
         self.moisture: float = moisture      
-        self.water: float = 0
         self.color: Color = self.get_biome_color()
               
         # Organisms
@@ -38,6 +32,7 @@ class Tile():
         
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         
+        self.has_water = self.height < self.WATER_LEVEL
         self.is_border: bool = is_border
         self.is_coast: bool = False
         self.steepest_decline_direction: Direction | None = None
@@ -66,27 +61,13 @@ class Tile():
             self.plant.draw(self.temp_surface)
             
         screen.blit(self.temp_surface, self.rect.topleft)
-        
-        if self.water > 0:
-            water_surface: Surface = Surface(self.rect.size, SRCALPHA)
-            water_ratio = clamp(self.water / 100, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
-            alpha = floor(lerp(0, 255, clamp(water_ratio + .7, 0, 1)))
-            water_surface.set_alpha(alpha)
-            water_color = WATER_COLOR
-            water_surface.fill(water_color)
-            screen.blit(water_surface, self.rect.topleft)
-        
-        from config import draw_water_level
-        if draw_water_level:
-            self.draw_stat(self.water, screen)
 
         from config import draw_height_level
         if draw_height_level:
             self.draw_stat(self.height * 99, screen)
 
     def get_biome_color(self) -> Color:
-        if (self.height < 0.1):
-            self.water = self.max_water()
+        if (self.height < self.WATER_LEVEL):
             return WATER_COLOR
         if (self.height < 0.12): 
             return SAND_COLOR
@@ -124,16 +105,8 @@ class Tile():
             return TROPICAL_SEASONAL_FOREST_COLOR
         return TROPICAL_RAIN_FOREST_COLOR
     
-    def max_water(self) -> float:
-        return self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(self.height) + 1)
-    
     def draw_stat(self, stat: float, screen: Surface):
         stat_alpha = 255
-        # if abs(stat) < 10:
-        #     stat = round(stat, 0)
-        # else:
-        #     stat = round(stat, 0)
-        
         text = font.render(str(round(stat)), True, (0, 0, 0))
         screen.set_alpha(stat_alpha)
         self._render_text_centered(screen, text)
@@ -176,7 +149,7 @@ class Tile():
 
     def add_neighbor(self, direction: Direction, tile: Tile):
         self.neighbors[direction] = tile
-        self.is_coast = tile.water > 0 and self.water == 0
+        self.is_coast = tile.has_water and self.has_water
 
     def get_directions(self) -> List[Direction]:
         dirs = list(self.neighbors.keys())
@@ -191,12 +164,13 @@ class Tile():
     def get_neighbor(self, direction: Direction) -> Tile|None:
         return self.neighbors.get(direction, None)
 
-    def get_random_neigbor(self, no_plant = False, no_animal = False) -> Tile | None:
+    def get_random_neigbor(self, no_plant = False, no_animal = False, no_water = False) -> Tile | None:
         options = []
         has_options = False
         for tile in self.neighbors.values():
             if no_plant and tile.has_plant(): continue 
             if no_animal and tile.has_animal(): continue
+            if no_water and tile.has_water: continue
             options.append(tile)
             has_options = True
             

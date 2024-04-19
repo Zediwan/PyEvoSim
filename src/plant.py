@@ -64,7 +64,7 @@ class Plant(Organism):
         self.use_energy(random() * 5) #TODO make this a variable
         self.gain_energy(random() * 5 * 1.2)
         
-        if self.tile.water > 0:
+        if self.tile.is_coast:
             self.gain_energy(random())
         
         if self.energy > 0:
@@ -81,7 +81,7 @@ class Plant(Organism):
                 self.gain_health(self.growth)
                 
             if self.energy_ratio() > 0.75:
-                option = self.tile.get_random_neigbor(no_plant=True)
+                option = self.tile.get_random_neigbor(no_plant=True, no_water = True)
                 if option:
                     self.use_energy(self.MAX_ENERGY / 2)
                     self.copy(option)
