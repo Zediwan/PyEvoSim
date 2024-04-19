@@ -49,32 +49,7 @@ class Simulation:
                     is_paused  = not is_paused
                 elif event.key == 13: #TODO: find out enter key name
                     chance_to_spawn_animals = .01
-                    chance_of_water_animals = .2
-                    chance_of_land_animals = .5
-                    self.world.spawn_animals(chance_to_spawn = chance_to_spawn_animals,
-                                             chance_of_water_animals = chance_of_water_animals,
-                                             chance_of_land_animals = chance_of_land_animals
-                                             )
-                elif event.key == pg.K_1 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_water_level = not config.draw_water_level
-                    self.world.draw(self.screen) 
-                    pg.display.flip() 
-                elif event.key == pg.K_2 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_growth_level = not config.draw_growth_level
-                    self.world.draw(self.screen) 
-                    pg.display.flip() 
-                elif event.key == pg.K_3 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_height_level = not config.draw_height_level
-                    self.world.draw(self.screen) 
-                    pg.display.flip()
-                elif event.key == pg.K_5 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_water_sources = not config.draw_water_sources
-                    self.world.draw(self.screen) 
-                    pg.display.flip() 
-                elif event.key == pg.K_6 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_temperature_level = not config.draw_temperature_level
-                    self.world.draw(self.screen) 
-                    pg.display.flip() 
+                    self.world.spawn_animals(chance_to_spawn = chance_to_spawn_animals) 
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False

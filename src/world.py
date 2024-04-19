@@ -23,7 +23,7 @@ class World(sprite.Sprite):
         self.rows = floor(self.height / self.tile_size)
         self.cols = floor(self.width / self.tile_size)
         
-        self.generate_world_parameters()
+        self.generate_frequency()
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
         self.define_neighbor_attributes()
@@ -41,7 +41,7 @@ class World(sprite.Sprite):
                 if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
                     self.spawn_plant(tile)
             if tile.is_coast:
-                chance_to_spawn_plant_at_coast = .000001
+                chance_to_spawn_plant_at_coast = .0001
                 if random() <= chance_to_spawn_plant_at_coast and not tile.has_plant():
                     self.spawn_plant(tile)
                     
@@ -71,7 +71,7 @@ class World(sprite.Sprite):
     def create_tile(self, col: int, row: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
                 
-        height, moisture = self.generate_noise_values(row, col, self.world_gen_param1, self.world_gen_param2)
+        height, moisture = self.generate_noise_values(row, col)
         
         tile : Tile = Tile(rect, self.tile_size, height=height, moisture = moisture, is_border = self.is_border_tile(row = row, col = col))
         
@@ -89,15 +89,15 @@ class World(sprite.Sprite):
     
     def spawn_animals(self, chance_to_spawn: float = 1):
         for tile in self.tiles:
-            if not tile.has_animal():
+            if not tile.has_animal() and not tile.has_water:
                 self.spawn_animal(tile, chance_to_spawn = chance_to_spawn)
     
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
-        if random() <= chance_to_spawn:
+        if random() <= chance_to_spawn and not tile.has_water:
             Animal(tile)
                 
     def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
-        if random() <= chance_to_spawn:
+        if random() <= chance_to_spawn and not tile.has_water:
             Plant(tile)
         
     def define_neighbor_attributes(self):
@@ -116,35 +116,6 @@ class World(sprite.Sprite):
         if col > 0:
             tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])
     
-    def generate_world_parameters(self, seed=None):
-        if seed is not None:
-            seed(seed)  # Initialize the random number generator with the seed
-
-        self.generate_frequency()
-
-        RANDOM_VALUE_RANGE = (-150, 150)
-        MIN_PARAM_VALUE_THRESHOLD = 40
-
-        if WORLD_GENERATION_PARAM1 is not None:
-            self.world_gen_param1: int = WORLD_GENERATION_PARAM1
-        else:
-            self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
-            while True:
-                if abs(self.world_gen_param1) >= MIN_PARAM_VALUE_THRESHOLD:
-                    break
-                self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
-                
-        if WORLD_GENERATION_PARAM2 is not None:
-            self.world_gen_param2: int = WORLD_GENERATION_PARAM2
-        else:
-            self.world_gen_param2  = 100 - abs(self.world_gen_param1)  # Inversely proportional example
-            while True:
-                if abs(self.world_gen_param2) >= MIN_PARAM_VALUE_THRESHOLD:
-                    break
-                self.world_gen_param2  = randint(*RANDOM_VALUE_RANGE) 
-
-        logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
-    
     def generate_frequency(self):
         #TODO add a slider for this in world gen mode
         frequency_max = 7 #TODO make this a setting
@@ -154,31 +125,32 @@ class World(sprite.Sprite):
         self.wavelentgh_x = 1/self.frequency_x
         self.wavelentgh_y = 1/self.frequency_y
         
+        RANDOM_VALUE_RANGE = (-150, 150)
+        MIN_PARAM_VALUE_THRESHOLD = 40
+        
+        self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
+        while True:
+            if abs(self.world_gen_param1) >= MIN_PARAM_VALUE_THRESHOLD:
+                break
+            self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
+            
+        self.world_gen_param2  = 100 - abs(self.world_gen_param1)  # Inversely proportional example
+        while True:
+            if abs(self.world_gen_param2) >= MIN_PARAM_VALUE_THRESHOLD:
+                break
+            self.world_gen_param2  = randint(*RANDOM_VALUE_RANGE) 
+        
+        logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
         logging.info(f"Frequency parameters: [{self.frequency_x}, {self.frequency_y}]")
     
-    def generate_noise_values(self, row: int, col: int, param1: int, param2: int) -> tuple[float, float]:
-        x = row / param1
-        y = col / param2
-        freq_x1 = 1
-        freq_y1 = 1
-        freq_x2 = 2
-        freq_y2 = 2
-        freq_x3 = 4
-        freq_y3 = 4
-        scale_1 = 1
-        scale_2 = .5
-        scale_3 = .25
-        offset_x1 = 0
-        offset_y1 = 0
-        offset_x2 = 4.7
-        offset_y2 = 2.3
-        offset_x3 = 19.1
-        offset_y3 = 16.6
+    def generate_noise_values(self, row: int, col: int) -> tuple[float, float]:
+        x = row / self.world_gen_param1
+        y = col / self.world_gen_param2
                 
         height = (
-            snoise2(x * freq_x1 + offset_x1, y * freq_y1 + offset_y1) * scale_1 + 
-            snoise2(x * freq_x2 + offset_x2, y * freq_y2 + offset_y2) * scale_2 +
-            snoise2(x * freq_x3 + offset_x3, y * freq_y3 + offset_y3) * scale_3
+            snoise2((x * freq_x1) + offset_x1, (y * freq_y1) + offset_y1) * scale_1 + 
+            snoise2((x * freq_x2) + offset_x2, (y * freq_y2) + offset_y2) * scale_2 +
+            snoise2((x * freq_x3) + offset_x3, (y * freq_y3) + offset_y3) * scale_3
             )
         height /= (scale_1 + scale_2 + scale_3) # Normalize back in range -1 to 1
         
