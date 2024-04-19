@@ -1,7 +1,5 @@
 from typing import Optional
-
 from pygame import Color, Rect, Surface
-
 from pygame.math import clamp, lerp
 from math import floor
 from random import random

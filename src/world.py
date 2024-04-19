@@ -1,17 +1,15 @@
 from pygame import sprite, Surface
-
 from pygame.math import clamp, lerp
 from math import pow, floor
 from random import random, shuffle, choice, randint
+from noise import snoise2
+import logging
 
 from config import *
 from plant import Plant
 from tile import Tile
 from animal import Animal
 from direction import Direction
-from noise import snoise2
-
-import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class World(sprite.Sprite):

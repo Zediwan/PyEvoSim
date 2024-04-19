@@ -1,8 +1,6 @@
 from __future__ import annotations
 from typing import Optional
-
 from pygame import Color, Rect, Surface
-
 from pygame.math import clamp
 from random import random, randint, shuffle
 

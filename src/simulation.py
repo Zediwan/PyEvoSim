@@ -1,9 +1,9 @@
 import sys
-
 import pygame as pg
 
 import config
 from world import World
+
 class Simulation:
     STARTING_GAME_SPEED: int = 120
     
