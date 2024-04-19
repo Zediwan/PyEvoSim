@@ -23,7 +23,7 @@ class World(sprite.Sprite):
         self.generate_frequency()
         
         self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
-        self.define_neighbor_attributes()
+        self.add_neighbors()
         #self.create_river()
    
     def update(self):
@@ -91,22 +91,19 @@ class World(sprite.Sprite):
     def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
         if random() <= chance_to_spawn and not tile.has_water and not tile.has_plant():
             Plant(tile)
-        
-    def define_neighbor_attributes(self):
+
+    def add_neighbors(self):
         for row in range(self.rows):
             for col in range(self.cols):
                 tile: Tile = self.tiles[row * self.cols + col]
-                self.add_neighbors(row, col, tile) 
-
-    def add_neighbors(self, row, col, tile: Tile):
-        if row > 0:
-            tile.add_neighbor(Direction.NORTH, self.tiles[(row - 1) * self.cols + col])
-        if col < self.cols - 1:
-            tile.add_neighbor(Direction.EAST, self.tiles[row * self.cols + col + 1])
-        if row < self.rows - 1:
-            tile.add_neighbor(Direction.SOUTH, self.tiles[(row + 1) * self.cols + col])
-        if col > 0:
-            tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])
+                if row > 0:
+                    tile.add_neighbor(Direction.NORTH, self.tiles[(row - 1) * self.cols + col])
+                if col < self.cols - 1:
+                    tile.add_neighbor(Direction.EAST, self.tiles[row * self.cols + col + 1])
+                if row < self.rows - 1:
+                    tile.add_neighbor(Direction.SOUTH, self.tiles[(row + 1) * self.cols + col])
+                if col > 0:
+                    tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])
     
     def generate_frequency(self):
         #TODO add a slider for this in world gen mode
