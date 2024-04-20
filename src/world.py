@@ -48,9 +48,9 @@ class World(sprite.Sprite):
             if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
                 self.spawn_plant(tile)
                     
-    def draw(self, screen : Surface):
+    def draw(self):
         for tile in self.tiles:
-            tile.draw(screen) 
+            tile.draw() 
     
     def is_border_tile(self, row: int, col: int) -> bool:
         return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
@@ -76,7 +76,7 @@ class World(sprite.Sprite):
         
         if not tile.has_water:
             self.spawn_animal(tile, chance_to_spawn = STARTING_ANIMAL_PERCENTAGE)
-            self.spawn_plant(tile)
+            self.spawn_plant(tile, chance_to_spawn = STARTING_PLANT_PERCENTAGE)
             
         return tile
     

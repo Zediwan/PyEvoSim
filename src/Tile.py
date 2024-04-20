@@ -52,19 +52,18 @@ class Tile():
         else:
             return 0
 
-    def draw(self, screen: Surface):
+    def draw(self):
         self.temp_surface.fill(self.color)
-
+        pygame.display.get_surface().blit(self.temp_surface, self.rect.topleft)
+        
         if self.animal:
-            self.animal.draw(self.temp_surface)
+            self.animal.draw()
         elif self.plant:
-            self.plant.draw(self.temp_surface)
-            
-        screen.blit(self.temp_surface, self.rect.topleft)
-
+            self.plant.draw()
+        
         from config import draw_height_level
         if draw_height_level:
-            self.draw_stat(self.height * 99, screen)
+            self.draw_stat(self.height * 99)
 
     def get_biome_color(self) -> Color:
         if (self.height < self.WATER_LEVEL):
@@ -105,13 +104,11 @@ class Tile():
             return TROPICAL_SEASONAL_FOREST_COLOR
         return TROPICAL_RAIN_FOREST_COLOR
     
-    def draw_stat(self, stat: float, screen: Surface):
-        stat_alpha = 255
+    def draw_stat(self, stat: float):
         text = font.render(str(round(stat)), True, (0, 0, 0))
-        screen.set_alpha(stat_alpha)
-        self._render_text_centered(screen, text)
+        self._render_text_centered(text)
 
-    def _render_text_centered(self, screen: Surface, text: Surface):
+    def _render_text_centered(self, text: Surface):
         """
         Renders the given text surface centered on the tile.
 
@@ -123,7 +120,7 @@ class Tile():
         center_y = self.rect.y + self.rect.height // 2
         text_x = center_x - text.get_width() // 2
         text_y = center_y - text.get_height() // 2
-        screen.blit(text, (text_x, text_y))
+        pygame.display.get_surface().blit(text, (text_x, text_y))
         
     def add_animal(self, animal):
         assert self.animal == None, "Tile already occupied by an animal."

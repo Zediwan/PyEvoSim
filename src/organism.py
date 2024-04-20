@@ -36,29 +36,23 @@ class Organism(ABC, sprite.Sprite):
         self.color: Color = color
         self.tile: Tile = None
         self.enter_tile(tile)
-        
-        self.temp_surface: Surface = Surface(self.shape.size, SRCALPHA)
-    
+            
     def update(self):
-        energy_maintanance = 2
+        energy_maintanance = 1
         self.use_energy(energy_maintanance)
         
         if not self.is_alive():
             self.die()
-            return
-                
+                            
     @abstractmethod
-    def draw(self, screen: Surface):
+    def draw(self):
         if not self.is_alive():
             raise ValueError("Organism is being drawn despite being dead. ", self.health)
-        
-        pygame.draw.rect(self.temp_surface, self.color, self.shape)
-        self.temp_surface.set_alpha(255)
-        screen.blit(self.temp_surface, (0, 0))
     
     ########################## Tile #################################
     @abstractmethod
     def enter_tile(self, tile: Tile):
+        self.shape.topleft = tile.rect.topleft
         pass
     
     @abstractmethod
@@ -92,7 +86,7 @@ class Organism(ABC, sprite.Sprite):
         if new_energy > self.MAX_ENERGY:
             raise ValueError(f"New energy ({new_energy}) is above max ({self.MAX_ENERGY}).")
         
-        self.health = new_energy
+        self.en = new_energy
         
     def gain_energy(self, energy_gained: float):
         if energy_gained < 0:
@@ -129,7 +123,6 @@ class Organism(ABC, sprite.Sprite):
     def loose_health(self, health_lost: float):
         if health_lost < 0:
             raise ValueError(f"Health lost {health_lost} is negative.")
-        
         self.health = pygame.math.clamp(self.health - health_lost, 0, self.health)
         
     def is_alive(self) -> bool:
@@ -139,7 +132,6 @@ class Organism(ABC, sprite.Sprite):
     def die(self):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
-        pass
     
     ########################## Reproduction #################################
     @abstractmethod

@@ -1,8 +1,7 @@
 from typing import Optional
-from pygame import Color, Rect, Surface
+from pygame import Color, Rect
 from pygame.math import clamp, lerp
-from math import floor
-from random import random, randint
+from random import random, randint, choices
 
 from config import *
 from organism import Organism
@@ -32,34 +31,22 @@ class Plant(Organism):
     MIN_PLANT_COLOR: Color = Color(235, 242, 230, ground_alpha)
     MAX_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
     
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, 
-                 health: Optional[float] = None, 
-                 energy: Optional[float] = None,):
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None):    
         if not shape:
             shape = tile.rect
-            
-        if not health:
-            health = self.MAX_HEALTH * clamp(random(), 0.8, 1)                
-            
-        if not energy:
-            energy = self.MAX_ENERGY * clamp(random(), 0.8, 1)
-            
         if not color:
             color = self.MIN_PLANT_COLOR
-            # extra: Color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
-            # color = color.lerp(extra, .2)
             
+        health = self.MAX_HEALTH * clamp(random(), 0.8, 1)                
+        energy = self.MAX_ENERGY * clamp(random(), 0.8, 1)
         super().__init__(tile, shape, color, health, energy)
-                
-        self.growth: float = self.BASE_GROWTH
-        if self.tile.height > 0:
-            self.growth *= clamp(1-(self.tile.height/100),.1 , 1)
-            self.energy *= clamp(1-(self.tile.height/100),.1 , 1)
-            self.health *= clamp(1-(self.tile.height/100),.1 , 1)  
         
+        self.growth: float = self.BASE_GROWTH    
+
+                
     def update(self):
-        self.use_energy(random() * 5) #TODO make this a variable
-        self.gain_energy(random() * 5 * 1.2)
+        super().update()
+        self.gain_energy(random() * 1.2)
         
         if self.tile.is_coast:
             self.gain_energy(random())
@@ -73,15 +60,12 @@ class Plant(Organism):
             return
     
     #TODO rethink plant drawing with biomes now being implemented
-    def draw(self, screen: Surface):
-        if not self.is_alive():
-            raise ValueError("Plant is being drawn despite being dead. ", self.health)
+    def draw(self):
+        super().draw()
         
-        self.color: Color = self.MIN_PLANT_COLOR.lerp(self.MAX_PLANT_COLOR, self.health_ratio())
-        alpha = floor(lerp(0, 200, self.health_ratio()))
-        pygame.draw.circle(self.temp_surface, self.color, self.temp_surface.get_rect().center, self.shape.width/4)
-        self.temp_surface.set_alpha(alpha)
-        screen.blit(self.temp_surface, (0, 0))
+        self.color: Color = self.tile.color.lerp(self.MAX_PLANT_COLOR, pygame.math.lerp(0, .5, self.health_ratio()))
+        
+        pygame.draw.rect(pygame.display.get_surface(), self.color, self.shape.scale_by(self.health_ratio()))
     
     def grow(self):        
         if random() <= self.growth_chance():
@@ -93,12 +77,13 @@ class Plant(Organism):
         return self.BASE_GROWTH_CHANCE - self.tile.calculate_growth_height_penalty(self.BASE_GROWTH_CHANCE)
     
     ########################## Tile #################################
-    def enter_tile(self, tile: Tile):
+    def enter_tile(self, tile: Tile):        
         if tile.has_plant():
-            raise ValueError("PLant trying to enter a tile that is already occupied.")
+            raise ValueError("Plant trying to enter a tile that is already occupied.")
         
         if self.tile:
             self.tile.remove_plant()
+            #self.shape.move_ip(tile.rect.x - self.tile.rect.x, tile.rect.y - self.tile.rect.y)
         
         self.tile = tile
         tile.add_plant(self)
@@ -113,10 +98,8 @@ class Plant(Organism):
         
     ########################## Energy and Health #################################
     def die(self):
-        if self.health > 0:
-            raise ValueError("Organism tries to die despite not being dead.")
-        
-        self.tile.plant = None
+        super().die()
+        self.tile.remove_plant()
         
     ########################## Reproduction #################################  
     def reproduce(self):
@@ -131,10 +114,11 @@ class Plant(Organism):
                 REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
                 self.use_energy(REPRODUCTION_ENERGY_COST)
                 offspring = self.copy(option)
+                offspring.set_health(self.MAX_HEALTH * .1)
                 offspring.mutate()
          
     def copy(self, tile: Tile):
-        return Plant(tile, health = self.MAX_HEALTH * .1)
+        return Plant(tile)
     
     def mutate(self):
         change_in_color = .01

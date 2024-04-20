@@ -50,6 +50,10 @@ class Simulation:
                 elif event.key == 13: #TODO: find out enter key name
                     chance_to_spawn_animals = .01
                     self.world.spawn_animals(chance_to_spawn = chance_to_spawn_animals) 
+                elif event.key == pg.K_1 and pg.key.get_mods() & pg.KMOD_ALT: 
+                    config.draw_height_level = not config.draw_height_level
+                    self.world.draw() 
+                    pg.display.flip()
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False
@@ -58,7 +62,7 @@ class Simulation:
                     self.decrease_game_speed = True
                 elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.world = World(self.height, self.width, self.tile_size)
-                    self.world.draw(self.screen) 
+                    self.world.draw() 
                     pg.display.flip() 
             
             if event.type == pg.KEYUP:
@@ -72,7 +76,7 @@ class Simulation:
             if not is_paused:
                 self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
                 self.world.update()
-                self.world.draw(self.screen) 
+                self.world.draw() 
                 pg.display.flip() 
                 self.clock.tick(self.game_speed)
             

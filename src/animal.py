@@ -17,21 +17,15 @@ class Animal(Organism):
     def MAX_ENERGY(self) -> float:
         return 100
     
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, health: Optional[float] = None, energy: Optional[float] = None):
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None):
         if not shape:
             shape = tile.rect.copy()
-            shape.x = 0
-            shape.y = 0
                         
         if not color:
             color = pygame.Color(randint(20,230), randint(20,230), randint(20,230))
             
-        if not health:
-            health = self.MAX_HEALTH * clamp(random(), 0.4, 0.6)
-            
-        if not energy:
-            energy = self.MAX_ENERGY * clamp(random(), 0.4, 0.6)
-            
+        health = self.MAX_HEALTH * clamp(random(), 0.4, 0.6)
+        energy = self.MAX_ENERGY * clamp(random(), 0.4, 0.6)
         super().__init__(tile, shape, color, health, energy)
         
     def update(self):
@@ -41,8 +35,9 @@ class Animal(Organism):
         if self.tile.has_water:
             self.loose_health(DROWNING_DAMAGE)
             
-        damage = 5
-        if self.tile.plant:
+        damage = 2
+        wants_to_eat = self.energy_ratio() < .9 and self.health_ratio() < .9
+        if self.tile.has_plant() and wants_to_eat:
             self.tile.plant.loose_health(damage)
             self.gain_energy(damage * .8)
         
@@ -54,8 +49,7 @@ class Animal(Organism):
         
         if not self.is_alive():
             self.die()
-            return
-
+        
     def think(self) -> Tile|None:
         best_growth = 0
         destination = self.tile.get_random_neigbor(no_animal=True)
@@ -72,11 +66,13 @@ class Animal(Organism):
         return destination
 
     #TODO: add visual that displays an animals health and energy
-    def draw(self, screen: Surface):
-        super().draw(screen)
+    def draw(self):
+        super().draw()
+        pygame.draw.rect(pygame.display.get_surface(), self.color, self.shape)
     
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):
+        super().enter_tile(tile)
         if tile.has_animal():
             raise ValueError("Animal trying to enter a tile that is already occupied.")
         
@@ -97,7 +93,6 @@ class Animal(Organism):
     ########################## Energy and Health #################################
     def die(self):
         super().die()
-        
         self.tile.remove_animal()
         
     ########################## Reproduction #################################
