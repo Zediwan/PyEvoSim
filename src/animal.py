@@ -17,15 +17,6 @@ class Animal(Organism):
     def MAX_ENERGY(self) -> float:
         return 100
     
-    ANIMAL_COLOR = pygame.Color("black")
-    
-    GRASS_CONSUMPTION = 1
-    ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD = .9
-    ANIMAL_REPRODUCTION_CHANCE = .001
-    DEATH_SOIL_NUTRITION = 1
-    
-    DROWNING_DAMAGE = 10
-    
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, health: Optional[float] = None, energy: Optional[float] = None):
         if not shape:
             shape = tile.rect.copy()
@@ -43,15 +34,12 @@ class Animal(Organism):
             
         super().__init__(tile, shape, color, health, energy)
         
-        self.tile: Tile = tile
-        self.tile.add_animal(self)
-        
     def update(self):
-        self.use_energy(2) #TODO make this a variable
-        #TODO: add visual that displays an animals health and energy
+        super().update()
         
+        DROWNING_DAMAGE = 10
         if self.tile.has_water:
-            self.loose_health(self.DROWNING_DAMAGE)
+            self.loose_health(DROWNING_DAMAGE)
             
         damage = 5
         if self.tile.plant:
@@ -68,13 +56,6 @@ class Animal(Organism):
             self.die()
             return
 
-    def reproduce(self):
-        if self.ANIMAL_HEALT_RATIO_REPRODUCTION_THRESHOLD <= self.health / self.MAX_HEALTH:
-            unoccupied_neighbor = self.tile.get_random_neigbor(no_animal=True, no_water = True)
-            if unoccupied_neighbor:
-                if random() <= self.ANIMAL_REPRODUCTION_CHANCE:
-                    self.copy(unoccupied_neighbor) # Reproduce to a neighbor tile
-        
     def think(self) -> Tile|None:
         best_growth = 0
         destination = self.tile.get_random_neigbor(no_animal=True)
@@ -89,19 +70,12 @@ class Animal(Organism):
                 destination = n
             
         return destination
-    
+
+    #TODO: add visual that displays an animals health and energy
     def draw(self, screen: Surface):
         super().draw(screen)
-        
-    def die(self):
-        if self.health > 0:
-            raise ValueError("Organism tries to die despite not being dead.")
-        
-        self.tile.remove_animal()
     
-    def copy(self, tile: Tile) -> Animal:
-        return Animal(tile, color = self.color)
-    
+    ########################## Tile #################################
     def enter_tile(self, tile: Tile):
         if tile.has_animal():
             raise ValueError("Animal trying to enter a tile that is already occupied.")
@@ -119,3 +93,32 @@ class Animal(Organism):
             raise ValueError("Animal does not have a tile!")
         if self != self.tile.animal:
             raise ValueError("Animal-Tile assignment not equal.")
+        
+    ########################## Energy and Health #################################
+    def die(self):
+        super().die()
+        
+        self.tile.remove_animal()
+        
+    ########################## Reproduction #################################
+    def reproduce(self):
+        MIN_REPRODUCTION_HEALTH = .75
+        MIN_REPRODUCTION_ENERGY = .5
+        REPRODUCTION_CHANCE = .001
+        if (self.health_ratio() >= MIN_REPRODUCTION_HEALTH and
+            self.energy_ratio() >= MIN_REPRODUCTION_ENERGY and
+            random() <= REPRODUCTION_CHANCE):
+            unoccupied_neighbor = self.tile.get_random_neigbor(no_animal = True, no_water = True)
+            if unoccupied_neighbor:
+                REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 3
+                self.use_energy(REPRODUCTION_ENERGY_COST)
+                offspring = self.copy(unoccupied_neighbor)
+                offspring.mutate()
+    
+    def copy(self, tile: Tile) -> Animal:
+        return Animal(tile, color = self.color)
+    
+    def mutate(self):
+        change_in_color = .1
+        mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
+        self.color.lerp(mix_color, change_in_color)
