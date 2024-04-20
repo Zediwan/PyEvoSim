@@ -108,3 +108,9 @@ class Plant(Organism):
     
     def copy(self, tile: Tile):
         return Plant(tile, health = self.MAX_HEALTH * .1)
+    
+    def check_tile_assignment(self):
+        if not self.tile:
+            raise ValueError("Plant does not have a tile!")
+        if self != self.tile.plant:
+            raise ValueError("Plant-Tile assignment not equal.")

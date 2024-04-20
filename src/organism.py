@@ -34,7 +34,8 @@ class Organism(ABC, sprite.Sprite):
         self.temp_surface: Surface = Surface(self.shape.size, SRCALPHA)
     
     def update(self):
-        self.use_energy(2) #TODO make this a variable
+        energy_maintanance = 2
+        self.use_energy(energy_maintanance)
         
         if not self.is_alive():
             self.die()
@@ -58,7 +59,7 @@ class Organism(ABC, sprite.Sprite):
         self.tile = tile
         tile.enter(self)
         
-        self.invariant()
+        self.check_tile_assignment()
         
     def health_ratio(self) -> float:        
         ratio = self.health / self.MAX_HEALTH
@@ -122,9 +123,6 @@ class Organism(ABC, sprite.Sprite):
     def copy(self, tile: Tile):
         pass 
     
-    def invariant(self):
-        if not self.tile:
-            raise ValueError("Organism does not have a tile!")
-        if self.tile.animal:
-            if self != self.tile.animal:
-                raise ValueError("Tiles Organism and Organisms tile are not equal.")
+    @abstractmethod
+    def check_tile_assignment(self):
+        pass

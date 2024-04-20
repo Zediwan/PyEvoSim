@@ -101,3 +101,9 @@ class Animal(Organism):
     
     def copy(self, tile: Tile) -> Animal:
         return Animal(tile, color = self.color)
+    
+    def check_tile_assignment(self):
+        if not self.tile:
+            raise ValueError("Animal does not have a tile!")
+        if self != self.tile.animal:
+            raise ValueError("Animal-Tile assignment not equal.")
