@@ -44,7 +44,7 @@ class Animal(Organism):
         super().__init__(tile, shape, color, health, energy)
         
         self.tile: Tile = tile
-        self.tile.enter(self)
+        self.tile.add_animal(self)
         
     def update(self):
         self.use_energy(2) #TODO make this a variable
@@ -97,10 +97,22 @@ class Animal(Organism):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
         
-        self.tile.leave()
+        self.tile.remove_animal()
     
     def copy(self, tile: Tile) -> Animal:
         return Animal(tile, color = self.color)
+    
+    def enter_tile(self, tile: Tile):
+        if tile.has_animal():
+            raise ValueError("Animal trying to enter a tile that is already occupied.")
+        
+        if self.tile:
+            self.tile.remove_animal()
+        
+        self.tile = tile
+        tile.add_animal(self)
+        
+        self.check_tile_assignment()
     
     def check_tile_assignment(self):
         if not self.tile:

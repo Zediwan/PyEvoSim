@@ -109,6 +109,18 @@ class Plant(Organism):
     def copy(self, tile: Tile):
         return Plant(tile, health = self.MAX_HEALTH * .1)
     
+    def enter_tile(self, tile: Tile):
+        if tile.has_plant():
+            raise ValueError("PLant trying to enter a tile that is already occupied.")
+        
+        if self.tile:
+            self.tile.remove_plant()
+        
+        self.tile = tile
+        tile.remove_plant(self)
+        
+        self.check_tile_assignment()
+    
     def check_tile_assignment(self):
         if not self.tile:
             raise ValueError("Plant does not have a tile!")

@@ -45,21 +45,14 @@ class Organism(ABC, sprite.Sprite):
     def draw(self, screen: Surface):
         if not self.is_alive():
             raise ValueError("Organism is being drawn despite being dead. ", self.health)
+        
         pygame.draw.rect(self.temp_surface, self.color, self.shape)
         self.temp_surface.set_alpha(255)
         screen.blit(self.temp_surface, (0, 0))
     
+    @abstractmethod
     def enter_tile(self, tile: Tile):
-        if tile.has_animal():
-            raise ValueError("Tile is already occupied.")
-            
-        if self.tile:
-            self.tile.leave()
-        
-        self.tile = tile
-        tile.enter(self)
-        
-        self.check_tile_assignment()
+        pass
         
     def health_ratio(self) -> float:        
         ratio = self.health / self.MAX_HEALTH

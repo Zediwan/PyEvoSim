@@ -124,22 +124,26 @@ class Tile():
         text_x = center_x - text.get_width() // 2
         text_y = center_y - text.get_height() // 2
         screen.blit(text, (text_x, text_y))
-    
-    def leave(self):
-        self.animal = None
         
-    def enter(self, animal):
-        assert self.animal == None, "Tile already occupied by an animal"
+    def add_animal(self, animal):
+        assert self.animal == None, "Tile already occupied by an animal."
         
         self.animal = animal
         
-        assert animal.tile == self, "Tiles Organism and Organisms tile are not equal."
+        assert animal.tile == self, "Animal-Tile assignment not equal."
         
     def add_plant(self, plant):
-        assert self.plant == None, "Tile is already occupied by a plant"
+        assert self.plant == None, "Tile is already occupied by a plant."
         
         self.plant = plant
-        assert plant.tile == self, "Tiles Plant and plants tile are not equal."    
+        
+        assert plant.tile == self, "Plant-Tile assignment not equal."  
+        
+    def remove_animal(self):        
+        self.animal = None
+        
+    def remove_plant(self):        
+        self.plant = None  
     
     def has_animal(self) -> bool:
         return self.animal is not None
