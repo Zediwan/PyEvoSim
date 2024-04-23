@@ -44,9 +44,6 @@ class Tile():
         if self.plant:
             self.plant.update()          
 
-    def calculate_growth_height_penalty(self, growth_chance: float) -> float:
-        return -(growth_chance * self.height)
-
     def draw(self):
         self.temp_surface.fill(self.color)
         pygame.display.get_surface().blit(self.temp_surface, self.rect.topleft)
@@ -58,8 +55,13 @@ class Tile():
         
         from config import draw_height_level
         if draw_height_level:
-            self.draw_stat(self.height * 99)
+            self.draw_stat(self.height * 9)
 
+    ########################## Tile Organism influence #################################
+    def calculate_growth_height_penalty(self, growth_chance: float) -> float:
+        return -(growth_chance * self.height)
+
+    ########################## Drawing #################################
     def get_biome_color(self) -> Color:
         if (self.height < self.WATER_LEVEL):
             return WATER_COLOR
@@ -116,7 +118,8 @@ class Tile():
         text_x = center_x - text.get_width() // 2
         text_y = center_y - text.get_height() // 2
         pygame.display.get_surface().blit(text, (text_x, text_y))
-        
+    
+    ########################## Tile Property Handling #################################
     def add_animal(self, animal):
         assert self.animal == None, "Tile already occupied by an animal."
         
