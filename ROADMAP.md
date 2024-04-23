@@ -45,20 +45,34 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 - [ ] Implement an infinite world with a chunking system.
 - [ ] Allow the traversing of the world.
 - [ ] Add biome types.
+- [ ] Implement day and night cycle influencing the organisms and world.
+- [ ] Improve weather and environement simulation. (optional)
 
-## Milestone 7: Reproduction imporvements
+## Milestone 8: Animal improvements
+
+- [ ] Enable different types of sight. (for example color based)
+- [ ] Enable pheromone expulsion and sensing.
+- [ ] Enabling sound and hearing.
+
+## Milestone 9: Reproduction improvements
 
 - [ ] Implement differten reproduction types such as sexual reproduction mechanics.
 - [ ] Add incubation time for female animals, impacting offspring development.
 - [ ] Implement reproductive urge and attraction mechanics.
 
-## Milestone 8: Testing and Documentation
+## Milestone 10: Plant expansion
+
+- [ ] Expand possibilities of different types of plants.
+- [ ] Expand plant dna attributes
+- [ ] Enable plants to play a more active role in shaping the simulation
+
+## Milestone 11: Testing and Documentation
 
 - [ ] Write unit tests for critical components.
 - [ ] Create detailed documentation for the project.
 - [ ] Refine README.md with setup instructions and project overview.
 
-## Milestone 9: Finalization and Optimization
+## Milestone 12: Finalization and Optimization
 
 - [ ] Polish user interface and experience.
 - [ ] Optimize code for performance.
