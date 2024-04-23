@@ -38,7 +38,7 @@ class Organism(ABC, sprite.Sprite):
         self.enter_tile(tile)
             
     def update(self):
-        energy_maintanance = 1
+        energy_maintanance = 2
         self.use_energy(energy_maintanance)
         
         if not self.is_alive():
@@ -63,13 +63,13 @@ class Organism(ABC, sprite.Sprite):
     def health_ratio(self) -> float:        
         ratio = self.health / self.MAX_HEALTH
         
-        assert 0 <= ratio <= 1, (f"Health ratio ({ratio}) is not in [0, 1].")
+        assert ratio <= 1, (f"Health ratio ({ratio}) is not smaller than 1.")
         return ratio
     
     def energy_ratio(self) -> float:        
         ratio = self.energy / self.MAX_ENERGY
         
-        assert 0 <= ratio <= 1, (f"Energy ratio ({ratio}) is not in [0, 1].")
+        assert ratio <= 1, (f"Energy ratio ({ratio}) is not smaller than 1.")
         return ratio
     
     def set_health(self, new_health: float):
@@ -123,7 +123,7 @@ class Organism(ABC, sprite.Sprite):
     def loose_health(self, health_lost: float):
         if health_lost < 0:
             raise ValueError(f"Health lost {health_lost} is negative.")
-        self.health = pygame.math.clamp(self.health - health_lost, 0, self.health)
+        self.health = self.health - health_lost
         
     def is_alive(self) -> bool:
         return self.health > 0

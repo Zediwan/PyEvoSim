@@ -41,8 +41,8 @@ class World(sprite.Sprite):
 
     def handle_border_update(self, tile: Tile):
         if tile.is_border and not tile.has_water:
-            chance_to_spawn_animal_at_border = .000001
-            chance_to_spawn_plant_at_border = .00001
+            chance_to_spawn_animal_at_border = .00000001
+            chance_to_spawn_plant_at_border = .0000001
             if random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
                 self.spawn_animal(tile)
             if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
@@ -146,7 +146,7 @@ class World(sprite.Sprite):
         height += 1
         height /= 2
         
-        island_mode = True
+        island_mode = False
         if island_mode:
             nx =  2 * col * self.tile_size / self.width - 1
             ny = 2 * row * self.tile_size / self.height - 1
@@ -166,7 +166,7 @@ class World(sprite.Sprite):
             if is_neg:
                 height *= -1 
         
-        moisture = (snoise2(x * self.frequency_x, y * self.frequency_y)+1)/2
+        moisture = (snoise2(x / self.frequency_x, y / self.frequency_y)+1)/2
         
         assert 0 <= height <= 1
         assert 0 <= moisture <= 1
