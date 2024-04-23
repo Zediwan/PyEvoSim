@@ -44,13 +44,8 @@ class Tile():
         if self.plant:
             self.plant.update()          
 
-    #TODO rework this for new height values
     def calculate_growth_height_penalty(self, growth_chance: float) -> float:
-        height_threshold_for_growth_penalty = 20
-        if self.height > height_threshold_for_growth_penalty:
-            return -(growth_chance * (self.height / 100))
-        else:
-            return 0
+        return -(growth_chance * self.height)
 
     def draw(self):
         self.temp_surface.fill(self.color)
