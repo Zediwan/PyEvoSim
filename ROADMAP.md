@@ -33,21 +33,32 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 - [ ] Develop a user-friendly GUI for simulation settings adjustment.
 - [ ] Enable users to view an animal's statistics and DNA attributes by clicking on them.
 
-## Milestone 5: Advanced Features
+## Milestone 5: Neural Networks
+
+- [ ] Integrate neural networks for animal behavior.
+- [ ] Enable NN mutatinos for offspring.
+- [ ] Enable visualisation and comparision of NN's
+- [ ] Implement speciation.
+
+## Milestone 6: World improvement
 
 - [ ] Implement an infinite world with a chunking system.
-- [ ] Integrate neural networks for animal behavior.
-- [ ] Implement sexual reproduction mechanics.
+- [ ] Allow the traversing of the world.
+- [ ] Add biome types.
+
+## Milestone 7: Reproduction imporvements
+
+- [ ] Implement differten reproduction types such as sexual reproduction mechanics.
 - [ ] Add incubation time for female animals, impacting offspring development.
 - [ ] Implement reproductive urge and attraction mechanics.
 
-## Milestone 6: Testing and Documentation
+## Milestone 8: Testing and Documentation
 
 - [ ] Write unit tests for critical components.
 - [ ] Create detailed documentation for the project.
 - [ ] Refine README.md with setup instructions and project overview.
 
-## Milestone 7: Finalization and Optimization
+## Milestone 9: Finalization and Optimization
 
 - [ ] Polish user interface and experience.
 - [ ] Optimize code for performance.
