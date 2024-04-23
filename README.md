@@ -7,9 +7,9 @@ Welcome to the Evolution Simulation project! This project aims to simulate the e
 - Animals consuming food and utilizing energy to survive.
 - Reproduction based on accumulated energy.
 - DNA system defining various aspects of an animal (work in progress).
+- Organism Database to filter and query (work in progress)
 - Visualization of gene distribution in the simulation (work in progress).
 - User-friendly GUI for simulation settings adjustment (work in progress).
-- Infinite world (work in progress).
 
 ## Contributing
 
@@ -25,7 +25,9 @@ If you'd like to contribute to the project, please follow these steps:
 ## Credits
 
 This project was initiated by Jeremy Moser.
+
 Later on it was worked on as a project for a lecture Programmig for Data Science by Jeremy Moser, Andrin Müller, Dimoth Pathiniwasam and Milos Kecman
+
 Inspirations for the project were other projects like [the Bibites](https://www.youtube.com/@TheBibitesDigitalLife), [Coding Train](https://github.com/CodingTrain), [Sebastian Lague](https://github.com/SebLague) and many more.
 
 ## License
