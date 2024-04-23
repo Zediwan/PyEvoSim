@@ -40,7 +40,12 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 - [ ] Enable visualisation and comparision of NN's
 - [ ] Implement speciation.
 
-## Milestone 6: World improvement
+## Milestone 6: Performance improvement
+
+- [ ] Improve datatypes and structure to improve performance.
+- [ ] Rethink usage of the grid and tile structure and if it can be improved.
+
+## Milestone 7: World improvement
 
 - [ ] Implement an infinite world with a chunking system.
 - [ ] Allow the traversing of the world.
