@@ -1,6 +1,12 @@
 # Evolution Simulation Project
 
-Welcome to the Evolution Simulation project! This project aims to simulate the evolution of virtual organisms in a dynamic environment. Below, you'll find information on how to set up and run the simulation, as well as an overview of its features.
+Welcome to the Evolution Simulation project!
+
+Our goal is to simulate the evolution of virtual organisms using neural networks within a dynamic environment. Our main vision is to maintain procedural simulation, avoiding the implementation of predefined animal types. This approach allows evolutionary selection to unfold freely, potentially surprising us with its results.
+
+The goal is to continually make the simulation more complex by adding new features from real life to enable vast amount of different adaptations to the simulations settings.
+
+Below, you'll find information on how to set up and run the simulation, as well as an overview of its features.
 
 ## Features
 
