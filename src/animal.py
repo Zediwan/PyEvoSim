@@ -44,6 +44,7 @@ class Animal(Organism):
             self.gain_energy(damage * plant_nutrition_factor)
         
         direction = self.think()
+        
         if direction:
             self.enter_tile(direction)
             

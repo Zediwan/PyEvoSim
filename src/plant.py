@@ -15,20 +15,10 @@ class Plant(Organism):
     @property
     def MAX_ENERGY(self) -> float:
         return 100
-    
-    PLANT_COLOR = Color("black")
-        
+            
     BASE_GROWTH: float = 1
     BASE_GROWTH_CHANCE: float = .02
     
-    GROWTH_RATE_INCREASE_BY_WATER: float = 5
-    GROWTH_CHANCE_INCREASE_BY_WATER: float = .05
-    GROW_FOR_YOURSELF_UNTIL_THRESHOLD: float = .5
-    NATURAL_GROWTH_LOSS_PERCENTAGE_THRESHOLD: float = .9
-    NATURAL_GROWTH_LOSS_CHANCE: float = .02
-    NATURAL_GROWTH_LOSS_AMOUNT: float = 1
-    
-    MIN_PLANT_COLOR: Color = Color(235, 242, 230, ground_alpha)
     MAX_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
     
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None):    
