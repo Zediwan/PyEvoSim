@@ -86,7 +86,7 @@ class Organism(ABC, sprite.Sprite):
         if new_energy > self.MAX_ENERGY:
             raise ValueError(f"New energy ({new_energy}) is above max ({self.MAX_ENERGY}).")
         
-        self.en = new_energy
+        self.energy = new_energy
         
     def gain_energy(self, energy_gained: float):
         if energy_gained < 0:
