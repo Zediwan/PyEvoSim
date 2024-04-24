@@ -24,7 +24,7 @@ class Organism(ABC, sprite.Sprite):
     def MIN_ENERGY(self) -> float:
         return 0
     
-    ENERGY_TO_HEALTH_RATIO = 1
+    ENERGY_TO_HEALTH_RATIO = .5
     HEALTH_TO_ENERGY_RATIO = 1 / ENERGY_TO_HEALTH_RATIO
      
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
@@ -92,6 +92,10 @@ class Organism(ABC, sprite.Sprite):
         if energy_gained < 0:
             raise ValueError(f"Energy gained {energy_gained} is negative.")
         
+        if self.energy == self.MAX_ENERGY:
+            self.gain_health(energy_gained * self.ENERGY_TO_HEALTH_RATIO)
+            return
+        
         new_energy = self.energy + energy_gained
         energy_surplus = new_energy - self.MAX_ENERGY
         
@@ -117,7 +121,8 @@ class Organism(ABC, sprite.Sprite):
         if health_gained < 0:
             raise ValueError(f"Health gained {health_gained} is negative.")
         
-        self.health = pygame.math.clamp(self.health + health_gained, self.health, self.MAX_HEALTH)
+        new_health = self.health + health_gained
+        self.health = pygame.math.clamp(new_health, 0, self.MAX_HEALTH)
     
     #TODO: implement displaying of health loss    
     def loose_health(self, health_lost: float):
