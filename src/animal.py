@@ -30,7 +30,7 @@ class Animal(Organism):
         
     def update(self):
         super().update()
-        self.use_energy(2)
+        self.use_energy(4)
         
         DROWNING_DAMAGE = 10
         if self.tile.has_water:
