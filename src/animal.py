@@ -53,8 +53,12 @@ class Animal(Organism):
             self.die()
         
     def think(self) -> Tile|None:
-        best_growth = 0
-        destination = self.tile.get_random_neigbor(no_animal=True)
+        if self.tile.has_plant():
+            best_growth = self.tile.plant.health
+            destination = None
+        else:
+            best_growth = 0
+            destination = self.tile.get_random_neigbor(no_animal=True)
         
         ns = self.tile.get_neighbors()
         shuffle(ns)
