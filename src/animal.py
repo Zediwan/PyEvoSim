@@ -40,7 +40,8 @@ class Animal(Organism):
         wants_to_eat = self.energy_ratio() < .9 and self.health_ratio() < .9
         if self.tile.has_plant() and wants_to_eat:
             self.tile.plant.loose_health(damage)
-            self.gain_energy(damage * .8)
+            plant_nutrition_factor = .8
+            self.gain_energy(damage * plant_nutrition_factor)
         
         direction = self.think()
         if direction:
@@ -98,9 +99,9 @@ class Animal(Organism):
         
     ########################## Reproduction #################################
     def reproduce(self):
-        MIN_REPRODUCTION_HEALTH = .25
-        MIN_REPRODUCTION_ENERGY = .5
-        REPRODUCTION_CHANCE = .001
+        MIN_REPRODUCTION_HEALTH = .5
+        MIN_REPRODUCTION_ENERGY = .75
+        REPRODUCTION_CHANCE = .005
         if (self.health_ratio() >= MIN_REPRODUCTION_HEALTH and
             self.energy_ratio() >= MIN_REPRODUCTION_ENERGY and
             random() <= REPRODUCTION_CHANCE):

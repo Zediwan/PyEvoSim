@@ -35,7 +35,7 @@ class World(sprite.Sprite):
 
     def handle_coast_update(self, tile):
         if tile.is_coast:
-            chance_to_spawn_plant_at_coast = .0001
+            chance_to_spawn_plant_at_coast = .001
             if random() <= chance_to_spawn_plant_at_coast and not tile.has_plant():
                 self.spawn_plant(tile)
 
