@@ -58,6 +58,7 @@ class Tile():
             from config import draw_animal_energy
             if draw_animal_energy:
                 self.draw_stat(self.animal.energy)
+                
         elif self.has_plant():
             self.plant.draw()
         
@@ -110,7 +111,13 @@ class Tile():
         return TROPICAL_RAIN_FOREST_COLOR
     
     def draw_stat(self, stat: float):
-        text = font.render(str(round(stat)), True, (0, 0, 0))
+        # Analyzing background color brightness
+        if self.has_animal():
+            col = self.animal.color
+        else:
+            col = self.color
+            
+        text = font.render(str(round(stat)), True, col.__invert__())
         self._render_text_centered(text)
 
     def _render_text_centered(self, text: Surface):
