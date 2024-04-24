@@ -3,13 +3,13 @@ from __future__ import annotations
 import pygame
 
 JEREMY_BIG_SCREEN = (5200, 1300, 20)
-JEREMY_LAPTOP = (1400, 1000, 6)
+JEREMY_LAPTOP = (1400, 1000, 8)
 WIDTH, HEIGHT, TILE_SIZE = JEREMY_LAPTOP
  
 
 # Settings
 WATER_PERCENTAGE = 0
-STARTING_ANIMAL_PERCENTAGE = .0005
+STARTING_ANIMAL_PERCENTAGE = .001
 STARTING_PLANT_PERCENTAGE = .5
 STARTING_LAND_ANIMAL_PERCENTAGE = .5
 STARTING_WATER_ANIMAL_PERCENTAGE = .5
@@ -31,6 +31,8 @@ draw_water_sources = False
 draw_temperature_level = False
 draw_wind_speed = False
 draw_wind_direction = False
+draw_animal_energy = False
+draw_animal_health = False
 
 pygame.font.init()
 font_size = int(1.2 * TILE_SIZE)

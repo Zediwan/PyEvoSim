@@ -54,6 +54,16 @@ class Simulation:
                     config.draw_height_level = not config.draw_height_level
                     self.world.draw() 
                     pg.display.flip()
+                elif event.key == pg.K_2 and pg.key.get_mods() & pg.KMOD_ALT: 
+                    config.draw_animal_health = not config.draw_animal_health
+                    print("Drawing animal health.")
+                    self.world.draw() 
+                    pg.display.flip()
+                elif event.key == pg.K_3 and pg.key.get_mods() & pg.KMOD_ALT: 
+                    config.draw_animal_energy = not config.draw_animal_energy
+                    print("Drawing animal energy.")
+                    self.world.draw() 
+                    pg.display.flip()
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False

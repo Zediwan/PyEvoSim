@@ -48,9 +48,17 @@ class Tile():
         self.temp_surface.fill(self.color)
         pygame.display.get_surface().blit(self.temp_surface, self.rect.topleft)
         
-        if self.animal:
+        if self.has_animal():
             self.animal.draw()
-        elif self.plant:
+            
+            from config import draw_animal_health
+            if draw_animal_health:
+                self.draw_stat(self.animal.health)
+                
+            from config import draw_animal_energy
+            if draw_animal_energy:
+                self.draw_stat(self.animal.energy)
+        elif self.has_plant():
             self.plant.draw()
         
         from config import draw_height_level
