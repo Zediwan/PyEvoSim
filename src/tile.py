@@ -1,8 +1,6 @@
 from __future__ import annotations
 from typing import List
-
 from pygame import Rect, Surface, SRCALPHA, draw, Color
-
 from pygame.math import clamp, lerp
 from math import floor
 from random import random, choice, shuffle
@@ -12,15 +10,7 @@ from colors import *
 from direction import Direction
 
 class Tile():
-    ### Water
-    AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL: float = 10
-    SEA_LEVEL: float = 0
-    MIN_WATER_HEIGHT_FOR_DROWING: float = 3
-    MIN_WATER_VALUE: float = 0
-    MAX_WATER_VALUE: float = float("inf")
-    #### TODO: improve names
-    LAND_DAMAGE: float = 10
-    ####
+    WATER_LEVEL = .1
     
     def __init__(self, rect: Rect, tile_size: int, height: float = 0, moisture: float = 0, is_border = False):
         # Tile
@@ -31,7 +21,6 @@ class Tile():
         # Height
         self.height: float = height        
         self.moisture: float = moisture      
-        self.water: float = 0
         self.color: Color = self.get_biome_color()
               
         # Organisms
@@ -43,6 +32,7 @@ class Tile():
         
         self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
         
+        self.has_water = self.height < self.WATER_LEVEL
         self.is_border: bool = is_border
         self.is_coast: bool = False
         self.steepest_decline_direction: Direction | None = None
@@ -54,44 +44,35 @@ class Tile():
         if self.plant:
             self.plant.update()          
 
-    #TODO rework this for new height values
-    def calculate_growth_height_penalty(self, growth_chance: float) -> float:
-        height_threshold_for_growth_penalty = 20
-        if self.height > height_threshold_for_growth_penalty:
-            return -(growth_chance * (self.height / 100))
-        else:
-            return 0
-
-    def draw(self, screen: Surface):
+    def draw(self):
         self.temp_surface.fill(self.color)
-
-        if self.animal:
-            self.animal.draw(self.temp_surface)
-        elif self.plant:
-            self.plant.draw(self.temp_surface)
+        pygame.display.get_surface().blit(self.temp_surface, self.rect.topleft)
+        
+        if self.has_animal():
+            self.animal.draw()
             
-        screen.blit(self.temp_surface, self.rect.topleft)
+            from config import draw_animal_health
+            if draw_animal_health:
+                self.draw_stat(self.animal.health)
+                
+            from config import draw_animal_energy
+            if draw_animal_energy:
+                self.draw_stat(self.animal.energy)
+                
+        elif self.has_plant():
+            self.plant.draw()
         
-        if self.water > 0:
-            water_surface: Surface = Surface(self.rect.size, SRCALPHA)
-            water_ratio = clamp(self.water / 100, 0, 1)  #TODO rethink this as water is always bigger than 10 and currently not moving
-            alpha = floor(lerp(0, 255, clamp(water_ratio + .7, 0, 1)))
-            water_surface.set_alpha(alpha)
-            water_color = WATER_COLOR
-            water_surface.fill(water_color)
-            screen.blit(water_surface, self.rect.topleft)
-        
-        from config import draw_water_level
-        if draw_water_level:
-            self.draw_stat(self.water, screen)
-
         from config import draw_height_level
         if draw_height_level:
-            self.draw_stat(self.height * 99, screen)
+            self.draw_stat(self.height * 9)
 
+    ########################## Tile Organism influence #################################
+    def calculate_growth_height_penalty(self, growth_chance: float) -> float:
+        return -(growth_chance * self.height)
+
+    ########################## Drawing #################################
     def get_biome_color(self) -> Color:
-        if (self.height < 0.1):
-            self.water = self.AMOUNT_OF_WATER_FOR_ONE_HEIGHT_LEVEL * (abs(self.height) + 1)
+        if (self.height < self.WATER_LEVEL):
             return WATER_COLOR
         if (self.height < 0.12): 
             return SAND_COLOR
@@ -129,18 +110,17 @@ class Tile():
             return TROPICAL_SEASONAL_FOREST_COLOR
         return TROPICAL_RAIN_FOREST_COLOR
     
-    def draw_stat(self, stat: float, screen: Surface):
-        stat_alpha = 255
-        # if abs(stat) < 10:
-        #     stat = round(stat, 0)
-        # else:
-        #     stat = round(stat, 0)
-        
-        text = font.render(str(round(stat)), True, (0, 0, 0))
-        screen.set_alpha(stat_alpha)
-        self._render_text_centered(screen, text)
+    def draw_stat(self, stat: float):
+        # Analyzing background color brightness
+        if self.has_animal():
+            col = self.animal.color
+        else:
+            col = self.color
+            
+        text = font.render(str(round(stat)), True, col.__invert__())
+        self._render_text_centered(text)
 
-    def _render_text_centered(self, screen: Surface, text: Surface):
+    def _render_text_centered(self, text: Surface):
         """
         Renders the given text surface centered on the tile.
 
@@ -152,23 +132,28 @@ class Tile():
         center_y = self.rect.y + self.rect.height // 2
         text_x = center_x - text.get_width() // 2
         text_y = center_y - text.get_height() // 2
-        screen.blit(text, (text_x, text_y))
+        pygame.display.get_surface().blit(text, (text_x, text_y))
     
-    def leave(self):
-        self.animal = None
-        
-    def enter(self, animal):
-        assert self.animal == None, "Tile already occupied by an animal"
+    ########################## Tile Property Handling #################################
+    def add_animal(self, animal):
+        assert self.animal == None, "Tile already occupied by an animal."
         
         self.animal = animal
         
-        assert animal.tile == self, "Tiles Organism and Organisms tile are not equal."
+        assert animal.tile == self, "Animal-Tile assignment not equal."
         
     def add_plant(self, plant):
-        assert self.plant == None, "Tile is already occupied by a plant"
+        assert self.plant == None, "Tile is already occupied by a plant."
         
         self.plant = plant
-        assert plant.tile == self, "Tiles Plant and plants tile are not equal."    
+        
+        assert plant.tile == self, "Plant-Tile assignment not equal."  
+        
+    def remove_animal(self):        
+        self.animal = None
+        
+    def remove_plant(self):        
+        self.plant = None  
     
     def has_animal(self) -> bool:
         return self.animal is not None
@@ -178,7 +163,7 @@ class Tile():
 
     def add_neighbor(self, direction: Direction, tile: Tile):
         self.neighbors[direction] = tile
-        self.is_coast = tile.water > 0 and self.water == 0
+        self.is_coast = tile.has_water and self.has_water
 
     def get_directions(self) -> List[Direction]:
         dirs = list(self.neighbors.keys())
@@ -193,12 +178,13 @@ class Tile():
     def get_neighbor(self, direction: Direction) -> Tile|None:
         return self.neighbors.get(direction, None)
 
-    def get_random_neigbor(self, no_plant = False, no_animal = False) -> Tile | None:
+    def get_random_neigbor(self, no_plant = False, no_animal = False, no_water = False) -> Tile | None:
         options = []
         has_options = False
         for tile in self.neighbors.values():
             if no_plant and tile.has_plant(): continue 
             if no_animal and tile.has_animal(): continue
+            if no_water and tile.has_water: continue
             options.append(tile)
             has_options = True
             
