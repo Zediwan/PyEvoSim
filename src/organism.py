@@ -53,6 +53,7 @@ class Organism(ABC, sprite.Sprite):
         # Stats
         self.animals_killed: int = 0
         self.plants_killed: int = 0
+        self.organisms_attacked: int = 0
         self.energy_gained: float = 0
         self.distance_traveled: int = -1 # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
         self.num_offspring: int = 0
@@ -169,6 +170,7 @@ class Organism(ABC, sprite.Sprite):
     
     def attack(self, organism_to_attack: Organism):
         assert self.tile.is_neighbor(organism_to_attack.tile) or self.tile == organism_to_attack.tile, "Organism to attack is not a neighbor or on own tile."
+        self.organisms_attacked += 1
         organism_to_attack.get_attacked(self)
         
     @abstractmethod
