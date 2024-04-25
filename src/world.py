@@ -110,7 +110,6 @@ class World(sprite.Sprite):
         frequency_max = 7 #TODO make this a setting
         self.frequency_x = random() * frequency_max
         self.frequency_y = random() * frequency_max
-        #TODO make use of the wavelength
         self.wavelentgh_x = 1/self.frequency_x
         self.wavelentgh_y = 1/self.frequency_y
         
@@ -133,8 +132,8 @@ class World(sprite.Sprite):
         logging.info(f"Frequency parameters: [{self.frequency_x}, {self.frequency_y}]")
     
     def generate_noise_values(self, row: int, col: int) -> tuple[float, float]:
-        x = row / self.world_gen_param1
-        y = col / self.world_gen_param2
+        x = row * self.wavelentgh_x
+        y = col * self.wavelentgh_y
                 
         height = (
             snoise2((x * freq_x1) + offset_x1, (y * freq_y1) + offset_y1) * scale_1 + 
