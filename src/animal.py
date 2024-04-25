@@ -17,6 +17,9 @@ class Animal(Organism):
     def MAX_ENERGY(self) -> float:
         return 100
     
+    animals_birthed: int = 0
+    animals_died: int = 0
+    
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None):
         if not shape:
             shape = tile.rect.copy()
@@ -26,7 +29,10 @@ class Animal(Organism):
             
         health = self.MAX_HEALTH * lerp(0.4, 0.6, random())
         energy = self.MAX_ENERGY * lerp(0.4, 0.6, random())
+        
         super().__init__(tile, shape, color, health, energy)
+        
+        self.animals_birthed += 1
         
     def update(self):
         super().update()
@@ -39,6 +45,10 @@ class Animal(Organism):
         damage = 10
         wants_to_eat = self.energy_ratio() < .9 and self.health_ratio() < .9
         if self.tile.has_plant() and wants_to_eat:
+            #TODO improve this stat update to be made in the plant.die() method with reference to the killer
+            if self.tile.plant.health <= damage:
+                self.plants_killed += 1
+                
             self.tile.plant.loose_health(damage)
             plant_nutrition_factor = .8
             self.gain_energy(damage * plant_nutrition_factor)
@@ -99,6 +109,7 @@ class Animal(Organism):
     ########################## Energy and Health #################################
     def die(self):
         super().die()
+        self.animals_died += 1
         self.tile.remove_animal()
         
     ########################## Reproduction #################################
@@ -117,6 +128,7 @@ class Animal(Organism):
                 offspring.mutate()
     
     def copy(self, tile: Tile) -> Animal:
+        super().copy(tile)
         return Animal(tile, color = self.color)
     
     def mutate(self):
