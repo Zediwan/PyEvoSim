@@ -103,7 +103,7 @@ class Simulation:
         self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
         self.world.update()
         self.world.draw() 
-        self.stat_panel()
+        self.stat_panels()
         pg.display.flip()
     
     def draw_menu(self):
@@ -124,41 +124,42 @@ class Simulation:
             self.fps_max_limit += GAME_SPEED_CHANGE
         elif self.decrease_game_speed and self.fps_max_limit > GAME_SPEED_CHANGE:
             self.fps_max_limit -= GAME_SPEED_CHANGE
-            
-    def stat_panel(self):
+       
+    def stat_panels(self):
+        self.upper_stat_panel()
+        self.lower_stat_panel()
+         
+    def upper_stat_panel(self):
         font_size = int(0.02 * self.height)
         panel_height = int(0.03 * self.height)
         line_width: int = 2
         panel_color: pg.Color = pg.Color("grey")
         line_color: pg.Color = pg.Color("black")
 
-        # Drawing base panel
+        # Drawing base panel for upper stats
         pg.draw.rect(self.screen, panel_color, pg.Rect(0, 0, self.width, panel_height))
         pg.draw.line(self.screen, line_color, (0, panel_height), (self.width, panel_height), width=line_width)
 
-        stats_texts = self.generate_stat_text(font_size)
-
-        # Calculate the spacing and positions
-        num_stats = len(stats_texts)
-        spacing = self.width / (num_stats + 1)
-        text_height = (panel_height - (font_size / 2)) / 2
-
-        # Drawing stat text
-        for index, text in enumerate(stats_texts):
-            x_position = spacing * (index + 1) - (text.get_width() / 2)
-            self.screen.blit(text, (x_position, text_height))
-
-        pg.display.flip() 
-                   
-    def generate_stat_text(self, font_size: int) -> list[pg.Surface]:
-        stats_font = pg.font.Font(None, font_size)
-        stat_color: pg.Color = pg.Color("black")
-        
-        stats_texts: list[pg.Surface] = []
-        
-        stats = [
+        # Stats to display in the upper panel
+        upper_stats = [
             ("FPS", round(self.clock.get_fps())), 
-            ("FPS Max Setting", round(self.fps_max_limit)),
+            ("FPS Max Setting", round(self.fps_max_limit))
+        ]
+        self.draw_stats(upper_stats, font_size, (panel_height - (font_size / 2)) / 2)
+
+    def lower_stat_panel(self):
+        font_size = int(0.02 * self.height)
+        panel_height = int(0.03 * self.height)
+        line_width: int = 2
+        panel_color: pg.Color = pg.Color("grey")
+        line_color: pg.Color = pg.Color("black")
+
+        # Drawing base panel for lower stats
+        pg.draw.rect(self.screen, panel_color, pg.Rect(0, self.height - panel_height, self.width, panel_height))
+        pg.draw.line(self.screen, line_color, (0, self.height - panel_height), (self.width, self.height - panel_height), width=line_width)
+
+        # Stats to display in the lower panel
+        lower_stats = [
             ("Organisms birthed", Organism.organisms_birthed),
             ("Organisms died", Organism.organisms_died),
             ("Animals birthed", Animal.animals_birthed),
@@ -166,7 +167,13 @@ class Simulation:
             ("Plants birthed", Plant.plants_birthed),
             ("Plants died", Plant.plants_died)
         ]
+        self.draw_stats(lower_stats, font_size, self.height - (panel_height + (font_size / 2)) / 2)
+ 
+    def draw_stats(self, stats, font_size, panel_y):
+        stats_font = pg.font.Font(None, font_size)
+        stat_color: pg.Color = pg.Color("black")
         
+        stats_texts = []
         for label, value in stats:
             if value >= 1000000:
                 value = round(value/1000000,1)
@@ -175,7 +182,14 @@ class Simulation:
                 value = round(value/1000,1)
                 value = f"{value}k"
             stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
-        
-        return stats_texts
     
-    
+        # Calculate the spacing and positions
+        num_stats = len(stats_texts)
+        spacing = self.width / (num_stats + 1)
+        text_height = panel_y
+
+        # Drawing stat text
+        for index, text in enumerate(stats_texts):
+            x_position = spacing * (index + 1) - (text.get_width() / 2)
+            self.screen.blit(text, (x_position, text_height))  
+                   
