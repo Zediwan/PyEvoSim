@@ -24,6 +24,16 @@ class Organism(ABC, sprite.Sprite):
     def MIN_ENERGY(self) -> float:
         return 0
     
+    @property
+    @abstractmethod
+    def NUTRITION_FACTOR(self) -> float:
+        return 0
+    
+    @property
+    @abstractmethod
+    def REPRODUCTION_CHANCE(self) -> float:
+        return 0
+    
     ENERGY_TO_HEALTH_RATIO = .5
     HEALTH_TO_ENERGY_RATIO = 1 / ENERGY_TO_HEALTH_RATIO
     
@@ -37,6 +47,8 @@ class Organism(ABC, sprite.Sprite):
         self.energy: float = energy
         self.shape: Rect = shape
         self.color: Color = color
+        
+        self.attack_power: float = 0
         
         # Stats
         self.organisms_birthed += 1
@@ -156,14 +168,32 @@ class Organism(ABC, sprite.Sprite):
             raise ValueError("Organism tries to die despite not being dead.")
         self.organisms_died += 1
     
+    def attack(self, organism_to_attack: Organism):
+        assert self.tile.is_neighbor(organism_to_attack.tile) or self.tile == organism_to_attack.tile, "Organism to attack is not a neighbor or on own tile."
+        organism_to_attack.get_attacked(self)
+        
+    @abstractmethod
+    def get_attacked(self, attacking_organism: Organism):
+        assert self.tile.is_neighbor(attacking_organism.tile) or self.tile == attacking_organism.tile, "Attacking is not a neighbor or on own tile."
+        
+        damage = attacking_organism.attack_power
+        
+        if damage > 0:
+            self.loose_health(damage)
+            attacking_organism.gain_energy(damage * self.NUTRITION_FACTOR)
+    
     ########################## Reproduction #################################
     @abstractmethod
     def reproduce(self):
+        self.num_offspring += 1
         pass
-        
+     
+    @abstractmethod   
+    def can_reproduce(self):
+        pass    
+    
     @abstractmethod
     def copy(self, tile: Tile) -> Organism:
-        self.num_offspring += 1
         pass
     
     @abstractmethod

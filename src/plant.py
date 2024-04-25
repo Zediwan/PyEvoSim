@@ -15,11 +15,21 @@ class Plant(Organism):
     @property
     def MAX_ENERGY(self) -> float:
         return 100
+    
+    @property
+    def NUTRITION_FACTOR(self) -> float:
+        return .8
+    
+    @property
+    def REPRODUCTION_CHANCE(self) -> float:
+        return .001 * self.health_ratio()
             
     BASE_GROWTH: float = 1
     BASE_GROWTH_CHANCE: float = .02
     
     BASE_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
+    
+    NUTRITION_FACTOR: float = .8
     
     plants_birthed: int = 0
     plants_died: int  = 0
@@ -35,18 +45,20 @@ class Plant(Organism):
         
         super().__init__(tile, shape, color, health, energy)
         
+        self.attack_power = 0
+        self.growth: float = self.BASE_GROWTH 
+        
+        # Stats
         self.plants_birthed += 1
-        self.growth: float = self.BASE_GROWTH    
  
     def update(self):
         super().update()
-        self.gain_energy(random() * 4)
+        self.gain_energy(random() * self.tile.moisture * 6 / self.tile.height)
         
         if self.tile.is_coast:
             self.gain_energy(random())
             
-        if self.energy > 0:
-            self.grow()
+        if self.can_reproduce() and random() <= self.REPRODUCTION_CHANCE:
             self.reproduce()
             
         if not self.is_alive():
@@ -58,12 +70,6 @@ class Plant(Organism):
         super().draw()
         col: Color =  self.tile.color.lerp(self.color, pygame.math.lerp(0, .2, self.health_ratio()))
         pygame.draw.rect(pygame.display.get_surface(), col, self.shape.scale_by(self.health_ratio()))
-    
-    def grow(self):        
-        if random() <= self.growth_chance():
-            if self.health + self.growth < self.MAX_HEALTH and self.energy >= self.growth:
-                self.use_energy(self.growth)
-                self.gain_health(self.growth)
                 
     def growth_chance(self):
         return self.BASE_GROWTH_CHANCE - self.tile.calculate_growth_height_penalty(self.BASE_GROWTH_CHANCE)
@@ -93,28 +99,32 @@ class Plant(Organism):
         self.plants_died += 1
         self.tile.remove_plant()
         
+    def get_attacked(self, attacking_organism: Organism):
+        super().get_attacked(attacking_organism)
+        if not self.is_alive():
+            attacking_organism.plants_killed += 1
+        
     ########################## Reproduction #################################  
     def reproduce(self):
-        MIN_REPRODUCTION_HEALTH = 0
-        MIN_REPRODUCTION_ENERGY = .75
-        REPRODUCTION_CHANCE = .001
-        if (self.health_ratio() >= MIN_REPRODUCTION_HEALTH and
-            self.energy_ratio() >= MIN_REPRODUCTION_ENERGY and
-            random() <= REPRODUCTION_CHANCE):
-            option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
-            if option:
-                REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-                self.use_energy(REPRODUCTION_ENERGY_COST)
-                offspring = self.copy(option)
-                offspring.set_health(self.MAX_HEALTH * .25)
-                offspring.mutate()
-                #print("Plant offspring birthed!")
-         
+        super().reproduce()
+        option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
+        if option:
+            REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
+            self.use_energy(REPRODUCTION_ENERGY_COST)
+            offspring = self.copy(option)
+            offspring.set_health(self.MAX_HEALTH * .25)
+            offspring.mutate()
+            #print("Plant offspring birthed!")
+        
+    def can_reproduce(self) -> bool:
+        MIN_REPRODUCTION_HEALTH = .1
+        MIN_REPRODUCTION_ENERGY = .6
+        return self.health_ratio() >= MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= MIN_REPRODUCTION_ENERGY 
+
     def copy(self, tile: Tile):
-        super().copy(tile)
         return Plant(tile)
     
     def mutate(self):
-        change_in_color = .1
+        change_in_color = .2
         mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
         self.color = self.color.lerp(mix_color, change_in_color)
