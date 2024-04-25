@@ -26,6 +26,9 @@ class Organism(ABC, sprite.Sprite):
     
     ENERGY_TO_HEALTH_RATIO = .5
     HEALTH_TO_ENERGY_RATIO = 1 / ENERGY_TO_HEALTH_RATIO
+    
+    organisms_birthed: int = 0
+    organisms_died: int = 0
      
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
                  health: float, energy: float):
@@ -34,12 +37,23 @@ class Organism(ABC, sprite.Sprite):
         self.energy: float = energy
         self.shape: Rect = shape
         self.color: Color = color
+        
+        # Stats
+        self.organisms_birthed += 1
+        self.animals_killed: int = 0
+        self.plants_killed: int = 0
+        self.energy_gained: float = 0
+        self.distance_traveled: int = -1 # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
+        self.num_offspring: int = 0
+        self.age: int  = 0
+        
         self.tile: Tile = None
         self.enter_tile(tile)
-            
+        
     def update(self):
         energy_maintanance = 2
         self.use_energy(energy_maintanance)
+        self.age += 1
         
         if not self.is_alive():
             self.die()
@@ -53,6 +67,7 @@ class Organism(ABC, sprite.Sprite):
     @abstractmethod
     def enter_tile(self, tile: Tile):
         self.shape.topleft = tile.rect.topleft
+        self.distance_traveled += 1
         pass
     
     @abstractmethod
@@ -91,6 +106,8 @@ class Organism(ABC, sprite.Sprite):
     def gain_energy(self, energy_gained: float):
         if energy_gained < 0:
             raise ValueError(f"Energy gained {energy_gained} is negative.")
+        
+        self.energy_gained += energy_gained
         
         if self.energy == self.MAX_ENERGY:
             self.gain_health(energy_gained * self.ENERGY_TO_HEALTH_RATIO)
@@ -137,6 +154,7 @@ class Organism(ABC, sprite.Sprite):
     def die(self):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
+        self.organisms_died += 1
     
     ########################## Reproduction #################################
     @abstractmethod
@@ -145,6 +163,7 @@ class Organism(ABC, sprite.Sprite):
         
     @abstractmethod
     def copy(self, tile: Tile) -> Organism:
+        self.num_offspring += 1
         pass
     
     @abstractmethod

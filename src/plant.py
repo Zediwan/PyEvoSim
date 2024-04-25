@@ -19,17 +19,23 @@ class Plant(Organism):
     BASE_GROWTH: float = 1
     BASE_GROWTH_CHANCE: float = .02
     
-    MAX_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
+    BASE_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
+    
+    plants_birthed: int = 0
+    plants_died: int  = 0
     
     def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None):    
         if not shape:
             shape = tile.rect
         if not color:
-            color = self.MAX_PLANT_COLOR
+            color = self.BASE_PLANT_COLOR
             
         health = self.MAX_HEALTH * lerp(0.8, 1, random())               
         energy = self.MAX_ENERGY * lerp(0.8, 1, random())
+        
         super().__init__(tile, shape, color, health, energy)
+        
+        self.plants_birthed += 1
         self.growth: float = self.BASE_GROWTH    
  
     def update(self):
@@ -64,8 +70,7 @@ class Plant(Organism):
     
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):        
-        if tile.has_plant():
-            raise ValueError("Plant trying to enter a tile that is already occupied.")
+        super().enter_tile(tile)
         
         if self.tile:
             self.tile.remove_plant()
@@ -85,6 +90,7 @@ class Plant(Organism):
     ########################## Energy and Health #################################
     def die(self):
         super().die()
+        self.plants_died += 1
         self.tile.remove_plant()
         
     ########################## Reproduction #################################  
@@ -105,6 +111,7 @@ class Plant(Organism):
                 #print("Plant offspring birthed!")
          
     def copy(self, tile: Tile):
+        super().copy(tile)
         return Plant(tile)
     
     def mutate(self):
