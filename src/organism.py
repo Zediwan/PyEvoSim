@@ -51,7 +51,6 @@ class Organism(ABC, sprite.Sprite):
         self.attack_power: float = 0
         
         # Stats
-        self.organisms_birthed += 1
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.energy_gained: float = 0
@@ -166,7 +165,7 @@ class Organism(ABC, sprite.Sprite):
     def die(self):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
-        self.organisms_died += 1
+        Organism.organisms_died += 1
     
     def attack(self, organism_to_attack: Organism):
         assert self.tile.is_neighbor(organism_to_attack.tile) or self.tile == organism_to_attack.tile, "Organism to attack is not a neighbor or on own tile."
@@ -186,6 +185,7 @@ class Organism(ABC, sprite.Sprite):
     @abstractmethod
     def reproduce(self):
         self.num_offspring += 1
+        Organism.organisms_birthed += 1
         pass
      
     @abstractmethod   

@@ -44,7 +44,7 @@ class Animal(Organism):
         self.attack_power = 10
         
         # Stats
-        self.animals_birthed += 1
+        Animal.animals_birthed += 1
         
     def update(self):
         super().update()
@@ -114,7 +114,7 @@ class Animal(Organism):
     ########################## Energy and Health #################################
     def die(self):
         super().die()
-        self.animals_died += 1
+        Animal.animals_died += 1
         self.tile.remove_animal()
         
     def attack(self, organism_to_attack: Organism):

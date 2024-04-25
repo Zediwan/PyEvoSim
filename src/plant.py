@@ -49,7 +49,7 @@ class Plant(Organism):
         self.growth: float = self.BASE_GROWTH 
         
         # Stats
-        self.plants_birthed += 1
+        Plant.plants_birthed += 1
  
     def update(self):
         super().update()
@@ -96,7 +96,7 @@ class Plant(Organism):
     ########################## Energy and Health #################################
     def die(self):
         super().die()
-        self.plants_died += 1
+        Plant.plants_died += 1
         self.tile.remove_plant()
         
     def get_attacked(self, attacking_organism: Organism):
