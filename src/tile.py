@@ -36,6 +36,9 @@ class Tile():
         self.is_border: bool = is_border
         self.is_coast: bool = False
         self.steepest_decline_direction: Direction | None = None
+        
+        # Stats
+        self.times_visted: int = 0
 
     def update(self):        
         if self.animal:
@@ -139,6 +142,7 @@ class Tile():
         assert self.animal == None, "Tile already occupied by an animal."
         
         self.animal = animal
+        self.times_visted += 1
         
         assert animal.tile == self, "Animal-Tile assignment not equal."
         
