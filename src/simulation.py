@@ -82,15 +82,18 @@ class Simulation:
                     self.decrease_game_speed = False
             
             if not is_paused:
-                self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
-                self.world.update()
-                self.world.draw() 
-                self.stat_panel()
-                pg.display.flip() 
+                self.update_and_draw_world() 
                 
             self.handle_game_speed()
             self.clock.tick(self.fps_max_limit)
-            
+    
+    def update_and_draw_world(self):
+        self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
+        self.world.update()
+        self.world.draw() 
+        self.stat_panel()
+        pg.display.flip()
+          
     def handle_game_speed(self):   
         GAME_SPEED_CHANGE: int = 1
         MAX_FPS_LIMIT: int = 120
