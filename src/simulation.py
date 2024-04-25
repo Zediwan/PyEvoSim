@@ -127,29 +127,29 @@ class Simulation:
             
     def stat_panel(self):
         font_size = int(0.02 * self.height)
-        panel_height = int(0.03 * self.height) 
+        panel_height = int(0.03 * self.height)
         line_width: int = 2
         panel_color: pg.Color = pg.Color("grey")
         line_color: pg.Color = pg.Color("black")
-        
+
         # Drawing base panel
         pg.draw.rect(self.screen, panel_color, pg.Rect(0, 0, self.width, panel_height))
         pg.draw.line(self.screen, line_color, (0, panel_height), (self.width, panel_height), width=line_width)
-        
+
         stats_texts = self.generate_stat_text(font_size)
-        
+
+        # Calculate the spacing and positions
+        num_stats = len(stats_texts)
+        spacing = self.width / (num_stats + 1)
+        text_height = (panel_height - (font_size / 2)) / 2
+
         # Drawing stat text
-        text_height = (panel_height-(font_size/2))/2
-        padding = 10
-        x_offset = padding
-        x_div = (padding * .5)
-        for text in stats_texts:
-            self.screen.blit(text, (x_offset, text_height))
-            x_offset += text.get_width() + padding
-            x_div += text.get_width() + padding
-            # Drawing divider line
-            pg.draw.line(self.screen, line_color, (x_div, 0), (x_div, panel_height), width=line_width)
-            
+        for index, text in enumerate(stats_texts):
+            x_position = spacing * (index + 1) - (text.get_width() / 2)
+            self.screen.blit(text, (x_position, text_height))
+
+        pg.display.flip() 
+                   
     def generate_stat_text(self, font_size: int) -> list[pg.Surface]:
         stats_font = pg.font.Font(None, font_size)
         stat_color: pg.Color = pg.Color("black")
@@ -168,6 +168,14 @@ class Simulation:
         ]
         
         for label, value in stats:
+            if value >= 1000000:
+                value = round(value/1000000,1)
+                value = f"{value}m"
+            elif value >= 1000:
+                value = round(value/1000,1)
+                value = f"{value}k"
             stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
         
         return stats_texts
+    
+    
