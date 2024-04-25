@@ -132,8 +132,8 @@ class World(sprite.Sprite):
         logging.info(f"Frequency parameters: [{self.frequency_x}, {self.frequency_y}]")
     
     def generate_noise_values(self, row: int, col: int) -> tuple[float, float]:
-        x = row * self.wavelentgh_x
-        y = col * self.wavelentgh_y
+        x = row / self.world_gen_param1
+        y = col / self.world_gen_param2
                 
         height = (
             snoise2((x * freq_x1) + offset_x1, (y * freq_y1) + offset_y1) * scale_1 + 
@@ -165,7 +165,7 @@ class World(sprite.Sprite):
             if is_neg:
                 height *= -1 
         
-        moisture = (snoise2(x / self.frequency_x, y / self.frequency_y)+1)/2
+        moisture = (snoise2(x * self.wavelentgh_x, y * self.wavelentgh_y)+1)/2
         
         assert 0 <= height <= 1
         assert 0 <= moisture <= 1
