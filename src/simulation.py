@@ -11,17 +11,26 @@ class Simulation:
         pg.display.init()
         pg.font.init()
         pg.display.set_caption("Evolution Simulation")
-        self.screen = pg.display.set_mode((width, height), pg.HWSURFACE | pg.DOUBLEBUF)
-        self.clock = pg.time.Clock()
-        self.height = height
-        self.width = width
-        self.tile_size = tile_size
-        self.world = World(height, width, tile_size)
+        self.screen: pg.Surface = pg.display.set_mode((width, height), pg.HWSURFACE | pg.DOUBLEBUF)
+        self.clock: pg.time.Clock = pg.time.Clock()
+        self.height: int = height
+        self.width: int = width
+        self.tile_size: int = tile_size
         
+        self.world: World = World(height, width, tile_size)
+        
+        # Game speed
         self.fps_max_limit: int = self.STARTING_FPS_LIMIT
-        self.increase_game_speed = False
-        self.decrease_game_speed = False
+        self.increase_game_speed: bool = False
+        self.decrease_game_speed: bool = False
+        
+        self.menu_open: bool = False
+        
 
+    #TODO enable spawning of animals and plants via mouse
+    #TODO enable stat displaying of animals and plants by klicking on them via mouse
+    #TODO implement settings panel
+    #TODO implement menu panel
     def simulate(self):
         """
         The main loop of the simulation. Updates the state of the animals and plants, handles their interactions,
@@ -38,13 +47,11 @@ class Simulation:
                 pg.quit()
                 sys.exit()
             
-            #TODO enable spawning of animals and plants via mouse
-            #TODO enable stat displaying of animals and plants by klicking on them via mouse
-            #TODO implement settings panel
-            #TODO implement menu panel
-            
             if event.type == pg.KEYDOWN:
                 print("Key Pressed", event.key)
+                if event.key == pg.K_ESCAPE:
+                    self.menu_open = not self.menu_open
+                    is_paused = self.menu_open  # Pause the simulation when the menu is open
                 if event.key == pg.K_SPACE:
                     is_paused  = not is_paused
                 elif event.key == pg.K_RETURN:
@@ -83,15 +90,27 @@ class Simulation:
             
             if not is_paused:
                 self.update_and_draw_world() 
+            elif self.menu_open:
+                self.draw_menu()
                 
             self.handle_game_speed()
             self.clock.tick(self.fps_max_limit)
-    
+            
     def update_and_draw_world(self):
         self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
         self.world.update()
         self.world.draw() 
         self.stat_panel()
+        pg.display.flip()
+    
+    def draw_menu(self):
+        # Placeholder for menu drawing logic
+        self.screen.fill(pg.Color("grey"))  # Example: fill the screen with grey
+        menu_text = "Simulation Paused - Menu"
+        font = pg.font.Font(None, 36)
+        text_surface = font.render(menu_text, True, pg.Color("white"))
+        text_rect = text_surface.get_rect(center=(self.width/2, self.height/2))
+        self.screen.blit(text_surface, text_rect)
         pg.display.flip()
           
     def handle_game_speed(self):   
