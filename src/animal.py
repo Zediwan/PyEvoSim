@@ -6,6 +6,7 @@ from random import random, randint, shuffle
 
 from config import *
 from organism import Organism
+from plant import Plant
 from tile import Tile
 
 class Animal(Organism):
@@ -16,6 +17,14 @@ class Animal(Organism):
     @property
     def MAX_ENERGY(self) -> float:
         return 100
+    
+    @property
+    def NUTRITION_FACTOR(self) -> float:
+        return 1
+    
+    @property
+    def REPRODUCTION_CHANCE(self) -> float:
+        return .005
     
     animals_birthed: int = 0
     animals_died: int = 0
@@ -32,7 +41,10 @@ class Animal(Organism):
         
         super().__init__(tile, shape, color, health, energy)
         
-        self.animals_birthed += 1
+        self.attack_power = 10
+        
+        # Stats
+        Animal.animals_birthed += 1
         
     def update(self):
         super().update()
@@ -42,23 +54,16 @@ class Animal(Organism):
         if self.tile.has_water:
             self.loose_health(DROWNING_DAMAGE)
             
-        damage = 10
-        wants_to_eat = self.energy_ratio() < .9 and self.health_ratio() < .9
-        if self.tile.has_plant() and wants_to_eat:
-            #TODO improve this stat update to be made in the plant.die() method with reference to the killer
-            if self.tile.plant.health <= damage:
-                self.plants_killed += 1
-                
-            self.tile.plant.loose_health(damage)
-            plant_nutrition_factor = .8
-            self.gain_energy(damage * plant_nutrition_factor)
+        if self.tile.has_plant() and self.wants_to_eat():
+            self.attack(self.tile.plant)
         
         direction = self.think()
         
         if direction:
             self.enter_tile(direction)
-            
-        self.reproduce()
+        
+        if self.can_reproduce() and random() <= self.REPRODUCTION_CHANCE:
+            self.reproduce()
         
         if not self.is_alive():
             self.die()
@@ -109,29 +114,40 @@ class Animal(Organism):
     ########################## Energy and Health #################################
     def die(self):
         super().die()
-        self.animals_died += 1
+        Animal.animals_died += 1
         self.tile.remove_animal()
+        
+    def attack(self, organism_to_attack: Organism):
+        assert self.tile.is_neighbor(organism_to_attack.tile) or self.tile == organism_to_attack.tile, "Organism to attack is not a neighbor or on own tile."
+        organism_to_attack.get_attacked(self)
+                
+    def get_attacked(self, attacking_organism: Organism):
+        super().get_attacked(attacking_organism)
+        if not self.is_alive():
+            attacking_organism.animals_killed += 1
+            
+    def wants_to_eat(self) -> bool:
+        return self.energy_ratio() < .9 and self.health_ratio() < .9
         
     ########################## Reproduction #################################
     def reproduce(self):
+        super().reproduce()
+        unoccupied_neighbor = self.tile.get_random_neigbor(no_animal = True, no_water = True)
+        if unoccupied_neighbor:
+            REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
+            self.use_energy(REPRODUCTION_ENERGY_COST)
+            offspring = self.copy(unoccupied_neighbor)
+            offspring.mutate()
+            
+    def can_reproduce(self) -> bool:
         MIN_REPRODUCTION_HEALTH = .5
         MIN_REPRODUCTION_ENERGY = .75
-        REPRODUCTION_CHANCE = .005
-        if (self.health_ratio() >= MIN_REPRODUCTION_HEALTH and
-            self.energy_ratio() >= MIN_REPRODUCTION_ENERGY and
-            random() <= REPRODUCTION_CHANCE):
-            unoccupied_neighbor = self.tile.get_random_neigbor(no_animal = True, no_water = True)
-            if unoccupied_neighbor:
-                REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-                self.use_energy(REPRODUCTION_ENERGY_COST)
-                offspring = self.copy(unoccupied_neighbor)
-                offspring.mutate()
+        return self.health_ratio() >= MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= MIN_REPRODUCTION_ENERGY 
     
     def copy(self, tile: Tile) -> Animal:
-        super().copy(tile)
         return Animal(tile, color = self.color)
     
     def mutate(self):
-        change_in_color = .1
+        change_in_color = .2
         mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
-        self.color.lerp(mix_color, change_in_color)
+        self.color = self.color.lerp(mix_color, change_in_color)

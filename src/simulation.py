@@ -3,6 +3,9 @@ import pygame as pg
 
 import config
 from world import World
+from organism import Organism
+from plant import Plant
+from animal import Animal
 
 class Simulation:
     STARTING_FPS_LIMIT: int = 60
@@ -90,17 +93,21 @@ class Simulation:
             
             if not is_paused:
                 self.update_and_draw_world() 
-            elif self.menu_open:
+            if self.menu_open:
                 self.draw_menu()
+            else:  
+                self.stat_panels()
                 
             self.handle_game_speed()
             self.clock.tick(self.fps_max_limit)
+            
+            pg.display.flip()
             
     def update_and_draw_world(self):
         self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
         self.world.update()
         self.world.draw() 
-        self.stat_panel()
+        self.stat_panels()
         pg.display.flip()
     
     def draw_menu(self):
@@ -115,46 +122,78 @@ class Simulation:
           
     def handle_game_speed(self):   
         GAME_SPEED_CHANGE: int = 1
-        MAX_FPS_LIMIT: int = 120
+        MAX_FPS_LIMIT: int = 300
         
         if self.increase_game_speed and self.fps_max_limit + GAME_SPEED_CHANGE <= MAX_FPS_LIMIT:
             self.fps_max_limit += GAME_SPEED_CHANGE
         elif self.decrease_game_speed and self.fps_max_limit > GAME_SPEED_CHANGE:
             self.fps_max_limit -= GAME_SPEED_CHANGE
-            
-    def stat_panel(self):
+       
+    def stat_panels(self):
+        self.upper_stat_panel()
+        self.lower_stat_panel()
+         
+    def upper_stat_panel(self):
         font_size = int(0.02 * self.height)
-        panel_height = int(0.03 * self.height) 
+        panel_height = int(0.03 * self.height)
         line_width: int = 2
         panel_color: pg.Color = pg.Color("grey")
         line_color: pg.Color = pg.Color("black")
-        
-        # Drawing base panel
+
+        # Drawing base panel for upper stats
         pg.draw.rect(self.screen, panel_color, pg.Rect(0, 0, self.width, panel_height))
         pg.draw.line(self.screen, line_color, (0, panel_height), (self.width, panel_height), width=line_width)
-        
-        stats_texts = self.generate_stat_text(font_size)
-        
-        # Drawing stat text
-        text_height = (panel_height-(font_size/2))/2
-        padding = 10
-        x_offset = padding
-        x_div = (padding * .5)
-        for text in stats_texts:
-            self.screen.blit(text, (x_offset, text_height))
-            x_offset += text.get_width() + padding
-            x_div += text.get_width() + padding
-            # Drawing divider line
-            pg.draw.line(self.screen, line_color, (x_div, 0), (x_div, panel_height), width=line_width)
-            
-    def generate_stat_text(self, font_size: int) -> list[pg.Surface]:
+
+        # Stats to display in the upper panel
+        upper_stats = [
+            ("FPS", round(self.clock.get_fps())), 
+            ("FPS Max Setting", round(self.fps_max_limit))
+        ]
+        self.draw_stats(upper_stats, font_size, (panel_height - (font_size / 2)) / 2)
+
+    def lower_stat_panel(self):
+        font_size = int(0.02 * self.height)
+        panel_height = int(0.03 * self.height)
+        line_width: int = 2
+        panel_color: pg.Color = pg.Color("grey")
+        line_color: pg.Color = pg.Color("black")
+
+        # Drawing base panel for lower stats
+        pg.draw.rect(self.screen, panel_color, pg.Rect(0, self.height - panel_height, self.width, panel_height))
+        pg.draw.line(self.screen, line_color, (0, self.height - panel_height), (self.width, self.height - panel_height), width=line_width)
+
+        # Stats to display in the lower panel
+        lower_stats = [
+            ("Organisms birthed", Organism.organisms_birthed),
+            ("Organisms died", Organism.organisms_died),
+            ("Animals birthed", Animal.animals_birthed),
+            ("Animals died", Animal.animals_died),
+            ("Plants birthed", Plant.plants_birthed),
+            ("Plants died", Plant.plants_died)
+        ]
+        self.draw_stats(lower_stats, font_size, self.height - (panel_height + (font_size / 2)) / 2)
+ 
+    def draw_stats(self, stats, font_size, panel_y):
         stats_font = pg.font.Font(None, font_size)
         stat_color: pg.Color = pg.Color("black")
         
-        stats_texts: list[pg.Surface] = []
-        
-        stats = [("FPS", round(self.clock.get_fps())), ("FPS Max Setting", round(self.fps_max_limit))]
+        stats_texts = []
         for label, value in stats:
+            if value >= 1000000:
+                value = round(value/1000000,1)
+                value = f"{value}m"
+            elif value >= 1000:
+                value = round(value/1000,1)
+                value = f"{value}k"
             stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
-        
-        return stats_texts
+    
+        # Calculate the spacing and positions
+        num_stats = len(stats_texts)
+        spacing = self.width / (num_stats + 1)
+        text_height = panel_y
+
+        # Drawing stat text
+        for index, text in enumerate(stats_texts):
+            x_position = spacing * (index + 1) - (text.get_width() / 2)
+            self.screen.blit(text, (x_position, text_height))  
+                   

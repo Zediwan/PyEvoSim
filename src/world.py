@@ -34,15 +34,15 @@ class World(sprite.Sprite):
             self.handle_coast_update(tile)
 
     def handle_coast_update(self, tile):
-        if tile.is_coast:
+        if tile.is_coast and not tile.has_animal():
             chance_to_spawn_plant_at_coast = .001
             if random() <= chance_to_spawn_plant_at_coast and not tile.has_plant():
                 self.spawn_plant(tile)
 
     def handle_border_update(self, tile: Tile):
-        if tile.is_border and not tile.has_water:
-            chance_to_spawn_animal_at_border = .00000001
-            chance_to_spawn_plant_at_border = .0000001
+        if tile.is_border and not tile.has_water and not tile.has_animal():
+            chance_to_spawn_animal_at_border = .00001
+            chance_to_spawn_plant_at_border = .0001
             if random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
                 self.spawn_animal(tile)
             if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
