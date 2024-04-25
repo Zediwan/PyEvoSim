@@ -5,12 +5,7 @@ import config
 from world import World
 
 class Simulation:
-    STARTING_GAME_SPEED: int = 120
-    
-    SMALL_BIG_GAME_SPEED_THRESHOLD: int = 10
-    BIG_CHANGE_GAME_SPEED: int = 10
-    SMALL_CHANGE_GAME_SPEED: int = 1
-    MIN_GAME_SPEED: int = 1
+    STARTING_FPS_LIMIT: int = 60
     
     def __init__(self, height: int, width: int, tile_size : int):
         pg.display.init()
@@ -23,7 +18,7 @@ class Simulation:
         self.tile_size = tile_size
         self.world = World(height, width, tile_size)
         
-        self.game_speed: int = self.STARTING_GAME_SPEED
+        self.fps_max_limit: int = self.STARTING_FPS_LIMIT
         self.increase_game_speed = False
         self.decrease_game_speed = False
 
@@ -86,24 +81,58 @@ class Simulation:
                 elif event.key == pg.K_DOWN and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.decrease_game_speed = False
             
-            self.handle_game_speed()
-                
             if not is_paused:
                 self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
                 self.world.update()
                 self.world.draw() 
+                self.stat_panel()
                 pg.display.flip() 
-                self.clock.tick(self.game_speed)
-            
-    def handle_game_speed(self):
-        if self.game_speed <= self.SMALL_BIG_GAME_SPEED_THRESHOLD:
-            change_in_game_speed: int = self.SMALL_CHANGE_GAME_SPEED
-        else:
-            change_in_game_speed: int = self.BIG_CHANGE_GAME_SPEED
                 
-        if self.increase_game_speed:
-            self.game_speed += change_in_game_speed
-            #print(self.game_speed)
-        if self.decrease_game_speed and self.game_speed >= change_in_game_speed:
-            self.game_speed -= change_in_game_speed
-            #print(self.game_speed)   
+            self.handle_game_speed()
+            self.clock.tick(self.fps_max_limit)
+            
+    def handle_game_speed(self):   
+        GAME_SPEED_CHANGE: int = 1
+        MAX_FPS_LIMIT: int = 120
+        
+        if self.increase_game_speed and self.fps_max_limit + GAME_SPEED_CHANGE <= MAX_FPS_LIMIT:
+            self.fps_max_limit += GAME_SPEED_CHANGE
+        elif self.decrease_game_speed and self.fps_max_limit > GAME_SPEED_CHANGE:
+            self.fps_max_limit -= GAME_SPEED_CHANGE
+            
+    def stat_panel(self):
+        font_size = int(0.02 * self.height)
+        panel_height = int(0.03 * self.height) 
+        line_width: int = 2
+        panel_color: pg.Color = pg.Color("grey")
+        line_color: pg.Color = pg.Color("black")
+        
+        # Drawing base panel
+        pg.draw.rect(self.screen, panel_color, pg.Rect(0, 0, self.width, panel_height))
+        pg.draw.line(self.screen, line_color, (0, panel_height), (self.width, panel_height), width=line_width)
+        
+        stats_texts = self.generate_stat_text(font_size)
+        
+        # Drawing stat text
+        text_height = (panel_height-(font_size/2))/2
+        padding = 10
+        x_offset = padding
+        x_div = (padding * .5)
+        for text in stats_texts:
+            self.screen.blit(text, (x_offset, text_height))
+            x_offset += text.get_width() + padding
+            x_div += text.get_width() + padding
+            # Drawing divider line
+            pg.draw.line(self.screen, line_color, (x_div, 0), (x_div, panel_height), width=line_width)
+            
+    def generate_stat_text(self, font_size: int) -> list[pg.Surface]:
+        stats_font = pg.font.Font(None, font_size)
+        stat_color: pg.Color = pg.Color("black")
+        
+        stats_texts: list[pg.Surface] = []
+        
+        stats = [("FPS", round(self.clock.get_fps())), ("FPS Max Setting", round(self.fps_max_limit))]
+        for label, value in stats:
+            stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
+        
+        return stats_texts
