@@ -43,6 +43,11 @@ class Simulation:
                 pg.quit()
                 sys.exit()
             
+            #TODO enable spawning of animals and plants via mouse
+            #TODO enable stat displaying of animals and plants by klicking on them via mouse
+            #TODO implement settings panel
+            #TODO implement menu panel
+            
             if event.type == pg.KEYDOWN:
                 print("Key Pressed", event.key)
                 if event.key == pg.K_SPACE:
