@@ -3,6 +3,9 @@ import pygame as pg
 
 import config
 from world import World
+from organism import Organism
+from plant import Plant
+from animal import Animal
 
 class Simulation:
     STARTING_FPS_LIMIT: int = 60
@@ -153,7 +156,17 @@ class Simulation:
         
         stats_texts: list[pg.Surface] = []
         
-        stats = [("FPS", round(self.clock.get_fps())), ("FPS Max Setting", round(self.fps_max_limit))]
+        stats = [
+            ("FPS", round(self.clock.get_fps())), 
+            ("FPS Max Setting", round(self.fps_max_limit)),
+            ("Organisms birthed", Organism.organisms_birthed),
+            ("Organisms died", Organism.organisms_died),
+            ("Animals birthed", Animal.animals_birthed),
+            ("Animals died", Animal.animals_died),
+            ("Plants birthed", Plant.plants_birthed),
+            ("Plants died", Plant.plants_died)
+        ]
+        
         for label, value in stats:
             stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
         
