@@ -19,7 +19,7 @@ class Plant(Organism):
     BASE_GROWTH: float = 1
     BASE_GROWTH_CHANCE: float = .02
     
-    MAX_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
+    BASE_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
     
     plants_birthed: int = 0
     plants_died: int  = 0
@@ -28,7 +28,7 @@ class Plant(Organism):
         if not shape:
             shape = tile.rect
         if not color:
-            color = self.MAX_PLANT_COLOR
+            color = self.BASE_PLANT_COLOR
             
         health = self.MAX_HEALTH * lerp(0.8, 1, random())               
         energy = self.MAX_ENERGY * lerp(0.8, 1, random())
