@@ -72,7 +72,6 @@ class Animal(Organism):
             
         return destination
 
-    #TODO: add visual that displays an animals health and energy
     def draw(self):
         super().draw()
         pygame.draw.rect(pygame.display.get_surface(), self.color, self.shape)

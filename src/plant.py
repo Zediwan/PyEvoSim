@@ -47,7 +47,7 @@ class Plant(Organism):
             self.die()
             return
     
-    #TODO rethink plant drawing with biomes now being implemented
+    #TODO rethink plant drawing with biomes
     def draw(self):
         super().draw()
         col: Color =  self.tile.color.lerp(self.color, pygame.math.lerp(0, .2, self.health_ratio()))
