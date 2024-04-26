@@ -35,6 +35,10 @@ class World(sprite.Sprite):
             tile.update()
             self.handle_border_update(tile)
             self.handle_coast_update(tile)
+            
+            chance_to_spawn_plant_anywhere = .00001
+            if not tile.has_plant() and random() <= tile.moisture * chance_to_spawn_plant_anywhere:
+                self.spawn_plant(tile)
 
     def handle_coast_update(self, tile):
         if tile.is_coast and not tile.has_animal():
