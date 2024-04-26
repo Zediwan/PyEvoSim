@@ -47,10 +47,7 @@ class Plant(Organism):
         
         self.attack_power = 0
         self.growth: float = self.BASE_GROWTH 
-        
-        # Stats
-        Plant.plants_birthed += 1
- 
+         
     def update(self):
         super().update()
         self.gain_energy(random() * self.tile.moisture * 6 / self.tile.height)
@@ -107,6 +104,7 @@ class Plant(Organism):
     ########################## Reproduction #################################  
     def reproduce(self):
         super().reproduce()
+        Plant.plants_birthed += 1
         option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
         if option:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2

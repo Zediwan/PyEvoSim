@@ -4,6 +4,8 @@ from pygame import SRCALPHA, Color, Rect, sprite, Surface
 
 from config import *
 from tile import Tile
+from helper import format_number
+from stat_panel import StatPanel
 
 class Organism(ABC, sprite.Sprite):
     @property
@@ -40,11 +42,6 @@ class Organism(ABC, sprite.Sprite):
     # Stats
     organisms_birthed: int = 0
     organisms_died: int = 0
-    # Stat panel
-    stat_panel_size: tuple[int, int] = (100, 100)
-    stat_panel_offset: tuple[int, int] = (20, 20)
-    stat_panel_color: Color = Color("black")
-    stat_panel_alpha: int = 200
      
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
                  health: float, energy: float):
@@ -65,11 +62,8 @@ class Organism(ABC, sprite.Sprite):
         self.num_offspring: int = 0
         self.age: int  = 0
         
-        # Stat panel
-        self.stat_panel: Surface = pygame.Surface(self.stat_panel_size)
-        self.stat_panel.set_alpha(self.stat_panel_alpha)
-        self.stat_rect: Rect =  self.shape.move(self.stat_panel_offset)
-        
+        self.stat_panel: StatPanel | None = None
+                                            
         self.tile: Tile = None
         self.enter_tile(tile)
         
@@ -77,7 +71,7 @@ class Organism(ABC, sprite.Sprite):
         energy_maintanance = 2
         self.use_energy(energy_maintanance)
         self.age += 1
-        
+            
         if not self.is_alive():
             self.die()
                             
@@ -215,21 +209,18 @@ class Organism(ABC, sprite.Sprite):
     
     ########################## Stats #################################
     def show_stats(self):
-        self.update_stat_rect()
-        self.stat_panel.fill(self.stat_panel_color)
-        pygame.display.get_surface().blit(self.stat_panel, self.stat_rect)
+        if not self.stat_panel:
+            self.stat_panel = StatPanel(self.get_stats())
+                        
+        self.stat_panel.update(self.shape, self.get_stats())
+        self.stat_panel.draw()
+
+    def get_stats(self):
+        return [
+            ("Health", format_number(self.health)),
+            ("Energy", format_number(self.energy)),
+            ("Age", format_number(self.age)),
+            ("Distance Traveled", format_number(self.distance_traveled)),
+            ("Offspring", format_number(self.num_offspring))
+        ]
         
-    def update_stat_rect(self):
-        world_width, world_height = pygame.display.get_surface().get_size()
-        
-        # Calculate the new position for the stat panel
-        new_x_position = self.shape.right + self.stat_panel_offset[0]
-        new_y_position = self.shape.bottom + self.stat_panel_offset[1]
-        
-        if new_x_position + self.stat_panel_size[0] > world_width:
-            new_x_position = self.shape.left - self.stat_panel_size[0] - self.stat_panel_offset[0]
-        if new_y_position + self.stat_panel_size[1] > world_height:
-            new_y_position = self.shape.top - self.stat_panel_size[1] - self.stat_panel_offset[1]
-        
-        # Create a new rect for the stat panel at the adjusted position
-        self.stat_rect = Rect(new_x_position, new_y_position, self.stat_panel_size[0], self.stat_panel_size[1])

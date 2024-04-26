@@ -7,6 +7,7 @@ from organism import Organism
 from plant import Plant
 from animal import Animal
 from tile import Tile
+from helper import format_number
 
 class Simulation:
     STARTING_FPS_LIMIT: int = 60
@@ -30,7 +31,7 @@ class Simulation:
         
         self.menu_open: bool = False
         
-        self.stat_showing_organism: Animal | None = None
+        self.stat_showing_organism: Organism | None = None
         
 
     #TODO enable spawning of animals and plants via mouse
@@ -66,21 +67,17 @@ class Simulation:
                 elif event.key == pg.K_1 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_height_level = not config.draw_height_level
                     self.world.draw() 
-                    pg.display.flip()
                 elif event.key == pg.K_2 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_animal_health = not config.draw_animal_health
                     print("Drawing animal health.")
                     self.world.draw() 
-                    pg.display.flip()
                 elif event.key == pg.K_3 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_animal_energy = not config.draw_animal_energy
                     print("Drawing animal energy.")
                     self.world.draw() 
-                    pg.display.flip()
                 elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.world = World(self.height, self.width, self.tile_size)
                     self.world.draw() 
-                    pg.display.flip() 
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False
@@ -97,19 +94,30 @@ class Simulation:
             if event.type == pg.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pg.mouse.get_pos()
                 tile: Tile = self.world.get_tile(mouse_x, mouse_y)
+                
+                self.world.draw() 
+                self.stat_panels() 
+                
                 if tile.has_animal():
                     self.stat_showing_organism = tile.animal
                     self.stat_showing_organism.show_stats()
-                    pg.display.flip()
                 elif tile.has_plant():
                     self.stat_showing_organism = tile.plant
                     self.stat_showing_organism.show_stats()
-                    pg.display.flip()
                 else:
-                    self.stat_showing_organism = None
-            
+                    if self.stat_showing_organism:
+                        self.stat_showing_organism.stat_panel = None
+                        self.stat_showing_organism = None
+                        
             if not is_paused:
-                self.update_and_draw_world() 
+                self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
+                self.world.update()
+                self.world.draw() 
+                self.stat_panels()
+                
+                if self.stat_showing_organism:
+                    self.stat_showing_organism.show_stats()
+                    
             if self.menu_open:
                 self.draw_menu()
             else:  
@@ -119,16 +127,7 @@ class Simulation:
             self.clock.tick(self.fps_max_limit)
             
             pg.display.flip()
-            
-    def update_and_draw_world(self):
-        self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
-        self.world.update()
-        self.world.draw() 
-        self.stat_panels()
-        if self.stat_showing_organism:
-            self.stat_showing_organism.show_stats()
-        pg.display.flip()
-    
+                    
     def draw_menu(self):
         # Placeholder for menu drawing logic
         self.screen.fill(pg.Color("grey"))  # Example: fill the screen with grey
@@ -137,7 +136,6 @@ class Simulation:
         text_surface = font.render(menu_text, True, pg.Color("white"))
         text_rect = text_surface.get_rect(center=(self.width/2, self.height/2))
         self.screen.blit(text_surface, text_rect)
-        pg.display.flip()
           
     def handle_game_speed(self):   
         GAME_SPEED_CHANGE: int = 1
@@ -198,12 +196,7 @@ class Simulation:
         
         stats_texts = []
         for label, value in stats:
-            if value >= 1000000:
-                value = round(value/1000000,1)
-                value = f"{value}m"
-            elif value >= 1000:
-                value = round(value/1000,1)
-                value = f"{value}k"
+            value = format_number(value)
             stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
     
         # Calculate the spacing and positions
