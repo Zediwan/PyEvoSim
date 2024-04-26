@@ -67,21 +67,17 @@ class Simulation:
                 elif event.key == pg.K_1 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_height_level = not config.draw_height_level
                     self.world.draw() 
-                    pg.display.flip()
                 elif event.key == pg.K_2 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_animal_health = not config.draw_animal_health
                     print("Drawing animal health.")
                     self.world.draw() 
-                    pg.display.flip()
                 elif event.key == pg.K_3 and pg.key.get_mods() & pg.KMOD_ALT: 
                     config.draw_animal_energy = not config.draw_animal_energy
                     print("Drawing animal energy.")
                     self.world.draw() 
-                    pg.display.flip()
                 elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.world = World(self.height, self.width, self.tile_size)
                     self.world.draw() 
-                    pg.display.flip() 
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False
@@ -140,7 +136,6 @@ class Simulation:
         text_surface = font.render(menu_text, True, pg.Color("white"))
         text_rect = text_surface.get_rect(center=(self.width/2, self.height/2))
         self.screen.blit(text_surface, text_rect)
-        pg.display.flip()
           
     def handle_game_speed(self):   
         GAME_SPEED_CHANGE: int = 1
