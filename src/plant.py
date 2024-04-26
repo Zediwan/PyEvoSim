@@ -22,7 +22,7 @@ class Plant(Organism):
     
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return .001 * self.health_ratio()
+        return .005 * self.health_ratio()
             
     BASE_GROWTH: float = 1
     BASE_GROWTH_CHANCE: float = .02
