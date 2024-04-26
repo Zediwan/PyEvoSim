@@ -17,17 +17,20 @@ class World(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.height, self.width = World.adjust_dimensions(height, width, self.tile_size)
+        self.shape = pygame.Rect(0, 0, self.width, self.height)
         self.rows = floor(self.height / self.tile_size)
         self.cols = floor(self.width / self.tile_size)
         
         self.generate_frequency()
         
-        self.tiles = [self.create_tile(col, row) for row in range(self.rows) for col in range(self.cols)]
+        self.tiles: list[Tile] = []
+        for row in range(self.rows):
+            for col in range(self.cols):
+                self.tiles.append(self.create_tile(row, col))
         self.add_neighbors()
         #self.create_river()
    
     def update(self):
-        shuffle(self.tiles)
         for tile in self.tiles:
             tile.update()
             self.handle_border_update(tile)
@@ -68,7 +71,7 @@ class World(sprite.Sprite):
     #             branch_of = tile.get_neighbor(choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
     #             self.create_river(branch_of)
     
-    def create_tile(self, col: int, row: int) -> Tile:
+    def create_tile(self, row: int, col: int) -> Tile:
         rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
         height, moisture = self.generate_noise_values(row, col)
         
@@ -172,6 +175,23 @@ class World(sprite.Sprite):
         
         return height, moisture
     
+    def get_tile(self, x: int, y: int) -> Tile:
+        """
+        Retrieves the tile at the specified x and y coordinates.
+
+        Args:
+        - x (int): The x-coordinate of the point.
+        - y (int): The y-coordinate of the point.
+
+        Returns:
+        - Tile: The tile at the given coordinates.
+        """
+        col = x // self.tile_size
+        row = y // self.tile_size
+        if row < self.rows and col < self.cols:
+            return self.tiles[(row * self.cols) + col]
+        else:
+            raise ValueError("Coordinates are out of the world bounds.")
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
         """
