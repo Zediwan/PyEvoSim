@@ -105,6 +105,7 @@ class Simulation:
                     self.stat_showing_organism = tile.plant
                     self.stat_showing_organism.show_stats()
                 else:
+                    self.stat_showing_organism.stat_panel = None
                     self.stat_showing_organism = None
                 pg.display.flip()
             
