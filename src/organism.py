@@ -37,8 +37,14 @@ class Organism(ABC, sprite.Sprite):
     ENERGY_TO_HEALTH_RATIO = .5
     HEALTH_TO_ENERGY_RATIO = 1 / ENERGY_TO_HEALTH_RATIO
     
+    # Stats
     organisms_birthed: int = 0
     organisms_died: int = 0
+    # Stat panel
+    stat_panel_size: tuple[int, int] = (100, 100)
+    stat_panel_offset: tuple[int, int] = (20, 20)
+    stat_panel_color: Color = Color("black")
+    stat_panel_alpha: int = 200
      
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
                  health: float, energy: float):
@@ -53,10 +59,16 @@ class Organism(ABC, sprite.Sprite):
         # Stats
         self.animals_killed: int = 0
         self.plants_killed: int = 0
+        self.organisms_attacked: int = 0
         self.energy_gained: float = 0
         self.distance_traveled: int = -1 # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
         self.num_offspring: int = 0
         self.age: int  = 0
+        
+        # Stat panel
+        self.stat_panel: Surface = pygame.Surface(self.stat_panel_size)
+        self.stat_panel.set_alpha(self.stat_panel_alpha)
+        self.stat_rect: Rect =  self.shape.move(self.stat_panel_offset)
         
         self.tile: Tile = None
         self.enter_tile(tile)
@@ -169,6 +181,7 @@ class Organism(ABC, sprite.Sprite):
     
     def attack(self, organism_to_attack: Organism):
         assert self.tile.is_neighbor(organism_to_attack.tile) or self.tile == organism_to_attack.tile, "Organism to attack is not a neighbor or on own tile."
+        self.organisms_attacked += 1
         organism_to_attack.get_attacked(self)
         
     @abstractmethod
@@ -199,3 +212,24 @@ class Organism(ABC, sprite.Sprite):
     @abstractmethod
     def mutate(self):
         pass
+    
+    ########################## Stats #################################
+    def show_stats(self):
+        self.update_stat_rect()
+        self.stat_panel.fill(self.stat_panel_color)
+        pygame.display.get_surface().blit(self.stat_panel, self.stat_rect)
+        
+    def update_stat_rect(self):
+        world_width, world_height = pygame.display.get_surface().get_size()
+        
+        # Calculate the new position for the stat panel
+        new_x_position = self.shape.right + self.stat_panel_offset[0]
+        new_y_position = self.shape.bottom + self.stat_panel_offset[1]
+        
+        if new_x_position + self.stat_panel_size[0] > world_width:
+            new_x_position = self.shape.left - self.stat_panel_size[0] - self.stat_panel_offset[0]
+        if new_y_position + self.stat_panel_size[1] > world_height:
+            new_y_position = self.shape.top - self.stat_panel_size[1] - self.stat_panel_offset[1]
+        
+        # Create a new rect for the stat panel at the adjusted position
+        self.stat_rect = Rect(new_x_position, new_y_position, self.stat_panel_size[0], self.stat_panel_size[1])

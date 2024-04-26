@@ -6,6 +6,7 @@ from world import World
 from organism import Organism
 from plant import Plant
 from animal import Animal
+from tile import Tile
 
 class Simulation:
     STARTING_FPS_LIMIT: int = 60
@@ -28,6 +29,8 @@ class Simulation:
         self.decrease_game_speed: bool = False
         
         self.menu_open: bool = False
+        
+        self.stat_showing_organism: Animal | None = None
         
 
     #TODO enable spawning of animals and plants via mouse
@@ -55,7 +58,7 @@ class Simulation:
                 if event.key == pg.K_ESCAPE:
                     self.menu_open = not self.menu_open
                     is_paused = self.menu_open  # Pause the simulation when the menu is open
-                if event.key == pg.K_SPACE:
+                elif event.key == pg.K_SPACE:
                     is_paused  = not is_paused
                 elif event.key == pg.K_RETURN:
                     chance_to_spawn_animals = .001
@@ -74,22 +77,36 @@ class Simulation:
                     print("Drawing animal energy.")
                     self.world.draw() 
                     pg.display.flip()
+                elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
+                    self.world = World(self.height, self.width, self.tile_size)
+                    self.world.draw() 
+                    pg.display.flip() 
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
                     self.decrease_game_speed = False
                 elif event.key == pg.K_DOWN and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = False
                     self.decrease_game_speed = True
-                elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
-                    self.world = World(self.height, self.width, self.tile_size)
-                    self.world.draw() 
-                    pg.display.flip() 
             
             if event.type == pg.KEYUP:
                 if event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = False
                 elif event.key == pg.K_DOWN and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.decrease_game_speed = False
+                    
+            if event.type == pg.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pg.mouse.get_pos()
+                tile: Tile = self.world.get_tile(mouse_x, mouse_y)
+                if tile.has_animal():
+                    self.stat_showing_organism = tile.animal
+                    self.stat_showing_organism.show_stats()
+                    pg.display.flip()
+                elif tile.has_plant():
+                    self.stat_showing_organism = tile.plant
+                    self.stat_showing_organism.show_stats()
+                    pg.display.flip()
+                else:
+                    self.stat_showing_organism = None
             
             if not is_paused:
                 self.update_and_draw_world() 
@@ -108,6 +125,8 @@ class Simulation:
         self.world.update()
         self.world.draw() 
         self.stat_panels()
+        if self.stat_showing_organism:
+            self.stat_showing_organism.show_stats()
         pg.display.flip()
     
     def draw_menu(self):

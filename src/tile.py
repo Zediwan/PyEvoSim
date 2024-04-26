@@ -29,9 +29,7 @@ class Tile():
             
         from plant import Plant
         self.plant: Plant | None = None
-        
-        self.temp_surface: Surface = Surface(self.rect.size, SRCALPHA)
-        
+                
         self.has_water = self.height < self.WATER_LEVEL
         self.is_border: bool = is_border
         self.is_coast: bool = False
@@ -48,8 +46,7 @@ class Tile():
             self.plant.update()          
 
     def draw(self):
-        self.temp_surface.fill(self.color)
-        pygame.display.get_surface().blit(self.temp_surface, self.rect.topleft)
+        pygame.display.get_surface().fill(self.color, self.rect)
         
         if self.has_animal():
             self.animal.draw()
