@@ -31,7 +31,7 @@ class Simulation:
         
         self.menu_open: bool = False
         
-        self.stat_showing_organism: Animal | None = None
+        self.stat_showing_organism: Organism | None = None
         
 
     #TODO enable spawning of animals and plants via mouse
