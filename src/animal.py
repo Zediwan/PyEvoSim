@@ -149,3 +149,4 @@ class Animal(Organism):
         change_in_color = .2
         mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
         self.color = self.color.lerp(mix_color, change_in_color)
+        self.attack_power = clamp(self.attack_power + ((random()) - .5), 0, 50)
