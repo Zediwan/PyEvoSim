@@ -69,20 +69,7 @@ class Organism(ABC, sprite.Sprite):
         self.num_offspring: int = 0
         self.age: int  = 0
         
-        stats = self.get_stats()
-        self.width_name_col = 0
-        self.width_value_col = 0
-        self.font_height = 0
-        for name, value in stats:
-            self.width_name_col = max(self.width_name_col, self.stat_font.size(name)[0])
-            self.width_value_col = max(self.width_value_col, self.stat_font.size(value)[0])
-            self.font_height += self.stat_font.size(name)[1]
-    
-        panel_width = self.width_name_col + self.width_value_col + (self.stat_panel_col_offset * (len(stats[0])-1)) + self.stat_panel_border * 2
-        panel_height = self.font_height + self.stat_panel_border * 2
-                
-        self.stat_panel = pygame.Surface((panel_width, panel_height), SRCALPHA)
-        self.stat_panel.set_alpha(self.stat_panel_alpha)
+        self.setup_stat_panel()
                                             
         self.tile: Tile = None
         self.enter_tile(tile)
@@ -228,6 +215,22 @@ class Organism(ABC, sprite.Sprite):
         pass
     
     ########################## Stats #################################
+    def setup_stat_panel(self):
+        stats = self.get_stats()
+        self.width_name_col = 0
+        self.width_value_col = 0
+        self.font_height = 0
+        for name, value in stats:
+            self.width_name_col = max(self.width_name_col, self.stat_font.size(name)[0])
+            self.width_value_col = max(self.width_value_col, self.stat_font.size(value)[0])
+            self.font_height += self.stat_font.size(name)[1]
+    
+        panel_width = self.width_name_col + self.width_value_col + (self.stat_panel_col_offset * (len(stats[0])-1)) + self.stat_panel_border * 2
+        panel_height = self.font_height + self.stat_panel_border * 2
+                
+        self.stat_panel = pygame.Surface((panel_width, panel_height), SRCALPHA)
+        self.stat_panel.set_alpha(self.stat_panel_alpha)
+        
     def show_stats(self):
         stats = self.get_stats()
         
