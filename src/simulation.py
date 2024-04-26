@@ -7,6 +7,7 @@ from organism import Organism
 from plant import Plant
 from animal import Animal
 from tile import Tile
+from helper import format_number
 
 class Simulation:
     STARTING_FPS_LIMIT: int = 60
@@ -197,12 +198,7 @@ class Simulation:
         
         stats_texts = []
         for label, value in stats:
-            if value >= 1000000:
-                value = round(value/1000000,1)
-                value = f"{value}m"
-            elif value >= 1000:
-                value = round(value/1000,1)
-                value = f"{value}k"
+            value = format_number(value)
             stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
     
         # Calculate the spacing and positions

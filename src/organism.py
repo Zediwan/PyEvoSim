@@ -4,6 +4,7 @@ from pygame import SRCALPHA, Color, Rect, sprite, Surface
 
 from config import *
 from tile import Tile
+from helper import format_number
 
 class Organism(ABC, sprite.Sprite):
     @property
@@ -257,11 +258,11 @@ class Organism(ABC, sprite.Sprite):
 
     def get_stats(self):
         return [
-            ("Health", f"{self.health:.0f}"),
-            ("Energy", f"{self.energy:.0f}"),
-            ("Age", f"{self.age}"),
-            ("Distance Traveled", f"{self.distance_traveled}"),
-            ("Offspring", f"{self.num_offspring}")
+            ("Health", format_number(self.health)),
+            ("Energy", format_number(self.energy)),
+            ("Age", format_number(self.age)),
+            ("Distance Traveled", format_number(self.distance_traveled)),
+            ("Offspring", format_number(self.num_offspring))
         ]
         
     def update_stat_panel_size(self):
