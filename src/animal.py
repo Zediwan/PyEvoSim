@@ -41,10 +41,7 @@ class Animal(Organism):
         
         super().__init__(tile, shape, color, health, energy)
         
-        self.attack_power = 10
-        
-        # Stats
-        Animal.animals_birthed += 1
+        self.attack_power = 10        
         
     def update(self):
         super().update()
@@ -132,6 +129,7 @@ class Animal(Organism):
     ########################## Reproduction #################################
     def reproduce(self):
         super().reproduce()
+        Animal.animals_birthed += 1
         unoccupied_neighbor = self.tile.get_random_neigbor(no_animal = True, no_water = True)
         if unoccupied_neighbor:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
