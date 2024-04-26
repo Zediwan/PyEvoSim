@@ -43,9 +43,12 @@ class Organism(ABC, sprite.Sprite):
     organisms_died: int = 0
     # Stat panel
     stat_panel_offset: tuple[int, int] = (20, 20)
-    stat_panel_color: Color = Color("black")
+    stat_panel_background_color: Color = Color("black")
+    stat_panel_text_color: Color = pygame.Color('white')
     stat_panel_alpha: int = 200
     stat_font = pygame.font.Font(None, 20)
+    stat_panel_border: int = 10
+    stat_panel_col_offset: int = 20
      
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
                  health: float, energy: float):
@@ -66,8 +69,21 @@ class Organism(ABC, sprite.Sprite):
         self.num_offspring: int = 0
         self.age: int  = 0
         
-        self.stat_panel: Surface = None
+        stats = self.get_stats()
+        self.width_name_col = 0
+        self.width_value_col = 0
+        self.font_height = 0
+        for name, value in stats:
+            self.width_name_col = max(self.width_name_col, self.stat_font.size(name)[0])
+            self.width_value_col = max(self.width_value_col, self.stat_font.size(value)[0])
+            self.font_height += self.stat_font.size(name)[1]
+    
+        panel_width = self.width_name_col + self.width_value_col + (self.stat_panel_col_offset * (len(stats[0])-1)) + self.stat_panel_border * 2
+        panel_height = self.font_height + self.stat_panel_border * 2
                 
+        self.stat_panel = pygame.Surface((panel_width, panel_height), SRCALPHA)
+        self.stat_panel.set_alpha(self.stat_panel_alpha)
+                                            
         self.tile: Tile = None
         self.enter_tile(tile)
         
@@ -214,44 +230,20 @@ class Organism(ABC, sprite.Sprite):
     ########################## Stats #################################
     def show_stats(self):
         stats = self.get_stats()
-
-        # Calculate required dimensions
-        width_name_col = 0
-        width_value_col = 0
-        for name, value in stats:
-            width_name_col = max(width_name_col, self.stat_font.size(name)[0])
-            width_value_col = max(width_value_col, self.stat_font.size(value)[0])
-    
-        col_offset = 20
-        num_cols = len(stats[0])
-        border_width_offset = 10
-        panel_width = width_name_col + width_value_col + (col_offset * (num_cols-1)) + (2 * border_width_offset)
-    
-        border_height_offset = 10
-        panel_height = sum(self.stat_font.size(stat[0])[1] for stat in stats) + (border_height_offset)
         
-        if self.stat_panel:
-            panel_height = max(panel_height, self.stat_panel.get_height())
-            panel_width = max(panel_width, self.stat_panel.get_width())
-
-        # Adjust panel size
-        self.stat_panel = pygame.Surface((panel_width, panel_height), SRCALPHA)
-        self.stat_panel.set_alpha(self.stat_panel_alpha)
-        self.stat_panel.fill(self.stat_panel_color)
+        self.stat_panel.fill(self.stat_panel_background_color)
         
         self.update_stat_panel_size()
-
-        y_position = 10
-        name_x_position = 10
-        value_x_position = width_name_col + col_offset
-        for stat in stats:
-            name_surface = self.stat_font.render(stat[0], True, pygame.Color('white'))
-            self.stat_panel.blit(name_surface, (name_x_position, y_position))
         
-            value_surface = self.stat_font.render(stat[1], True, pygame.Color('white'))
-            self.stat_panel.blit(value_surface, (value_x_position, y_position))
+        y = self.stat_panel_border
+        for name, value in stats:
+            name_surface = self.stat_font.render(name, True, self.stat_panel_text_color)
+            self.stat_panel.blit(name_surface, (self.stat_panel_border, y))
         
-            y_position += value_surface.get_height()
+            value_surface = self.stat_font.render(value, True, self.stat_panel_text_color)
+            self.stat_panel.blit(value_surface, (self.width_name_col + self.stat_panel_col_offset, y))
+        
+            y += value_surface.get_height()
 
         main_surface = pygame.display.get_surface()
         main_surface.blit(self.stat_panel, self.stat_rect)
