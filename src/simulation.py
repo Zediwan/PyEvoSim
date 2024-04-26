@@ -100,13 +100,12 @@ class Simulation:
                 if tile.has_animal():
                     self.stat_showing_organism = tile.animal
                     self.stat_showing_organism.show_stats()
-                    pg.display.flip()
                 elif tile.has_plant():
                     self.stat_showing_organism = tile.plant
                     self.stat_showing_organism.show_stats()
-                    pg.display.flip()
                 else:
                     self.stat_showing_organism = None
+                pg.display.flip()
             
             if not is_paused:
                 self.update_and_draw_world() 
