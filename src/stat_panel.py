@@ -10,21 +10,23 @@ class StatPanel(Sprite):
     alpha: int = 200
     font: Font = Font(None, 20)
     border_size: int = 10
-    col_offset: int = 20
+    offset_between_cols: int = 20
     
     def __init__(self, stats):
         Sprite.__init__(self)
         self.stats = stats
-        self.width_name_col = 0
-        self.width_value_col = 0
-        self.font_height = 0
+        self.rect: Rect
+        
+        self.name_column_width = 0
+        self.value_column_with = 0
+        self.total_text_height = 0
         for name, value in stats:
-            self.width_name_col = max(self.width_name_col, self.font.size(name)[0])
-            self.width_value_col = max(self.width_value_col, self.font.size(value)[0])
-            self.font_height += self.font.size(name)[1]
+            self.name_column_width = max(self.name_column_width, self.font.size(name)[0])
+            self.value_column_with = max(self.value_column_with, self.font.size(value)[0])
+            self.total_text_height += self.font.size(name)[1]
     
-        panel_width = self.width_name_col + self.width_value_col + (self.col_offset * (len(stats[0])-1)) + self.border_size * 2
-        panel_height = self.font_height + self.border_size * 2
+        panel_width = self.name_column_width + self.value_column_with + (self.offset_between_cols * (len(stats[0])-1)) + self.border_size * 2
+        panel_height = self.total_text_height + self.border_size * 2
                 
         self.surface = Surface((panel_width, panel_height), SRCALPHA)
         self.surface.set_alpha(self.alpha)
@@ -38,7 +40,7 @@ class StatPanel(Sprite):
             self.surface.blit(name_surface, (self.border_size, y))
         
             value_surface = self.font.render(value, True, self.text_color)
-            self.surface.blit(value_surface, (self.width_name_col + self.col_offset, y))
+            self.surface.blit(value_surface, (self.name_column_width + self.offset_between_cols, y))
         
             y += value_surface.get_height()
 

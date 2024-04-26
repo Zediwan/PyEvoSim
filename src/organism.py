@@ -62,7 +62,7 @@ class Organism(ABC, sprite.Sprite):
         self.num_offspring: int = 0
         self.age: int  = 0
         
-        self.stat_panel: StatPanel = StatPanel(self.get_stats())
+        self.stat_panel: StatPanel | None = None
                                             
         self.tile: Tile = None
         self.enter_tile(tile)
@@ -71,9 +71,7 @@ class Organism(ABC, sprite.Sprite):
         energy_maintanance = 2
         self.use_energy(energy_maintanance)
         self.age += 1
-        
-        self.stat_panel.update(self.shape, self.get_stats())
-        
+            
         if not self.is_alive():
             self.die()
                             
@@ -211,6 +209,10 @@ class Organism(ABC, sprite.Sprite):
     
     ########################## Stats #################################
     def show_stats(self):
+        if not self.stat_panel:
+            self.stat_panel = StatPanel(self.get_stats())
+                        
+        self.stat_panel.update(self.shape, self.get_stats())
         self.stat_panel.draw()
 
     def get_stats(self):
