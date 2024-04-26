@@ -5,6 +5,7 @@ from pygame import SRCALPHA, Color, Rect, sprite, Surface
 from config import *
 from tile import Tile
 from helper import format_number
+from stat_panel import StatPanel
 
 class Organism(ABC, sprite.Sprite):
     @property
@@ -41,14 +42,6 @@ class Organism(ABC, sprite.Sprite):
     # Stats
     organisms_birthed: int = 0
     organisms_died: int = 0
-    # Stat panel
-    stat_panel_offset: tuple[int, int] = (20, 20)
-    stat_panel_background_color: Color = Color("black")
-    stat_panel_text_color: Color = pygame.Color('white')
-    stat_panel_alpha: int = 200
-    stat_font = pygame.font.Font(None, 20)
-    stat_panel_border: int = 10
-    stat_panel_col_offset: int = 20
      
     def __init__(self, tile: Tile, shape: Rect, color: Color, 
                  health: float, energy: float):
@@ -69,7 +62,7 @@ class Organism(ABC, sprite.Sprite):
         self.num_offspring: int = 0
         self.age: int  = 0
         
-        self.setup_stat_panel()
+        self.stat_panel: StatPanel = StatPanel(self.get_stats())
                                             
         self.tile: Tile = None
         self.enter_tile(tile)
@@ -78,6 +71,8 @@ class Organism(ABC, sprite.Sprite):
         energy_maintanance = 2
         self.use_energy(energy_maintanance)
         self.age += 1
+        
+        self.stat_panel.update(self.shape, self.get_stats())
         
         if not self.is_alive():
             self.die()
@@ -215,41 +210,8 @@ class Organism(ABC, sprite.Sprite):
         pass
     
     ########################## Stats #################################
-    def setup_stat_panel(self):
-        stats = self.get_stats()
-        self.width_name_col = 0
-        self.width_value_col = 0
-        self.font_height = 0
-        for name, value in stats:
-            self.width_name_col = max(self.width_name_col, self.stat_font.size(name)[0])
-            self.width_value_col = max(self.width_value_col, self.stat_font.size(value)[0])
-            self.font_height += self.stat_font.size(name)[1]
-    
-        panel_width = self.width_name_col + self.width_value_col + (self.stat_panel_col_offset * (len(stats[0])-1)) + self.stat_panel_border * 2
-        panel_height = self.font_height + self.stat_panel_border * 2
-                
-        self.stat_panel = pygame.Surface((panel_width, panel_height), SRCALPHA)
-        self.stat_panel.set_alpha(self.stat_panel_alpha)
-        
     def show_stats(self):
-        stats = self.get_stats()
-        
-        self.stat_panel.fill(self.stat_panel_background_color)
-        
-        self.update_stat_panel_size()
-        
-        y = self.stat_panel_border
-        for name, value in stats:
-            name_surface = self.stat_font.render(name, True, self.stat_panel_text_color)
-            self.stat_panel.blit(name_surface, (self.stat_panel_border, y))
-        
-            value_surface = self.stat_font.render(value, True, self.stat_panel_text_color)
-            self.stat_panel.blit(value_surface, (self.width_name_col + self.stat_panel_col_offset, y))
-        
-            y += value_surface.get_height()
-
-        main_surface = pygame.display.get_surface()
-        main_surface.blit(self.stat_panel, self.stat_rect)
+        self.stat_panel.draw()
 
     def get_stats(self):
         return [
@@ -260,20 +222,3 @@ class Organism(ABC, sprite.Sprite):
             ("Offspring", format_number(self.num_offspring))
         ]
         
-    def update_stat_panel_size(self):
-        world_width, world_height = pygame.display.get_surface().get_size()
-        
-        # Calculate the new position for the stat panel
-        sp_height = self.stat_panel.get_height()
-        sp_width = self.stat_panel.get_width()
-        
-        new_x_position = self.shape.right + self.stat_panel_offset[0]
-        new_y_position = self.shape.bottom + self.stat_panel_offset[1]
-        
-        if new_x_position + sp_width > world_width:
-            new_x_position = self.shape.left - sp_width - self.stat_panel_offset[0]
-        if new_y_position + sp_height > world_height:
-            new_y_position = self.shape.top - sp_height - self.stat_panel_offset[1]
-        
-        # Create a new rect for the stat panel at the adjusted position
-        self.stat_rect = Rect(new_x_position, new_y_position, sp_width, sp_height)
