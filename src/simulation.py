@@ -98,6 +98,10 @@ class Simulation:
             if event.type == pg.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pg.mouse.get_pos()
                 tile: Tile = self.world.get_tile(mouse_x, mouse_y)
+                
+                self.world.draw() 
+                self.stat_panels() 
+                
                 if tile.has_animal():
                     self.stat_showing_organism = tile.animal
                     self.stat_showing_organism.show_stats()
@@ -105,12 +109,19 @@ class Simulation:
                     self.stat_showing_organism = tile.plant
                     self.stat_showing_organism.show_stats()
                 else:
-                    self.stat_showing_organism.stat_panel = None
-                    self.stat_showing_organism = None
-                pg.display.flip()
-            
+                    if self.stat_showing_organism:
+                        self.stat_showing_organism.stat_panel = None
+                        self.stat_showing_organism = None
+                        
             if not is_paused:
-                self.update_and_draw_world() 
+                self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
+                self.world.update()
+                self.world.draw() 
+                self.stat_panels()
+                
+                if self.stat_showing_organism:
+                    self.stat_showing_organism.show_stats()
+                    
             if self.menu_open:
                 self.draw_menu()
             else:  
@@ -120,16 +131,7 @@ class Simulation:
             self.clock.tick(self.fps_max_limit)
             
             pg.display.flip()
-            
-    def update_and_draw_world(self):
-        self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
-        self.world.update()
-        self.world.draw() 
-        self.stat_panels()
-        if self.stat_showing_organism:
-            self.stat_showing_organism.show_stats()
-        pg.display.flip()
-    
+                    
     def draw_menu(self):
         # Placeholder for menu drawing logic
         self.screen.fill(pg.Color("grey"))  # Example: fill the screen with grey
