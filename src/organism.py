@@ -4,6 +4,7 @@ import csv
 import os
 from pygame import SRCALPHA, Color, Rect, sprite, Surface
 
+import config
 from config import *
 from tile import Tile
 from helper import format_number
@@ -45,9 +46,7 @@ class Organism(ABC, sprite.Sprite):
     organisms_birthed: int = 0
     organisms_died: int = 0
     next_organism_id: int = 0
-    
-    csv_file_path = 'organisms_data.csv'
-     
+         
     def __init__(self, tile: Tile, shape: Rect, color: Color, health: float, energy: float):
         sprite.Sprite.__init__(self)
         
@@ -267,10 +266,10 @@ class Organism(ABC, sprite.Sprite):
             headers = ["Animal ID", "Birth time", "Death time", "Age (Time)", "Age (Ticks)", "Animals killed", "Plants killed", "Organisms attacked", "Attack Power", "Total Energy gained", "Tiles visited", "Parent ID", "Number of Offspring", "Color Red", "Color Green", "Color Blue", "Animal", "Plant"]
             
             # Check if the file exists and write headers if it doesn't
-            file_exists = os.path.isfile(self.csv_file_path)
+            file_exists = os.path.isfile(config.csv_filename)
             
             # Write the data to the CSV file
-            with open(self.csv_file_path, mode='a', newline='') as file:
+            with open(config.csv_filename, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 if not file_exists:
                     writer.writerow(headers)

@@ -1,3 +1,5 @@
+import csv
+from datetime import datetime
 from pygame import sprite, Surface
 from pygame.math import clamp, lerp
 from math import pow, floor
@@ -5,6 +7,7 @@ from random import random, shuffle, choice, randint
 from noise import snoise2
 import logging
 
+import config
 from config import *
 from plant import Plant
 from tile import Tile
@@ -29,7 +32,9 @@ class World(sprite.Sprite):
                 self.tiles.append(self.create_tile(row, col))
         self.add_neighbors()
         #self.create_river()
-   
+        
+        config.csv_filename = f'databases/organism_database_{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+        
     def update(self):
         for tile in self.tiles:
             tile.update()
@@ -196,6 +201,7 @@ class World(sprite.Sprite):
             return self.tiles[(row * self.cols) + col]
         else:
             raise ValueError("Coordinates are out of the world bounds.")
+    
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
         """
