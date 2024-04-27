@@ -251,7 +251,7 @@ class Organism(ABC, sprite.Sprite):
                 self.animals_killed,
                 self.plants_killed,
                 self.organisms_attacked,
-                self.attack_power,
+                round(self.attack_power, 1),
                 round(self.energy_gained),
                 self.tiles_visited,
                 self.parent.id if self.parent else None,
