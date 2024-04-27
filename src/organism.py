@@ -1,5 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import csv
+import os
 from pygame import SRCALPHA, Color, Rect, sprite, Surface
 
 from config import *
@@ -42,14 +44,21 @@ class Organism(ABC, sprite.Sprite):
     # Stats
     organisms_birthed: int = 0
     organisms_died: int = 0
+    next_organism_id: int = 0
+    
+    csv_file_path = 'organisms_data.csv'
      
-    def __init__(self, tile: Tile, shape: Rect, color: Color, 
-                 health: float, energy: float):
+    def __init__(self, tile: Tile, shape: Rect, color: Color, health: float, energy: float):
         sprite.Sprite.__init__(self)
+        
+        self.id = Organism.next_organism_id
+        Organism.next_organism_id += 1
+        
         self.health: float = health
         self.energy: float = energy
         self.shape: Rect = shape
         self.color: Color = color
+        self.parent: Organism
         
         self.attack_power: float = 0
         
@@ -58,9 +67,10 @@ class Organism(ABC, sprite.Sprite):
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
         self.energy_gained: float = 0
-        self.distance_traveled: int = -1 # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
+        self.tiles_visited: int = -1 # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
         self.num_offspring: int = 0
         self.age: int  = 0
+        self.birth_time: int = pygame.time.get_ticks()
         
         self.stat_panel: StatPanel | None = None
                                             
@@ -84,7 +94,7 @@ class Organism(ABC, sprite.Sprite):
     @abstractmethod
     def enter_tile(self, tile: Tile):
         self.shape.topleft = tile.rect.topleft
-        self.distance_traveled += 1
+        self.tiles_visited += 1
         pass
     
     @abstractmethod
@@ -172,6 +182,8 @@ class Organism(ABC, sprite.Sprite):
         if self.health > 0:
             raise ValueError("Organism tries to die despite not being dead.")
         Organism.organisms_died += 1
+        self.death_time = pygame.time.get_ticks()
+        self.save_to_csv()
     
     def attack(self, organism_to_attack: Organism):
         assert self.tile.is_neighbor(organism_to_attack.tile) or self.tile == organism_to_attack.tile, "Organism to attack is not a neighbor or on own tile."
@@ -220,7 +232,46 @@ class Organism(ABC, sprite.Sprite):
             ("Health", format_number(self.health)),
             ("Energy", format_number(self.energy)),
             ("Age", format_number(self.age)),
-            ("Distance Traveled", format_number(self.distance_traveled)),
+            ("Distance Traveled", format_number(self.tiles_visited)),
             ("Offspring", format_number(self.num_offspring))
         ]
         
+    def save_to_csv(self): 
+        from animal import Animal
+        from plant import Plant
+              
+        save_csv = True
+        if save_csv: 
+            # Define the organism data to save
+            organism_data = [
+                self.id,
+                self.birth_time,
+                self.death_time,
+                self.death_time - self.birth_time,
+                self.age,
+                self.animals_killed,
+                self.plants_killed,
+                self.organisms_attacked,
+                self.attack_power,
+                round(self.energy_gained),
+                self.tiles_visited,
+                self.parent.id if self.parent else None,
+                self.num_offspring,
+                self.color.r,
+                self.color.g,
+                self.color.b,
+                1 if isinstance(self, Animal) else 0,
+                1 if isinstance(self, Plant) else 0
+            ]
+            # Define the header names
+            headers = ["Animal ID", "Birth time", "Death time", "Age (Time)", "Age (Ticks)", "Animals killed", "Plants killed", "Organisms attacked", "Attack Power", "Total Energy gained", "Tiles visited", "Parent ID", "Number of Offspring", "Color Red", "Color Green", "Color Blue", "Animal", "Plant"]
+            
+            # Check if the file exists and write headers if it doesn't
+            file_exists = os.path.isfile(self.csv_file_path)
+            
+            # Write the data to the CSV file
+            with open(self.csv_file_path, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                if not file_exists:
+                    writer.writerow(headers)
+                writer.writerow(organism_data)

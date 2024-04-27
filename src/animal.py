@@ -29,7 +29,7 @@ class Animal(Organism):
     animals_birthed: int = 0
     animals_died: int = 0
     
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None):
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, parent: Animal = None):
         if not shape:
             shape = tile.rect.copy()
                         
@@ -40,6 +40,7 @@ class Animal(Organism):
         energy = self.MAX_ENERGY * lerp(0.4, 0.6, random())
         
         super().__init__(tile, shape, color, health, energy)
+        self.parent: Animal | None = parent
         
         self.attack_power = 10        
         

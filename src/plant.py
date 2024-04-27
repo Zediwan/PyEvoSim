@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 from pygame import Color, Rect
 from pygame.math import clamp, lerp
 from random import random, randint, choices
@@ -34,7 +34,7 @@ class Plant(Organism):
     plants_birthed: int = 0
     plants_died: int  = 0
     
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None):    
+    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, parent: Plant = None):    
         if not shape:
             shape = tile.rect
         if not color:
@@ -44,6 +44,7 @@ class Plant(Organism):
         energy = self.MAX_ENERGY * lerp(0.8, 1, random())
         
         super().__init__(tile, shape, color, health, energy)
+        self.parent: Plant | None = parent
         
         self.attack_power = 0
         self.growth: float = self.BASE_GROWTH 
