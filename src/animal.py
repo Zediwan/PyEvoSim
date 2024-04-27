@@ -129,7 +129,6 @@ class Animal(Organism):
     ########################## Reproduction #################################
     def reproduce(self):
         super().reproduce()
-        Animal.animals_birthed += 1
         unoccupied_neighbor = self.tile.get_random_neigbor(no_animal = True, no_water = True)
         if unoccupied_neighbor:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
@@ -143,6 +142,8 @@ class Animal(Organism):
         return self.health_ratio() >= MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= MIN_REPRODUCTION_ENERGY 
     
     def copy(self, tile: Tile) -> Animal:
+        super().copy(tile)
+        Animal.animals_birthed += 1
         return Animal(tile, color = self.color)
     
     def mutate(self):

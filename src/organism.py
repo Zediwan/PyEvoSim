@@ -191,8 +191,6 @@ class Organism(ABC, sprite.Sprite):
     ########################## Reproduction #################################
     @abstractmethod
     def reproduce(self):
-        self.num_offspring += 1
-        Organism.organisms_birthed += 1
         pass
      
     @abstractmethod   
@@ -201,6 +199,8 @@ class Organism(ABC, sprite.Sprite):
     
     @abstractmethod
     def copy(self, tile: Tile) -> Organism:
+        self.num_offspring += 1
+        Organism.organisms_birthed += 1
         pass
     
     @abstractmethod

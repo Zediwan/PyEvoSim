@@ -104,7 +104,6 @@ class Plant(Organism):
     ########################## Reproduction #################################  
     def reproduce(self):
         super().reproduce()
-        Plant.plants_birthed += 1
         option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
         if option:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
@@ -120,6 +119,8 @@ class Plant(Organism):
         return self.health_ratio() >= MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= MIN_REPRODUCTION_ENERGY 
 
     def copy(self, tile: Tile):
+        super().copy(tile)
+        Plant.plants_birthed += 1
         return Plant(tile)
     
     def mutate(self):
