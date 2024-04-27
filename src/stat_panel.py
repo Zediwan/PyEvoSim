@@ -2,6 +2,7 @@ from pygame import Rect, Color, Surface, SRCALPHA
 from pygame.sprite import Sprite
 from pygame.font import Font
 from pygame.display import get_surface
+from helper import format_number
 
 class StatPanel(Sprite):
     offset: tuple[int, int] = (20, 20)
@@ -12,20 +13,23 @@ class StatPanel(Sprite):
     border_size: int = 10
     offset_between_cols: int = 20
     
-    def __init__(self, stats):
+    def __init__(self, headers: list[str], stats: list[float]):
         Sprite.__init__(self)
+        self.headers = headers
         self.stats = stats
         self.rect: Rect
         
         self.name_column_width = 0
         self.value_column_with = 0
         self.total_text_height = 0
-        for name, value in stats:
-            self.name_column_width = max(self.name_column_width, self.font.size(name)[0])
-            self.value_column_with = max(self.value_column_with, self.font.size(value)[0])
-            self.total_text_height += self.font.size(name)[1]
+        for header in headers:
+            self.name_column_width = max(self.name_column_width, self.font.size(header)[0])
+            self.total_text_height += self.font.size(header)[1]
+        for value in stats:
+            v = format_number(value)
+            self.value_column_with = max(self.value_column_with, self.font.size(v)[0])
     
-        panel_width = self.name_column_width + self.value_column_with + (self.offset_between_cols * (len(stats[0])-1)) + self.border_size * 2
+        panel_width = self.name_column_width + self.value_column_with + (self.offset_between_cols) + self.border_size * 2
         panel_height = self.total_text_height + self.border_size * 2
                 
         self.surface = Surface((panel_width, panel_height), SRCALPHA)
@@ -35,19 +39,19 @@ class StatPanel(Sprite):
         self.surface.fill(self.background_color)
                 
         y = self.border_size
-        for name, value in self.stats:
-            name_surface = self.font.render(name, True, self.text_color)
+        for idx, header in enumerate(self.headers):
+            name_surface = self.font.render(header, True, self.text_color)
             self.surface.blit(name_surface, (self.border_size, y))
-        
-            value_surface = self.font.render(value, True, self.text_color)
+            
+            value_surface = self.font.render(format_number(self.stats[idx]), True, self.text_color)
             self.surface.blit(value_surface, (self.name_column_width + self.offset_between_cols, y))
-        
-            y += value_surface.get_height()
+            
+            y += name_surface.get_height()
 
         main_surface = get_surface()
         main_surface.blit(self.surface, self.rect)
         
-    def update(self, base: Rect, stats):
+    def update(self, base: Rect, stats: list[float]):
         world_width, world_height = get_surface().get_size()
         self.stats = stats
         

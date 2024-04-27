@@ -65,11 +65,12 @@ class Organism(ABC, sprite.Sprite):
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
-        self.energy_gained: float = 0
+        self.total_energy_gained: float = 0
         self.tiles_visited: int = -1 # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
         self.num_offspring: int = 0
         self.age: int  = 0
         self.birth_time: int = pygame.time.get_ticks()
+        self.death_time: int | None = None
         
         self.stat_panel: StatPanel | None = None
                                             
@@ -133,7 +134,7 @@ class Organism(ABC, sprite.Sprite):
         if energy_gained < 0:
             raise ValueError(f"Energy gained {energy_gained} is negative.")
         
-        self.energy_gained += energy_gained
+        self.total_energy_gained += energy_gained
         
         if self.energy == self.MAX_ENERGY:
             self.gain_health(energy_gained * self.ENERGY_TO_HEALTH_RATIO)
@@ -182,7 +183,10 @@ class Organism(ABC, sprite.Sprite):
             raise ValueError("Organism tries to die despite not being dead.")
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
-        self.save_to_csv()
+        
+        save_csv = True
+        if save_csv:
+            self.save_to_csv()
     
     def attack(self, organism_to_attack: Organism):
         assert self.tile.is_neighbor(organism_to_attack.tile) or self.tile == organism_to_attack.tile, "Organism to attack is not a neighbor or on own tile."
@@ -220,57 +224,82 @@ class Organism(ABC, sprite.Sprite):
     
     ########################## Stats #################################
     def show_stats(self):
+        stats = self.get_stats()  
+              
         if not self.stat_panel:
-            self.stat_panel = StatPanel(self.get_stats())
+            self.stat_panel = StatPanel(self.get_headers(), stats)
                         
-        self.stat_panel.update(self.shape, self.get_stats())
+        self.stat_panel.update(self.shape, stats)
         self.stat_panel.draw()
 
-    def get_stats(self):
-        return [
-            ("Health", format_number(self.health)),
-            ("Energy", format_number(self.energy)),
-            ("Age", format_number(self.age)),
-            ("Distance Traveled", format_number(self.tiles_visited)),
-            ("Offspring", format_number(self.num_offspring))
-        ]
-        
-    def save_to_csv(self): 
+    def get_stats(self) -> list:
         from animal import Animal
         from plant import Plant
-              
-        save_csv = True
-        if save_csv: 
-            # Define the organism data to save
-            organism_data = [
-                self.id,
-                self.birth_time,
-                self.death_time,
-                self.death_time - self.birth_time,
-                self.age,
-                self.animals_killed,
-                self.plants_killed,
-                self.organisms_attacked,
-                round(self.attack_power, 1),
-                round(self.energy_gained),
-                self.tiles_visited,
-                self.parent.id if self.parent else None,
-                self.num_offspring,
-                self.color.r,
-                self.color.g,
-                self.color.b,
-                1 if isinstance(self, Animal) else 0,
-                1 if isinstance(self, Plant) else 0
-            ]
-            # Define the header names
-            headers = ["Animal ID", "Birth time", "Death time", "Age (Time)", "Age (Ticks)", "Animals killed", "Plants killed", "Organisms attacked", "Attack Power", "Total Energy gained", "Tiles visited", "Parent ID", "Number of Offspring", "Color Red", "Color Green", "Color Blue", "Animal", "Plant"]
-            
-            # Check if the file exists and write headers if it doesn't
-            file_exists = os.path.isfile(config.csv_filename)
-            
-            # Write the data to the CSV file
+      
+        return [
+            self.id,
+            1 if isinstance(self, Animal) else 0,
+            1 if isinstance(self, Plant) else 0,
+            self.birth_time,
+            self.death_time,
+            self.death_time - self.birth_time if self.death_time else pygame.time.get_ticks() - self.birth_time,
+            self.age,
+            round(self.health, 2),
+            round(self.MAX_HEALTH, 2),
+            round(self.health_ratio(), 2),
+            round(self.energy, 2),
+            round(self.MAX_ENERGY, 2),
+            round(self.energy_ratio(), 2),
+            round(self.total_energy_gained, 2),
+            self.tiles_visited,
+            round(self.attack_power, 2),
+            self.organisms_attacked,
+            self.animals_killed,
+            self.plants_killed,
+            self.parent.id if self.parent else None,
+            self.num_offspring,
+            self.color.r,
+            self.color.g,
+            self.color.b
+        ]
+    
+    def get_headers(self) -> list[int | float]:
+        return [
+            "ID", 
+            "Is Animal", 
+            "Is Plant", 
+            "Birth time (milsec)", 
+            "Death time (milsec)", 
+            "Time lived (milsec)",
+            "Updates / Frames lived", 
+            "Health", 
+            "Max health", 
+            "Health ratio", 
+            "Energy", 
+            "Max energy", 
+            "Energy ratio",
+            "Total Energy gained", 
+            "Tiles traveled", 
+            "Attack power", 
+            "Organisms attacked", 
+            "Animals killed",
+            "Plants killed", 
+            "Parent Id", 
+            "Number of Offsprings", 
+            "Color red value", 
+            "Color green value", 
+            "Color blue value"
+        ]
+        
+        
+    def save_to_csv(self): 
+        file_exists = os.path.isfile(config.csv_filename)
+        
+        try:
             with open(config.csv_filename, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 if not file_exists:
-                    writer.writerow(headers)
-                writer.writerow(organism_data)
+                    writer.writerow(self.get_headers())
+                writer.writerow(self.get_stats())
+        except IOError as e:
+            print(f"Error writing to CSV: {e}")
