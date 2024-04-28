@@ -23,14 +23,9 @@ class Plant(Organism):
     @property
     def REPRODUCTION_CHANCE(self) -> float:
         return .005 * self.health_ratio()
-            
-    BASE_GROWTH: float = 1
-    BASE_GROWTH_CHANCE: float = .02
-    
-    BASE_PLANT_COLOR: Color = Color(76, 141, 29, ground_alpha)
-    
-    NUTRITION_FACTOR: float = .8
-    
+                
+    BASE_COLOR: Color = Color(76, 141, 29, ground_alpha)
+        
     plants_birthed: int = 0
     plants_died: int  = 0
     
@@ -38,7 +33,7 @@ class Plant(Organism):
         if not shape:
             shape = tile.rect
         if not color:
-            color = self.BASE_PLANT_COLOR
+            color = self.BASE_COLOR
             
         health = self.MAX_HEALTH * lerp(0.8, 1, random())               
         energy = self.MAX_ENERGY * lerp(0.8, 1, random())
@@ -47,7 +42,6 @@ class Plant(Organism):
         self.parent: Plant | None = parent
         
         self.attack_power = 0
-        self.growth: float = self.BASE_GROWTH 
          
     def update(self):
         super().update()
@@ -69,9 +63,6 @@ class Plant(Organism):
         col: Color =  self.tile.color.lerp(self.color, pygame.math.lerp(0, .2, self.health_ratio()))
         pygame.draw.rect(pygame.display.get_surface(), col, self.shape.scale_by(self.health_ratio()))
                 
-    def growth_chance(self):
-        return self.BASE_GROWTH_CHANCE - self.tile.calculate_growth_height_penalty(self.BASE_GROWTH_CHANCE)
-    
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):        
         super().enter_tile(tile)
