@@ -157,7 +157,7 @@ class Organism(ABC, sprite.Sprite):
         
         if new_energy < 0:
             self.set_energy(self.MIN_ENERGY)
-            self.loose_health(abs(new_energy) * self.ENERGY_TO_HEALTH_RATIO)
+            self.loose_health(abs(new_energy) * self.HEALTH_TO_ENERGY_RATIO)
         else:
             self.set_energy(new_energy)
         
@@ -184,7 +184,7 @@ class Organism(ABC, sprite.Sprite):
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
         
-        save_csv = True
+        save_csv = False
         if save_csv:
             self.save_to_csv()
     
