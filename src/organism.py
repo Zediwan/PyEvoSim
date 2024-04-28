@@ -233,13 +233,9 @@ class Organism(ABC, sprite.Sprite):
         self.stat_panel.draw()
 
     def get_stats(self) -> list:
-        from animal import Animal
-        from plant import Plant
-      
         return [
+            self.__class__.__name__,
             self.id,
-            1 if isinstance(self, Animal) else 0,
-            1 if isinstance(self, Plant) else 0,
             self.birth_time,
             self.death_time,
             self.death_time - self.birth_time if self.death_time else pygame.time.get_ticks() - self.birth_time,
@@ -265,9 +261,8 @@ class Organism(ABC, sprite.Sprite):
     
     def get_headers(self) -> list[int | float]:
         return [
+            "Type",
             "ID", 
-            "Is Animal", 
-            "Is Plant", 
             "Birth time (milsec)", 
             "Death time (milsec)", 
             "Time lived (milsec)",

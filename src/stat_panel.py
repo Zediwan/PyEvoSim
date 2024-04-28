@@ -13,7 +13,7 @@ class StatPanel(Sprite):
     border_size: int = 10
     offset_between_cols: int = 20
     
-    def __init__(self, headers: list[str], stats: list[float]):
+    def __init__(self, headers: list[str], stats: list):
         Sprite.__init__(self)
         self.headers = headers
         self.stats = stats
