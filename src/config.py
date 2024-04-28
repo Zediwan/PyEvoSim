@@ -34,6 +34,7 @@ draw_wind_speed = False
 draw_wind_direction = False
 draw_animal_energy = False
 draw_animal_health = False
+show_dead_organisms_stats = True
 
 pygame.font.init()
 font_size = int(1.2 * TILE_SIZE)

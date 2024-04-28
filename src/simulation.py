@@ -116,7 +116,11 @@ class Simulation:
                 self.stat_panels()
                 
                 if self.stat_showing_organism:
-                    self.stat_showing_organism.show_stats()
+                    if self.stat_showing_organism.is_alive() or config.show_dead_organisms_stats:
+                        self.stat_showing_organism.show_stats()
+                    else:
+                        self.stat_showing_organism.stat_panel = None
+                        self.stat_showing_organism = None
                     
             if self.menu_open:
                 self.draw_menu()
