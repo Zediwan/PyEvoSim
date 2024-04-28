@@ -259,7 +259,7 @@ class Organism(ABC, sprite.Sprite):
             self.color.b
         ]
     
-    def get_headers(self) -> list[int | float]:
+    def get_headers(self) -> list[str]:
         return [
             "Type",
             "ID", 
@@ -285,8 +285,7 @@ class Organism(ABC, sprite.Sprite):
             "Color green value", 
             "Color blue value"
         ]
-        
-        
+              
     def save_to_csv(self): 
         file_exists = os.path.isfile(config.csv_filename)
         
