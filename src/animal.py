@@ -42,11 +42,11 @@ class Animal(Organism):
         super().__init__(tile, shape, color, health, energy)
         self.parent: Animal | None = parent
         
-        self.attack_power = 10        
+        self.attack_power = 8        
         
     def update(self):
         super().update()
-        self.use_energy(4)
+        self.use_energy(2)
         
         DROWNING_DAMAGE = 10
         if self.tile.has_water:
@@ -125,7 +125,7 @@ class Animal(Organism):
             attacking_organism.animals_killed += 1
             
     def wants_to_eat(self) -> bool:
-        return self.energy_ratio() < .9 and self.health_ratio() < .9
+        return self.energy_ratio() < .99 and self.health_ratio() < .99
         
     ########################## Reproduction #################################
     def reproduce(self):
@@ -145,10 +145,12 @@ class Animal(Organism):
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)
         Animal.animals_birthed += 1
-        return Animal(tile, color = self.color)
+        offspring =  Animal(tile, color = self.color)
+        offspring.attack_power = self.attack_power
+        return offspring
     
     def mutate(self):
         change_in_color = .2
         mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
         self.color = self.color.lerp(mix_color, change_in_color)
-        self.attack_power = clamp(self.attack_power + ((random()) - .5), 0, 50)
+        self.attack_power = clamp(self.attack_power + ((random()*2) - .1), 0, 50)

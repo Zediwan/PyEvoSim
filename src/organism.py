@@ -46,6 +46,9 @@ class Organism(ABC, sprite.Sprite):
     organisms_birthed: int = 0
     organisms_died: int = 0
     next_organism_id: int = 0
+    save_csv: bool = True
+    save_animals_csv: bool = True
+    save_plants_csv: bool = False
          
     def __init__(self, tile: Tile, shape: Rect, color: Color, health: float, energy: float):
         sprite.Sprite.__init__(self)
@@ -184,8 +187,11 @@ class Organism(ABC, sprite.Sprite):
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
         
-        save_csv = False
-        if save_csv:
+        if self.save_csv:
+            from animal import Animal
+            from plant import Plant
+            if not self.save_animals_csv and isinstance(self, Animal): return
+            if not self.save_plants_csv and isinstance(self, Plant): return
             self.save_to_csv()
     
     def attack(self, organism_to_attack: Organism):

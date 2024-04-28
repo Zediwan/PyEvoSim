@@ -38,7 +38,7 @@ class World(sprite.Sprite):
     def update(self):
         for tile in self.tiles:
             tile.update()
-            self.handle_border_update(tile)
+            #self.handle_border_update(tile)
             self.handle_coast_update(tile)
             
             chance_to_spawn_plant_anywhere = .00001
