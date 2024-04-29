@@ -1,9 +1,7 @@
 from __future__ import annotations
 from typing import List
-from pygame import Rect, Surface, SRCALPHA, draw, Color
-from pygame.math import clamp, lerp
-from math import floor
-from random import random, choice, shuffle
+from pygame import Rect, Surface, Color
+from random import choice, shuffle
 
 from config import *
 from colors import *

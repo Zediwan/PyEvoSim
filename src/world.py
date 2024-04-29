@@ -1,9 +1,9 @@
 import csv
 from datetime import datetime
-from pygame import sprite, Surface
+from pygame import sprite
 from pygame.math import clamp, lerp
 from math import pow, floor
-from random import random, shuffle, choice, randint
+from random import random, randint
 from noise import snoise2
 import logging
 

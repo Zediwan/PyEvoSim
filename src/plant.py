@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pygame import Color, Rect
-from pygame.math import clamp, lerp
-from random import random, randint, choices
+from pygame.math import lerp
+from random import random, randint
 
 from config import *
 from organism import Organism

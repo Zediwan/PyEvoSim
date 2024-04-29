@@ -2,12 +2,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import csv
 import os
-from pygame import SRCALPHA, Color, Rect, sprite, Surface
+from pygame import SRCALPHA, Color, Rect, sprite
 
 import config
 from config import *
 from tile import Tile
-from helper import format_number
 from stat_panel import StatPanel
 
 class Organism(ABC, sprite.Sprite):

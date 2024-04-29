@@ -1,12 +1,10 @@
 from __future__ import annotations
-from typing import Optional
-from pygame import Color, Rect, Surface
+from pygame import Color, Rect
 from pygame.math import clamp, lerp
 from random import random, randint, shuffle
 
 from config import *
 from organism import Organism
-from plant import Plant
 from tile import Tile
 
 class Animal(Organism):
