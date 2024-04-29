@@ -46,7 +46,7 @@ class Organism(ABC, sprite.Sprite):
     organisms_birthed: int = 0
     organisms_died: int = 0
     next_organism_id: int = 0
-    save_csv: bool = True
+    save_csv: bool = False
     save_animals_csv: bool = True
     save_plants_csv: bool = False
          
