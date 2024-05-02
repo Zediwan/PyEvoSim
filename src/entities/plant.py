@@ -58,6 +58,8 @@ class Plant(Organism):
             dna = DNA(
                 settings.colors.BASE_PLANT_COLOR,
                 settings.entity_settings.PLANT_BASE_ATTACK_POWER,
+                settings.entity_settings.PLANT_BASE_MOISTURE_PREFERENCE(),
+                settings.entity_settings.PLANT_BASE_HEIGHT_PREFERENCE(),
             )
 
         super().__init__(
@@ -85,11 +87,25 @@ class Plant(Organism):
             self.die()
 
     def get_photosynthesis_energy(self):
-        return (
+        # Base photosynthesis energy calculation
+        base_energy = (
             random.random()
             * self.tile.plant_growth_potential
             * settings.entity_settings.PLANT_PHOTOSYNTHESIS_ENERGY_MULTIPLIER
         )
+
+        # Calculate the preference match
+        height_preference_match = 0.5 + 0.5 * (1 - abs(self.tile.height - self.height_preference))
+        moisture_preference_match = 0.5 + 0.5 * (1 - abs(
+            self.tile.moisture - self.moisture_preference
+        ))
+
+        # Combine the matches to adjust the base energy gain
+        adjusted_energy_gain = (
+            base_energy * (height_preference_match + moisture_preference_match) / 2
+        )
+
+        return adjusted_energy_gain
 
     def get_coast_energy(self):
         return random.random() * settings.entity_settings.PLANT_COAST_ENERGY_MULTIPLIER

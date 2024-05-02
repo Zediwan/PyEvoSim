@@ -111,6 +111,8 @@ class Organism(ABC, sprite.Sprite):
 
         self.color: Color = self.dna.color
         self.attack_power: float = self.dna.attack_power_gene.value
+        self.moisture_preference: float = self.dna.prefered_moisture_gene.value
+        self.height_preference: float = self.dna.prefered_height_gene.value
 
     ########################## Properties #################################
     @property
@@ -246,7 +248,7 @@ class Organism(ABC, sprite.Sprite):
     @abstractmethod
     def mutate(self):
         self.dna.mutate()
-        pass
+        self._set_attributes_from_dna()
 
     ########################## Stats #################################
     def show_stats(self):
@@ -287,6 +289,8 @@ class Organism(ABC, sprite.Sprite):
             self.color.r,
             self.color.g,
             self.color.b,
+            self.moisture_preference,
+            self.height_preference,
         ]
 
     def get_headers(self) -> list[str]:
@@ -314,6 +318,8 @@ class Organism(ABC, sprite.Sprite):
             "Color red value",
             "Color green value",
             "Color blue value",
+            "Moisture preference",
+            "Height preference",
         ]
 
     def save_to_csv(self):

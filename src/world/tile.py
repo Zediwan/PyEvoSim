@@ -87,31 +87,31 @@ class Tile:
             return 0  # Waterlogged, no growth
 
         if self.height < 0.12:
-            return 0.2  # Sandy areas have limited growth
+            return 0.4  # Sandy areas have limited growth
 
         if self.height > 0.8:
             if self.moisture < 0.1:
-                return 0.2  # Scorched, minimal growth
+                return 0.4  # Scorched, minimal growth
             if self.moisture < 0.2:
-                return 0.3  # Bare, low growth
+                return 0.6  # Bare, low growth
             if self.moisture < 0.5:
-                return 0.5  # Tundra, moderate growth
-            return 0.5  # Snow, slightly favorable
+                return 0.7  # Tundra, moderate growth
+            return 0.75  # Snow, slightly favorable
 
         if self.height > 0.6:
             if self.moisture < 0.33:
-                return 0.4  # Temperate desert, low growth
+                return 0.6  # Temperate desert, low growth
             if self.moisture < 0.66:
-                return 0.6  # Shrubland, moderate growth
-            return 0.8  # Taiga, favorable
+                return 0.7  # Shrubland, moderate growth
+            return 0.9  # Taiga, favorable
 
         if self.height > 0.3:
             if self.moisture < 0.16:
-                return 0.5  # Temperate desert, low growth
+                return 0.6  # Temperate desert, low growth
             if self.moisture < 0.50:
-                return 0.8  # Grassland, favorable
+                return 0.9  # Grassland, favorable
             if self.moisture < 0.83:
-                return 0.9  # Temperate deciduous forest, very favorable
+                return 0.95  # Temperate deciduous forest, very favorable
             return 1  # Temperate rain forest, optimal
 
         if self.moisture < 0.16:
