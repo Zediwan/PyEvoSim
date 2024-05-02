@@ -2,6 +2,7 @@ import sys
 import pygame as pg
 
 import settings.config as config
+from settings.colors import SIMULATION_BACKGROUND_COLOR, MENU_BACKGROUND_COLOR, STAT_BAR_BACKGROUND_COLOR, STAT_BAR_BORDER_COLOR, STAT_BAR_FONT_COLOR
 from world.world import World
 from entities.organism import Organism
 from entities.plant import Plant
@@ -111,7 +112,7 @@ class Simulation:
                         self.stat_showing_organism = None
                         
             if not is_paused:
-                self.screen.fill((pg.Color("white")))  # Fill the screen with a white background
+                self.screen.fill(SIMULATION_BACKGROUND_COLOR)  # Fill the screen with a white background
                 self.world.update()
                 self.world.draw() 
                 self.stat_panels()
@@ -135,10 +136,10 @@ class Simulation:
                     
     def draw_menu(self):
         # Placeholder for menu drawing logic
-        self.screen.fill(pg.Color("grey"))  # Example: fill the screen with grey
+        self.screen.fill(MENU_BACKGROUND_COLOR)  # Example: fill the screen with grey
         menu_text = "Simulation Paused - Menu"
         font = pg.font.Font(None, 36)
-        text_surface = font.render(menu_text, True, pg.Color("white"))
+        text_surface = font.render(menu_text, True, SIMULATION_BACKGROUND_COLOR)
         text_rect = text_surface.get_rect(center=(self.width/2, self.height/2))
         self.screen.blit(text_surface, text_rect)
           
@@ -159,12 +160,10 @@ class Simulation:
         font_size = int(0.02 * self.height)
         panel_height = int(0.03 * self.height)
         line_width: int = 2
-        panel_color: pg.Color = pg.Color("grey")
-        line_color: pg.Color = pg.Color("black")
 
         # Drawing base panel for upper stats
-        pg.draw.rect(self.screen, panel_color, pg.Rect(0, 0, self.width, panel_height))
-        pg.draw.line(self.screen, line_color, (0, panel_height), (self.width, panel_height), width=line_width)
+        pg.draw.rect(self.screen, STAT_BAR_BACKGROUND_COLOR, pg.Rect(0, 0, self.width, panel_height))
+        pg.draw.line(self.screen, STAT_BAR_BORDER_COLOR, (0, panel_height), (self.width, panel_height), width=line_width)
 
         # Stats to display in the upper panel
         upper_stats = [
@@ -177,12 +176,10 @@ class Simulation:
         font_size = int(0.02 * self.height)
         panel_height = int(0.03 * self.height)
         line_width: int = 2
-        panel_color: pg.Color = pg.Color("grey")
-        line_color: pg.Color = pg.Color("black")
 
         # Drawing base panel for lower stats
-        pg.draw.rect(self.screen, panel_color, pg.Rect(0, self.height - panel_height, self.width, panel_height))
-        pg.draw.line(self.screen, line_color, (0, self.height - panel_height), (self.width, self.height - panel_height), width=line_width)
+        pg.draw.rect(self.screen, STAT_BAR_BACKGROUND_COLOR, pg.Rect(0, self.height - panel_height, self.width, panel_height))
+        pg.draw.line(self.screen, STAT_BAR_BORDER_COLOR, (0, self.height - panel_height), (self.width, self.height - panel_height), width=line_width)
 
         # Stats to display in the lower panel
         lower_stats = [
@@ -197,12 +194,11 @@ class Simulation:
  
     def draw_stats(self, stats, font_size, panel_y):
         stats_font = pg.font.Font(None, font_size)
-        stat_color: pg.Color = pg.Color("black")
         
         stats_texts = []
         for label, value in stats:
             value = format_number(value)
-            stats_texts.append(stats_font.render(f"{label}: {value}", True, stat_color))
+            stats_texts.append(stats_font.render(f"{label}: {value}", True, STAT_BAR_FONT_COLOR))
     
         # Calculate the spacing and positions
         num_stats = len(stats_texts)

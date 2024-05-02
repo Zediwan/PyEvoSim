@@ -1,13 +1,12 @@
-from pygame import Rect, Color, Surface, SRCALPHA
+from pygame import Rect, Surface, SRCALPHA
 from pygame.sprite import Sprite
 from pygame.font import Font
 from pygame.display import get_surface
 from helper.formatter import format_number
+from settings.colors import STAT_PANEL_FONT_COLOR, STAT_PANEL_BACKGROUND_COLOR
 
 class StatPanel(Sprite):
     offset: tuple[int, int] = (20, 20)
-    background_color: Color = Color("black")
-    text_color: Color = Color('white')
     alpha: int = 200
     font: Font = Font(None, 20)
     border_size: int = 10
@@ -36,14 +35,14 @@ class StatPanel(Sprite):
         self.surface.set_alpha(self.alpha)
         
     def draw(self):
-        self.surface.fill(self.background_color)
+        self.surface.fill(STAT_PANEL_BACKGROUND_COLOR)
                 
         y = self.border_size
         for idx, header in enumerate(self.headers):
-            name_surface = self.font.render(header, True, self.text_color)
+            name_surface = self.font.render(header, True, STAT_PANEL_FONT_COLOR)
             self.surface.blit(name_surface, (self.border_size, y))
             
-            value_surface = self.font.render(format_number(self.stats[idx]), True, self.text_color)
+            value_surface = self.font.render(format_number(self.stats[idx]), True, STAT_PANEL_FONT_COLOR)
             self.surface.blit(value_surface, (self.name_column_width + self.offset_between_cols, y))
             
             y += name_surface.get_height()

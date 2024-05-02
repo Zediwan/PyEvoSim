@@ -4,6 +4,7 @@ from pygame.math import clamp, lerp
 from random import random, randint, shuffle
 
 from settings.config import *
+from settings.colors import BASE_ANIMAL_COLOR
 from entities.organism import Organism
 from dna.dna import DNA
 from world.tile import Tile
@@ -34,7 +35,7 @@ class Animal(Organism):
             shape = tile.rect.copy()
             
         if not dna:
-            dna = DNA(pygame.Color(randint(0,255), randint(0,255), randint(0,255)))
+            dna = DNA(BASE_ANIMAL_COLOR())
         
         super().__init__(tile, shape, 
                          self.MAX_HEALTH * lerp(0.2, 0.4, random()), 

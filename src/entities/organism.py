@@ -6,6 +6,7 @@ from pygame import SRCALPHA, Color, Rect, sprite
 
 import settings.config as config
 from settings.config import *
+from settings.colors import BASE_ORGANISM_COLOR
 from dna.dna import DNA
 from world.tile import Tile
 from stats.stat_panel import StatPanel
@@ -59,7 +60,7 @@ class Organism(ABC, sprite.Sprite):
         Organism.next_organism_id += 1
         
         if not dna:
-            dna = DNA(Color("black"), 0)
+            dna = DNA(BASE_ORGANISM_COLOR, 0)
         self.dna: DNA = dna
         self.color: Color = self.dna.color
         
