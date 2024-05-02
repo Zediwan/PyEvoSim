@@ -83,7 +83,6 @@ class Simulation:
                     settings.gui_settings.draw_animal_health = (
                         not settings.gui_settings.draw_animal_health
                     )
-                    print("Drawing animal health.")
                     self.world.draw()
                 elif (
                     event.key == pygame.K_3 and pygame.key.get_mods() & pygame.KMOD_ALT
@@ -91,37 +90,31 @@ class Simulation:
                     settings.gui_settings.draw_animal_energy = (
                         not settings.gui_settings.draw_animal_energy
                     )
-                    print("Drawing animal energy.")
                     self.world.draw()
                 elif (
-                    event.key == pygame.K_r
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
+                    event.key == pygame.K_r & pygame.key.get_mods() & pygame.KMOD_SHIFT
                 ):
                     self.world = World(self.height, self.width, self.tile_size)
                     self.stat_showing_organism = None
                     self.world.draw()
                 elif (
-                    event.key == pygame.K_UP
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
+                    event.key == pygame.K_UP & pygame.key.get_mods() & pygame.KMOD_SHIFT
                 ):
                     self.increase_game_speed = True
                     self.decrease_game_speed = False
                 elif (
-                    event.key == pygame.K_DOWN
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
+                    event.key
+                    == pygame.K_DOWN & pygame.key.get_mods() & pygame.KMOD_SHIFT
                 ):
                     self.increase_game_speed = False
                     self.decrease_game_speed = True
 
             if event.type == pygame.KEYUP:
-                if (
-                    event.key == pygame.K_UP
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
+                if event.key == pygame.K_UP & pygame.key.get_mods() & pygame.KMOD_SHIFT:
                     self.increase_game_speed = False
                 elif (
-                    event.key == pygame.K_DOWN
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
+                    event.key
+                    == pygame.K_DOWN & pygame.key.get_mods() & pygame.KMOD_SHIFT
                 ):
                     self.decrease_game_speed = False
 
@@ -134,9 +127,21 @@ class Simulation:
 
                 if tile.has_animal():
                     self.stat_showing_organism = tile.animal
+                    pygame.draw.rect(
+                        self.screen,
+                        settings.colors.SELECTED_ORGANISM_COLOR,
+                        self.stat_showing_organism.shape,
+                        width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+                    )
                     self.stat_showing_organism.show_stats()
                 elif tile.has_plant():
                     self.stat_showing_organism = tile.plant
+                    pygame.draw.rect(
+                        self.screen,
+                        settings.colors.SELECTED_ORGANISM_COLOR,
+                        self.stat_showing_organism.shape,
+                        width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+                    )
                     self.stat_showing_organism.show_stats()
                 else:
                     if self.stat_showing_organism:
@@ -156,6 +161,12 @@ class Simulation:
                         self.stat_showing_organism.is_alive()
                         or settings.gui_settings.show_dead_organisms_stats
                     ):
+                        pygame.draw.rect(
+                            self.screen,
+                            settings.colors.SELECTED_ORGANISM_COLOR,
+                            self.stat_showing_organism.shape,
+                            width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+                        )
                         self.stat_showing_organism.show_stats()
                     else:
                         self.stat_showing_organism.stat_panel = None
