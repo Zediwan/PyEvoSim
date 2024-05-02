@@ -7,7 +7,7 @@ from pygame.math import lerp
 from math import floor
 
 from dna.gene import Gene
-from dna import dna_settings
+from settings import dna_settings
 
 class DNA():
     def __init__(self, color: Color, attack_power: float = None) -> None:

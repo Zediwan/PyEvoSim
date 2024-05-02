@@ -3,9 +3,9 @@ from typing import List
 from pygame import Rect, Surface, Color
 from random import choice, shuffle
 
-from config import *
-from colors import *
-from direction import Direction
+from settings.config import *
+from settings.colors import *
+from helper.direction import Direction
 
 class Tile():
     WATER_LEVEL = .1
@@ -22,10 +22,10 @@ class Tile():
         self.color: Color = self.get_biome_color()
               
         # Organisms
-        from animal import Animal
+        from entities.animal import Animal
         self.animal: Animal | None = None
             
-        from plant import Plant
+        from entities.plant import Plant
         self.plant: Plant | None = None
                 
         self.has_water = self.height < self.WATER_LEVEL
@@ -49,18 +49,18 @@ class Tile():
         if self.has_animal():
             self.animal.draw()
             
-            from config import draw_animal_health
+            from settings.config import draw_animal_health
             if draw_animal_health:
                 self.draw_stat(self.animal.health)
                 
-            from config import draw_animal_energy
+            from settings.config import draw_animal_energy
             if draw_animal_energy:
                 self.draw_stat(self.animal.energy)
                 
         elif self.has_plant():
             self.plant.draw()
         
-        from config import draw_height_level
+        from settings.config import draw_height_level
         if draw_height_level:
             self.draw_stat(self.height * 9)
 

@@ -3,10 +3,10 @@ from pygame import Color, Rect
 from pygame.math import lerp
 from random import random, randint
 
-from config import *
+from settings.config import *
 from dna.dna import DNA
-from organism import Organism
-from tile import Tile
+from entities.organism import Organism
+from world.tile import Tile
     
 class Plant(Organism):
     @property

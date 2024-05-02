@@ -4,11 +4,11 @@ import csv
 import os
 from pygame import SRCALPHA, Color, Rect, sprite
 
-import config
-from config import *
+import settings.config as config
+from settings.config import *
 from dna.dna import DNA
-from tile import Tile
-from stat_panel import StatPanel
+from world.tile import Tile
+from stats.stat_panel import StatPanel
 
 class Organism(ABC, sprite.Sprite):
     @property
@@ -165,8 +165,8 @@ class Organism(ABC, sprite.Sprite):
         self.death_time = pygame.time.get_ticks()
         
         if self.save_csv:
-            from animal import Animal
-            from plant import Plant
+            from entities.animal import Animal
+            from entities.plant import Plant
             if not self.save_animals_csv and isinstance(self, Animal): return
             if not self.save_plants_csv and isinstance(self, Plant): return
             self.save_to_csv()

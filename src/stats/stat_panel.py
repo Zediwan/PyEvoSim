@@ -2,7 +2,7 @@ from pygame import Rect, Color, Surface, SRCALPHA
 from pygame.sprite import Sprite
 from pygame.font import Font
 from pygame.display import get_surface
-from helper import format_number
+from helper.formatter import format_number
 
 class StatPanel(Sprite):
     offset: tuple[int, int] = (20, 20)

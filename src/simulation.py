@@ -1,13 +1,13 @@
 import sys
 import pygame as pg
 
-import config
-from world import World
-from organism import Organism
-from plant import Plant
-from animal import Animal
-from tile import Tile
-from helper import format_number
+import settings.config as config
+from world.world import World
+from entities.organism import Organism
+from entities.plant import Plant
+from entities.animal import Animal
+from world.tile import Tile
+from helper.formatter import format_number
 
 class Simulation:
     STARTING_FPS_LIMIT: int = 60

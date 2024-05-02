@@ -6,12 +6,12 @@ from random import random, randint
 from noise import snoise2
 import logging
 
-import config
-from config import *
-from plant import Plant
-from tile import Tile
-from animal import Animal
-from direction import Direction
+import settings.config as config
+from settings.config import *
+from entities.plant import Plant
+from world.tile import Tile
+from entities.animal import Animal
+from helper.direction import Direction
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class World(sprite.Sprite):
