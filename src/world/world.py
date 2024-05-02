@@ -6,7 +6,8 @@ from random import random, randint
 from noise import snoise2
 import logging
 
-import settings.config as config
+from settings.database_settings import database_csv_filename
+from settings.noise_settings import *
 from settings.config import *
 from entities.plant import Plant
 from world.tile import Tile
@@ -32,7 +33,7 @@ class World(sprite.Sprite):
         self.add_neighbors()
         #self.create_river()
         
-        config.csv_filename = f'databases/organism_database_{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+        database_csv_filename = f'databases/organism_database_{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
         
     def update(self):
         for tile in self.tiles:
@@ -86,8 +87,8 @@ class World(sprite.Sprite):
         tile : Tile = Tile(rect, self.tile_size, height=height, moisture = moisture, is_border = self.is_border_tile(row = row, col = col))
         
         if not tile.has_water:
-            self.spawn_animal(tile, chance_to_spawn = STARTING_ANIMAL_PERCENTAGE)
-            self.spawn_plant(tile, chance_to_spawn = STARTING_PLANT_PERCENTAGE)
+            self.spawn_animal(tile, chance_to_spawn = STARTING_ANIMAL_SPAWNING_CHANCE)
+            self.spawn_plant(tile, chance_to_spawn = STARTING_PLANT_SPAWNING_CHANCE)
             
         return tile
     

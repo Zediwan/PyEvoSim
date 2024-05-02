@@ -6,6 +6,7 @@ from pygame import SRCALPHA, Color, Rect, sprite
 
 import settings.config as config
 from settings.config import *
+from settings.database_settings import *
 from settings.colors import BASE_ORGANISM_COLOR
 from dna.dna import DNA
 from world.tile import Tile
@@ -272,10 +273,10 @@ class Organism(ABC, sprite.Sprite):
         ]
               
     def save_to_csv(self): 
-        file_exists = os.path.isfile(config.csv_filename)
+        file_exists = os.path.isfile(database_csv_filename)
         
         try:
-            with open(config.csv_filename, mode='a', newline='') as file:
+            with open(database_csv_filename, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 if not file_exists:
                     writer.writerow(self.get_headers())
