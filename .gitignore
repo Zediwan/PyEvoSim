@@ -48,3 +48,9 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+# Apple DS_Store
+*.DS_Store
+
+*.vscode
+*.idea

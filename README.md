@@ -1,57 +1,41 @@
-# Evolution Simulation
+# Evolution Simulation Project
 
+Welcome to the Evolution Simulation project!
 
-## Description
+Our goal is to simulate the evolution of virtual organisms using neural networks within a dynamic environment. Our main vision is to maintain procedural simulation, avoiding the implementation of predefined animal types. This approach allows evolutionary selection to unfold freely, potentially surprising us with its results.
 
-In this project, we aim to simulate an ecosystem consisting of diverse procedural organisms like animals and plants. The world is displayed as a grid with different tiles, each representing a unique environment that can affect and be affected by the organisms living within it. The simulation includes advanced features such as organisms' ability to move, eat, reproduce, and mutate their genes. Additionally, we incorporate a neural network to model animal behavior and decision-making, providing a complex and dynamic ecosystem.
----
+The goal is to continually make the simulation more complex by adding new features from real life to enable vast amount of different adaptations to the simulations settings.
 
-## Installation
-
----
-
-## Usage
-
----
+Below, you'll find information on how to set up and run the simulation, as well as an overview of its features.
 
 ## Features
-### Dynamic Water System
-Tiles simulate water flow, spawn new water sources, and undergo evaporation, impacting organism survival in diverse environmental conditions.
 
-### Growth Dynamics
-Each tile's growth value, influenced by water presence and environmental factors, affects food availability for herbivores and the ecosystem's overall health.
-
-### Terrain and Erosion
-Varied terrain undergoes erosion based on water flow, shaping landscapes and affecting organism movement and habitat availability.
-
-### Organism Interactions
-Organisms interact with the environment and each other through movement, feeding, and reproduction, closely modeled to produce realistic outcomes.
-
-### Neural Network for Behavior Modeling (WiP)
-Animal behavior will be simulated using neural networks, enabling complex decision-making that evolves over time as organisms adapt to changing environmental conditions.
-
----
-
-## Documentation
-
----
+- Animals consuming food and utilizing energy to survive.
+- Reproduction based on accumulated energy.
+- DNA system defining various aspects of an animal (work in progress).
+- Organism Database to filter and query (work in progress)
+- Visualization of gene distribution in the simulation (work in progress).
+- User-friendly GUI for simulation settings adjustment (work in progress).
 
 ## Contributing
 
-If you would like to contribute to the simulation program, feel free to fork the repository and make changes as you see fit. 
-You can then submit a pull request with your changes for review.
----
+If you'd like to contribute to the project, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/new-feature`).
+3. Make your changes.
+4. Commit your changes (`git commit -am 'Add new feature'`).
+5. Push to the branch (`git push origin feature/new-feature`).
+6. Create a new pull request.
+
+## Credits
+
+This project was initiated by Jeremy Moser.
+
+Later on it was worked on as a project for a lecture Programmig for Data Science by Jeremy Moser, Andrin Müller, Dimoth Pathiniwasam and Milos Kecman.
+
+Inspirations for the project were other projects like [the Bibites](https://www.youtube.com/@TheBibitesDigitalLife), [Coding Train](https://github.com/CodingTrain), [Sebastian Lague](https://github.com/SebLague) and many more.
 
 ## License
 
----
-
-## Acknowledgments
-
-This program was created by Jeremy Moser, inspired by the coding train, the bibites and many similar projects.
----
-
-## Contact Information
-
-zediwan@gmail.com
----
+This project is licensed under the MPL-2.0 License. See the [LICENSE](LICENSE) file for details.
