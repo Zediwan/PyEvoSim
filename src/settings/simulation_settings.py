@@ -8,3 +8,5 @@ chance_to_spawn_plant_at_border: float = 0.0001
 
 island_mode: bool = False
 terraces: bool = False
+
+WATER_LEVEL: float = 0.1

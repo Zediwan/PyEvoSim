@@ -9,11 +9,10 @@ from pygame import Color, Rect, Surface
 import helper.direction
 import settings.colors
 import settings.font
+import settings.simulation_settings
 
 
 class Tile:
-    WATER_LEVEL = 0.1
-
     def __init__(
         self,
         rect: Rect,
@@ -41,7 +40,7 @@ class Tile:
 
         self.plant: Plant | None = None
 
-        self.has_water = self.height < self.WATER_LEVEL
+        self.has_water = self.height < settings.simulation_settings.WATER_LEVEL
         self.is_border: bool = is_border
         self.is_coast: bool = False
         self.steepest_decline_direction: helper.direction.Direction | None = None
@@ -83,7 +82,7 @@ class Tile:
 
     ########################## Tile Organism influence #################################
     def calculate_plant_growth(self) -> float:
-        if self.height < self.WATER_LEVEL:
+        if self.height < settings.simulation_settings.WATER_LEVEL:
             return 0  # Waterlogged, no growth
 
         if self.height < 0.12:
@@ -124,7 +123,7 @@ class Tile:
 
     ########################## Drawing #################################
     def get_biome_color(self) -> Color:
-        if self.height < self.WATER_LEVEL:
+        if self.height < settings.simulation_settings.WATER_LEVEL:
             return settings.colors.WATER_COLOR
         if self.height < 0.12:
             return settings.colors.SAND_COLOR
