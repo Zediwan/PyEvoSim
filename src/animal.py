@@ -5,6 +5,7 @@ from random import random, randint, shuffle
 
 from config import *
 from organism import Organism
+from dna.dna import DNA
 from tile import Tile
 
 class Animal(Organism):
@@ -14,7 +15,7 @@ class Animal(Organism):
         
     @property
     def MAX_ENERGY(self) -> float:
-        return 100
+        return 200
     
     @property
     def NUTRITION_FACTOR(self) -> float:
@@ -22,33 +23,34 @@ class Animal(Organism):
     
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return .005
+        return .001
     
     animals_birthed: int = 0
     animals_died: int = 0
     
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, parent: Animal = None):
+    def __init__(self, tile: Tile, shape: Rect|None = None, parent: Animal = None, 
+                 dna: DNA = None):
         if not shape:
             shape = tile.rect.copy()
-                        
-        if not color:
-            color = pygame.Color(randint(20,230), randint(20,230), randint(20,230))
             
-        health = self.MAX_HEALTH * lerp(0.4, 0.6, random())
-        energy = self.MAX_ENERGY * lerp(0.4, 0.6, random())
+        if not dna:
+            dna = DNA(pygame.Color(randint(0,255), randint(0,255), randint(0,255)))
         
-        super().__init__(tile, shape, color, health, energy)
-        self.parent: Animal | None = parent
+        super().__init__(tile, shape, 
+                         self.MAX_HEALTH * lerp(0.4, 0.6, random()), 
+                         self.MAX_ENERGY * lerp(0.4, 0.6, random()), 
+                         dna)
         
-        self.attack_power = 8        
-        
+        self.parent: Animal | None = parent      
+    
+    ########################## Main methods ################################# 
     def update(self):
         super().update()
-        self.use_energy(2)
+        self.energy -= random() * 5
         
         DROWNING_DAMAGE = 10
         if self.tile.has_water:
-            self.loose_health(DROWNING_DAMAGE)
+            self.health -= DROWNING_DAMAGE
             
         if self.tile.has_plant() and self.wants_to_eat():
             self.attack(self.tile.plant)
@@ -123,7 +125,7 @@ class Animal(Organism):
             attacking_organism.animals_killed += 1
             
     def wants_to_eat(self) -> bool:
-        return self.energy_ratio() < .99 and self.health_ratio() < .99
+        return self.energy_ratio() < .9 or self.health_ratio() < .9
         
     ########################## Reproduction #################################
     def reproduce(self):
@@ -131,7 +133,7 @@ class Animal(Organism):
         unoccupied_neighbor = self.tile.get_random_neigbor(no_animal = True, no_water = True)
         if unoccupied_neighbor:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-            self.use_energy(REPRODUCTION_ENERGY_COST)
+            self.energy -= REPRODUCTION_ENERGY_COST
             offspring = self.copy(unoccupied_neighbor)
             offspring.mutate()
             
@@ -143,12 +145,8 @@ class Animal(Organism):
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)
         Animal.animals_birthed += 1
-        offspring =  Animal(tile, color = self.color)
-        offspring.attack_power = self.attack_power
-        return offspring
+        
+        return Animal(tile, parent = self, dna = self.dna.copy())
     
     def mutate(self):
-        change_in_color = .2
-        mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
-        self.color = self.color.lerp(mix_color, change_in_color)
-        self.attack_power = clamp(self.attack_power + ((random()*2) - .1), 0, 50)
+        super().mutate()

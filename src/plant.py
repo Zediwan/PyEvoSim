@@ -4,13 +4,14 @@ from pygame.math import lerp
 from random import random, randint
 
 from config import *
+from dna.dna import DNA
 from organism import Organism
 from tile import Tile
     
 class Plant(Organism):
     @property
     def MAX_HEALTH(self) -> float:
-        return 100
+        return 200
 
     @property
     def MAX_ENERGY(self) -> float:
@@ -22,33 +23,34 @@ class Plant(Organism):
     
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return .005 * self.health_ratio()
+        return .01 * self.health_ratio()
                 
-    BASE_COLOR: Color = Color(76, 141, 29, ground_alpha)
+    BASE_COLOR: Color = Color(76, 141, 29)
         
     plants_birthed: int = 0
     plants_died: int  = 0
     
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, parent: Plant = None):    
+    def __init__(self, tile: Tile, shape: Rect|None = None, parent: Plant = None, dna: DNA = None):    
         if not shape:
-            shape = tile.rect
-        if not color:
-            color = self.BASE_COLOR
+            shape = tile.rect.copy()
             
-        health = self.MAX_HEALTH * lerp(0.8, 1, random())               
-        energy = self.MAX_ENERGY * lerp(0.8, 1, random())
+        if not dna:
+            dna = DNA(Color("black"), 0)
         
-        super().__init__(tile, shape, color, health, energy)
+        super().__init__(tile, shape, 
+                         self.MAX_HEALTH * lerp(0.8, 1, random()), 
+                         self.MAX_ENERGY * lerp(0.8, 1, random()), 
+                         dna)
+        
         self.parent: Plant | None = parent
-        
-        self.attack_power = 0
-         
+                
+    ########################## Main methods #################################
     def update(self):
         super().update()
-        self.gain_energy(random() * self.tile.moisture * 6 / self.tile.height)
+        self.energy += (random() * self.tile.moisture * 3 / self.tile.height) + random()
         
         if self.tile.is_coast:
-            self.gain_energy(random())
+            self.energy += random()
             
         if self.can_reproduce() and random() <= self.REPRODUCTION_CHANCE:
             self.reproduce()
@@ -60,7 +62,7 @@ class Plant(Organism):
     #TODO rethink plant drawing with biomes
     def draw(self):
         super().draw()
-        col: Color =  self.tile.color.lerp(self.color, pygame.math.lerp(0, .2, self.health_ratio()))
+        col: Color =  self.tile.color.lerp(self.color, pygame.math.lerp(0, .05, self.health_ratio()))
         pygame.draw.rect(pygame.display.get_surface(), col, self.shape.scale_by(self.health_ratio()))
                 
     ########################## Tile #################################
@@ -99,9 +101,9 @@ class Plant(Organism):
         option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
         if option:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-            self.use_energy(REPRODUCTION_ENERGY_COST)
+            self.energy -= REPRODUCTION_ENERGY_COST
             offspring = self.copy(option)
-            offspring.set_health(self.MAX_HEALTH * .25)
+            offspring.health = (self.MAX_HEALTH * .25)
             offspring.mutate()
             #print("Plant offspring birthed!")
         
@@ -113,9 +115,8 @@ class Plant(Organism):
     def copy(self, tile: Tile):
         super().copy(tile)
         Plant.plants_birthed += 1
-        return Plant(tile)
+        
+        return Plant(tile, parent=self, dna=self.dna.copy())
     
     def mutate(self):
-        change_in_color = .2
-        mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
-        self.color = self.color.lerp(mix_color, change_in_color)
+        super().mutate()
