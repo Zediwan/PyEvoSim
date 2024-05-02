@@ -2,6 +2,7 @@ import sys
 import pygame as pg
 
 import settings.config as config
+import settings.gui_settings as gui_settings
 from settings.colors import SIMULATION_BACKGROUND_COLOR, MENU_BACKGROUND_COLOR, STAT_BAR_BACKGROUND_COLOR, STAT_BAR_BORDER_COLOR, STAT_BAR_FONT_COLOR
 from world.world import World
 from entities.organism import Organism
@@ -66,14 +67,14 @@ class Simulation:
                     chance_to_spawn_animals = .001
                     self.world.spawn_animals(chance_to_spawn = chance_to_spawn_animals) 
                 elif event.key == pg.K_1 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_height_level = not config.draw_height_level
+                    gui_settings.draw_height_level = not gui_settings.draw_height_level
                     self.world.draw() 
                 elif event.key == pg.K_2 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_animal_health = not config.draw_animal_health
+                    gui_settings.draw_animal_health = not gui_settings.draw_animal_health
                     print("Drawing animal health.")
                     self.world.draw() 
                 elif event.key == pg.K_3 and pg.key.get_mods() & pg.KMOD_ALT: 
-                    config.draw_animal_energy = not config.draw_animal_energy
+                    gui_settings.draw_animal_energy = not gui_settings.draw_animal_energy
                     print("Drawing animal energy.")
                     self.world.draw() 
                 elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
@@ -118,7 +119,7 @@ class Simulation:
                 self.stat_panels()
                 
                 if self.stat_showing_organism:
-                    if self.stat_showing_organism.is_alive() or config.show_dead_organisms_stats:
+                    if self.stat_showing_organism.is_alive() or gui_settings.show_dead_organisms_stats:
                         self.stat_showing_organism.show_stats()
                     else:
                         self.stat_showing_organism.stat_panel = None

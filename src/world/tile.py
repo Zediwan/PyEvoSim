@@ -1,10 +1,12 @@
 from __future__ import annotations
 from typing import List
 from pygame import Rect, Surface, Color
+import pygame
 from random import choice, shuffle
 
 from settings.config import *
 from settings.colors import *
+from settings.font import font
 from helper.direction import Direction
 
 class Tile():
@@ -49,18 +51,18 @@ class Tile():
         if self.has_animal():
             self.animal.draw()
             
-            from settings.config import draw_animal_health
+            from settings.gui_settings import draw_animal_health
             if draw_animal_health:
                 self.draw_stat(self.animal.health)
                 
-            from settings.config import draw_animal_energy
+            from settings.gui_settings import draw_animal_energy
             if draw_animal_energy:
                 self.draw_stat(self.animal.energy)
                 
         elif self.has_plant():
             self.plant.draw()
         
-        from settings.config import draw_height_level
+        from settings.gui_settings import draw_height_level
         if draw_height_level:
             self.draw_stat(self.height * 9)
 

@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import csv
 import os
 from pygame import SRCALPHA, Color, Rect, sprite
+import pygame
 
 import settings.config as config
 from settings.config import *

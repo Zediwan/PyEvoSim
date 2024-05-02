@@ -1,4 +1,5 @@
 from __future__ import annotations
+import pygame
 from pygame import Color, Rect
 from pygame.math import clamp, lerp
 from random import random, randint, shuffle
