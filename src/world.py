@@ -1,4 +1,3 @@
-import csv
 from datetime import datetime
 from pygame import sprite
 from pygame.math import clamp, lerp
