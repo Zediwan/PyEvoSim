@@ -1,19 +1,23 @@
 from datetime import datetime
-import pygame
-from pygame import sprite
-from pygame.math import clamp, lerp
 from math import pow, floor
 from random import random, randint
 from noise import snoise2
 import logging
 
+from pygame import sprite, Rect
+from pygame.math import clamp, lerp
+
 from settings.database_settings import database_csv_filename
 from settings.noise_settings import *
-from settings.config import *
+from settings.config import STARTING_ANIMAL_SPAWNING_CHANCE, STARTING_PLANT_SPAWNING_CHANCE
+
 from entities.plant import Plant
-from world.tile import Tile
 from entities.animal import Animal
+
+from world.tile import Tile
+
 from helper.direction import Direction
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class World(sprite.Sprite):
@@ -21,7 +25,7 @@ class World(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.height, self.width = World.adjust_dimensions(height, width, self.tile_size)
-        self.shape = pygame.Rect(0, 0, self.width, self.height)
+        self.shape = Rect(0, 0, self.width, self.height)
         self.rows = floor(self.height / self.tile_size)
         self.cols = floor(self.width / self.tile_size)
         
@@ -82,7 +86,7 @@ class World(sprite.Sprite):
     #             self.create_river(branch_of)
     
     def create_tile(self, row: int, col: int) -> Tile:
-        rect = pygame.Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
+        rect = Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
         height, moisture = self.generate_noise_values(row, col)
         
         tile : Tile = Tile(rect, self.tile_size, height=height, moisture = moisture, is_border = self.is_border_tile(row = row, col = col))

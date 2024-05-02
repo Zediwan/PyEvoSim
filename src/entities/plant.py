@@ -1,14 +1,18 @@
 from __future__ import annotations
-from pygame import Color, Rect
+from random import random
+
 import pygame
+from pygame import Rect
 from pygame.math import lerp
-from random import random, randint
 
 from settings.config import *
 from settings.colors import BASE_PLANT_COLOR, PLANT_TILE_COLOR_VISIBILITY
-from dna.dna import DNA
+
 from entities.organism import Organism
+
 from world.tile import Tile
+
+from dna.dna import DNA
     
 class Plant(Organism):
     @property
