@@ -42,7 +42,8 @@ class Plant(Organism):
         self.parent: Plant | None = parent
         
         self.attack_power = 0
-         
+        
+    ########################## Main methods #################################
     def update(self):
         super().update()
         self.energy += (random() * self.tile.moisture * 6 / self.tile.height)

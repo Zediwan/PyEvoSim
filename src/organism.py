@@ -80,14 +80,40 @@ class Organism(ABC, sprite.Sprite):
         self.tile: Tile = None
         self.enter_tile(tile)
     
+    ########################## Properties #################################
     @property
     def health(self) -> float:
         return self._health
+    
+    @health.setter
+    def health(self, value: float):
+        if value > self.MAX_HEALTH:
+            self._health = self.MAX_HEALTH
+            return
+            
+        self._health = value
 
     @property
     def energy(self) -> float:
         return self._energy
+
+    @energy.setter
+    def energy(self, value: float):
+        if value < self.MIN_ENERGY:
+            self._energy = self.MIN_ENERGY
+            self.health += value
+            return
+        if value > self.MAX_ENERGY:
+            self._energy = self.MAX_ENERGY
+            self.health += (value-self.MAX_ENERGY)
+            return
+        self._energy = value
     
+    @property
+    def attack_power(self) -> float:
+        return self._attack_power
+    
+    ########################## Main methods #################################
     def update(self):
         energy_maintanance = 2
         self.energy -= energy_maintanance
@@ -124,26 +150,6 @@ class Organism(ABC, sprite.Sprite):
         
         assert ratio <= 1, (f"Energy ratio ({ratio}) is not smaller than 1.")
         return ratio
-
-    @health.setter
-    def health(self, value: float):
-        if value > self.MAX_HEALTH:
-            self._health = self.MAX_HEALTH
-            return
-            
-        self._health = value
-
-    @energy.setter
-    def energy(self, value: float):
-        if value < self.MIN_ENERGY:
-            self._energy = self.MIN_ENERGY
-            self.health += value
-            return
-        if value > self.MAX_ENERGY:
-            self._energy = self.MAX_ENERGY
-            self.health += (value-self.MAX_ENERGY)
-            return
-        self._energy = value
         
     def is_alive(self) -> bool:
         return self.health > 0

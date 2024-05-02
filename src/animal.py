@@ -41,7 +41,8 @@ class Animal(Organism):
         self.parent: Animal | None = parent
         
         self.attack_power = 8        
-        
+    
+    ########################## Main methods ################################# 
     def update(self):
         super().update()
         self.energy -= 2
