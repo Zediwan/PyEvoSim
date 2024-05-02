@@ -37,8 +37,8 @@ class Animal(Organism):
             dna = DNA(pygame.Color(randint(0,255), randint(0,255), randint(0,255)))
         
         super().__init__(tile, shape, 
-                         self.MAX_HEALTH * lerp(0.4, 0.6, random()), 
-                         self.MAX_ENERGY * lerp(0.4, 0.6, random()), 
+                         self.MAX_HEALTH * lerp(0.2, 0.4, random()), 
+                         self.MAX_ENERGY * lerp(0.2, 0.4, random()), 
                          dna)
         
         self.parent: Animal | None = parent      
