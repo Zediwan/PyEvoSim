@@ -27,6 +27,14 @@ class Animal(Organism):
     def REPRODUCTION_CHANCE(self) -> float:
         return .001
     
+    @property
+    def MIN_REPRODUCTION_HEALTH(self) -> float:
+        return .5
+    
+    @property
+    def MIN_REPRODUCTION_ENERGY(self) -> float:
+        return .75
+    
     animals_birthed: int = 0
     animals_died: int = 0
     
@@ -143,12 +151,7 @@ class Animal(Organism):
             self.energy -= REPRODUCTION_ENERGY_COST
             offspring = self.copy(unoccupied_neighbor)
             offspring.mutate()
-            
-    def can_reproduce(self) -> bool:
-        MIN_REPRODUCTION_HEALTH = .5
-        MIN_REPRODUCTION_ENERGY = .75
-        return self.health_ratio() >= MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= MIN_REPRODUCTION_ENERGY 
-    
+                
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)
         Animal.animals_birthed += 1

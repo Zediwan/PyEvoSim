@@ -3,10 +3,10 @@ from random import random
 
 import pygame
 from pygame import Rect
-from pygame.math import lerp
 
 from settings.config import *
 from settings.colors import BASE_PLANT_COLOR, PLANT_TILE_COLOR_VISIBILITY
+from settings.entity_settings import *
 
 from entities.organism import Organism
 
@@ -17,19 +17,27 @@ from dna.dna import DNA
 class Plant(Organism):
     @property
     def MAX_HEALTH(self) -> float:
-        return 200
+        return PLANT_MAX_HEALTH
 
     @property
     def MAX_ENERGY(self) -> float:
-        return 100
+        return PLANT_MAX_ENERGY
     
     @property
     def NUTRITION_FACTOR(self) -> float:
-        return .8
+        return PLANT_NUTRITION_FACTOR
     
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return .01 * self.health_ratio()
+        return PLANT_REPRODUCTION_CHANCE_FACTOR * self.health_ratio()
+    
+    @property
+    def MIN_REPRODUCTION_HEALTH(self) -> float:
+        return PLANT_MIN_REPRODUCTION_HEALTH
+    
+    @property
+    def MIN_REPRODUCTION_ENERGY(self) -> float:
+        return PLANT_MIN_REPRODUCTION_ENERGY
         
     plants_birthed: int = 0
     plants_died: int  = 0
@@ -39,29 +47,31 @@ class Plant(Organism):
             shape = tile.rect.copy()
             
         if not dna:
-            dna = DNA(BASE_PLANT_COLOR, 0)
+            dna = DNA(BASE_PLANT_COLOR, PLANT_BASE_ATTACK_POWER)
         
-        super().__init__(tile, shape, 
-                         self.MAX_HEALTH * lerp(0.8, 1, random()), 
-                         self.MAX_ENERGY * lerp(0.8, 1, random()), 
-                         dna)
+        super().__init__(tile, shape, PLANT_STARTING_HEALTH(), PLANT_STARTING_ENERGY(), dna)
         
         self.parent: Plant | None = parent
                 
     ########################## Main methods #################################
     def update(self):
         super().update()
-        self.energy += (random() * self.tile.moisture * 2 / self.tile.height) + random()
+        self.energy += self.get_photosynthesis_energy()
         
         if self.tile.is_coast:
-            self.energy += random()
+            self.energy += self.get_coast_energy()
             
         if self.can_reproduce() and random() <= self.REPRODUCTION_CHANCE:
             self.reproduce()
             
         if not self.is_alive():
             self.die()
-            return
+
+    def get_photosynthesis_energy(self):
+        return (random() * self.tile.moisture / self.tile.height) * PLANT_PHOTOSYNTHESIS_ENERGY_MULTIPLIER
+    
+    def get_coast_energy(self):
+        return random() * PLANT_COAST_ENERGY_MULTIPLIER
     
     #TODO rethink plant drawing with biomes
     def draw(self):
@@ -79,7 +89,6 @@ class Plant(Organism):
         
         if self.tile:
             self.tile.remove_plant()
-            #self.shape.move_ip(tile.rect.x - self.tile.rect.x, tile.rect.y - self.tile.rect.y)
         
         self.tile = tile
         tile.add_plant(self)
@@ -108,18 +117,12 @@ class Plant(Organism):
         super().reproduce()
         option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
         if option:
-            REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 4
-            self.energy -= REPRODUCTION_ENERGY_COST
+            self.energy -= PLANT_REPRODUCTION_ENERGY_COST_FACTOR * self.MAX_ENERGY
             offspring = self.copy(option)
-            offspring.health = (self.MAX_HEALTH * .25)
+            offspring.health = PLANT_OFFSPRING_HEALTH_FACTOR * self.MAX_HEALTH
             offspring.mutate()
             #print("Plant offspring birthed!")
         
-    def can_reproduce(self) -> bool:
-        MIN_REPRODUCTION_HEALTH = .1
-        MIN_REPRODUCTION_ENERGY = .3
-        return self.health_ratio() >= MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= MIN_REPRODUCTION_ENERGY 
-
     def copy(self, tile: Tile):
         super().copy(tile)
         Plant.plants_birthed += 1

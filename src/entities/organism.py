@@ -42,6 +42,16 @@ class Organism(ABC, sprite.Sprite):
     def REPRODUCTION_CHANCE(self) -> float:
         return 0
     
+    @property
+    @abstractmethod
+    def MIN_REPRODUCTION_HEALTH(self) -> float:
+        pass
+    
+    @property
+    @abstractmethod
+    def MIN_REPRODUCTION_ENERGY(self) -> float:
+        pass
+    
     ENERGY_TO_HEALTH_RATIO = .5
     HEALTH_TO_ENERGY_RATIO = 1 / ENERGY_TO_HEALTH_RATIO
     
@@ -193,10 +203,9 @@ class Organism(ABC, sprite.Sprite):
     @abstractmethod
     def reproduce(self):
         pass
-     
-    @abstractmethod   
-    def can_reproduce(self):
-        pass    
+        
+    def can_reproduce(self) -> bool:
+        return self.health_ratio() >= self.MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= self.MIN_REPRODUCTION_ENERGY 
     
     @abstractmethod
     def copy(self, tile: Tile) -> Organism:
