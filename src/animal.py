@@ -44,11 +44,11 @@ class Animal(Organism):
         
     def update(self):
         super().update()
-        self.use_energy(2)
+        self.energy -= 2
         
         DROWNING_DAMAGE = 10
         if self.tile.has_water:
-            self.loose_health(DROWNING_DAMAGE)
+            self.health -= DROWNING_DAMAGE
             
         if self.tile.has_plant() and self.wants_to_eat():
             self.attack(self.tile.plant)
@@ -123,7 +123,7 @@ class Animal(Organism):
             attacking_organism.animals_killed += 1
             
     def wants_to_eat(self) -> bool:
-        return self.energy_ratio() < .99 and self.health_ratio() < .99
+        return self.energy_ratio() < .9 or self.health_ratio() < .9
         
     ########################## Reproduction #################################
     def reproduce(self):
@@ -131,7 +131,7 @@ class Animal(Organism):
         unoccupied_neighbor = self.tile.get_random_neigbor(no_animal = True, no_water = True)
         if unoccupied_neighbor:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-            self.use_energy(REPRODUCTION_ENERGY_COST)
+            self.energy -= REPRODUCTION_ENERGY_COST
             offspring = self.copy(unoccupied_neighbor)
             offspring.mutate()
             

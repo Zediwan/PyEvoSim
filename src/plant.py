@@ -45,10 +45,10 @@ class Plant(Organism):
          
     def update(self):
         super().update()
-        self.gain_energy(random() * self.tile.moisture * 6 / self.tile.height)
+        self.energy += (random() * self.tile.moisture * 6 / self.tile.height)
         
         if self.tile.is_coast:
-            self.gain_energy(random())
+            self.energy += random()
             
         if self.can_reproduce() and random() <= self.REPRODUCTION_CHANCE:
             self.reproduce()
@@ -99,9 +99,9 @@ class Plant(Organism):
         option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
         if option:
             REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-            self.use_energy(REPRODUCTION_ENERGY_COST)
+            self.energy -= REPRODUCTION_ENERGY_COST
             offspring = self.copy(option)
-            offspring.set_health(self.MAX_HEALTH * .25)
+            offspring.health = (self.MAX_HEALTH * .25)
             offspring.mutate()
             #print("Plant offspring birthed!")
         

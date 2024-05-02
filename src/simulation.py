@@ -77,6 +77,7 @@ class Simulation:
                     self.world.draw() 
                 elif event.key == pg.K_r and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.world = World(self.height, self.width, self.tile_size)
+                    self.stat_showing_organism = None
                     self.world.draw() 
                 elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.increase_game_speed = True
