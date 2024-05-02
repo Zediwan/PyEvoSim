@@ -207,9 +207,10 @@ class Simulation:
         self.lower_stat_panel()
 
     def upper_stat_panel(self):
-        font_size = int(0.02 * self.height)
-        panel_height = int(0.03 * self.height)
-        line_width: int = 2
+        panel_height = int(
+            settings.gui_settings.stat_panel_height_percentage * self.height
+        )
+        font_size = int(settings.gui_settings.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for upper stats
         pygame.draw.rect(
@@ -222,7 +223,7 @@ class Simulation:
             settings.colors.STAT_BAR_BORDER_COLOR,
             (0, panel_height),
             (self.width, panel_height),
-            width=line_width,
+            width=settings.gui_settings.stat_panel_line_width,
         )
 
         # Stats to display in the upper panel
@@ -233,9 +234,10 @@ class Simulation:
         self.draw_stats(upper_stats, font_size, (panel_height - (font_size / 2)) / 2)
 
     def lower_stat_panel(self):
-        font_size = int(0.02 * self.height)
-        panel_height = int(0.03 * self.height)
-        line_width: int = 2
+        panel_height = int(
+            settings.gui_settings.stat_panel_height_percentage * self.height
+        )
+        font_size = int(settings.gui_settings.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for lower stats
         pygame.draw.rect(
@@ -248,7 +250,7 @@ class Simulation:
             settings.colors.STAT_BAR_BORDER_COLOR,
             (0, self.height - panel_height),
             (self.width, self.height - panel_height),
-            width=line_width,
+            width=settings.gui_settings.stat_panel_line_width,
         )
 
         # Stats to display in the lower panel
