@@ -3,12 +3,12 @@ def format_number(value) -> str:
         num = round(value, 2)
         s = f"{num}"
         if num >= 1000000:
-            num = round(num/1000000, 2)
+            num = round(num / 1000000, 2)
             s = f"{num}m"
         elif num >= 1000:
-            num = round(num/1000, 2)
+            num = round(num / 1000, 2)
             s = f"{num}k"
-        return s 
+        return s
     elif isinstance(value, str):
         return value
     else:

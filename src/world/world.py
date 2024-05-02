@@ -1,77 +1,88 @@
-from datetime import datetime
-from math import pow, floor
-from random import random, randint
-from noise import snoise2
+import datetime
 import logging
+import math
+import random
 
-from pygame import sprite, Rect
-from pygame.math import clamp, lerp
+import noise
+import pygame
 
-from settings.database_settings import database_csv_filename
-from settings.noise_settings import *
-from settings.config import STARTING_ANIMAL_SPAWNING_CHANCE, STARTING_PLANT_SPAWNING_CHANCE
-
-from entities.plant import Plant
+import settings.database_settings
+import settings.entity_settings
+import settings.noise_settings
 from entities.animal import Animal
-
+from entities.plant import Plant
+from helper.direction import Direction
 from world.tile import Tile
 
-from helper.direction import Direction
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class World(sprite.Sprite):
-    def __init__(self, height : int, width : int, tile_size : int):
-        sprite.Sprite.__init__(self)
+class World(pygame.sprite.Sprite):
+    def __init__(self, height: int, width: int, tile_size: int):
+        pygame.sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.height, self.width = World.adjust_dimensions(height, width, self.tile_size)
-        self.shape = Rect(0, 0, self.width, self.height)
-        self.rows = floor(self.height / self.tile_size)
-        self.cols = floor(self.width / self.tile_size)
-        
+        self.shape = pygame.Rect(0, 0, self.width, self.height)
+        self.rows = math.floor(self.height / self.tile_size)
+        self.cols = math.floor(self.width / self.tile_size)
+
         self.generate_frequency()
-        
+
         self.tiles: list[Tile] = []
         for row in range(self.rows):
             for col in range(self.cols):
                 self.tiles.append(self.create_tile(row, col))
         self.add_neighbors()
-        #self.create_river()
-        
-        database_csv_filename = f'databases/organism_database_{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
-        
+        # self.create_river()
+
+        settings.database_settings.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+
     def update(self):
         for tile in self.tiles:
             tile.update()
-            #self.handle_border_update(tile)
+            # self.handle_border_update(tile)
             self.handle_coast_update(tile)
-            
-            chance_to_spawn_plant_anywhere = .00005
-            if not tile.has_plant() and random() <= tile.moisture * chance_to_spawn_plant_anywhere:
+
+            chance_to_spawn_plant_anywhere = 0.00005
+            if (
+                not tile.has_plant()
+                and random.random() <= tile.moisture * chance_to_spawn_plant_anywhere
+            ):
                 self.spawn_plant(tile)
 
     def handle_coast_update(self, tile):
         if tile.is_coast and not tile.has_animal():
-            chance_to_spawn_plant_at_coast = .001
-            if random() <= chance_to_spawn_plant_at_coast and not tile.has_plant():
+            chance_to_spawn_plant_at_coast = 0.001
+            if (
+                random.random() <= chance_to_spawn_plant_at_coast
+                and not tile.has_plant()
+            ):
                 self.spawn_plant(tile)
 
     def handle_border_update(self, tile: Tile):
         if tile.is_border and not tile.has_water and not tile.has_animal():
-            chance_to_spawn_animal_at_border = .00001
-            chance_to_spawn_plant_at_border = .0001
-            if random() <= chance_to_spawn_animal_at_border and not tile.has_animal():
+            chance_to_spawn_animal_at_border = 0.00001
+            chance_to_spawn_plant_at_border = 0.0001
+            if (
+                random.random() <= chance_to_spawn_animal_at_border
+                and not tile.has_animal()
+            ):
                 self.spawn_animal(tile)
-            if random() <= chance_to_spawn_plant_at_border and not tile.has_plant():
+            if (
+                random.random() <= chance_to_spawn_plant_at_border
+                and not tile.has_plant()
+            ):
                 self.spawn_plant(tile)
-                    
+
     def draw(self):
         for tile in self.tiles:
-            tile.draw() 
-    
+            tile.draw()
+
     def is_border_tile(self, row: int, col: int) -> bool:
-        return (row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1)
-    
+        return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
+
     # def create_river(self, tile_to_start: Tile | None = None):
     #     if not tile_to_start:
     #         tile = self.highest_tile
@@ -80,33 +91,55 @@ class World(sprite.Sprite):
     #     while tile != None and tile.steepest_decline_direction != None and tile.water <= 0:
     #         tile.water = lerp(10, 1, tile.height/self.highest_tile.height)
     #         tile: Tile | None = tile.get_neighbor(tile.steepest_decline_direction)
-    #         river_branch_chance = 0.2 * random()
-    #         if random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
+    #         river_branch_chance = 0.2 * random.random()
+    #         if random.random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
     #             branch_of = tile.get_neighbor(choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
     #             self.create_river(branch_of)
-    
+
     def create_tile(self, row: int, col: int) -> Tile:
-        rect = Rect(col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size)
+        rect = pygame.Rect(
+            col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size
+        )
         height, moisture = self.generate_noise_values(row, col)
-        
-        tile : Tile = Tile(rect, self.tile_size, height=height, moisture = moisture, is_border = self.is_border_tile(row = row, col = col))
-        
+
+        tile: Tile = Tile(
+            rect,
+            self.tile_size,
+            height=height,
+            moisture=moisture,
+            is_border=self.is_border_tile(row=row, col=col),
+        )
+
         if not tile.has_water:
-            self.spawn_animal(tile, chance_to_spawn = STARTING_ANIMAL_SPAWNING_CHANCE)
-            self.spawn_plant(tile, chance_to_spawn = STARTING_PLANT_SPAWNING_CHANCE)
-            
+            self.spawn_animal(
+                tile,
+                chance_to_spawn=settings.entity_settings.STARTING_ANIMAL_SPAWNING_CHANCE,
+            )
+            self.spawn_plant(
+                tile,
+                chance_to_spawn=settings.entity_settings.STARTING_PLANT_SPAWNING_CHANCE,
+            )
+
         return tile
-    
+
     def spawn_animals(self, chance_to_spawn: float = 1):
         for tile in self.tiles:
-            self.spawn_animal(tile, chance_to_spawn = chance_to_spawn)
-    
+            self.spawn_animal(tile, chance_to_spawn=chance_to_spawn)
+
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
-        if random() <= chance_to_spawn and not tile.has_water and not tile.has_animal():
+        if (
+            random.random() <= chance_to_spawn
+            and not tile.has_water
+            and not tile.has_animal()
+        ):
             Animal(tile)
-                
+
     def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
-        if random() <= chance_to_spawn and not tile.has_water and not tile.has_plant():
+        if (
+            random.random() <= chance_to_spawn
+            and not tile.has_water
+            and not tile.has_plant()
+        ):
             Plant(tile)
 
     def add_neighbors(self):
@@ -114,81 +147,117 @@ class World(sprite.Sprite):
             for col in range(self.cols):
                 tile: Tile = self.tiles[row * self.cols + col]
                 if row > 0:
-                    tile.add_neighbor(Direction.NORTH, self.tiles[(row - 1) * self.cols + col])
+                    tile.add_neighbor(
+                        Direction.NORTH, self.tiles[(row - 1) * self.cols + col]
+                    )
                 if col < self.cols - 1:
-                    tile.add_neighbor(Direction.EAST, self.tiles[row * self.cols + col + 1])
+                    tile.add_neighbor(
+                        Direction.EAST, self.tiles[row * self.cols + col + 1]
+                    )
                 if row < self.rows - 1:
-                    tile.add_neighbor(Direction.SOUTH, self.tiles[(row + 1) * self.cols + col])
+                    tile.add_neighbor(
+                        Direction.SOUTH, self.tiles[(row + 1) * self.cols + col]
+                    )
                 if col > 0:
-                    tile.add_neighbor(Direction.WEST, self.tiles[row * self.cols + col - 1])
-    
+                    tile.add_neighbor(
+                        Direction.WEST, self.tiles[row * self.cols + col - 1]
+                    )
+
     def generate_frequency(self):
-        #TODO add a slider for this in world gen mode
-        frequency_max = 7 #TODO make this a setting
-        self.frequency_x = random() * frequency_max
-        self.frequency_y = random() * frequency_max
-        self.wavelentgh_x = 1/self.frequency_x
-        self.wavelentgh_y = 1/self.frequency_y
-        
+        # TODO add a slider for this in world gen mode
+        frequency_max = 7  # TODO make this a setting
+        self.frequency_x = random.random() * frequency_max
+        self.frequency_y = random.random() * frequency_max
+        self.wavelentgh_x = 1 / self.frequency_x
+        self.wavelentgh_y = 1 / self.frequency_y
+
         RANDOM_VALUE_RANGE = (-150, 150)
         MIN_PARAM_VALUE_THRESHOLD = 40
-        
-        self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
+
+        self.world_gen_param1 = random.randint(*RANDOM_VALUE_RANGE)
         while True:
             if abs(self.world_gen_param1) >= MIN_PARAM_VALUE_THRESHOLD:
                 break
-            self.world_gen_param1 = randint(*RANDOM_VALUE_RANGE) 
-            
-        self.world_gen_param2  = 100 - abs(self.world_gen_param1)  # Inversely proportional example
+            self.world_gen_param1 = random.randint(*RANDOM_VALUE_RANGE)
+
+        self.world_gen_param2 = 100 - abs(
+            self.world_gen_param1
+        )  # Inversely proportional example
         while True:
             if abs(self.world_gen_param2) >= MIN_PARAM_VALUE_THRESHOLD:
                 break
-            self.world_gen_param2  = randint(*RANDOM_VALUE_RANGE) 
-        
-        logging.info(f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]")
+            self.world_gen_param2 = random.randint(*RANDOM_VALUE_RANGE)
+
+        logging.info(
+            f"Perlin noise parameters: [{self.world_gen_param1}, {self.world_gen_param2}]"
+        )
         logging.info(f"Frequency parameters: [{self.frequency_x}, {self.frequency_y}]")
-    
+
     def generate_noise_values(self, row: int, col: int) -> tuple[float, float]:
         x = row / self.world_gen_param1
         y = col / self.world_gen_param2
-                
+
         height = (
-            snoise2((x * freq_x1) + offset_x1, (y * freq_y1) + offset_y1) * scale_1 + 
-            snoise2((x * freq_x2) + offset_x2, (y * freq_y2) + offset_y2) * scale_2 +
-            snoise2((x * freq_x3) + offset_x3, (y * freq_y3) + offset_y3) * scale_3
+            noise.snoise2(
+                (x * settings.noise_settings.freq_x1)
+                + settings.noise_settings.offset_x1,
+                (y * settings.noise_settings.freq_y1)
+                + settings.noise_settings.offset_y1,
             )
-        height /= (scale_1 + scale_2 + scale_3) # Normalize back in range -1 to 1
-        
+            * settings.noise_settings.scale_1
+            + noise.snoise2(
+                (x * settings.noise_settings.freq_x2)
+                + settings.noise_settings.offset_x2,
+                (y * settings.noise_settings.freq_y2)
+                + settings.noise_settings.offset_y2,
+            )
+            * settings.noise_settings.scale_2
+            + noise.snoise2(
+                (x * settings.noise_settings.freq_x3)
+                + settings.noise_settings.offset_x3,
+                (y * settings.noise_settings.freq_y3)
+                + settings.noise_settings.offset_y3,
+            )
+            * settings.noise_settings.scale_3
+        )
+        height /= (
+            settings.noise_settings.scale_1
+            + settings.noise_settings.scale_2
+            + settings.noise_settings.scale_3
+        )  # Normalize back in range -1 to 1
+
         height += 1
         height /= 2
-        
+
         island_mode = False
         if island_mode:
-            nx =  2 * col * self.tile_size / self.width - 1
+            nx = 2 * col * self.tile_size / self.width - 1
             ny = 2 * row * self.tile_size / self.height - 1
-            d = 1 - (1 - pow(nx, 2)) * (1 - pow(ny, 2))
-            mix = .7
-            height = lerp(height, 1 - d, mix)
-          
+            d = 1 - (1 - math.pow(nx, 2)) * (1 - math.pow(ny, 2))
+            mix = 0.7
+            height = pygame.math.lerp(height, 1 - d, mix)
+
         terraces = False
         if terraces:
             n = 5
             height = round(height * n) / n
         else:
-            power = 2 #TODO make this a slider in the settings
+            power = 2  # TODO make this a slider in the settings
             is_neg = height < 0
-            fudge_factor = 1.2 # Should be a number near 1
-            height = clamp(pow(abs(height * fudge_factor), power), 0, 1)
+            fudge_factor = 1.2  # Should be a number near 1
+            height = pygame.math.clamp(
+                math.pow(abs(height * fudge_factor), power), 0, 1
+            )
             if is_neg:
-                height *= -1 
-        
-        moisture = (snoise2(x * self.wavelentgh_x, y * self.wavelentgh_y)+1)/2
-        
+                height *= -1
+
+        moisture = (noise.snoise2(x * self.wavelentgh_x, y * self.wavelentgh_y) + 1) / 2
+
         assert 0 <= height <= 1
         assert 0 <= moisture <= 1
-        
+
         return height, moisture
-    
+
     def get_tile(self, x: int, y: int) -> Tile:
         """
         Retrieves the tile at the specified x and y coordinates.
@@ -206,7 +275,7 @@ class World(sprite.Sprite):
             return self.tiles[(row * self.cols) + col]
         else:
             raise ValueError("Coordinates are out of the world bounds.")
-    
+
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
         """
