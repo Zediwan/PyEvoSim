@@ -5,7 +5,7 @@ import random
 import pygame
 
 import settings.colors
-import settings.config
+import settings.screen_settings
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile

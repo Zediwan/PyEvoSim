@@ -1,4 +1,4 @@
-from settings.config import SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE
+from settings.screen_settings import SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE
 from simulation import Simulation
 
 if __name__ == "__main__":

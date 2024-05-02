@@ -8,9 +8,9 @@ import pygame
 from pygame import Color, Rect, sprite
 
 import settings.colors
-import settings.config
 import settings.database_settings
 import settings.entity_settings
+import settings.screen_settings
 import stats.stat_panel
 from dna.dna import DNA
 from world.tile import Tile

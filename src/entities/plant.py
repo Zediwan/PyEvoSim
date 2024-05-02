@@ -6,8 +6,8 @@ import pygame
 from pygame import Rect
 
 import settings.colors
-import settings.config
 import settings.entity_settings
+import settings.screen_settings
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
