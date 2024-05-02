@@ -62,8 +62,8 @@ class World(pygame.sprite.Sprite):
                 self.spawn_plant(tile)
 
     def handle_border_update(self, tile: Tile):
-        if tile.is_border and not tile.has_water and not tile.has_animal():
-            chance_to_spawn_animal_at_border = 0.00001
+        if tile.is_border and not tile.has_water:
+            chance_to_spawn_animal_at_border = 0.0001
             chance_to_spawn_plant_at_border = 0.0001
             if (
                 random.random() <= chance_to_spawn_animal_at_border

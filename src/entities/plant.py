@@ -95,11 +95,9 @@ class Plant(Organism):
         )
 
         # Calculate the preference match
-        height_preference_match = 0.5 + 0.5 * (
-            1 - abs(self.tile.height - self.height_preference)
-        )
-        moisture_preference_match = 0.5 + 0.5 * (
-            1 - abs(self.tile.moisture - self.moisture_preference)
+        height_preference_match = 1 - abs(self.tile.height - self.height_preference)
+        moisture_preference_match = 1 - abs(
+            self.tile.moisture - self.moisture_preference
         )
 
         # Combine the matches to adjust the base energy gain
