@@ -61,8 +61,12 @@ class Plant(Organism):
     #TODO rethink plant drawing with biomes
     def draw(self):
         super().draw()
-        col: Color =  self.tile.color.lerp(self.color, PLANT_TILE_COLOR_VISIBILITY)
-        pygame.draw.rect(pygame.display.get_surface(), col, self.shape.scale_by(self.health_ratio()))
+        
+        pygame.draw.rect(
+            pygame.display.get_surface(), 
+            self.tile.color.lerp(self.color, PLANT_TILE_COLOR_VISIBILITY), 
+            self.shape.scale_by(self.health_ratio())
+        )
                 
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):        

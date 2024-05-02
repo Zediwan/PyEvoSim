@@ -88,7 +88,12 @@ class Animal(Organism):
 
     def draw(self):
         super().draw()
-        pygame.draw.rect(pygame.display.get_surface(), self.color, self.shape)
+        
+        pygame.draw.rect(
+            pygame.display.get_surface(), 
+            self.color, 
+            self.shape
+        )
     
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):
