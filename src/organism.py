@@ -52,15 +52,17 @@ class Organism(ABC, sprite.Sprite):
          
     def __init__(self, tile: Tile, shape: Rect, 
                  health: float = MAX_HEALTH, energy: float = MAX_ENERGY, 
-                 dna: DNA = DNA(Color("black"), 0)):
+                 dna: DNA = None):
         sprite.Sprite.__init__(self)
         
         self.id = Organism.next_organism_id
         Organism.next_organism_id += 1
         
+        if not dna:
+            dna = DNA(Color("black"), 0)
         self.dna: DNA = dna
-        
         self.color: Color = self.dna.color
+        
         self.attack_power: float = self.dna.attack_power_gene.value
         
         self._health: float = health
@@ -116,7 +118,7 @@ class Organism(ABC, sprite.Sprite):
     
     ########################## Main methods #################################
     def update(self):
-        energy_maintanance = 2
+        energy_maintanance = 1
         self.energy -= energy_maintanance
         self.age += 1
             

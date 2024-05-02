@@ -34,7 +34,7 @@ class Animal(Organism):
             shape = tile.rect.copy()
             
         if not dna:
-            dna = DNA(pygame.Color(randint(20,230), randint(20,230), randint(20,230)))
+            dna = DNA(pygame.Color(randint(0,255), randint(0,255), randint(0,255)))
         
         super().__init__(tile, shape, 
                          self.MAX_HEALTH * lerp(0.4, 0.6, random()), 
@@ -46,7 +46,7 @@ class Animal(Organism):
     ########################## Main methods ################################# 
     def update(self):
         super().update()
-        self.energy -= 2
+        self.energy -= random() * 5
         
         DROWNING_DAMAGE = 10
         if self.tile.has_water:
