@@ -130,14 +130,22 @@ class Simulation:
                     not settings.gui_settings.draw_animal_energy
                 )
                 self.world.draw()
-            elif event.key == pygame.K_r and pygame.key.get_mods() and pygame.KMOD_SHIFT:
+            elif (
+                event.key == pygame.K_r and pygame.key.get_mods() and pygame.KMOD_SHIFT
+            ):
                 self.world = World(self.height, self.width, self.tile_size)
                 self.stat_showing_organism = None
                 self.world.draw()
-            elif event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT:
+            elif (
+                event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT
+            ):
                 self.increase_game_speed = True
                 self.decrease_game_speed = False
-            elif event.key == pygame.K_DOWN and pygame.key.get_mods() and pygame.KMOD_SHIFT:
+            elif (
+                event.key == pygame.K_DOWN
+                and pygame.key.get_mods()
+                and pygame.KMOD_SHIFT
+            ):
                 self.increase_game_speed = False
                 self.decrease_game_speed = True
 
@@ -145,7 +153,11 @@ class Simulation:
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT:
                 self.increase_game_speed = False
-            elif event.key == pygame.K_DOWN and pygame.key.get_mods() and pygame.KMOD_SHIFT:
+            elif (
+                event.key == pygame.K_DOWN
+                and pygame.key.get_mods()
+                and pygame.KMOD_SHIFT
+            ):
                 self.decrease_game_speed = False
 
     def handle_mouse_button_down(self, event: pygame.event.Event):

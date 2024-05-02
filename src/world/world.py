@@ -48,14 +48,17 @@ class World(pygame.sprite.Sprite):
 
             if (
                 not tile.has_plant()
-                and random.random() <= tile.moisture * settings.simulation_settings.chance_to_spawn_plant_anywhere
+                and random.random()
+                <= tile.moisture
+                * settings.simulation_settings.chance_to_spawn_plant_anywhere
             ):
                 self.spawn_plant(tile)
 
     def handle_coast_update(self, tile):
         if tile.is_coast and not tile.has_animal():
             if (
-                random.random() <= settings.simulation_settings.chance_to_spawn_plant_at_coast
+                random.random()
+                <= settings.simulation_settings.chance_to_spawn_plant_at_coast
                 and not tile.has_plant()
             ):
                 self.spawn_plant(tile)
@@ -63,12 +66,14 @@ class World(pygame.sprite.Sprite):
     def handle_border_update(self, tile: Tile):
         if tile.is_border and not tile.has_water:
             if (
-                random.random() <= settings.simulation_settings.chance_to_spawn_animal_at_border
+                random.random()
+                <= settings.simulation_settings.chance_to_spawn_animal_at_border
                 and not tile.has_animal()
             ):
                 self.spawn_animal(tile)
             if (
-                random.random() <= settings.simulation_settings.chance_to_spawn_plant_at_border
+                random.random()
+                <= settings.simulation_settings.chance_to_spawn_plant_at_border
                 and not tile.has_plant()
             ):
                 self.spawn_plant(tile)
@@ -226,6 +231,15 @@ class World(pygame.sprite.Sprite):
         height += 1
         height /= 2
 
+        height = pygame.math.clamp(
+            math.pow(
+                abs(height * settings.noise_settings.height_fudge_factor),
+                settings.noise_settings.height_power,
+            ),
+            0,
+            1,
+        )
+
         if settings.simulation_settings.island_mode:
             nx = 2 * col * self.tile_size / self.width - 1
             ny = 2 * row * self.tile_size / self.height - 1
@@ -236,15 +250,6 @@ class World(pygame.sprite.Sprite):
         if settings.simulation_settings.terraces:
             n = 5
             height = round(height * n) / n
-        else:
-            power = 2  # TODO make this a slider in the settings
-            is_neg = height < 0
-            fudge_factor = 1.2  # Should be a number near 1
-            height = pygame.math.clamp(
-                math.pow(abs(height * fudge_factor), power), 0, 1
-            )
-            if is_neg:
-                height *= -1
 
         moisture = (noise.snoise2(x * self.wavelentgh_x, y * self.wavelentgh_y) + 1) / 2
 
@@ -254,16 +259,6 @@ class World(pygame.sprite.Sprite):
         return height, moisture
 
     def get_tile(self, x: int, y: int) -> Tile:
-        """
-        Retrieves the tile at the specified x and y coordinates.
-
-        Args:
-        - x (int): The x-coordinate of the point.
-        - y (int): The y-coordinate of the point.
-
-        Returns:
-        - Tile: The tile at the given coordinates.
-        """
         col = x // self.tile_size
         row = y // self.tile_size
         if row < self.rows and col < self.cols:
@@ -273,18 +268,6 @@ class World(pygame.sprite.Sprite):
 
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
-        """
-        Adjusts the given height and width to be divisible by the tile size.
-
-        Parameters:
-        - height (int): The original height value.
-        - width (int): The original width value.
-        - tile_size (int): The size of each tile.
-
-        Returns:
-        - adjusted_height (int): The adjusted height value that is divisible by the tile size.
-        - adjusted_width (int): The adjusted width value that is divisible by the tile size.
-        """
         adjusted_height = (height // tile_size) * tile_size
         adjusted_width = (width // tile_size) * tile_size
         return adjusted_height, adjusted_width
