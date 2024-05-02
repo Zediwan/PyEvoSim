@@ -4,7 +4,7 @@ from pygame.math import lerp
 from random import random, randint
 
 from settings.config import *
-from settings.colors import BASE_PLANT_COLOR
+from settings.colors import BASE_PLANT_COLOR, PLANT_TILE_COLOR_VISIBILITY
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
@@ -61,7 +61,7 @@ class Plant(Organism):
     #TODO rethink plant drawing with biomes
     def draw(self):
         super().draw()
-        col: Color =  self.tile.color.lerp(self.color, pygame.math.lerp(0, .075, self.health_ratio()))
+        col: Color =  self.tile.color.lerp(self.color, PLANT_TILE_COLOR_VISIBILITY)
         pygame.draw.rect(pygame.display.get_surface(), col, self.shape.scale_by(self.health_ratio()))
                 
     ########################## Tile #################################

@@ -37,3 +37,4 @@ BASE_ANIMAL_COLOR = lambda: Color(randint(0,255), randint(0,255), randint(0,255)
 
 # Plant Colors
 BASE_PLANT_COLOR: Color = Color(76, 141, 29)
+PLANT_TILE_COLOR_VISIBILITY: float = .2 # If the number is bigger the color of the plant gets more importance than the tile color
