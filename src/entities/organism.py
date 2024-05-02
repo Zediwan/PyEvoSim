@@ -5,8 +5,8 @@ import os
 from pygame import SRCALPHA, Color, Rect, sprite
 import pygame
 
-import settings.config as config
 from settings.config import *
+from settings.entity_settings import *
 from settings.database_settings import *
 from settings.colors import BASE_ORGANISM_COLOR
 from dna.dna import DNA
@@ -35,12 +35,12 @@ class Organism(ABC, sprite.Sprite):
     @property
     @abstractmethod
     def NUTRITION_FACTOR(self) -> float:
-        return 0
+        pass
     
     @property
     @abstractmethod
     def REPRODUCTION_CHANCE(self) -> float:
-        return 0
+        pass
     
     @property
     @abstractmethod
@@ -52,16 +52,10 @@ class Organism(ABC, sprite.Sprite):
     def MIN_REPRODUCTION_ENERGY(self) -> float:
         pass
     
-    ENERGY_TO_HEALTH_RATIO = .5
-    HEALTH_TO_ENERGY_RATIO = 1 / ENERGY_TO_HEALTH_RATIO
-    
     # Stats
     organisms_birthed: int = 0
     organisms_died: int = 0
     next_organism_id: int = 0
-    save_csv: bool = False
-    save_animals_csv: bool = True
-    save_plants_csv: bool = False
          
     def __init__(self, tile: Tile, shape: Rect, 
                  health: float = MAX_HEALTH, energy: float = MAX_ENERGY, 
@@ -72,14 +66,13 @@ class Organism(ABC, sprite.Sprite):
         Organism.next_organism_id += 1
         
         if not dna:
-            dna = DNA(BASE_ORGANISM_COLOR, 0)
+            dna = DNA(BASE_ORGANISM_COLOR, ORGANISM_BASE_ATTACK_POWER)
         self.dna: DNA = dna
-        self.color: Color = self.dna.color
         
-        self.attack_power: float = self.dna.attack_power_gene.value
+        self._set_attributes_from_dna()
         
-        self._health: float = health
-        self._energy: float = energy
+        self.health = health
+        self.energy = energy
         
         self.shape: Rect = shape
         self.parent: Organism
@@ -99,6 +92,12 @@ class Organism(ABC, sprite.Sprite):
                                             
         self.tile: Tile = None
         self.enter_tile(tile)
+
+    def _set_attributes_from_dna(self):
+        assert self.dna, "DNA has not been set yet."
+        
+        self.color: Color = self.dna.color
+        self.attack_power: float = self.dna.attack_power_gene.value
     
     ########################## Properties #################################
     @property
@@ -131,8 +130,7 @@ class Organism(ABC, sprite.Sprite):
     
     ########################## Main methods #################################
     def update(self):
-        energy_maintanance = 1
-        self.energy -= energy_maintanance
+        self.energy -= ORGANISM_BASE_ENERGY_MAINTANCE
         self.age += 1
             
         if not self.is_alive():
@@ -172,16 +170,17 @@ class Organism(ABC, sprite.Sprite):
     
     @abstractmethod
     def die(self):
-        if self.health > 0:
+        if self.is_alive():
             raise ValueError("Organism tries to die despite not being dead.")
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
         
-        if self.save_csv:
+        if save_csv:
+            #TODO refactor this
             from entities.animal import Animal
             from entities.plant import Plant
-            if not self.save_animals_csv and isinstance(self, Animal): return
-            if not self.save_plants_csv and isinstance(self, Plant): return
+            if not save_animals_csv and isinstance(self, Animal): return
+            if not save_plants_csv and isinstance(self, Plant): return
             self.save_to_csv()
     
     def attack(self, organism_to_attack: Organism):

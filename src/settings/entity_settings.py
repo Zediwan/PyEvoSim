@@ -2,6 +2,10 @@ from pygame.math import lerp
 from random import random
 
 # Organisms
+ENERGY_TO_HEALTH_RATIO: float = .5
+HEALTH_TO_ENERGY_RATIO: float = 1 / ENERGY_TO_HEALTH_RATIO
+ORGANISM_BASE_ATTACK_POWER: float = 0
+ORGANISM_BASE_ENERGY_MAINTANCE: float = 1
 
 # Animals
 ANIMAL_BASE_ATTACK_POWER: float = 8
