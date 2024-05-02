@@ -4,13 +4,14 @@ from pygame.math import lerp
 from random import random, randint
 
 from config import *
+from dna.dna import DNA
 from organism import Organism
 from tile import Tile
     
 class Plant(Organism):
     @property
     def MAX_HEALTH(self) -> float:
-        return 100
+        return 200
 
     @property
     def MAX_ENERGY(self) -> float:
@@ -29,24 +30,21 @@ class Plant(Organism):
     plants_birthed: int = 0
     plants_died: int  = 0
     
-    def __init__(self, tile: Tile, shape: Rect|None = None, color: Color|None = None, parent: Plant = None):    
+    def __init__(self, tile: Tile, shape: Rect|None = None, parent: Plant = None,
+                 dna: DNA = DNA(BASE_COLOR, 0)):    
         if not shape:
-            shape = tile.rect
-        if not color:
-            color = self.BASE_COLOR
-            
-        health = self.MAX_HEALTH * lerp(0.8, 1, random())               
-        energy = self.MAX_ENERGY * lerp(0.8, 1, random())
+            shape = tile.rect.copy()
         
-        super().__init__(tile, shape, color, health, energy)
+        super().__init__(tile, shape, 
+                         self.MAX_HEALTH * lerp(0.8, 1, random()), 
+                         self.MAX_ENERGY * lerp(0.8, 1, random()), 
+                         dna)
         self.parent: Plant | None = parent
-        
-        self.attack_power = 0
-        
+                
     ########################## Main methods #################################
     def update(self):
         super().update()
-        self.energy += (random() * self.tile.moisture * 6 / self.tile.height)
+        self.energy += (random() * self.tile.moisture * 3 / self.tile.height)
         
         if self.tile.is_coast:
             self.energy += random()
@@ -114,9 +112,8 @@ class Plant(Organism):
     def copy(self, tile: Tile):
         super().copy(tile)
         Plant.plants_birthed += 1
-        return Plant(tile)
+        
+        return Plant(tile, parent=self, dna=self.dna.copy())
     
     def mutate(self):
-        change_in_color = .2
-        mix_color = Color(randint(0, 255), randint(0, 255), randint(0, 255))
-        self.color = self.color.lerp(mix_color, change_in_color)
+        super().mutate()

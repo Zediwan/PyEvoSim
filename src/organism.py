@@ -6,6 +6,7 @@ from pygame import SRCALPHA, Color, Rect, sprite
 
 import config
 from config import *
+from dna.dna import DNA
 from tile import Tile
 from stat_panel import StatPanel
 
@@ -49,21 +50,25 @@ class Organism(ABC, sprite.Sprite):
     save_animals_csv: bool = True
     save_plants_csv: bool = False
          
-    def __init__(self, tile: Tile, shape: Rect, color: Color, health: float, energy: float):
+    def __init__(self, tile: Tile, shape: Rect, 
+                 health: float = MAX_HEALTH, energy: float = MAX_ENERGY, 
+                 dna: DNA = DNA(Color("black"), 0)):
         sprite.Sprite.__init__(self)
         
         self.id = Organism.next_organism_id
         Organism.next_organism_id += 1
         
+        self.dna: DNA = dna
+        
+        self.color: Color = self.dna.color
+        self.attack_power: float = self.dna.attack_power_gene.value
+        
         self._health: float = health
         self._energy: float = energy
         
         self.shape: Rect = shape
-        self.color: Color = color
         self.parent: Organism
-        
-        self.attack_power: float = 0
-        
+                
         # Stats
         self.animals_killed: int = 0
         self.plants_killed: int = 0
@@ -108,10 +113,6 @@ class Organism(ABC, sprite.Sprite):
             self.health += (value-self.MAX_ENERGY)
             return
         self._energy = value
-    
-    @property
-    def attack_power(self) -> float:
-        return self._attack_power
     
     ########################## Main methods #################################
     def update(self):
@@ -200,6 +201,7 @@ class Organism(ABC, sprite.Sprite):
     
     @abstractmethod
     def mutate(self):
+        self.dna.mutate()
         pass
     
     ########################## Stats #################################
