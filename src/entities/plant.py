@@ -86,8 +86,10 @@ class Plant(Organism):
 
     def get_photosynthesis_energy(self):
         return (
-            random.random() * self.tile.moisture / self.tile.height
-        ) * settings.entity_settings.PLANT_PHOTOSYNTHESIS_ENERGY_MULTIPLIER
+            random.random()
+            * self.tile.plant_growth_potential
+            * settings.entity_settings.PLANT_PHOTOSYNTHESIS_ENERGY_MULTIPLIER
+        )
 
     def get_coast_energy(self):
         return random.random() * settings.entity_settings.PLANT_COAST_ENERGY_MULTIPLIER

@@ -45,6 +45,7 @@ class Tile:
         self.is_border: bool = is_border
         self.is_coast: bool = False
         self.steepest_decline_direction: helper.direction.Direction | None = None
+        self.plant_growth_potential: float = self.calculate_plant_growth()
 
         # Stats
         self.times_visted: int = 0
@@ -81,8 +82,45 @@ class Tile:
             self.draw_stat(self.height * 9)
 
     ########################## Tile Organism influence #################################
-    def calculate_growth_height_penalty(self, growth_chance: float) -> float:
-        return -(growth_chance * self.height)
+    def calculate_plant_growth(self) -> float:
+        if self.height < self.WATER_LEVEL:
+            return 0  # Waterlogged, no growth
+
+        if self.height < 0.12:
+            return 0.2  # Sandy areas have limited growth
+
+        if self.height > 0.8:
+            if self.moisture < 0.1:
+                return 0.2  # Scorched, minimal growth
+            if self.moisture < 0.2:
+                return 0.3  # Bare, low growth
+            if self.moisture < 0.5:
+                return 0.5  # Tundra, moderate growth
+            return 0.5  # Snow, slightly favorable
+
+        if self.height > 0.6:
+            if self.moisture < 0.33:
+                return 0.4  # Temperate desert, low growth
+            if self.moisture < 0.66:
+                return 0.6  # Shrubland, moderate growth
+            return 0.8  # Taiga, favorable
+
+        if self.height > 0.3:
+            if self.moisture < 0.16:
+                return 0.5  # Temperate desert, low growth
+            if self.moisture < 0.50:
+                return 0.8  # Grassland, favorable
+            if self.moisture < 0.83:
+                return 0.9  # Temperate deciduous forest, very favorable
+            return 1  # Temperate rain forest, optimal
+
+        if self.moisture < 0.16:
+            return 0.3  # Subtropical desert, low growth
+        if self.moisture < 0.33:
+            return 0.7  # Grassland, favorable
+        if self.moisture < 0.66:
+            return 0.75  # Tropical seasonal forest, favorable
+        return 0.9  # Tropical rain forest, very favorable
 
     ########################## Drawing #################################
     def get_biome_color(self) -> Color:

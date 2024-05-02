@@ -94,13 +94,12 @@ class Animal(Organism):
             destination = self.tile.get_random_neigbor(no_animal=True)
 
         ns = self.tile.get_neighbors()
-        random.shuffle(ns)
         for n in ns:
             if n.has_animal():
                 continue
             if not n.plant:
                 continue
-            if n.plant.health > 1.5 * best_growth:
+            if n.plant.health > best_growth:
                 best_growth = n.plant.health
                 destination = n
 
