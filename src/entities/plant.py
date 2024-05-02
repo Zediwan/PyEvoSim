@@ -103,7 +103,7 @@ class Plant(Organism):
         super().reproduce()
         option = self.tile.get_random_neigbor(no_plant = True, no_water = True)
         if option:
-            REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
+            REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 4
             self.energy -= REPRODUCTION_ENERGY_COST
             offspring = self.copy(option)
             offspring.health = (self.MAX_HEALTH * .25)
@@ -112,7 +112,7 @@ class Plant(Organism):
         
     def can_reproduce(self) -> bool:
         MIN_REPRODUCTION_HEALTH = .1
-        MIN_REPRODUCTION_ENERGY = .6
+        MIN_REPRODUCTION_ENERGY = .3
         return self.health_ratio() >= MIN_REPRODUCTION_HEALTH and self.energy_ratio() >= MIN_REPRODUCTION_ENERGY 
 
     def copy(self, tile: Tile):
