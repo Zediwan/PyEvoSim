@@ -9,6 +9,7 @@ import pygame
 import settings.database_settings
 import settings.entity_settings
 import settings.noise_settings
+import settings.simulation_settings
 from entities.animal import Animal
 from entities.plant import Plant
 from helper.direction import Direction
@@ -42,36 +43,32 @@ class World(pygame.sprite.Sprite):
     def update(self):
         for tile in self.tiles:
             tile.update()
-            # self.handle_border_update(tile)
+            self.handle_border_update(tile)
             self.handle_coast_update(tile)
 
-            chance_to_spawn_plant_anywhere = 0.00005
             if (
                 not tile.has_plant()
-                and random.random() <= tile.moisture * chance_to_spawn_plant_anywhere
+                and random.random() <= tile.moisture * settings.simulation_settings.chance_to_spawn_plant_anywhere
             ):
                 self.spawn_plant(tile)
 
     def handle_coast_update(self, tile):
         if tile.is_coast and not tile.has_animal():
-            chance_to_spawn_plant_at_coast = 0.001
             if (
-                random.random() <= chance_to_spawn_plant_at_coast
+                random.random() <= settings.simulation_settings.chance_to_spawn_plant_at_coast
                 and not tile.has_plant()
             ):
                 self.spawn_plant(tile)
 
     def handle_border_update(self, tile: Tile):
         if tile.is_border and not tile.has_water:
-            chance_to_spawn_animal_at_border = 0.0001
-            chance_to_spawn_plant_at_border = 0.0001
             if (
-                random.random() <= chance_to_spawn_animal_at_border
+                random.random() <= settings.simulation_settings.chance_to_spawn_animal_at_border
                 and not tile.has_animal()
             ):
                 self.spawn_animal(tile)
             if (
-                random.random() <= chance_to_spawn_plant_at_border
+                random.random() <= settings.simulation_settings.chance_to_spawn_plant_at_border
                 and not tile.has_plant()
             ):
                 self.spawn_plant(tile)
@@ -229,16 +226,14 @@ class World(pygame.sprite.Sprite):
         height += 1
         height /= 2
 
-        island_mode = False
-        if island_mode:
+        if settings.simulation_settings.island_mode:
             nx = 2 * col * self.tile_size / self.width - 1
             ny = 2 * row * self.tile_size / self.height - 1
             d = 1 - (1 - math.pow(nx, 2)) * (1 - math.pow(ny, 2))
             mix = 0.7
             height = pygame.math.lerp(height, 1 - d, mix)
 
-        terraces = False
-        if terraces:
+        if settings.simulation_settings.terraces:
             n = 5
             height = round(height * n) / n
         else:

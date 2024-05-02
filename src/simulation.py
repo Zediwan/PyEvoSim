@@ -55,7 +55,7 @@ class Simulation:
         self.is_paused = False
 
         while self.running:
-            event = pygame.event.poll()
+            event: pygame.event.Event = pygame.event.poll()
 
             if event.type == pygame.QUIT:
                 self.running = False
@@ -102,7 +102,7 @@ class Simulation:
                 self.stat_showing_organism.stat_panel = None
                 self.stat_showing_organism = None
 
-    def handle_key_down(self, event):
+    def handle_key_down(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:
             print("Key Pressed", event.key)
             if event.key == pygame.K_ESCAPE:
@@ -141,14 +141,14 @@ class Simulation:
                 self.increase_game_speed = False
                 self.decrease_game_speed = True
 
-    def handle_key_up(self, event):
+    def handle_key_up(self, event: pygame.event.Event):
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP & pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 self.increase_game_speed = False
             elif event.key == pygame.K_DOWN & pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 self.decrease_game_speed = False
 
-    def handle_mouse_button_down(self, event):
+    def handle_mouse_button_down(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             tile: Tile = self.world.get_tile(mouse_x, mouse_y)
