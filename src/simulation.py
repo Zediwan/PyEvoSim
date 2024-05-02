@@ -5,6 +5,7 @@ import pygame
 import helper.formatter
 import settings.colors
 import settings.gui_settings
+import settings.simulation_settings
 from entities.animal import Animal
 from entities.organism import Organism
 from entities.plant import Plant
@@ -189,16 +190,17 @@ class Simulation:
         self.screen.blit(text_surface, text_rect)
 
     def handle_game_speed(self):
-        GAME_SPEED_CHANGE: int = 1
-        MAX_FPS_LIMIT: int = 300
-
         if (
             self.increase_game_speed
-            and self.fps_max_limit + GAME_SPEED_CHANGE <= MAX_FPS_LIMIT
+            and self.fps_max_limit + settings.simulation_settings.GAME_SPEED_CHANGE
+            <= settings.simulation_settings.MAX_FPS_LIMIT
         ):
-            self.fps_max_limit += GAME_SPEED_CHANGE
-        elif self.decrease_game_speed and self.fps_max_limit > GAME_SPEED_CHANGE:
-            self.fps_max_limit -= GAME_SPEED_CHANGE
+            self.fps_max_limit += settings.simulation_settings.GAME_SPEED_CHANGE
+        elif (
+            self.decrease_game_speed
+            and self.fps_max_limit > settings.simulation_settings.GAME_SPEED_CHANGE
+        ):
+            self.fps_max_limit -= settings.simulation_settings.GAME_SPEED_CHANGE
 
     def stat_panels(self):
         self.upper_stat_panel()

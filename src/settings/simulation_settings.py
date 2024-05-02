@@ -1,0 +1,2 @@
+GAME_SPEED_CHANGE: int = 1
+MAX_FPS_LIMIT: int = 300
