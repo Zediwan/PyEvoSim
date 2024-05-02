@@ -18,9 +18,9 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 
 ## Milestone 1: Organism Database
 
-- [ ] Create a database with all organisms that have existed / exist in the simulation.
-- [ ] Enable automatic saving of organisms to the database
-- [ ] Track different statistics about the life of the organism like a movement heatmap, kills, etc.
+- [x] Create a database with all organisms that have existed / exist in the simulation.
+- [x] Enable automatic saving of organisms to the database
+- [x] Track different statistics about the life of the organism like a movement heatmap, kills, etc.
 
 ## Milestone 2: Organism Database interaction
 
