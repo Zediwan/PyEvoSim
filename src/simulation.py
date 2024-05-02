@@ -115,37 +115,37 @@ class Simulation:
             elif event.key == pygame.K_RETURN:
                 chance_to_spawn_animals = 0.001
                 self.world.spawn_animals(chance_to_spawn=chance_to_spawn_animals)
-            elif event.key == pygame.K_1 and pygame.key.get_mods() & pygame.KMOD_ALT:
+            elif event.key == pygame.K_1 and pygame.key.get_mods() and pygame.KMOD_ALT:
                 settings.gui_settings.draw_height_level = (
                     not settings.gui_settings.draw_height_level
                 )
                 self.world.draw()
-            elif event.key == pygame.K_2 and pygame.key.get_mods() & pygame.KMOD_ALT:
+            elif event.key == pygame.K_2 and pygame.key.get_mods() and pygame.KMOD_ALT:
                 settings.gui_settings.draw_animal_health = (
                     not settings.gui_settings.draw_animal_health
                 )
                 self.world.draw()
-            elif event.key == pygame.K_3 and pygame.key.get_mods() & pygame.KMOD_ALT:
+            elif event.key == pygame.K_3 and pygame.key.get_mods() and pygame.KMOD_ALT:
                 settings.gui_settings.draw_animal_energy = (
                     not settings.gui_settings.draw_animal_energy
                 )
                 self.world.draw()
-            elif event.key == pygame.K_r & pygame.key.get_mods() & pygame.KMOD_SHIFT:
+            elif event.key == pygame.K_r and pygame.key.get_mods() and pygame.KMOD_SHIFT:
                 self.world = World(self.height, self.width, self.tile_size)
                 self.stat_showing_organism = None
                 self.world.draw()
-            elif event.key == pygame.K_UP & pygame.key.get_mods() & pygame.KMOD_SHIFT:
+            elif event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT:
                 self.increase_game_speed = True
                 self.decrease_game_speed = False
-            elif event.key == pygame.K_DOWN & pygame.key.get_mods() & pygame.KMOD_SHIFT:
+            elif event.key == pygame.K_DOWN and pygame.key.get_mods() and pygame.KMOD_SHIFT:
                 self.increase_game_speed = False
                 self.decrease_game_speed = True
 
     def handle_key_up(self, event: pygame.event.Event):
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_UP & pygame.key.get_mods() & pygame.KMOD_SHIFT:
+            if event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT:
                 self.increase_game_speed = False
-            elif event.key == pygame.K_DOWN & pygame.key.get_mods() & pygame.KMOD_SHIFT:
+            elif event.key == pygame.K_DOWN and pygame.key.get_mods() and pygame.KMOD_SHIFT:
                 self.decrease_game_speed = False
 
     def handle_mouse_button_down(self, event: pygame.event.Event):
