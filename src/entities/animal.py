@@ -5,6 +5,7 @@ import random
 import pygame
 
 import settings.colors
+import settings.entity_settings
 import settings.screen_settings
 from dna.dna import DNA
 from entities.organism import Organism
@@ -50,7 +51,12 @@ class Animal(Organism):
             shape = tile.rect.copy()
 
         if not dna:
-            dna = DNA(settings.colors.BASE_ANIMAL_COLOR())
+            dna = DNA(
+                settings.colors.BASE_ANIMAL_COLOR(),
+                settings.entity_settings.ANIMAL_BASE_ATTACK_POWER,
+                settings.entity_settings.ANIMAL_BASE_MOISTURE_PREFERENCE(),
+                settings.entity_settings.PLANT_BASE_HEIGHT_PREFERENCE(),
+            )
 
         super().__init__(
             tile,
@@ -65,7 +71,9 @@ class Animal(Organism):
     ########################## Main methods #################################
     def update(self):
         super().update()
-        self.energy -= random.random() * 5
+        self.energy -= (
+            random.random() * settings.entity_settings.ANIMAL_BASE_ENERGY_MAINTANCE
+        )
 
         DROWNING_DAMAGE = 10
         if self.tile.has_water:
