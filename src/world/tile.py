@@ -57,16 +57,12 @@ class Tile:
 
         if self.height <= settings.simulation.WATER_HEIGHT_LEVEL:
             # Waterlogged, no growth
-            self.plant_growth_potential = (
-                settings.simulation.WATER_PLANT_GROWTH
-            )
+            self.plant_growth_potential = settings.simulation.WATER_PLANT_GROWTH
             self.color = settings.colors.WATER_COLOR
             self.has_water = True
         elif self.height <= settings.simulation.BEACH_HEIGHT_LEVEL:
             # Sandy areas have limited growth
-            self.plant_growth_potential = (
-                settings.simulation.BEACH_PLANT_GROWTH
-            )
+            self.plant_growth_potential = settings.simulation.BEACH_PLANT_GROWTH
             self.color = settings.colors.SAND_COLOR
         elif self.height <= settings.simulation.TROPICAL_HEIGHT_LEVEL:
             if self.moisture < 0.16:
@@ -77,9 +73,7 @@ class Tile:
                 self.color = settings.colors.SUBTROPICAL_DESERT_COLOR
             elif self.moisture < 0.33:
                 # Grassland, favorable
-                self.plant_growth_potential = (
-                    settings.simulation.GRASSLAND_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.GRASSLAND_PLANT_GROWTH
                 self.color = settings.colors.GRASSLAND_COLOR
             elif self.moisture < 0.66:
                 # Tropical seasonal forest, favorable
@@ -102,9 +96,7 @@ class Tile:
                 self.color = settings.colors.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.50:
                 # Grassland, favorable
-                self.plant_growth_potential = (
-                    settings.simulation.GRASSLAND_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.GRASSLAND_PLANT_GROWTH
                 self.color = settings.colors.GRASSLAND_COLOR
             elif self.moisture < 0.83:
                 # Temperate deciduous forest, very favorable
@@ -127,46 +119,38 @@ class Tile:
                 self.color = settings.colors.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.66:
                 # Shrubland, moderate growth
-                self.plant_growth_potential = (
-                    settings.simulation.SHRUBLAND_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.SHRUBLAND_PLANT_GROWTH
                 self.color = settings.colors.SHRUBLAND_COLOR
             else:
                 # Taiga, favorable
-                self.plant_growth_potential = (
-                    settings.simulation.TAIGA_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.TAIGA_PLANT_GROWTH
                 self.color = settings.colors.TAIGA_COLOR
         elif self.height <= settings.simulation.MOUNTAIN_HEIGHT_LEVEL:
             if self.moisture < 0.1:
                 # Scorched, minimal growth
-                self.plant_growth_potential = (
-                    settings.simulation.SCORCHED_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.SCORCHED_PLANT_GROWTH
                 self.color = settings.colors.SCORCHED_COLOR
             elif self.moisture < 0.2:
                 # Bare, low growth
-                self.plant_growth_potential = (
-                    settings.simulation.BARE_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.BARE_PLANT_GROWTH
                 self.color = settings.colors.BARE_COLOR
             elif self.moisture < 0.5:
                 # Tundra, moderate growth
-                self.plant_growth_potential = (
-                    settings.simulation.TUNDRA_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.TUNDRA_PLANT_GROWTH
                 self.color = settings.colors.TUNDRA_COLOR
             else:
                 # Snow, slightly favorable
-                self.plant_growth_potential = (
-                    settings.simulation.SNOW_PLANT_GROWTH
-                )
+                self.plant_growth_potential = settings.simulation.SNOW_PLANT_GROWTH
                 self.color = settings.colors.SNOW_COLOR
 
         if self.color is None:
-            raise ValueError(f"Color has not been set. moisture={self.moisture} height={self.height}")
+            raise ValueError(
+                f"Color has not been set. moisture={self.moisture} height={self.height}"
+            )
         if self.plant_growth_potential is None:
-            raise ValueError(f"Plant growth has not been set. moisture={self.moisture} height={self.height}")
+            raise ValueError(
+                f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
+            )
 
     ########################## Properties #################################
     @property
@@ -231,8 +215,12 @@ class Tile:
         else:
             col = self.color
 
-        text = settings.font.font.render(str(round(stat)), True, settings.colors.choose_visible_text_color(col))
-        pygame.display.get_surface().blit(text, settings.font.get_centered_text_coordinates(self.rect, text))
+        text = settings.font.font.render(
+            str(round(stat)), True, settings.colors.choose_visible_text_color(col)
+        )
+        pygame.display.get_surface().blit(
+            text, settings.font.get_centered_text_coordinates(self.rect, text)
+        )
 
     ########################## Tile Property Handling #################################
     def add_animal(self, animal):
@@ -243,7 +231,9 @@ class Tile:
         self.times_visted += 1
 
         if animal.tile != self:
-            raise ValueError("Animal's tile reference not matching with tile's animal reference")
+            raise ValueError(
+                "Animal's tile reference not matching with tile's animal reference"
+            )
 
     def add_plant(self, plant):
         if self.has_plant():
@@ -252,7 +242,9 @@ class Tile:
         self.plant = plant
 
         if plant.tile != self:
-            raise ValueError("Plant's tile reference not matching with tile's plant reference")
+            raise ValueError(
+                "Plant's tile reference not matching with tile's plant reference"
+            )
 
     def remove_animal(self):
         self.animal = None
