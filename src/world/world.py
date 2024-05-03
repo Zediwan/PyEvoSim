@@ -262,9 +262,9 @@ class World(pygame.sprite.Sprite):
 
         moisture = (noise.snoise2(x * self.wavelentgh_x, y * self.wavelentgh_y) + 1) / 2
 
-        if 0 <= height <= 1:
+        if not(0 <= height <= 1):
             raise ValueError(f"Height value not in range [0, 1] {height}")
-        if 0 <= moisture <= 1:
+        if not(0 <= moisture <= 1):
             raise ValueError(f"Moisture value not in range [0, 1] {moisture}")
         return height, moisture
 
