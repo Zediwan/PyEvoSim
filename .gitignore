@@ -55,6 +55,7 @@ docs/_build/
 *.vscode
 *.idea
 
+.trunk
 *out
 *logs
 *actions

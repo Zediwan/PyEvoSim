@@ -50,7 +50,7 @@ class World(pygame.sprite.Sprite):
         Animal.animals_died = 0
         Plant.plants_birthed = 0
         Plant.plants_died = 0
-    
+
     def update(self):
         for tile in self.tiles:
             tile.update()
@@ -76,7 +76,10 @@ class World(pygame.sprite.Sprite):
                     self.spawn_plant(tile)
 
     def handle_border_update(self, tile: Tile):
-        if settings.simulation_settings.spawn_animals_at_border or settings.simulation_settings.spawn_plants_at_border:
+        if (
+            settings.simulation_settings.spawn_animals_at_border
+            or settings.simulation_settings.spawn_plants_at_border
+        ):
             if tile.is_border and not tile.has_water:
                 if settings.simulation_settings.spawn_animals_at_border:
                     if (
