@@ -94,11 +94,9 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
         self.total_energy_gained: float = 0
-        self.tiles_visited: int = (
-            -1
-        )  # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
+        self.tiles_visited: int = 0
         self.num_offspring: int = 0
-        self.age: int = 0
+        self.tick_age: int = 0
         self.birth_time: int = pygame.time.get_ticks()
         self.death_time: int | None = None
 
@@ -148,7 +146,7 @@ class Organism(ABC, pygame.sprite.Sprite):
     ########################## Main methods #################################
     def update(self):
         self.energy -= settings.entities.ORGANISM_BASE_ENERGY_MAINTANCE
-        self.age += 1
+        self.tick_age += 1
 
         if not self.is_alive():
             self.die()
@@ -273,7 +271,7 @@ class Organism(ABC, pygame.sprite.Sprite):
                 if self.death_time
                 else pygame.time.get_ticks() - self.birth_time
             ),
-            self.age,
+            self.tick_age,
             round(self.health, 2),
             round(self.MAX_HEALTH, 2),
             round(self.health_ratio(), 2),
