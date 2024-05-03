@@ -48,6 +48,35 @@ class Tile:
         # Stats
         self.times_visted: int = 0
 
+    ########################## Properties #################################
+    @property
+    def moisture(self) -> float:
+        return self._moisture
+
+    @moisture.setter
+    def moisture(self, value: float):
+        if value < 0:
+            raise ValueError("Moisture value is smaller than 0")
+        elif value > 1:
+            raise ValueError("Moisture value is bigger than 1")
+        else:
+            self._moisture = value
+        self.set_height_moisture_dependent_attributes()
+
+    @property
+    def height(self) -> float:
+        return self._height
+
+    @height.setter
+    def height(self, value: float):
+        if value < 0:
+            raise ValueError("Height value is smaller than 0")
+        elif value > 1:
+            raise ValueError("Height value is bigger than 1")
+        else:
+            self._height = value
+        self.set_height_moisture_dependent_attributes()
+
     ########################## Initialisation #################################
     def set_height_moisture_dependent_attributes(self):
         """
@@ -151,35 +180,6 @@ class Tile:
             raise ValueError(
                 f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
             )
-
-    ########################## Properties #################################
-    @property
-    def moisture(self) -> float:
-        return self._moisture
-
-    @moisture.setter
-    def moisture(self, value: float):
-        if value < 0:
-            raise ValueError("Moisture value is smaller than 0")
-        elif value > 1:
-            raise ValueError("Moisture value is bigger than 1")
-        else:
-            self._moisture = value
-        self.set_height_moisture_dependent_attributes()
-
-    @property
-    def height(self) -> float:
-        return self._height
-
-    @height.setter
-    def height(self, value: float):
-        if value < 0:
-            raise ValueError("Height value is smaller than 0")
-        elif value > 1:
-            raise ValueError("Height value is bigger than 1")
-        else:
-            self._height = value
-        self.set_height_moisture_dependent_attributes()
 
     ########################## Main methods #################################
     def update(self):
