@@ -320,7 +320,6 @@ class Organism(ABC, pygame.sprite.Sprite):
         Organism.organisms_birthed += 1
         pass
 
-    @abstractmethod
     def mutate(self):
         self.dna.mutate()
         self._set_attributes_from_dna()

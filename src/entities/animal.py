@@ -189,7 +189,7 @@ class Animal(Organism):
             attacking_organism.animals_killed += 1
 
     def wants_to_eat(self) -> bool:
-        return self.energy_ratio() < 0.9 or self.health_ratio() < 0.9
+        return self.energy_ratio() < 1 or self.health_ratio() < 1
 
     ########################## Reproduction #################################
     def reproduce(self):
@@ -208,6 +208,3 @@ class Animal(Organism):
         Animal.animals_birthed += 1
 
         return Animal(tile, parent=self, dna=self.dna.copy())
-
-    def mutate(self):
-        super().mutate()
