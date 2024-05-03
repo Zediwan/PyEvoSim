@@ -242,17 +242,17 @@ class Tile:
         self.animal = animal
         self.times_visted += 1
 
-        if animal.tile == self:
+        if animal.tile != self:
             raise ValueError("Animal's tile reference not matching with tile's animal reference")
 
     def add_plant(self, plant):
-        if self.has_plant:
+        if self.has_plant():
             raise ValueError("Trying to add an plant despite tile already holding one")
 
         self.plant = plant
 
-        if plant.tile == self:
-                    raise ValueError("Plant's tile reference not matching with tile's plant reference")
+        if plant.tile != self:
+            raise ValueError("Plant's tile reference not matching with tile's plant reference")
 
     def remove_animal(self):
         self.animal = None
