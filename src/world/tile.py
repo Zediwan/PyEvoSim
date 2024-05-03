@@ -163,12 +163,10 @@ class Tile:
                 )
                 self.color = settings.colors.SNOW_COLOR
 
-        assert (
-            self.color is not None
-        ), f"Color has not been set. moisture={self.moisture} height={self.height}"
-        assert (
-            self.plant_growth_potential is not None
-        ), f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
+        if self.color is None:
+            raise ValueError(f"Color has not been set. moisture={self.moisture} height={self.height}")
+        if self.plant_growth_potential is None:
+            raise ValueError(f"Plant growth has not been set. moisture={self.moisture} height={self.height}")
 
     ########################## Properties #################################
     @property
@@ -238,19 +236,23 @@ class Tile:
 
     ########################## Tile Property Handling #################################
     def add_animal(self, animal):
-        assert self.animal is None, "Tile already occupied by an animal."
+        if self.has_animal():
+            raise ValueError("Trying to add an animal despite tile already holding one")
 
         self.animal = animal
         self.times_visted += 1
 
-        assert animal.tile == self, "Animal-Tile assignment not equal."
+        if animal.tile == self:
+            raise ValueError("Animal's tile reference not matching with tile's animal reference")
 
     def add_plant(self, plant):
-        assert self.plant is None, "Tile is already occupied by a plant."
+        if self.has_plant:
+            raise ValueError("Trying to add an plant despite tile already holding one")
 
         self.plant = plant
 
-        assert plant.tile == self, "Plant-Tile assignment not equal."
+        if plant.tile == self:
+                    raise ValueError("Plant's tile reference not matching with tile's plant reference")
 
     def remove_animal(self):
         self.animal = None
