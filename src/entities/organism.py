@@ -5,7 +5,6 @@ import os
 from abc import ABC, abstractmethod
 
 import pygame
-from pygame import Color, Rect, sprite
 
 import settings.colors
 import settings.database
@@ -16,7 +15,7 @@ from dna.dna import DNA
 from world.tile import Tile
 
 
-class Organism(ABC, sprite.Sprite):
+class Organism(ABC, pygame.sprite.Sprite):
     @property
     @abstractmethod
     def MAX_HEALTH(self) -> float:
@@ -63,12 +62,12 @@ class Organism(ABC, sprite.Sprite):
     def __init__(
         self,
         tile: Tile,
-        shape: Rect,
+        shape: pygame.Rect,
         health: float = MAX_HEALTH,
         energy: float = MAX_ENERGY,
         dna: DNA = None,
     ):
-        sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite.__init__(self)
 
         self.id = Organism.next_organism_id
         Organism.next_organism_id += 1
@@ -87,7 +86,7 @@ class Organism(ABC, sprite.Sprite):
         self.health = health
         self.energy = energy
 
-        self.shape: Rect = shape
+        self.shape: pygame.Rect = shape
         self.parent: Organism
 
         # Stats
@@ -111,8 +110,8 @@ class Organism(ABC, sprite.Sprite):
     def _set_attributes_from_dna(self):
         if not self.dna:
             raise ValueError("Trying to set attributes from DNA despite DNA being None")
-        
-        self.color: Color = self.dna.color
+
+        self.color: pygame.Color = self.dna.color
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
         self.height_preference: float = self.dna.prefered_height_gene.value
