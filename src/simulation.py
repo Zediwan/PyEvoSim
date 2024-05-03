@@ -41,6 +41,7 @@ class Simulation:
 
         self.is_paused = False
         self.running = True
+        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
     # TODO enable spawning of animals and plants via mouse
     # TODO enable stat displaying of animals and plants by klicking on them via mouse
@@ -64,9 +65,7 @@ class Simulation:
                     sys.exit()
 
                 self.handle_key_down(event)
-
                 self.handle_key_up(event)
-
                 self.handle_mouse_button_down(event)
 
             if not self.is_paused:
@@ -92,12 +91,6 @@ class Simulation:
                 self.stat_showing_organism.is_alive()
                 or settings.gui.show_dead_organisms_stats
             ):
-                pygame.Surface.fill(
-                    self.screen,
-                    settings.colors.SELECTED_ORGANISM_COLOR,
-                    self.stat_showing_organism.shape,
-                    width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
-                )
                 self.stat_showing_organism.show_stats()
             else:
                 self.stat_showing_organism.stat_panel = None
@@ -165,21 +158,9 @@ class Simulation:
 
             if tile.has_animal():
                 self.stat_showing_organism = tile.animal
-                pygame.Surface.fill(
-                    self.screen,
-                    settings.colors.SELECTED_ORGANISM_COLOR,
-                    self.stat_showing_organism.shape,
-                    width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
-                )
                 self.stat_showing_organism.show_stats()
             elif tile.has_plant():
                 self.stat_showing_organism = tile.plant
-                pygame.Surface.fill(
-                    self.screen,
-                    settings.colors.SELECTED_ORGANISM_COLOR,
-                    self.stat_showing_organism.shape,
-                    width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
-                )
                 self.stat_showing_organism.show_stats()
             else:
                 if self.stat_showing_organism:
