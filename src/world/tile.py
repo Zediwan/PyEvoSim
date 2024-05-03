@@ -9,6 +9,7 @@ from pygame import Color, Rect, Surface
 import helper.direction
 import settings.colors
 import settings.font
+import settings.gui_settings
 import settings.simulation_settings
 
 
@@ -201,10 +202,10 @@ class Tile:
 
     ########################## Main methods #################################
     def update(self):
-        if self.animal:
+        if self.has_animal():
             self.animal.update()
 
-        if self.plant:
+        if self.has_plant():
             self.plant.update()
 
     def draw(self):
@@ -212,36 +213,34 @@ class Tile:
 
         if self.has_animal():
             self.animal.draw()
-
-            from settings.gui_settings import draw_animal_health
-
-            if draw_animal_health:
+            if settings.gui_settings.draw_animal_health:
                 self.draw_stat(self.animal.health)
 
-            from settings.gui_settings import draw_animal_energy
-
-            if draw_animal_energy:
+            if settings.gui_settings.draw_animal_energy:
                 self.draw_stat(self.animal.energy)
 
         elif self.has_plant():
             self.plant.draw()
 
-        from settings.gui_settings import draw_height_level
-
-        if draw_height_level:
+        if settings.gui_settings.draw_height_level:
             self.draw_stat(self.height * 9)
 
     ########################## Tile Organism influence #################################
 
     ########################## Drawing #################################
     def draw_stat(self, stat: float):
-        # Analyzing background color brightness
         if self.has_animal():
             col = self.animal.color
         else:
             col = self.color
 
-        text = settings.font.font.render(str(round(stat)), True, col.__invert__())
+        text_color: Color
+        if col.grayscale().r < 150:
+            text_color = pygame.color.Color("white")
+        else:
+            text_color = pygame.color.Color("black")
+
+        text = settings.font.font.render(str(round(stat)), True, text_color)
         self._render_text_centered(text)
 
     def _render_text_centered(self, text: Surface):
