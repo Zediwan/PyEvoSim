@@ -11,6 +11,7 @@ import settings.entity_settings
 import settings.noise_settings
 import settings.simulation_settings
 from entities.animal import Animal
+from entities.organism import Organism
 from entities.plant import Plant
 from helper.direction import Direction
 from world.tile import Tile
@@ -30,6 +31,7 @@ class World(pygame.sprite.Sprite):
         self.cols = math.floor(self.width / self.tile_size)
 
         self.generate_frequency()
+        self.reset_stats()
 
         self.tiles: list[Tile] = []
         for row in range(self.rows):
@@ -40,6 +42,15 @@ class World(pygame.sprite.Sprite):
 
         settings.database_settings.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
+    def reset_stats(self):
+        Organism.organisms_birthed = 0
+        Organism.organisms_died = 0
+        Organism.next_organism_id = 0
+        Animal.animals_birthed = 0
+        Animal.animals_died = 0
+        Plant.plants_birthed = 0
+        Plant.plants_died = 0
+    
     def update(self):
         for tile in self.tiles:
             tile.update()
