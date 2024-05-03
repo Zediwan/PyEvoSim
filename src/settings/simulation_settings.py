@@ -1,6 +1,11 @@
 GAME_SPEED_CHANGE: int = 1
 MAX_FPS_LIMIT: int = 300
 
+spawn_plants_anywhere: bool = False
+spawn_plants_at_border: bool = False
+spawn_animals_at_border: bool = False
+spawn_plants_at_coast: bool = False
+spawn_animals_at_coast: bool = False
 chance_to_spawn_plant_anywhere: float = 0.00005
 chance_to_spawn_plant_at_coast: float = 0.001
 chance_to_spawn_animal_at_border: float = 0.00001

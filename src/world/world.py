@@ -45,38 +45,42 @@ class World(pygame.sprite.Sprite):
             tile.update()
             self.handle_border_update(tile)
             self.handle_coast_update(tile)
-
-            if (
-                not tile.has_plant()
-                and random.random()
-                <= tile.moisture
-                * settings.simulation_settings.chance_to_spawn_plant_anywhere
-            ):
-                self.spawn_plant(tile)
+            if settings.simulation_settings.spawn_plants_anywhere:
+                if (
+                    not tile.has_plant()
+                    and random.random()
+                    <= tile.moisture
+                    * settings.simulation_settings.chance_to_spawn_plant_anywhere
+                ):
+                    self.spawn_plant(tile)
 
     def handle_coast_update(self, tile):
-        if tile.is_coast and not tile.has_animal():
-            if (
-                random.random()
-                <= settings.simulation_settings.chance_to_spawn_plant_at_coast
-                and not tile.has_plant()
-            ):
-                self.spawn_plant(tile)
+        if settings.simulation_settings.spawn_plants_at_coast:
+            if tile.is_coast and not tile.has_animal():
+                if (
+                    random.random()
+                    <= settings.simulation_settings.chance_to_spawn_plant_at_coast
+                    and not tile.has_plant()
+                ):
+                    self.spawn_plant(tile)
 
     def handle_border_update(self, tile: Tile):
-        if tile.is_border and not tile.has_water:
-            if (
-                random.random()
-                <= settings.simulation_settings.chance_to_spawn_animal_at_border
-                and not tile.has_animal()
-            ):
-                self.spawn_animal(tile)
-            if (
-                random.random()
-                <= settings.simulation_settings.chance_to_spawn_plant_at_border
-                and not tile.has_plant()
-            ):
-                self.spawn_plant(tile)
+        if settings.simulation_settings.spawn_animals_at_border or settings.simulation_settings.spawn_plants_at_border:
+            if tile.is_border and not tile.has_water:
+                if settings.simulation_settings.spawn_animals_at_border:
+                    if (
+                        random.random()
+                        <= settings.simulation_settings.chance_to_spawn_animal_at_border
+                        and not tile.has_animal()
+                    ):
+                        self.spawn_animal(tile)
+                if settings.simulation_settings.spawn_plants_at_border:
+                    if (
+                        random.random()
+                        <= settings.simulation_settings.chance_to_spawn_plant_at_border
+                        and not tile.has_plant()
+                    ):
+                        self.spawn_plant(tile)
 
     def draw(self):
         for tile in self.tiles:
