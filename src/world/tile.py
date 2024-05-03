@@ -48,66 +48,86 @@ class Tile:
 
     ########################## Initialisation #################################
     def set_height_moisture_dependent_attributes(self):
+        """
+        Set the color and plant growth potential attributes of a Tile object based on its height and moisture levels.
+        """
         self.color: Color
         self.plant_growth_potential: float
-        
+    
         if self.height <= settings.simulation_settings.WATER_HEIGHT_LEVEL:
-            self.plant_growth_potential = settings.simulation_settings.WATER_PLANT_GROWTH  # Waterlogged, no growth
+            # Waterlogged, no growth
+            self.plant_growth_potential = settings.simulation_settings.WATER_PLANT_GROWTH
             self.color = settings.colors.WATER_COLOR
             self.has_water = True
         elif self.height <= settings.simulation_settings.BEACH_HEIGHT_LEVEL:
-            self.plant_growth_potential = settings.simulation_settings.BEACH_PLANT_GROWTH  # Sandy areas have limited growth
+            # Sandy areas have limited growth
+            self.plant_growth_potential = settings.simulation_settings.BEACH_PLANT_GROWTH
             self.color = settings.colors.SAND_COLOR
         elif self.height <= settings.simulation_settings.TROPICAL_HEIGHT_LEVEL:
             if self.moisture < 0.16:
-                self.plant_growth_potential = settings.simulation_settings.SUBTROPICAL_DESERT_PLANT_GROWTH  # Subtropical desert, low growth
+                # Subtropical desert, low growth
+                self.plant_growth_potential = settings.simulation_settings.SUBTROPICAL_DESERT_PLANT_GROWTH
                 self.color = settings.colors.SUBTROPICAL_DESERT_COLOR
             elif self.moisture < 0.33:
-                self.plant_growth_potential = settings.simulation_settings.GRASSLAND_PLANT_GROWTH  # Grassland, favorable
+                # Grassland, favorable
+                self.plant_growth_potential = settings.simulation_settings.GRASSLAND_PLANT_GROWTH
                 self.color = settings.colors.GRASSLAND_COLOR
             elif self.moisture < 0.66:
-                self.plant_growth_potential = settings.simulation_settings.TROPICAL_SEASON_FOREST_PLANT_GROWTH  # Tropical seasonal forest, favorable
+                # Tropical seasonal forest, favorable
+                self.plant_growth_potential = settings.simulation_settings.TROPICAL_SEASON_FOREST_PLANT_GROWTH
                 self.color = settings.colors.TROPICAL_SEASONAL_FOREST_COLOR
             else:
-                self.plant_growth_potential = settings.simulation_settings.TROPICAL_RAIN_FOREST_PLANT_GROWTH  # Tropical rain forest, very favorable
+                # Tropical rain forest, very favorable
+                self.plant_growth_potential = settings.simulation_settings.TROPICAL_RAIN_FOREST_PLANT_GROWTH
                 self.color = settings.colors.TROPICAL_RAIN_FOREST_COLOR
         elif self.height <= settings.simulation_settings.TEMPERATE_HEIGHT_LEVEL:
             if self.moisture < 0.16:
-                self.plant_growth_potential = settings.simulation_settings.TEMPERATE_DESERT_PLANT_GROWTH  # Temperate desert, low growth
+                # Temperate desert, low growth
+                self.plant_growth_potential = settings.simulation_settings.TEMPERATE_DESERT_PLANT_GROWTH
                 self.color = settings.colors.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.50:
-                self.plant_growth_potential = settings.simulation_settings.GRASSLAND_PLANT_GROWTH  # Grassland, favorable
+                # Grassland, favorable
+                self.plant_growth_potential = settings.simulation_settings.GRASSLAND_PLANT_GROWTH
                 self.color = settings.colors.GRASSLAND_COLOR
             elif self.moisture < 0.83:
-                self.plant_growth_potential = settings.simulation_settings.TEMPERATER_DECIDOUS_FOREST_PLANT_GROWTH  # Temperate deciduous forest, very favorable
+                # Temperate deciduous forest, very favorable
+                self.plant_growth_potential = settings.simulation_settings.TEMPERATER_DECIDOUS_FOREST_PLANT_GROWTH
                 self.color = settings.colors.TEMPERATE_DECIDUOUS_FOREST_COLOR
             else:
-                self.plant_growth_potential = settings.simulation_settings.TEMPERATE_RAIN_FOREST_PLANT_GROWTH  # Temperate rain forest, optimal
+                # Temperate rain forest, optimal
+                self.plant_growth_potential = settings.simulation_settings.TEMPERATE_RAIN_FOREST_PLANT_GROWTH
                 self.color = settings.colors.TEMPERATE_RAIN_FOREST_COLOR
         elif self.height <= settings.simulation_settings.TRANSITION_HEIGHT_LEVEL:
             if self.moisture < 0.33:
-                self.plant_growth_potential = settings.simulation_settings.TEMPERATE_DESERT_PLANT_GROWTH  # Temperate desert, low growth
+                # Temperate desert, low growth
+                self.plant_growth_potential = settings.simulation_settings.TEMPERATE_DESERT_PLANT_GROWTH
                 self.color = settings.colors.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.66:
-                self.plant_growth_potential = settings.simulation_settings.SHRUBLAND_PLANT_GROWTH  # Shrubland, moderate growth
+                # Shrubland, moderate growth
+                self.plant_growth_potential = settings.simulation_settings.SHRUBLAND_PLANT_GROWTH
                 self.color = settings.colors.SHRUBLAND_COLOR
             else:
-                self.plant_growth_potential = settings.simulation_settings.TAIGA_PLANT_GROWTH  # Taiga, favorable
+                # Taiga, favorable
+                self.plant_growth_potential = settings.simulation_settings.TAIGA_PLANT_GROWTH
                 self.color = settings.colors.TAIGA_COLOR
         elif self.height <= settings.simulation_settings.MOUNTAIN_HEIGHT_LEVEL:
             if self.moisture < 0.1:
-                self.plant_growth_potential = settings.simulation_settings.SCORCHED_PLANT_GROWTH  # Scorched, minimal growth
+                # Scorched, minimal growth
+                self.plant_growth_potential = settings.simulation_settings.SCORCHED_PLANT_GROWTH
                 self.color = settings.colors.SCORCHED_COLOR
             elif self.moisture < 0.2:
-                self.plant_growth_potential = settings.simulation_settings.BARE_PLANT_GROWTH  # Bare, low growth
+                # Bare, low growth
+                self.plant_growth_potential = settings.simulation_settings.BARE_PLANT_GROWTH
                 self.color = settings.colors.BARE_COLOR
             elif self.moisture < 0.5:
-                self.plant_growth_potential = settings.simulation_settings.TUNDRA_PLANT_GROWTH  # Tundra, moderate growth
+                # Tundra, moderate growth
+                self.plant_growth_potential = settings.simulation_settings.TUNDRA_PLANT_GROWTH
                 self.color = settings.colors.TUNDRA_COLOR
             else:
-                self.plant_growth_potential = settings.simulation_settings.SNOW_PLANT_GROWTH  # Snow, slightly favorable
+                # Snow, slightly favorable
+                self.plant_growth_potential = settings.simulation_settings.SNOW_PLANT_GROWTH
                 self.color = settings.colors.SNOW_COLOR
-                
+            
         assert self.color, "Color has not been set."
         assert self.plant_growth_potential, "Plant growth has not been set."
     
