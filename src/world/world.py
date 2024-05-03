@@ -106,7 +106,6 @@ class World(pygame.sprite.Sprite):
 
         tile: Tile = Tile(
             rect,
-            self.tile_size,
             height=height,
             moisture=moisture,
             is_border=self.is_border_tile(row=row, col=col),
