@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import os
+import random
 from abc import ABC, abstractmethod
 
 import pygame
@@ -141,14 +142,97 @@ class Organism(ABC, pygame.sprite.Sprite):
         else:
             self._energy = value
 
-    ########################## Main methods #################################
-    @abstractmethod
+    ########################## Update #################################
     def update(self):
+        """
+        Updates the organism by performing various actions and behaviors.
+
+        This method is called during each update cycle to update the state of the organism. It performs the following actions in order:
+
+        1. Use Maintenance Energy: Decreases the energy of the organism by the maintenance energy cost.
+        2. Handle Aging: Increments the age of the organism by one tick.
+        3. Handle Reproduction: Checks if the organism is able to reproduce based on its health and energy levels. If the criteria for reproduction are met and a random chance is satisfied, the organism reproduces.
+        4. Handle Drowning: Handles the drowning process of the organism.
+        5. Think: Performs any thinking or decision-making processes for the organism.
+        6. Handle Attack: Handles the attack process of the organism.
+        7. Handle Movement: Handles the movement process of the organism.
+        8. Post Update: Performs any post-update actions, such as checking if the organism is still alive and triggering its death if necessary.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        self.use_maintanance_energy()
+        self.handle_aging()
+        self.handle_reproduction()
+        self.handle_drowning()
+        self.think()
+        self.handle_attack()
+        self.handle_movement()
+        self._post_update()
+
+    def use_maintanance_energy(self):
         self.energy -= settings.entities.ORGANISM_BASE_ENERGY_MAINTANCE
+
+    def handle_aging(self):
+        """
+        Handles the aging process of an organism.
+
+        This method is called during each update cycle to increment the age of the organism by one tick. The 'tick_age' attribute keeps track of the number of ticks the organism has lived.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self.tick_age += 1
 
+    def handle_reproduction(self):
+        """
+        Handles the reproduction process of an organism.
+
+        This method checks if the organism is able to reproduce based on its health and energy levels. If the organism meets the criteria for reproduction and a random chance is satisfied, the organism will reproduce by calling the 'reproduce' method.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        if self.can_reproduce() and random.random() <= self.REPRODUCTION_CHANCE:
+            self.reproduce()
+
+    def handle_drowning(self):
+        pass
+
+    def think(self):
+        pass
+
+    def handle_attack(self):
+        pass
+
+    def handle_movement(self):
+        pass
+
+    def _post_update(self):
+        """
+        Performs any post-update actions for the organism.
+
+        This method is called at the end of each update cycle to perform any necessary post-update actions for the organism. It checks if the organism is still alive by calling the 'is_alive' method. If the organism is not alive, it triggers the 'die' method to handle the organism's death.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         if not self.is_alive():
             self.die()
+
+    ########################## Drawing #################################
 
     @abstractmethod
     def draw(self):

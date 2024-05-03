@@ -69,21 +69,50 @@ class Plant(Organism):
 
         self.parent: Plant | None = parent
 
-    ########################## Main methods #################################
+    ########################## Update #################################
     def update(self):
+        """
+        Update the plant's state and perform photosynthesis.
+
+        This method updates the plant's state by calling the parent class's update method and then performs photosynthesis.
+        The steps performed in this method are as follows:
+
+        1. Call the parent class's update method:
+        - This updates the plant's health and energy based on its current state.
+
+        2. Perform photosynthesis:
+        - Calculate the base energy gained through photosynthesis by multiplying a random number between 0 and 1 with the plant's growth potential and the energy multiplier for photosynthesis.
+        - Calculate the preference match for height and moisture by subtracting the differences between the tile's height and moisture and the plant's height and moisture preferences from 1.
+        - Adjust the base energy gain by multiplying it with the average of the height preference match and moisture preference match.
+        - Add the adjusted energy gain to the plant's energy.
+
+        This method is called during the plant's update process to update its state and simulate photosynthesis.
+        """
         super().update()
-        self.energy += self.get_photosynthesis_energy()
+        self.photosynthesise()
 
-        if self.tile.is_coast:
-            self.energy += self.get_coast_energy()
+    def photosynthesise(self):
+        """
+        Calculate the energy gained through photosynthesis.
 
-        if self.can_reproduce() and random.random() <= self.REPRODUCTION_CHANCE:
-            self.reproduce()
+        This method calculates the energy gained by the plant through photosynthesis. It performs the following steps:
 
-        if not self.is_alive():
-            self.die()
+        1. Base photosynthesis energy calculation:
+        - Generate a random number between 0 and 1.
+        - Multiply it by the plant's growth potential and the energy multiplier for photosynthesis.
 
-    def get_photosynthesis_energy(self):
+        2. Calculate the preference match:
+        - Calculate the difference between the tile's height and the plant's height preference.
+        - Calculate the difference between the tile's moisture and the plant's moisture preference.
+        - Subtract these differences from 1 to get the match values.
+
+        3. Adjust the base energy gain:
+        - Multiply the base energy by the average of the height preference match and moisture preference match.
+
+        4. Add the adjusted energy gain to the plant's energy.
+
+        This method is called during the plant's update process to simulate photosynthesis and increase its energy level.
+        """
         # Base photosynthesis energy calculation
         base_energy = (
             random.random()
@@ -102,11 +131,9 @@ class Plant(Organism):
             base_energy * (height_preference_match + moisture_preference_match) / 2
         )
 
-        return adjusted_energy_gain
+        self.energy += adjusted_energy_gain
 
-    def get_coast_energy(self):
-        return random.random() * settings.entities.PLANT_COAST_ENERGY_MULTIPLIER
-
+    ########################## Draw #################################
     # TODO rethink plant drawing with biomes
     def draw(self):
         super().draw()
