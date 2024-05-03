@@ -55,18 +55,19 @@ class Simulation:
         self.is_paused = False
 
         while self.running:
-            event: pygame.event.Event = pygame.event.poll()
+            events = pygame.event.get()
+            for event in events:
+            #event: pygame.event.Event = pygame.event.poll()
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    pygame.quit()
+                    sys.exit()
 
-            if event.type == pygame.QUIT:
-                self.running = False
-                pygame.quit()
-                sys.exit()
+                self.handle_key_down(event)
 
-            self.handle_key_down(event)
+                self.handle_key_up(event)
 
-            self.handle_key_up(event)
-
-            self.handle_mouse_button_down(event)
+                self.handle_mouse_button_down(event)
 
             if not self.is_paused:
                 self.screen.fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
@@ -83,7 +84,7 @@ class Simulation:
             self.handle_game_speed()
             self.clock.tick(self.fps_max_limit)
 
-            pygame.display.flip()
+            pygame.display.update()
 
     def stat_organism(self):
         if self.stat_showing_organism:
@@ -91,7 +92,7 @@ class Simulation:
                 self.stat_showing_organism.is_alive()
                 or settings.gui.show_dead_organisms_stats
             ):
-                pygame.draw.rect(
+                pygame.Surface.fill(
                     self.screen,
                     settings.colors.SELECTED_ORGANISM_COLOR,
                     self.stat_showing_organism.shape,
@@ -164,7 +165,7 @@ class Simulation:
 
             if tile.has_animal():
                 self.stat_showing_organism = tile.animal
-                pygame.draw.rect(
+                pygame.Surface.fill(
                     self.screen,
                     settings.colors.SELECTED_ORGANISM_COLOR,
                     self.stat_showing_organism.shape,
@@ -173,7 +174,7 @@ class Simulation:
                 self.stat_showing_organism.show_stats()
             elif tile.has_plant():
                 self.stat_showing_organism = tile.plant
-                pygame.draw.rect(
+                pygame.Surface.fill(
                     self.screen,
                     settings.colors.SELECTED_ORGANISM_COLOR,
                     self.stat_showing_organism.shape,
@@ -217,7 +218,7 @@ class Simulation:
         font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for upper stats
-        pygame.draw.rect(
+        pygame.Surface.fill(
             self.screen,
             settings.colors.STAT_BAR_BACKGROUND_COLOR,
             pygame.Rect(0, 0, self.width, panel_height),
@@ -242,7 +243,7 @@ class Simulation:
         font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for lower stats
-        pygame.draw.rect(
+        pygame.Surface.fill(
             self.screen,
             settings.colors.STAT_BAR_BACKGROUND_COLOR,
             pygame.Rect(0, self.height - panel_height, self.width, panel_height),
@@ -269,7 +270,7 @@ class Simulation:
         )
 
     def draw_stats(self, stats, font_size, panel_y):
-        stats_font = pygame.font.Font(None, font_size)
+        stats_font = pygame.font.SysFont(None, font_size)
 
         stats_texts = []
         for label, value in stats:
