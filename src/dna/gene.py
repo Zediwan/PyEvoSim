@@ -14,7 +14,7 @@ class Gene:
         self._max_value: float = max_value
         self._min_value: float = min_value
 
-        self._value: float = value
+        self.value: float = value
 
         self._mutation_range: float = mutation_range
 
@@ -26,11 +26,10 @@ class Gene:
     def value(self, value: float):
         if value >= self._max_value:
             self._value = self._max_value
-            return
-        if value <= self._min_value:
+        elif value <= self._min_value:
             self._value = self._min_value
-            return
-        self._value = value
+        else:
+            self._value = value
 
     def copy(self) -> Gene:
         return Gene(

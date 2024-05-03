@@ -5,8 +5,9 @@ import random
 import pygame
 
 import settings.colors
-import settings.entity_settings
-import settings.screen_settings
+import settings.database
+import settings.entities
+import settings.screen
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
@@ -53,47 +54,49 @@ class Animal(Organism):
         if not dna:
             dna = DNA(
                 settings.colors.BASE_ANIMAL_COLOR(),
-                settings.entity_settings.ANIMAL_BASE_ATTACK_POWER,
-                settings.entity_settings.ANIMAL_BASE_MOISTURE_PREFERENCE(),
-                settings.entity_settings.PLANT_BASE_HEIGHT_PREFERENCE(),
+                settings.entities.ANIMAL_BASE_ATTACK_POWER,
+                settings.entities.ANIMAL_BASE_MOISTURE_PREFERENCE(),
+                settings.entities.PLANT_BASE_HEIGHT_PREFERENCE(),
             )
 
         super().__init__(
             tile,
             shape,
-            self.MAX_HEALTH * pygame.math.lerp(0.2, 0.4, random.random()),
-            self.MAX_ENERGY * pygame.math.lerp(0.2, 0.4, random.random()),
+            settings.entities.ANIMAL_STARTING_HEALTH(),
+            settings.entities.ANIMAL_STARTING_ENERGY(),
             dna,
         )
 
         self.parent: Animal | None = parent
 
-    ########################## Main methods #################################
-    def update(self):
-        super().update()
-        self.energy -= (
-            random.random() * settings.entity_settings.ANIMAL_BASE_ENERGY_MAINTANCE
-        )
+    ########################## Update #################################
+    def use_maintanance_energy(self):
+        super().use_maintanance_energy()
+        self.energy -= random.random() * settings.entities.ANIMAL_BASE_ENERGY_MAINTANCE
 
-        DROWNING_DAMAGE = 10
+    def handle_drowning(self):
+        """
+        Handles the drowning behavior of the animal.
+
+        If the animal's current tile has water (determined by the `has_water` attribute of the tile), the animal's health will be decreased by the value specified in the `DROWNING_DAMAGE` constant in the `settings.entities` module.
+
+        """
+        super().handle_drowning()
         if self.tile.has_water:
-            self.health -= DROWNING_DAMAGE
+            self.health -= settings.entities.DROWNING_DAMAGE
 
-        if self.tile.has_plant() and self.wants_to_eat():
-            self.attack(self.tile.plant)
+    def think(self):
+        super().think()
+        """
+        Handles the decision-making process of the animal.
 
-        direction = self.think()
+        If the animal's current tile has a plant, the animal will determine the best neighboring tile with the highest plant growth and set it as the desired tile movement. If there is no plant on the current tile, the animal will randomly select a neighboring tile without any animals and set it as the desired tile movement.
 
-        if direction:
-            self.enter_tile(direction)
+        The animal evaluates the neighboring tiles by checking if they have a plant and comparing the health of the plants on those tiles. The animal will choose the tile with the highest plant health as the destination.
 
-        if self.can_reproduce() and random.random() <= self.REPRODUCTION_CHANCE:
-            self.reproduce()
+        The desired tile movement is stored in the `desired_tile_movement` attribute of the animal.
 
-        if not self.is_alive():
-            self.die()
-
-    def think(self) -> Tile | None:
+        """
         if self.tile.has_plant():
             best_growth = self.tile.plant.health
             destination = None
@@ -111,7 +114,31 @@ class Animal(Organism):
                 best_growth = n.plant.health
                 destination = n
 
-        return destination
+        self.desired_tile_movement = destination
+
+    def handle_attack(self):
+        """
+        Handles the attack behavior of the animal.
+
+        If the animal's current tile has a plant and the animal wants to eat (determined by the `wants_to_eat()` method), the animal will attack the plant by calling the `attack()` method.
+
+        """
+        super().handle_attack()
+        if self.tile.has_plant() and self.wants_to_eat():
+            self.attack(self.tile.plant)
+
+    def handle_movement(self):
+        """
+        Handles the movement of the animal.
+
+        If the animal has a desired tile movement (stored in the `desired_tile_movement` attribute), the animal will enter that tile by calling the `enter_tile()` method.
+
+        """
+        super().handle_movement()
+        if self.desired_tile_movement:
+            self.enter_tile(self.desired_tile_movement)
+
+    ########################## Drawing #################################
 
     def draw(self):
         super().draw()
@@ -142,6 +169,11 @@ class Animal(Organism):
     def die(self):
         super().die()
         Animal.animals_died += 1
+
+        if settings.database.save_csv:
+            if settings.database.save_animals_csv:
+                self.save_to_csv()
+
         self.tile.remove_animal()
 
     def attack(self, organism_to_attack: Organism):
@@ -157,7 +189,7 @@ class Animal(Organism):
             attacking_organism.animals_killed += 1
 
     def wants_to_eat(self) -> bool:
-        return self.energy_ratio() < 0.9 or self.health_ratio() < 0.9
+        return self.energy_ratio() < 1 or self.health_ratio() < 1
 
     ########################## Reproduction #################################
     def reproduce(self):
@@ -176,6 +208,3 @@ class Animal(Organism):
         Animal.animals_birthed += 1
 
         return Animal(tile, parent=self, dna=self.dna.copy())
-
-    def mutate(self):
-        super().mutate()

@@ -6,10 +6,12 @@ import random
 import noise
 import pygame
 
-import settings.database_settings
-import settings.entity_settings
-import settings.noise_settings
+import settings.database
+import settings.entities
+import settings.noise
+import settings.simulation
 from entities.animal import Animal
+from entities.organism import Organism
 from entities.plant import Plant
 from helper.direction import Direction
 from world.tile import Tile
@@ -29,6 +31,7 @@ class World(pygame.sprite.Sprite):
         self.cols = math.floor(self.width / self.tile_size)
 
         self.generate_frequency()
+        self.reset_stats()
 
         self.tiles: list[Tile] = []
         for row in range(self.rows):
@@ -37,44 +40,61 @@ class World(pygame.sprite.Sprite):
         self.add_neighbors()
         # self.create_river()
 
-        settings.database_settings.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+        settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+
+    def reset_stats(self):
+        Organism.organisms_birthed = 0
+        Organism.organisms_died = 0
+        Organism.next_organism_id = 0
+        Animal.animals_birthed = 0
+        Animal.animals_died = 0
+        Plant.plants_birthed = 0
+        Plant.plants_died = 0
 
     def update(self):
         for tile in self.tiles:
             tile.update()
-            # self.handle_border_update(tile)
+            self.handle_border_update(tile)
             self.handle_coast_update(tile)
-
-            chance_to_spawn_plant_anywhere = 0.00005
-            if (
-                not tile.has_plant()
-                and random.random() <= tile.moisture * chance_to_spawn_plant_anywhere
-            ):
-                self.spawn_plant(tile)
+            if settings.simulation.spawn_plants_anywhere:
+                if (
+                    not tile.has_plant()
+                    and random.random()
+                    <= tile.moisture
+                    * settings.simulation.chance_to_spawn_plant_anywhere
+                ):
+                    self.spawn_plant(tile)
 
     def handle_coast_update(self, tile):
-        if tile.is_coast and not tile.has_animal():
-            chance_to_spawn_plant_at_coast = 0.001
-            if (
-                random.random() <= chance_to_spawn_plant_at_coast
-                and not tile.has_plant()
-            ):
-                self.spawn_plant(tile)
+        if settings.simulation.spawn_plants_at_coast:
+            if tile.is_coast and not tile.has_animal():
+                if (
+                    random.random()
+                    <= settings.simulation.chance_to_spawn_plant_at_coast
+                    and not tile.has_plant()
+                ):
+                    self.spawn_plant(tile)
 
     def handle_border_update(self, tile: Tile):
-        if tile.is_border and not tile.has_water:
-            chance_to_spawn_animal_at_border = 0.0001
-            chance_to_spawn_plant_at_border = 0.0001
-            if (
-                random.random() <= chance_to_spawn_animal_at_border
-                and not tile.has_animal()
-            ):
-                self.spawn_animal(tile)
-            if (
-                random.random() <= chance_to_spawn_plant_at_border
-                and not tile.has_plant()
-            ):
-                self.spawn_plant(tile)
+        if (
+            settings.simulation.spawn_animals_at_border
+            or settings.simulation.spawn_plants_at_border
+        ):
+            if tile.is_border and not tile.has_water:
+                if settings.simulation.spawn_animals_at_border:
+                    if (
+                        random.random()
+                        <= settings.simulation.chance_to_spawn_animal_at_border
+                        and not tile.has_animal()
+                    ):
+                        self.spawn_animal(tile)
+                if settings.simulation.spawn_plants_at_border:
+                    if (
+                        random.random()
+                        <= settings.simulation.chance_to_spawn_plant_at_border
+                        and not tile.has_plant()
+                    ):
+                        self.spawn_plant(tile)
 
     def draw(self):
         for tile in self.tiles:
@@ -104,7 +124,6 @@ class World(pygame.sprite.Sprite):
 
         tile: Tile = Tile(
             rect,
-            self.tile_size,
             height=height,
             moisture=moisture,
             is_border=self.is_border_tile(row=row, col=col),
@@ -113,11 +132,11 @@ class World(pygame.sprite.Sprite):
         if not tile.has_water:
             self.spawn_animal(
                 tile,
-                chance_to_spawn=settings.entity_settings.STARTING_ANIMAL_SPAWNING_CHANCE,
+                chance_to_spawn=settings.entities.STARTING_ANIMAL_SPAWNING_CHANCE,
             )
             self.spawn_plant(
                 tile,
-                chance_to_spawn=settings.entity_settings.STARTING_PLANT_SPAWNING_CHANCE,
+                chance_to_spawn=settings.entities.STARTING_PLANT_SPAWNING_CHANCE,
             )
 
         return tile
@@ -199,57 +218,47 @@ class World(pygame.sprite.Sprite):
 
         height = (
             noise.snoise2(
-                (x * settings.noise_settings.freq_x1)
-                + settings.noise_settings.offset_x1,
-                (y * settings.noise_settings.freq_y1)
-                + settings.noise_settings.offset_y1,
+                (x * settings.noise.freq_x1) + settings.noise.offset_x1,
+                (y * settings.noise.freq_y1) + settings.noise.offset_y1,
             )
-            * settings.noise_settings.scale_1
+            * settings.noise.scale_1
             + noise.snoise2(
-                (x * settings.noise_settings.freq_x2)
-                + settings.noise_settings.offset_x2,
-                (y * settings.noise_settings.freq_y2)
-                + settings.noise_settings.offset_y2,
+                (x * settings.noise.freq_x2) + settings.noise.offset_x2,
+                (y * settings.noise.freq_y2) + settings.noise.offset_y2,
             )
-            * settings.noise_settings.scale_2
+            * settings.noise.scale_2
             + noise.snoise2(
-                (x * settings.noise_settings.freq_x3)
-                + settings.noise_settings.offset_x3,
-                (y * settings.noise_settings.freq_y3)
-                + settings.noise_settings.offset_y3,
+                (x * settings.noise.freq_x3) + settings.noise.offset_x3,
+                (y * settings.noise.freq_y3) + settings.noise.offset_y3,
             )
-            * settings.noise_settings.scale_3
+            * settings.noise.scale_3
         )
         height /= (
-            settings.noise_settings.scale_1
-            + settings.noise_settings.scale_2
-            + settings.noise_settings.scale_3
+            settings.noise.scale_1 + settings.noise.scale_2 + settings.noise.scale_3
         )  # Normalize back in range -1 to 1
 
         height += 1
         height /= 2
 
-        island_mode = False
-        if island_mode:
+        height = pygame.math.clamp(
+            math.pow(
+                abs(height * settings.noise.height_fudge_factor),
+                settings.noise.height_power,
+            ),
+            0,
+            1,
+        )
+
+        if settings.simulation.island_mode:
             nx = 2 * col * self.tile_size / self.width - 1
             ny = 2 * row * self.tile_size / self.height - 1
             d = 1 - (1 - math.pow(nx, 2)) * (1 - math.pow(ny, 2))
             mix = 0.7
             height = pygame.math.lerp(height, 1 - d, mix)
 
-        terraces = False
-        if terraces:
+        if settings.simulation.terraces:
             n = 5
             height = round(height * n) / n
-        else:
-            power = 2  # TODO make this a slider in the settings
-            is_neg = height < 0
-            fudge_factor = 1.2  # Should be a number near 1
-            height = pygame.math.clamp(
-                math.pow(abs(height * fudge_factor), power), 0, 1
-            )
-            if is_neg:
-                height *= -1
 
         moisture = (noise.snoise2(x * self.wavelentgh_x, y * self.wavelentgh_y) + 1) / 2
 
@@ -259,16 +268,6 @@ class World(pygame.sprite.Sprite):
         return height, moisture
 
     def get_tile(self, x: int, y: int) -> Tile:
-        """
-        Retrieves the tile at the specified x and y coordinates.
-
-        Args:
-        - x (int): The x-coordinate of the point.
-        - y (int): The y-coordinate of the point.
-
-        Returns:
-        - Tile: The tile at the given coordinates.
-        """
         col = x // self.tile_size
         row = y // self.tile_size
         if row < self.rows and col < self.cols:
@@ -278,18 +277,6 @@ class World(pygame.sprite.Sprite):
 
     @staticmethod
     def adjust_dimensions(height, width, tile_size):
-        """
-        Adjusts the given height and width to be divisible by the tile size.
-
-        Parameters:
-        - height (int): The original height value.
-        - width (int): The original width value.
-        - tile_size (int): The size of each tile.
-
-        Returns:
-        - adjusted_height (int): The adjusted height value that is divisible by the tile size.
-        - adjusted_width (int): The adjusted width value that is divisible by the tile size.
-        """
         adjusted_height = (height // tile_size) * tile_size
         adjusted_width = (width // tile_size) * tile_size
         return adjusted_height, adjusted_width

@@ -2,12 +2,22 @@ import random
 
 import pygame
 
+
+def choose_visible_text_color(background_color: pygame.Color):
+    if background_color.grayscale().r < 150:
+        return pygame.color.Color("white")
+    else:
+        return pygame.color.Color("black")
+
+
 # Simulation
 SIMULATION_BACKGROUND_COLOR: pygame.Color = pygame.Color("white")
 MENU_BACKGROUND_COLOR: pygame.Color = pygame.Color("grey")
 STAT_BAR_BACKGROUND_COLOR: pygame.Color = pygame.Color("grey")
 STAT_BAR_BORDER_COLOR: pygame.Color = pygame.Color("black")
 STAT_BAR_FONT_COLOR: pygame.Color = pygame.Color("black")
+SELECTED_ORGANISM_COLOR: pygame.Color = pygame.Color("white")
+SELECTED_ORGANISM_RECT_WIDTH: float = 2
 
 # Stat Panel
 STAT_PANEL_BACKGROUND_COLOR: pygame.Color = pygame.Color("black")

@@ -3,11 +3,11 @@ from __future__ import annotations
 import random
 
 import pygame
-from pygame import Rect
 
 import settings.colors
-import settings.entity_settings
-import settings.screen_settings
+import settings.database
+import settings.entities
+import settings.screen
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
@@ -16,30 +16,27 @@ from world.tile import Tile
 class Plant(Organism):
     @property
     def MAX_HEALTH(self) -> float:
-        return settings.entity_settings.PLANT_MAX_HEALTH
+        return settings.entities.PLANT_MAX_HEALTH
 
     @property
     def MAX_ENERGY(self) -> float:
-        return settings.entity_settings.PLANT_MAX_ENERGY
+        return settings.entities.PLANT_MAX_ENERGY
 
     @property
     def NUTRITION_FACTOR(self) -> float:
-        return settings.entity_settings.PLANT_NUTRITION_FACTOR
+        return settings.entities.PLANT_NUTRITION_FACTOR
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return (
-            settings.entity_settings.PLANT_REPRODUCTION_CHANCE_FACTOR
-            * self.health_ratio()
-        )
+        return settings.entities.PLANT_REPRODUCTION_CHANCE_FACTOR * self.health_ratio()
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:
-        return settings.entity_settings.PLANT_MIN_REPRODUCTION_HEALTH
+        return settings.entities.PLANT_MIN_REPRODUCTION_HEALTH
 
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
-        return settings.entity_settings.PLANT_MIN_REPRODUCTION_ENERGY
+        return settings.entities.PLANT_MIN_REPRODUCTION_ENERGY
 
     plants_birthed: int = 0
     plants_died: int = 0
@@ -47,7 +44,7 @@ class Plant(Organism):
     def __init__(
         self,
         tile: Tile,
-        shape: Rect | None = None,
+        shape: pygame.Rect | None = None,
         parent: Plant = None,
         dna: DNA = None,
     ):
@@ -57,41 +54,70 @@ class Plant(Organism):
         if not dna:
             dna = DNA(
                 settings.colors.BASE_PLANT_COLOR,
-                settings.entity_settings.PLANT_BASE_ATTACK_POWER,
-                settings.entity_settings.PLANT_BASE_MOISTURE_PREFERENCE(),
-                settings.entity_settings.PLANT_BASE_HEIGHT_PREFERENCE(),
+                settings.entities.PLANT_BASE_ATTACK_POWER,
+                settings.entities.PLANT_BASE_MOISTURE_PREFERENCE(),
+                settings.entities.PLANT_BASE_HEIGHT_PREFERENCE(),
             )
 
         super().__init__(
             tile,
             shape,
-            settings.entity_settings.PLANT_STARTING_HEALTH(),
-            settings.entity_settings.PLANT_STARTING_ENERGY(),
+            settings.entities.PLANT_STARTING_HEALTH(),
+            settings.entities.PLANT_STARTING_ENERGY(),
             dna,
         )
 
         self.parent: Plant | None = parent
 
-    ########################## Main methods #################################
+    ########################## Update #################################
     def update(self):
+        """
+        Update the plant's state and perform photosynthesis.
+
+        This method updates the plant's state by calling the parent class's update method and then performs photosynthesis.
+        The steps performed in this method are as follows:
+
+        1. Call the parent class's update method:
+        - This updates the plant's health and energy based on its current state.
+
+        2. Perform photosynthesis:
+        - Calculate the base energy gained through photosynthesis by multiplying a random number between 0 and 1 with the plant's growth potential and the energy multiplier for photosynthesis.
+        - Calculate the preference match for height and moisture by subtracting the differences between the tile's height and moisture and the plant's height and moisture preferences from 1.
+        - Adjust the base energy gain by multiplying it with the average of the height preference match and moisture preference match.
+        - Add the adjusted energy gain to the plant's energy.
+
+        This method is called during the plant's update process to update its state and simulate photosynthesis.
+        """
         super().update()
-        self.energy += self.get_photosynthesis_energy()
+        self.photosynthesise()
 
-        if self.tile.is_coast:
-            self.energy += self.get_coast_energy()
+    def photosynthesise(self):
+        """
+        Calculate the energy gained through photosynthesis.
 
-        if self.can_reproduce() and random.random() <= self.REPRODUCTION_CHANCE:
-            self.reproduce()
+        This method calculates the energy gained by the plant through photosynthesis. It performs the following steps:
 
-        if not self.is_alive():
-            self.die()
+        1. Base photosynthesis energy calculation:
+        - Generate a random number between 0 and 1.
+        - Multiply it by the plant's growth potential and the energy multiplier for photosynthesis.
 
-    def get_photosynthesis_energy(self):
+        2. Calculate the preference match:
+        - Calculate the difference between the tile's height and the plant's height preference.
+        - Calculate the difference between the tile's moisture and the plant's moisture preference.
+        - Subtract these differences from 1 to get the match values.
+
+        3. Adjust the base energy gain:
+        - Multiply the base energy by the average of the height preference match and moisture preference match.
+
+        4. Add the adjusted energy gain to the plant's energy.
+
+        This method is called during the plant's update process to simulate photosynthesis and increase its energy level.
+        """
         # Base photosynthesis energy calculation
         base_energy = (
             random.random()
             * self.tile.plant_growth_potential
-            * settings.entity_settings.PLANT_PHOTOSYNTHESIS_ENERGY_MULTIPLIER
+            * settings.entities.PLANT_PHOTOSYNTHESIS_ENERGY_MULTIPLIER
         )
 
         # Calculate the preference match
@@ -105,11 +131,9 @@ class Plant(Organism):
             base_energy * (height_preference_match + moisture_preference_match) / 2
         )
 
-        return adjusted_energy_gain
+        self.energy += adjusted_energy_gain
 
-    def get_coast_energy(self):
-        return random.random() * settings.entity_settings.PLANT_COAST_ENERGY_MULTIPLIER
-
+    ########################## Draw #################################
     # TODO rethink plant drawing with biomes
     def draw(self):
         super().draw()
@@ -144,6 +168,11 @@ class Plant(Organism):
     def die(self):
         super().die()
         Plant.plants_died += 1
+
+        if settings.database.save_csv:
+            if settings.database.save_plants_csv:
+                self.save_to_csv()
+
         self.tile.remove_plant()
 
     def get_attacked(self, attacking_organism: Organism):
@@ -157,12 +186,12 @@ class Plant(Organism):
         option = self.tile.get_random_neigbor(no_plant=True, no_water=True)
         if option:
             self.energy -= (
-                settings.entity_settings.PLANT_REPRODUCTION_ENERGY_COST_FACTOR
+                settings.entities.PLANT_REPRODUCTION_ENERGY_COST_FACTOR
                 * self.MAX_ENERGY
             )
             offspring = self.copy(option)
             offspring.health = (
-                settings.entity_settings.PLANT_OFFSPRING_HEALTH_FACTOR * self.MAX_HEALTH
+                settings.entities.PLANT_OFFSPRING_HEALTH_FACTOR * self.MAX_HEALTH
             )
             offspring.mutate()
             # print("Plant offspring birthed!")
