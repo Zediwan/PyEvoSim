@@ -4,7 +4,6 @@ from random import choice, shuffle
 from typing import List
 
 import pygame
-from pygame import Color, Rect, Surface
 
 import helper.direction
 import settings.colors
@@ -16,20 +15,20 @@ import settings.simulation
 class Tile:
     def __init__(
         self,
-        rect: Rect,
+        rect: pygame.Rect,
         height: float = 0,
         moisture: float = 0,
         is_border: bool = False,
     ):
         # Tile
-        self.rect: Rect = rect
+        self.rect: pygame.Rect = rect
         self.neighbors: dict[helper.direction.Direction, Tile] = {}
 
         # Height
         self._height: float = height
         self._moisture: float = moisture
         self.plant_growth_potential: float
-        self.color: Color
+        self.color: pygame.Color
         self.has_water: bool
         self.set_height_moisture_dependent_attributes()
 
@@ -235,21 +234,7 @@ class Tile:
             col = self.color
 
         text = settings.font.font.render(str(round(stat)), True, settings.colors.choose_visible_text_color(col))
-        self._render_text_centered(text)
-
-    def _render_text_centered(self, text: Surface):
-        """
-        Renders the given text surface centered on the tile.
-
-        Args:
-            screen (Surface): The surface on which the text will be rendered.
-            text (Surface): The text surface to be rendered.
-        """
-        center_x = self.rect.x + self.rect.width // 2
-        center_y = self.rect.y + self.rect.height // 2
-        text_x = center_x - text.get_width() // 2
-        text_y = center_y - text.get_height() // 2
-        pygame.display.get_surface().blit(text, (text_x, text_y))
+        pygame.display.get_surface().blit(text, settings.font.get_centered_text_coordinates(self.rect, text))
 
     ########################## Tile Property Handling #################################
     def add_animal(self, animal):
