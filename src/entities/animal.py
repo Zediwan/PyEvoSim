@@ -5,6 +5,7 @@ import random
 import pygame
 
 import settings.colors
+import settings.database
 import settings.entities
 import settings.screen
 from dna.dna import DNA
@@ -142,6 +143,11 @@ class Animal(Organism):
     def die(self):
         super().die()
         Animal.animals_died += 1
+
+        if settings.database.save_csv:
+            if settings.database.save_animals_csv:
+                self.save_to_csv()
+
         self.tile.remove_animal()
 
     def attack(self, organism_to_attack: Organism):

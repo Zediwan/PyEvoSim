@@ -3,9 +3,9 @@ from __future__ import annotations
 import random
 
 import pygame
-from pygame import Rect
 
 import settings.colors
+import settings.database
 import settings.entities
 import settings.screen
 from dna.dna import DNA
@@ -47,7 +47,7 @@ class Plant(Organism):
     def __init__(
         self,
         tile: Tile,
-        shape: Rect | None = None,
+        shape: pygame.Rect | None = None,
         parent: Plant = None,
         dna: DNA = None,
     ):
@@ -144,6 +144,11 @@ class Plant(Organism):
     def die(self):
         super().die()
         Plant.plants_died += 1
+
+        if settings.database.save_csv:
+            if settings.database.save_plants_csv:
+                self.save_to_csv()
+
         self.tile.remove_plant()
 
     def get_attacked(self, attacking_organism: Organism):

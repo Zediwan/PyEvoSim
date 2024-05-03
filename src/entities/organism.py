@@ -123,9 +123,8 @@ class Organism(ABC, pygame.sprite.Sprite):
     def health(self, value: float):
         if value > self.MAX_HEALTH:
             self._health = self.MAX_HEALTH
-            return
-
-        self._health = value
+        else:
+            self._health = value
 
     @property
     def energy(self) -> float:
@@ -136,14 +135,14 @@ class Organism(ABC, pygame.sprite.Sprite):
         if value < self.MIN_ENERGY:
             self._energy = self.MIN_ENERGY
             self.health += value
-            return
-        if value > self.MAX_ENERGY:
+        elif value > self.MAX_ENERGY:
             self._energy = self.MAX_ENERGY
             self.health += value - self.MAX_ENERGY
-            return
-        self._energy = value
+        else:
+            self._energy = value
 
     ########################## Main methods #################################
+    @abstractmethod
     def update(self):
         self.energy -= settings.entities.ORGANISM_BASE_ENERGY_MAINTANCE
         self.tick_age += 1
@@ -163,7 +162,6 @@ class Organism(ABC, pygame.sprite.Sprite):
     def enter_tile(self, tile: Tile):
         self.shape.topleft = tile.rect.topleft
         self.tiles_visited += 1
-        pass
 
     @abstractmethod
     def check_tile_assignment(self):
@@ -173,13 +171,15 @@ class Organism(ABC, pygame.sprite.Sprite):
     def health_ratio(self) -> float:
         ratio = self.health / self.MAX_HEALTH
 
-        assert ratio <= 1, f"Health ratio ({ratio}) is not smaller than 1."
+        if ratio > 1:
+            raise ValueError(f"Health ratio {ratio} is bigger than 1")
         return ratio
 
     def energy_ratio(self) -> float:
         ratio = self.energy / self.MAX_ENERGY
 
-        assert ratio <= 1, f"Energy ratio ({ratio}) is not smaller than 1."
+        if ratio > 1:
+            raise ValueError(f"Energy ratio {ratio} is bigger than 1")
         return ratio
 
     def is_alive(self) -> bool:
@@ -191,21 +191,6 @@ class Organism(ABC, pygame.sprite.Sprite):
             raise ValueError("Organism tries to die despite not being dead.")
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
-
-        if settings.database.save_csv:
-            # TODO refactor this
-            from entities.animal import Animal
-            from entities.plant import Plant
-
-            if not settings.database.save_animals_csv and isinstance(
-                self, Animal
-            ):
-                return
-            if not settings.database.save_plants_csv and isinstance(
-                self, Plant
-            ):
-                return
-            self.save_to_csv()
 
     def attack(self, organism_to_attack: Organism):
         assert (
