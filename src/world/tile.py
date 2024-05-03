@@ -25,8 +25,8 @@ class Tile:
         self.neighbors: dict[helper.direction.Direction, Tile] = {}
 
         # Height
-        self.height: float = height
-        self.moisture: float = moisture
+        self._height: float = height
+        self._moisture: float = moisture
         self.set_height_moisture_dependent_attributes()
 
         # Organisms
@@ -38,7 +38,6 @@ class Tile:
 
         self.plant: Plant | None = None
 
-        self.has_water: bool = False
         self.is_border: bool = is_border
         self.is_coast: bool = False
         self.steepest_decline_direction: helper.direction.Direction | None = None
@@ -51,8 +50,9 @@ class Tile:
         """
         Set the color and plant growth potential attributes of a Tile object based on its height and moisture levels.
         """
-        self.color: Color
         self.plant_growth_potential: float
+        self.color: Color
+        self.has_water: bool = False
     
         if self.height <= settings.simulation_settings.WATER_HEIGHT_LEVEL:
             # Waterlogged, no growth
@@ -128,8 +128,8 @@ class Tile:
                 self.plant_growth_potential = settings.simulation_settings.SNOW_PLANT_GROWTH
                 self.color = settings.colors.SNOW_COLOR
             
-        assert self.color, "Color has not been set."
-        assert self.plant_growth_potential, "Plant growth has not been set."
+        assert self.color is not None, f"Color has not been set. moisture={self.moisture} height={self.height}"
+        assert self.plant_growth_potential is not None, f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
     
     def update_height(self, new_height: float):
         assert 0 <= new_height <= 1, "New height needs to be between 0 and 1 " & new_height
@@ -141,6 +141,35 @@ class Tile:
         self.moisture = new_moisture
         self.set_height_moisture_dependent_attributes()
 
+    ########################## Properties #################################
+    @property
+    def moisture(self) -> float:
+        return self._moisture
+    
+    @moisture.setter
+    def moisture(self, value: float):
+        if value < 0:
+            raise ValueError("Moisture value is smaller than 0")
+        elif value > 1:
+            raise ValueError("Moisture value is bigger than 1")
+        else:
+            self._moisture = value
+        self.set_height_moisture_dependent_attributes()
+        
+    @property
+    def height(self) -> float:
+        return self._height
+    
+    @height.setter
+    def height(self, value: float):
+        if value < 0:
+            raise ValueError("Height value is smaller than 0")
+        elif value > 1:
+            raise ValueError("Height value is bigger than 1")
+        else:
+            self._height = value
+        self.set_height_moisture_dependent_attributes()
+            
     ########################## Main methods #################################
     def update(self):
         if self.animal:
