@@ -109,8 +109,9 @@ class Organism(ABC, sprite.Sprite):
         self.enter_tile(tile)
 
     def _set_attributes_from_dna(self):
-        assert self.dna, "DNA has not been set yet."
-
+        if not self.dna:
+            raise ValueError("Trying to set attributes from DNA despite DNA being None")
+        
         self.color: Color = self.dna.color
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
