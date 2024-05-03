@@ -234,13 +234,7 @@ class Tile:
         else:
             col = self.color
 
-        text_color: Color
-        if col.grayscale().r < 150:
-            text_color = pygame.color.Color("white")
-        else:
-            text_color = pygame.color.Color("black")
-
-        text = settings.font.font.render(str(round(stat)), True, text_color)
+        text = settings.font.font.render(str(round(stat)), True, settings.colors.choose_visible_text_color(col))
         self._render_text_centered(text)
 
     def _render_text_centered(self, text: Surface):
