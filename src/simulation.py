@@ -4,8 +4,8 @@ import pygame
 
 import helper.formatter
 import settings.colors
-import settings.gui_settings
-import settings.simulation_settings
+import settings.gui
+import settings.simulation
 from entities.animal import Animal
 from entities.organism import Organism
 from entities.plant import Plant
@@ -89,7 +89,7 @@ class Simulation:
         if self.stat_showing_organism:
             if (
                 self.stat_showing_organism.is_alive()
-                or settings.gui_settings.show_dead_organisms_stats
+                or settings.gui.show_dead_organisms_stats
             ):
                 pygame.draw.rect(
                     self.screen,
@@ -116,18 +116,18 @@ class Simulation:
                 chance_to_spawn_animals = 0.001
                 self.world.spawn_animals(chance_to_spawn=chance_to_spawn_animals)
             elif event.key == pygame.K_1 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                settings.gui_settings.draw_height_level = (
-                    not settings.gui_settings.draw_height_level
+                settings.gui.draw_height_level = (
+                    not settings.gui.draw_height_level
                 )
                 self.world.draw()
             elif event.key == pygame.K_2 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                settings.gui_settings.draw_animal_health = (
-                    not settings.gui_settings.draw_animal_health
+                settings.gui.draw_animal_health = (
+                    not settings.gui.draw_animal_health
                 )
                 self.world.draw()
             elif event.key == pygame.K_3 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                settings.gui_settings.draw_animal_energy = (
-                    not settings.gui_settings.draw_animal_energy
+                settings.gui.draw_animal_energy = (
+                    not settings.gui.draw_animal_energy
                 )
                 self.world.draw()
             elif (
@@ -193,8 +193,8 @@ class Simulation:
 
     def draw_menu(self):
         self.screen.fill(settings.colors.MENU_BACKGROUND_COLOR)
-        text_surface: pygame.Surface = settings.gui_settings.menu_font.render(
-            settings.gui_settings.menu_text,
+        text_surface: pygame.Surface = settings.gui.menu_font.render(
+            settings.gui.menu_text,
             True,
             settings.colors.SIMULATION_BACKGROUND_COLOR,
         )
@@ -204,15 +204,15 @@ class Simulation:
     def handle_game_speed(self):
         if (
             self.increase_game_speed
-            and self.fps_max_limit + settings.simulation_settings.GAME_SPEED_CHANGE
-            <= settings.simulation_settings.MAX_FPS_LIMIT
+            and self.fps_max_limit + settings.simulation.GAME_SPEED_CHANGE
+            <= settings.simulation.MAX_FPS_LIMIT
         ):
-            self.fps_max_limit += settings.simulation_settings.GAME_SPEED_CHANGE
+            self.fps_max_limit += settings.simulation.GAME_SPEED_CHANGE
         elif (
             self.decrease_game_speed
-            and self.fps_max_limit > settings.simulation_settings.GAME_SPEED_CHANGE
+            and self.fps_max_limit > settings.simulation.GAME_SPEED_CHANGE
         ):
-            self.fps_max_limit -= settings.simulation_settings.GAME_SPEED_CHANGE
+            self.fps_max_limit -= settings.simulation.GAME_SPEED_CHANGE
 
     def stat_panels(self):
         self.upper_stat_panel()
@@ -220,9 +220,9 @@ class Simulation:
 
     def upper_stat_panel(self):
         panel_height = int(
-            settings.gui_settings.stat_panel_height_percentage * self.height
+            settings.gui.stat_panel_height_percentage * self.height
         )
-        font_size = int(settings.gui_settings.stat_panel_font_percentage * panel_height)
+        font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for upper stats
         pygame.draw.rect(
@@ -235,7 +235,7 @@ class Simulation:
             settings.colors.STAT_BAR_BORDER_COLOR,
             (0, panel_height),
             (self.width, panel_height),
-            width=settings.gui_settings.stat_panel_line_width,
+            width=settings.gui.stat_panel_line_width,
         )
 
         # Stats to display in the upper panel
@@ -247,9 +247,9 @@ class Simulation:
 
     def lower_stat_panel(self):
         panel_height = int(
-            settings.gui_settings.stat_panel_height_percentage * self.height
+            settings.gui.stat_panel_height_percentage * self.height
         )
-        font_size = int(settings.gui_settings.stat_panel_font_percentage * panel_height)
+        font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for lower stats
         pygame.draw.rect(
@@ -262,7 +262,7 @@ class Simulation:
             settings.colors.STAT_BAR_BORDER_COLOR,
             (0, self.height - panel_height),
             (self.width, self.height - panel_height),
-            width=settings.gui_settings.stat_panel_line_width,
+            width=settings.gui.stat_panel_line_width,
         )
 
         # Stats to display in the lower panel

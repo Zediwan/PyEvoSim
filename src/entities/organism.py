@@ -8,9 +8,9 @@ import pygame
 from pygame import Color, Rect, sprite
 
 import settings.colors
-import settings.database_settings
-import settings.entity_settings
-import settings.screen_settings
+import settings.database
+import settings.entities
+import settings.screen
 import stats.stat_panel
 from dna.dna import DNA
 from world.tile import Tile
@@ -76,7 +76,7 @@ class Organism(ABC, sprite.Sprite):
         if not dna:
             dna = DNA(
                 settings.colors.BASE_ORGANISM_COLOR,
-                settings.entity_settings.ORGANISM_BASE_ATTACK_POWER,
+                settings.entities.ORGANISM_BASE_ATTACK_POWER,
             )
         self.dna: DNA = dna
 
@@ -145,7 +145,7 @@ class Organism(ABC, sprite.Sprite):
 
     ########################## Main methods #################################
     def update(self):
-        self.energy -= settings.entity_settings.ORGANISM_BASE_ENERGY_MAINTANCE
+        self.energy -= settings.entities.ORGANISM_BASE_ENERGY_MAINTANCE
         self.age += 1
 
         if not self.is_alive():
@@ -192,16 +192,16 @@ class Organism(ABC, sprite.Sprite):
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
 
-        if settings.database_settings.save_csv:
+        if settings.database.save_csv:
             # TODO refactor this
             from entities.animal import Animal
             from entities.plant import Plant
 
-            if not settings.database_settings.save_animals_csv and isinstance(
+            if not settings.database.save_animals_csv and isinstance(
                 self, Animal
             ):
                 return
-            if not settings.database_settings.save_plants_csv and isinstance(
+            if not settings.database.save_plants_csv and isinstance(
                 self, Plant
             ):
                 return
@@ -323,11 +323,11 @@ class Organism(ABC, sprite.Sprite):
         ]
 
     def save_to_csv(self):
-        file_exists = os.path.isfile(settings.database_settings.database_csv_filename)
+        file_exists = os.path.isfile(settings.database.database_csv_filename)
 
         try:
             with open(
-                settings.database_settings.database_csv_filename, mode="a", newline=""
+                settings.database.database_csv_filename, mode="a", newline=""
             ) as file:
                 writer = csv.writer(file)
                 if not file_exists:
