@@ -218,31 +218,23 @@ class World(pygame.sprite.Sprite):
 
         height = (
             noise.snoise2(
-                (x * settings.noise.freq_x1)
-                + settings.noise.offset_x1,
-                (y * settings.noise.freq_y1)
-                + settings.noise.offset_y1,
+                (x * settings.noise.freq_x1) + settings.noise.offset_x1,
+                (y * settings.noise.freq_y1) + settings.noise.offset_y1,
             )
             * settings.noise.scale_1
             + noise.snoise2(
-                (x * settings.noise.freq_x2)
-                + settings.noise.offset_x2,
-                (y * settings.noise.freq_y2)
-                + settings.noise.offset_y2,
+                (x * settings.noise.freq_x2) + settings.noise.offset_x2,
+                (y * settings.noise.freq_y2) + settings.noise.offset_y2,
             )
             * settings.noise.scale_2
             + noise.snoise2(
-                (x * settings.noise.freq_x3)
-                + settings.noise.offset_x3,
-                (y * settings.noise.freq_y3)
-                + settings.noise.offset_y3,
+                (x * settings.noise.freq_x3) + settings.noise.offset_x3,
+                (y * settings.noise.freq_y3) + settings.noise.offset_y3,
             )
             * settings.noise.scale_3
         )
         height /= (
-            settings.noise.scale_1
-            + settings.noise.scale_2
-            + settings.noise.scale_3
+            settings.noise.scale_1 + settings.noise.scale_2 + settings.noise.scale_3
         )  # Normalize back in range -1 to 1
 
         height += 1

@@ -63,8 +63,8 @@ class Organism(ABC, pygame.sprite.Sprite):
         self,
         tile: Tile,
         shape: pygame.Rect,
-        health: float = MAX_HEALTH,
-        energy: float = MAX_ENERGY,
+        health: float,
+        energy: float,
         dna: DNA = None,
     ):
         pygame.sprite.Sprite.__init__(self)

@@ -28,10 +28,7 @@ class Plant(Organism):
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return (
-            settings.entities.PLANT_REPRODUCTION_CHANCE_FACTOR
-            * self.health_ratio()
-        )
+        return settings.entities.PLANT_REPRODUCTION_CHANCE_FACTOR * self.health_ratio()
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:

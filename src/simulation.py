@@ -116,19 +116,13 @@ class Simulation:
                 chance_to_spawn_animals = 0.001
                 self.world.spawn_animals(chance_to_spawn=chance_to_spawn_animals)
             elif event.key == pygame.K_1 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                settings.gui.draw_height_level = (
-                    not settings.gui.draw_height_level
-                )
+                settings.gui.draw_height_level = not settings.gui.draw_height_level
                 self.world.draw()
             elif event.key == pygame.K_2 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                settings.gui.draw_animal_health = (
-                    not settings.gui.draw_animal_health
-                )
+                settings.gui.draw_animal_health = not settings.gui.draw_animal_health
                 self.world.draw()
             elif event.key == pygame.K_3 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                settings.gui.draw_animal_energy = (
-                    not settings.gui.draw_animal_energy
-                )
+                settings.gui.draw_animal_energy = not settings.gui.draw_animal_energy
                 self.world.draw()
             elif (
                 event.key == pygame.K_r and pygame.key.get_mods() and pygame.KMOD_SHIFT
@@ -219,9 +213,7 @@ class Simulation:
         self.lower_stat_panel()
 
     def upper_stat_panel(self):
-        panel_height = int(
-            settings.gui.stat_panel_height_percentage * self.height
-        )
+        panel_height = int(settings.gui.stat_panel_height_percentage * self.height)
         font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for upper stats
@@ -246,9 +238,7 @@ class Simulation:
         self.draw_stats(upper_stats, font_size, (panel_height - (font_size / 2)) / 2)
 
     def lower_stat_panel(self):
-        panel_height = int(
-            settings.gui.stat_panel_height_percentage * self.height
-        )
+        panel_height = int(settings.gui.stat_panel_height_percentage * self.height)
         font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for lower stats

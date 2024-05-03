@@ -62,8 +62,8 @@ class Animal(Organism):
         super().__init__(
             tile,
             shape,
-            self.MAX_HEALTH * pygame.math.lerp(0.2, 0.4, random.random()),
-            self.MAX_ENERGY * pygame.math.lerp(0.2, 0.4, random.random()),
+            settings.entities.ANIMAL_STARTING_HEALTH(),
+            settings.entities.ANIMAL_STARTING_ENERGY(),
             dna,
         )
 
@@ -72,9 +72,7 @@ class Animal(Organism):
     ########################## Main methods #################################
     def update(self):
         super().update()
-        self.energy -= (
-            random.random() * settings.entities.ANIMAL_BASE_ENERGY_MAINTANCE
-        )
+        self.energy -= random.random() * settings.entities.ANIMAL_BASE_ENERGY_MAINTANCE
 
         DROWNING_DAMAGE = 10
         if self.tile.has_water:
