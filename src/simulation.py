@@ -4,7 +4,8 @@ import pygame
 
 import helper.formatter
 import settings.colors
-import settings.gui_settings
+import settings.gui
+import settings.simulation
 from entities.animal import Animal
 from entities.organism import Organism
 from entities.plant import Plant
@@ -38,6 +39,9 @@ class Simulation:
 
         self.stat_showing_organism: Organism | None = None
 
+        self.is_paused = False
+        self.running = True
+
     # TODO enable spawning of animals and plants via mouse
     # TODO enable stat displaying of animals and plants by klicking on them via mouse
     # TODO implement settings panel
@@ -47,119 +51,29 @@ class Simulation:
         The main loop of the simulation. Updates the state of the animals and plants, handles their interactions,
         and manages the spawning of new animals and plants.
         """
-        running = True
-        is_paused = False
+        self.running = True
+        self.is_paused = False
 
-        while running:
-            event = pygame.event.poll()
+        while self.running:
+            event: pygame.event.Event = pygame.event.poll()
 
             if event.type == pygame.QUIT:
-                running = False
+                self.running = False
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
-                print("Key Pressed", event.key)
-                if event.key == pygame.K_ESCAPE:
-                    self.menu_open = not self.menu_open
-                    is_paused = (
-                        self.menu_open
-                    )  # Pause the simulation when the menu is open
-                elif event.key == pygame.K_SPACE:
-                    is_paused = not is_paused
-                elif event.key == pygame.K_RETURN:
-                    chance_to_spawn_animals = 0.001
-                    self.world.spawn_animals(chance_to_spawn=chance_to_spawn_animals)
-                elif (
-                    event.key == pygame.K_1 and pygame.key.get_mods() & pygame.KMOD_ALT
-                ):
-                    settings.gui_settings.draw_height_level = (
-                        not settings.gui_settings.draw_height_level
-                    )
-                    self.world.draw()
-                elif (
-                    event.key == pygame.K_2 and pygame.key.get_mods() & pygame.KMOD_ALT
-                ):
-                    settings.gui_settings.draw_animal_health = (
-                        not settings.gui_settings.draw_animal_health
-                    )
-                    print("Drawing animal health.")
-                    self.world.draw()
-                elif (
-                    event.key == pygame.K_3 and pygame.key.get_mods() & pygame.KMOD_ALT
-                ):
-                    settings.gui_settings.draw_animal_energy = (
-                        not settings.gui_settings.draw_animal_energy
-                    )
-                    print("Drawing animal energy.")
-                    self.world.draw()
-                elif (
-                    event.key == pygame.K_r
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
-                    self.world = World(self.height, self.width, self.tile_size)
-                    self.stat_showing_organism = None
-                    self.world.draw()
-                elif (
-                    event.key == pygame.K_UP
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
-                    self.increase_game_speed = True
-                    self.decrease_game_speed = False
-                elif (
-                    event.key == pygame.K_DOWN
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
-                    self.increase_game_speed = False
-                    self.decrease_game_speed = True
+            self.handle_key_down(event)
 
-            if event.type == pygame.KEYUP:
-                if (
-                    event.key == pygame.K_UP
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
-                    self.increase_game_speed = False
-                elif (
-                    event.key == pygame.K_DOWN
-                    and pygame.key.get_mods() & pygame.KMOD_SHIFT
-                ):
-                    self.decrease_game_speed = False
+            self.handle_key_up(event)
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                tile: Tile = self.world.get_tile(mouse_x, mouse_y)
+            self.handle_mouse_button_down(event)
 
-                self.world.draw()
-                self.stat_panels()
-
-                if tile.has_animal():
-                    self.stat_showing_organism = tile.animal
-                    self.stat_showing_organism.show_stats()
-                elif tile.has_plant():
-                    self.stat_showing_organism = tile.plant
-                    self.stat_showing_organism.show_stats()
-                else:
-                    if self.stat_showing_organism:
-                        self.stat_showing_organism.stat_panel = None
-                        self.stat_showing_organism = None
-
-            if not is_paused:
-                self.screen.fill(
-                    settings.colors.SIMULATION_BACKGROUND_COLOR
-                )  # Fill the screen with a white background
+            if not self.is_paused:
+                self.screen.fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
                 self.world.update()
                 self.world.draw()
                 self.stat_panels()
-
-                if self.stat_showing_organism:
-                    if (
-                        self.stat_showing_organism.is_alive()
-                        or settings.gui_settings.show_dead_organisms_stats
-                    ):
-                        self.stat_showing_organism.show_stats()
-                    else:
-                        self.stat_showing_organism.stat_panel = None
-                        self.stat_showing_organism = None
+                self.stat_organism()
 
             if self.menu_open:
                 self.draw_menu()
@@ -171,39 +85,136 @@ class Simulation:
 
             pygame.display.flip()
 
+    def stat_organism(self):
+        if self.stat_showing_organism:
+            if (
+                self.stat_showing_organism.is_alive()
+                or settings.gui.show_dead_organisms_stats
+            ):
+                pygame.draw.rect(
+                    self.screen,
+                    settings.colors.SELECTED_ORGANISM_COLOR,
+                    self.stat_showing_organism.shape,
+                    width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+                )
+                self.stat_showing_organism.show_stats()
+            else:
+                self.stat_showing_organism.stat_panel = None
+                self.stat_showing_organism = None
+
+    def handle_key_down(self, event: pygame.event.Event):
+        if event.type == pygame.KEYDOWN:
+            print("Key Pressed", event.key)
+            if event.key == pygame.K_ESCAPE:
+                self.menu_open = not self.menu_open
+                self.is_paused = (
+                    self.menu_open
+                )  # Pause the simulation when the menu is open
+            elif event.key == pygame.K_SPACE:
+                self.is_paused = not self.is_paused
+            elif event.key == pygame.K_RETURN:
+                chance_to_spawn_animals = 0.001
+                self.world.spawn_animals(chance_to_spawn=chance_to_spawn_animals)
+            elif event.key == pygame.K_1 and pygame.key.get_mods() and pygame.KMOD_ALT:
+                settings.gui.draw_height_level = not settings.gui.draw_height_level
+                self.world.draw()
+            elif event.key == pygame.K_2 and pygame.key.get_mods() and pygame.KMOD_ALT:
+                settings.gui.draw_animal_health = not settings.gui.draw_animal_health
+                self.world.draw()
+            elif event.key == pygame.K_3 and pygame.key.get_mods() and pygame.KMOD_ALT:
+                settings.gui.draw_animal_energy = not settings.gui.draw_animal_energy
+                self.world.draw()
+            elif (
+                event.key == pygame.K_r and pygame.key.get_mods() and pygame.KMOD_SHIFT
+            ):
+                self.world = World(self.height, self.width, self.tile_size)
+                self.stat_showing_organism = None
+                self.world.draw()
+            elif (
+                event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT
+            ):
+                self.increase_game_speed = True
+                self.decrease_game_speed = False
+            elif (
+                event.key == pygame.K_DOWN
+                and pygame.key.get_mods()
+                and pygame.KMOD_SHIFT
+            ):
+                self.increase_game_speed = False
+                self.decrease_game_speed = True
+
+    def handle_key_up(self, event: pygame.event.Event):
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT:
+                self.increase_game_speed = False
+            elif (
+                event.key == pygame.K_DOWN
+                and pygame.key.get_mods()
+                and pygame.KMOD_SHIFT
+            ):
+                self.decrease_game_speed = False
+
+    def handle_mouse_button_down(self, event: pygame.event.Event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            tile: Tile = self.world.get_tile(mouse_x, mouse_y)
+
+            self.world.draw()
+            self.stat_panels()
+
+            if tile.has_animal():
+                self.stat_showing_organism = tile.animal
+                pygame.draw.rect(
+                    self.screen,
+                    settings.colors.SELECTED_ORGANISM_COLOR,
+                    self.stat_showing_organism.shape,
+                    width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+                )
+                self.stat_showing_organism.show_stats()
+            elif tile.has_plant():
+                self.stat_showing_organism = tile.plant
+                pygame.draw.rect(
+                    self.screen,
+                    settings.colors.SELECTED_ORGANISM_COLOR,
+                    self.stat_showing_organism.shape,
+                    width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+                )
+                self.stat_showing_organism.show_stats()
+            else:
+                if self.stat_showing_organism:
+                    self.stat_showing_organism.stat_panel = None
+                    self.stat_showing_organism = None
+
     def draw_menu(self):
-        # Placeholder for menu drawing logic
-        self.screen.fill(
-            settings.colors.MENU_BACKGROUND_COLOR
-        )  # Example: fill the screen with grey
-        menu_text = "Simulation Paused - Menu"
-        font = pygame.font.Font(None, 36)
-        text_surface = font.render(
-            menu_text, True, settings.colors.SIMULATION_BACKGROUND_COLOR
+        self.screen.fill(settings.colors.MENU_BACKGROUND_COLOR)
+        text_surface: pygame.Surface = settings.gui.menu_font.render(
+            settings.gui.menu_text,
+            True,
+            settings.colors.SIMULATION_BACKGROUND_COLOR,
         )
         text_rect = text_surface.get_rect(center=(self.width / 2, self.height / 2))
         self.screen.blit(text_surface, text_rect)
 
     def handle_game_speed(self):
-        GAME_SPEED_CHANGE: int = 1
-        MAX_FPS_LIMIT: int = 300
-
         if (
             self.increase_game_speed
-            and self.fps_max_limit + GAME_SPEED_CHANGE <= MAX_FPS_LIMIT
+            and self.fps_max_limit + settings.simulation.GAME_SPEED_CHANGE
+            <= settings.simulation.MAX_FPS_LIMIT
         ):
-            self.fps_max_limit += GAME_SPEED_CHANGE
-        elif self.decrease_game_speed and self.fps_max_limit > GAME_SPEED_CHANGE:
-            self.fps_max_limit -= GAME_SPEED_CHANGE
+            self.fps_max_limit += settings.simulation.GAME_SPEED_CHANGE
+        elif (
+            self.decrease_game_speed
+            and self.fps_max_limit > settings.simulation.GAME_SPEED_CHANGE
+        ):
+            self.fps_max_limit -= settings.simulation.GAME_SPEED_CHANGE
 
     def stat_panels(self):
         self.upper_stat_panel()
         self.lower_stat_panel()
 
     def upper_stat_panel(self):
-        font_size = int(0.02 * self.height)
-        panel_height = int(0.03 * self.height)
-        line_width: int = 2
+        panel_height = int(settings.gui.stat_panel_height_percentage * self.height)
+        font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for upper stats
         pygame.draw.rect(
@@ -216,7 +227,7 @@ class Simulation:
             settings.colors.STAT_BAR_BORDER_COLOR,
             (0, panel_height),
             (self.width, panel_height),
-            width=line_width,
+            width=settings.gui.stat_panel_line_width,
         )
 
         # Stats to display in the upper panel
@@ -227,9 +238,8 @@ class Simulation:
         self.draw_stats(upper_stats, font_size, (panel_height - (font_size / 2)) / 2)
 
     def lower_stat_panel(self):
-        font_size = int(0.02 * self.height)
-        panel_height = int(0.03 * self.height)
-        line_width: int = 2
+        panel_height = int(settings.gui.stat_panel_height_percentage * self.height)
+        font_size = int(settings.gui.stat_panel_font_percentage * panel_height)
 
         # Drawing base panel for lower stats
         pygame.draw.rect(
@@ -242,7 +252,7 @@ class Simulation:
             settings.colors.STAT_BAR_BORDER_COLOR,
             (0, self.height - panel_height),
             (self.width, self.height - panel_height),
-            width=line_width,
+            width=settings.gui.stat_panel_line_width,
         )
 
         # Stats to display in the lower panel

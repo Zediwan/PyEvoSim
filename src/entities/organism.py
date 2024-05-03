@@ -2,21 +2,21 @@ from __future__ import annotations
 
 import csv
 import os
+import random
 from abc import ABC, abstractmethod
 
 import pygame
-from pygame import Color, Rect, sprite
 
 import settings.colors
-import settings.database_settings
-import settings.entity_settings
-import settings.screen_settings
+import settings.database
+import settings.entities
+import settings.screen
 import stats.stat_panel
 from dna.dna import DNA
 from world.tile import Tile
 
 
-class Organism(ABC, sprite.Sprite):
+class Organism(ABC, pygame.sprite.Sprite):
     @property
     @abstractmethod
     def MAX_HEALTH(self) -> float:
@@ -63,12 +63,12 @@ class Organism(ABC, sprite.Sprite):
     def __init__(
         self,
         tile: Tile,
-        shape: Rect,
-        health: float = MAX_HEALTH,
-        energy: float = MAX_ENERGY,
+        shape: pygame.Rect,
+        health: float,
+        energy: float,
         dna: DNA = None,
     ):
-        sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite.__init__(self)
 
         self.id = Organism.next_organism_id
         Organism.next_organism_id += 1
@@ -76,7 +76,9 @@ class Organism(ABC, sprite.Sprite):
         if not dna:
             dna = DNA(
                 settings.colors.BASE_ORGANISM_COLOR,
-                settings.entity_settings.ORGANISM_BASE_ATTACK_POWER,
+                settings.entities.ORGANISM_BASE_ATTACK_POWER,
+                settings.entities.ORGANISM_BASE_MOISTURE_PREFERENCE,
+                settings.entities.ORGANISM_BASE_HEIGHT_PREFERENCE,
             )
         self.dna: DNA = dna
 
@@ -85,7 +87,7 @@ class Organism(ABC, sprite.Sprite):
         self.health = health
         self.energy = energy
 
-        self.shape: Rect = shape
+        self.shape: pygame.Rect = shape
         self.parent: Organism
 
         # Stats
@@ -93,11 +95,9 @@ class Organism(ABC, sprite.Sprite):
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
         self.total_energy_gained: float = 0
-        self.tiles_visited: int = (
-            -1
-        )  # Is -1 because if a tile is spawned it enters a tile and dist_trav gets incremented
+        self.tiles_visited: int = 0
         self.num_offspring: int = 0
-        self.age: int = 0
+        self.tick_age: int = 0
         self.birth_time: int = pygame.time.get_ticks()
         self.death_time: int | None = None
 
@@ -107,9 +107,10 @@ class Organism(ABC, sprite.Sprite):
         self.enter_tile(tile)
 
     def _set_attributes_from_dna(self):
-        assert self.dna, "DNA has not been set yet."
+        if not self.dna:
+            raise ValueError("Trying to set attributes from DNA despite DNA being None")
 
-        self.color: Color = self.dna.color
+        self.color: pygame.Color = self.dna.color
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
         self.height_preference: float = self.dna.prefered_height_gene.value
@@ -123,9 +124,8 @@ class Organism(ABC, sprite.Sprite):
     def health(self, value: float):
         if value > self.MAX_HEALTH:
             self._health = self.MAX_HEALTH
-            return
-
-        self._health = value
+        else:
+            self._health = value
 
     @property
     def energy(self) -> float:
@@ -136,20 +136,103 @@ class Organism(ABC, sprite.Sprite):
         if value < self.MIN_ENERGY:
             self._energy = self.MIN_ENERGY
             self.health += value
-            return
-        if value > self.MAX_ENERGY:
+        elif value > self.MAX_ENERGY:
             self._energy = self.MAX_ENERGY
             self.health += value - self.MAX_ENERGY
-            return
-        self._energy = value
+        else:
+            self._energy = value
 
-    ########################## Main methods #################################
+    ########################## Update #################################
     def update(self):
-        self.energy -= settings.entity_settings.ORGANISM_BASE_ENERGY_MAINTANCE
-        self.age += 1
+        """
+        Updates the organism by performing various actions and behaviors.
 
+        This method is called during each update cycle to update the state of the organism. It performs the following actions in order:
+
+        1. Use Maintenance Energy: Decreases the energy of the organism by the maintenance energy cost.
+        2. Handle Aging: Increments the age of the organism by one tick.
+        3. Handle Reproduction: Checks if the organism is able to reproduce based on its health and energy levels. If the criteria for reproduction are met and a random chance is satisfied, the organism reproduces.
+        4. Handle Drowning: Handles the drowning process of the organism.
+        5. Think: Performs any thinking or decision-making processes for the organism.
+        6. Handle Attack: Handles the attack process of the organism.
+        7. Handle Movement: Handles the movement process of the organism.
+        8. Post Update: Performs any post-update actions, such as checking if the organism is still alive and triggering its death if necessary.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        self.use_maintanance_energy()
+        self.handle_aging()
+        self.handle_reproduction()
+        self.handle_drowning()
+        self.think()
+        self.handle_attack()
+        self.handle_movement()
+        self._post_update()
+
+    def use_maintanance_energy(self):
+        self.energy -= settings.entities.ORGANISM_BASE_ENERGY_MAINTANCE
+
+    def handle_aging(self):
+        """
+        Handles the aging process of an organism.
+
+        This method is called during each update cycle to increment the age of the organism by one tick. The 'tick_age' attribute keeps track of the number of ticks the organism has lived.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        self.tick_age += 1
+
+    def handle_reproduction(self):
+        """
+        Handles the reproduction process of an organism.
+
+        This method checks if the organism is able to reproduce based on its health and energy levels. If the organism meets the criteria for reproduction and a random chance is satisfied, the organism will reproduce by calling the 'reproduce' method.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        if self.can_reproduce() and random.random() <= self.REPRODUCTION_CHANCE:
+            self.reproduce()
+
+    def handle_drowning(self):
+        pass
+
+    def think(self):
+        pass
+
+    def handle_attack(self):
+        pass
+
+    def handle_movement(self):
+        pass
+
+    def _post_update(self):
+        """
+        Performs any post-update actions for the organism.
+
+        This method is called at the end of each update cycle to perform any necessary post-update actions for the organism. It checks if the organism is still alive by calling the 'is_alive' method. If the organism is not alive, it triggers the 'die' method to handle the organism's death.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         if not self.is_alive():
             self.die()
+
+    ########################## Drawing #################################
 
     @abstractmethod
     def draw(self):
@@ -163,7 +246,6 @@ class Organism(ABC, sprite.Sprite):
     def enter_tile(self, tile: Tile):
         self.shape.topleft = tile.rect.topleft
         self.tiles_visited += 1
-        pass
 
     @abstractmethod
     def check_tile_assignment(self):
@@ -173,13 +255,15 @@ class Organism(ABC, sprite.Sprite):
     def health_ratio(self) -> float:
         ratio = self.health / self.MAX_HEALTH
 
-        assert ratio <= 1, f"Health ratio ({ratio}) is not smaller than 1."
+        if ratio > 1:
+            raise ValueError(f"Health ratio {ratio} is bigger than 1")
         return ratio
 
     def energy_ratio(self) -> float:
         ratio = self.energy / self.MAX_ENERGY
 
-        assert ratio <= 1, f"Energy ratio ({ratio}) is not smaller than 1."
+        if ratio > 1:
+            raise ValueError(f"Energy ratio {ratio} is bigger than 1")
         return ratio
 
     def is_alive(self) -> bool:
@@ -192,35 +276,26 @@ class Organism(ABC, sprite.Sprite):
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
 
-        if settings.database_settings.save_csv:
-            # TODO refactor this
-            from entities.animal import Animal
-            from entities.plant import Plant
-
-            if not settings.database_settings.save_animals_csv and isinstance(
-                self, Animal
-            ):
-                return
-            if not settings.database_settings.save_plants_csv and isinstance(
-                self, Plant
-            ):
-                return
-            self.save_to_csv()
-
     def attack(self, organism_to_attack: Organism):
-        assert (
+        if not (
             self.tile.is_neighbor(organism_to_attack.tile)
             or self.tile == organism_to_attack.tile
-        ), "Organism to attack is not a neighbor or on own tile."
+        ):
+            raise ValueError(
+                "Organism to attack is not on a neighbor tile or same tile."
+            )
         self.organisms_attacked += 1
         organism_to_attack.get_attacked(self)
 
     @abstractmethod
     def get_attacked(self, attacking_organism: Organism):
-        assert (
+        if not (
             self.tile.is_neighbor(attacking_organism.tile)
             or self.tile == attacking_organism.tile
-        ), "Attacking is not a neighbor or on own tile."
+        ):
+            raise ValueError(
+                "Organism attacking is not on a neighbor tile or same tile."
+            )
 
         damage = attacking_organism.attack_power
 
@@ -245,7 +320,6 @@ class Organism(ABC, sprite.Sprite):
         Organism.organisms_birthed += 1
         pass
 
-    @abstractmethod
     def mutate(self):
         self.dna.mutate()
         self._set_attributes_from_dna()
@@ -271,7 +345,7 @@ class Organism(ABC, sprite.Sprite):
                 if self.death_time
                 else pygame.time.get_ticks() - self.birth_time
             ),
-            self.age,
+            self.tick_age,
             round(self.health, 2),
             round(self.MAX_HEALTH, 2),
             round(self.health_ratio(), 2),
@@ -323,11 +397,11 @@ class Organism(ABC, sprite.Sprite):
         ]
 
     def save_to_csv(self):
-        file_exists = os.path.isfile(settings.database_settings.database_csv_filename)
+        file_exists = os.path.isfile(settings.database.database_csv_filename)
 
         try:
             with open(
-                settings.database_settings.database_csv_filename, mode="a", newline=""
+                settings.database.database_csv_filename, mode="a", newline=""
             ) as file:
                 writer = csv.writer(file)
                 if not file_exists:
