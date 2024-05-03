@@ -77,6 +77,8 @@ class Organism(ABC, sprite.Sprite):
             dna = DNA(
                 settings.colors.BASE_ORGANISM_COLOR,
                 settings.entities.ORGANISM_BASE_ATTACK_POWER,
+                settings.entities.ORGANISM_BASE_MOISTURE_PREFERENCE,
+                settings.entities.ORGANISM_BASE_HEIGHT_PREFERENCE
             )
         self.dna: DNA = dna
 
