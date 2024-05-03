@@ -77,7 +77,7 @@ class Organism(ABC, pygame.sprite.Sprite):
                 settings.colors.BASE_ORGANISM_COLOR,
                 settings.entities.ORGANISM_BASE_ATTACK_POWER,
                 settings.entities.ORGANISM_BASE_MOISTURE_PREFERENCE,
-                settings.entities.ORGANISM_BASE_HEIGHT_PREFERENCE
+                settings.entities.ORGANISM_BASE_HEIGHT_PREFERENCE,
             )
         self.dna: DNA = dna
 
@@ -193,19 +193,25 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.death_time = pygame.time.get_ticks()
 
     def attack(self, organism_to_attack: Organism):
-        assert (
+        if not (
             self.tile.is_neighbor(organism_to_attack.tile)
             or self.tile == organism_to_attack.tile
-        ), "Organism to attack is not a neighbor or on own tile."
+        ):
+            raise ValueError(
+                "Organism to attack is not on a neighbor tile or same tile."
+            )
         self.organisms_attacked += 1
         organism_to_attack.get_attacked(self)
 
     @abstractmethod
     def get_attacked(self, attacking_organism: Organism):
-        assert (
+        if not (
             self.tile.is_neighbor(attacking_organism.tile)
             or self.tile == attacking_organism.tile
-        ), "Attacking is not a neighbor or on own tile."
+        ):
+            raise ValueError(
+                "Organism attacking is not on a neighbor tile or same tile."
+            )
 
         damage = attacking_organism.attack_power
 
