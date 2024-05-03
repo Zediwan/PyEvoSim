@@ -130,16 +130,6 @@ class Tile:
             
         assert self.color is not None, f"Color has not been set. moisture={self.moisture} height={self.height}"
         assert self.plant_growth_potential is not None, f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
-    
-    def update_height(self, new_height: float):
-        assert 0 <= new_height <= 1, "New height needs to be between 0 and 1 " & new_height
-        self.height = new_height
-        self.set_height_moisture_dependent_attributes()
-
-    def update_moisture(self, new_moisture: float):
-        assert 0 <= new_moisture <= 1, "New moisture needs to be between 0 and 1 " & new_moisture
-        self.moisture = new_moisture
-        self.set_height_moisture_dependent_attributes()
 
     ########################## Properties #################################
     @property
