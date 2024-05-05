@@ -139,8 +139,7 @@ def exit():
     sys.exit()
 
 if __name__ == "__main__":
-    pygame.display.init()
-    pygame.font.init()
+    pygame.init()
     SCREEN: pygame.Surface = pygame.display.set_mode(
             (settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT),
             pygame.HWSURFACE | pygame.DOUBLEBUF
