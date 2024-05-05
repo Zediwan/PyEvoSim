@@ -32,7 +32,7 @@ STAT_BAR_BACKGROUND_COLOR: pygame.Color = pygame.Color("grey")
 STAT_BAR_BORDER_COLOR: pygame.Color = pygame.Color("black")
 STAT_BAR_FONT_COLOR: pygame.Color = pygame.Color("black")
 SELECTED_ORGANISM_COLOR: pygame.Color = pygame.Color("white")
-SELECTED_ORGANISM_RECT_WIDTH: float = 2
+SELECTED_ORGANISM_RECT_WIDTH: float = 1
 
 # Stat Panel
 STAT_PANEL_BACKGROUND_COLOR: pygame.Color = pygame.Color("black")
