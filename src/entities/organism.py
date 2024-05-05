@@ -250,7 +250,7 @@ class Organism(ABC, pygame.sprite.Sprite):
     ########################## Tile #################################
     @abstractmethod
     def enter_tile(self, tile: Tile):
-        self.rect.center = tile.rect.center
+        self.rect.topleft = tile.rect.topleft
         self.tiles_visited += 1
 
     @abstractmethod

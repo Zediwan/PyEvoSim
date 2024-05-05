@@ -26,7 +26,7 @@ class Simulation:
         self.increase_game_speed: bool = False
         self.decrease_game_speed: bool = False
 
-        self.selected_organism: Organism | None = None
+        self.selected_organism: Organism = None
 
         self.is_paused: bool = False
         self.simulating: bool = True
@@ -172,11 +172,11 @@ class Simulation:
                         self.handle_stat_panels()
 
                         if tile.has_animal():
-                            self.selected_organism = tile.animal.sprite
-                            self.selected_organism.show_stats(pygame.display.get_surface())
+                            self.selected_organism: Organism = tile.animal.sprite
+                            self.display_selected_organisms_stats()
                         elif tile.has_plant():
-                            self.selected_organism = tile.plant.sprite
-                            self.selected_organism.show_stats(pygame.display.get_surface())
+                            self.selected_organism: Organism = tile.plant.sprite
+                            self.display_selected_organisms_stats()
                         else:
                             if self.selected_organism:
                                 self.selected_organism.stat_panel = None
@@ -192,12 +192,12 @@ class Simulation:
 
             if self.simulating:
                 pygame.display.get_surface().fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
-                if not self.is_paused:
-                    self.world.update()
-                    self.display_selected_organisms_stats()
                 self.world.draw(pygame.display.get_surface())
                 self.handle_stat_panels()
                 self.handle_game_speed()
+                self.display_selected_organisms_stats()
+                if not self.is_paused:
+                    self.world.update()
             elif self.in_menu:
                 pygame.display.get_surface().fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
                 self.world.draw(pygame.display.get_surface())
