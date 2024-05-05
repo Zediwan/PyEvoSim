@@ -29,7 +29,7 @@ class Animal(Organism):
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return 1
+        return .001
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:

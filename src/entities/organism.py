@@ -87,6 +87,9 @@ class Organism(ABC, pygame.sprite.Sprite):
         Organism.next_organism_id += 1
         self.parent: Organism
 
+        self.health = health
+        self.energy = energy
+
         if not dna:
             dna = DNA(
                 settings.colors.BASE_ORGANISM_COLOR,
@@ -95,11 +98,7 @@ class Organism(ABC, pygame.sprite.Sprite):
                 settings.entities.ORGANISM_BASE_HEIGHT_PREFERENCE,
             )
         self.dna: DNA = dna
-
         self._set_attributes_from_dna()
-
-        self.health = health
-        self.energy = energy
 
         # Stats
         self.animals_killed: int = 0
@@ -123,6 +122,7 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         self.color: pygame.Color = self.dna.color
         self.image.fill(self.color)
+        self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
         self.height_preference: float = self.dna.prefered_height_gene.value

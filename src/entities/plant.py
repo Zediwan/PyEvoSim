@@ -189,6 +189,9 @@ class Plant(Organism):
             offspring.health = (
                 settings.entities.PLANT_OFFSPRING_HEALTH_FACTOR * self.MAX_HEALTH
             )
+            offspring.energy = (
+                settings.entities.PLANT_OFFSPRING_ENERGY_FACTOR * self.MAX_HEALTH
+            )
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
             # print("Plant offspring birthed!")
