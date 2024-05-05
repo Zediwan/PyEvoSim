@@ -76,31 +76,12 @@ class Organism(ABC, pygame.sprite.Sprite):
         rect: pygame.Rect,
         health: float,
         energy: float,
-        dna: DNA = None,
+        dna: DNA,
     ):
         pygame.sprite.Sprite.__init__(self)
 
-        self.rect: pygame.Rect = rect
-        self.image: pygame.Surface = pygame.Surface(self.rect.size)
-
-        self.id = Organism.next_organism_id
-        Organism.next_organism_id += 1
-        self.parent: Organism
-
-        self.health = health
-        self.energy = energy
-
-        if not dna:
-            dna = DNA(
-                settings.colors.BASE_ORGANISM_COLOR,
-                settings.entities.ORGANISM_BASE_ATTACK_POWER,
-                settings.entities.ORGANISM_BASE_MOISTURE_PREFERENCE,
-                settings.entities.ORGANISM_BASE_HEIGHT_PREFERENCE,
-            )
-        self.dna: DNA = dna
-        self._set_attributes_from_dna()
-
         # Stats
+        self.stat_panel: stats.stat_panel.StatPanel | None = None
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
@@ -111,7 +92,18 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.birth_time: int = pygame.time.get_ticks()
         self.death_time: int | None = None
 
-        self.stat_panel: stats.stat_panel.StatPanel | None = None
+        self.rect: pygame.Rect = rect
+        self.image: pygame.Surface = pygame.Surface(self.rect.size)
+
+        self.id = Organism.next_organism_id
+        Organism.next_organism_id += 1
+
+        self.health = health
+        self.energy = energy
+
+        self.parent: Organism
+        self.dna: DNA = dna
+        self._set_attributes_from_dna()
 
         self.tile: Tile = None
         self.enter_tile(tile)
@@ -123,6 +115,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.color: pygame.Color = self.dna.color
         self.image.fill(self.color)
         self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
+
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
         self.height_preference: float = self.dna.prefered_height_gene.value
