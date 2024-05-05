@@ -24,14 +24,19 @@ logging.basicConfig(
 class World(pygame.sprite.Sprite):
     def __init__(self, height: int, width: int, tile_size: int):
         pygame.sprite.Sprite.__init__(self)
+        self.starting_time_seconds = (pygame.time.get_ticks() / 1000)
+        self.age_ticks: int = 0
+
         self.tile_size = tile_size
         self.height, self.width = World.adjust_dimensions(height, width, self.tile_size)
-        self.shape = pygame.Rect(0, 0, self.width, self.height)
+        self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.rows = math.floor(self.height / self.tile_size)
         self.cols = math.floor(self.width / self.tile_size)
 
         self.generate_frequency()
         self.reset_stats()
+
+        settings.simulation.organisms.empty()
 
         self.tiles: list[Tile] = []
         for row in range(self.rows):
@@ -41,6 +46,11 @@ class World(pygame.sprite.Sprite):
         # self.create_river()
 
         settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+
+    @property
+    def age_seconds(self):
+        # TODO this should not count the time the world was paused
+        return int((pygame.time.get_ticks() / 1000) - self.starting_time_seconds)
 
     def reset_stats(self):
         Organism.organisms_birthed = 0
@@ -52,18 +62,20 @@ class World(pygame.sprite.Sprite):
         Plant.plants_died = 0
 
     def update(self):
-        for tile in self.tiles:
-            tile.update()
-            self.handle_border_update(tile)
-            self.handle_coast_update(tile)
-            if settings.simulation.spawn_plants_anywhere:
-                if (
-                    not tile.has_plant()
-                    and random.random()
-                    <= tile.moisture
-                    * settings.simulation.chance_to_spawn_plant_anywhere
-                ):
-                    self.spawn_plant(tile)
+        self.age_ticks += 1
+        settings.simulation.organisms.update()
+        # for tile in self.tiles:
+        #     tile.update()
+        #     self.handle_border_update(tile)
+        #     self.handle_coast_update(tile)
+        #     if settings.simulation.spawn_plants_anywhere:
+        #         if (
+        #             not tile.has_plant()
+        #             and random.random()
+        #             <= tile.moisture
+        #             * settings.simulation.chance_to_spawn_plant_anywhere
+        #         ):
+        #             self.spawn_plant(tile)
 
     def handle_coast_update(self, tile):
         if settings.simulation.spawn_plants_at_coast:
@@ -96,9 +108,10 @@ class World(pygame.sprite.Sprite):
                     ):
                         self.spawn_plant(tile)
 
-    def draw(self):
+    def draw(self, screen: pygame.Surface):
         for tile in self.tiles:
-            tile.draw()
+            tile.draw(screen)
+        settings.simulation.organisms.draw(screen)
 
     def is_border_tile(self, row: int, col: int) -> bool:
         return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
@@ -151,7 +164,7 @@ class World(pygame.sprite.Sprite):
             and not tile.has_water
             and not tile.has_animal()
         ):
-            Animal(tile)
+            settings.simulation.organisms.add(Animal(tile))
 
     def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
         if (
@@ -159,7 +172,7 @@ class World(pygame.sprite.Sprite):
             and not tile.has_water
             and not tile.has_plant()
         ):
-            Plant(tile)
+            settings.simulation.organisms.add(Plant(tile))
 
     def add_neighbors(self):
         for row in range(self.rows):

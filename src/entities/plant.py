@@ -37,6 +37,14 @@ class Plant(Organism):
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
         return settings.entities.PLANT_MIN_REPRODUCTION_ENERGY
+    
+    @property
+    def MAX_ALPHA(self) -> float:
+        return settings.colors.PLANT_MAX_ALPHA
+    
+    @property
+    def MIN_ALPHA(self) -> float:
+        return settings.colors.PLANT_MIN_ALPHA
 
     plants_birthed: int = 0
     plants_died: int = 0
@@ -44,12 +52,12 @@ class Plant(Organism):
     def __init__(
         self,
         tile: Tile,
-        shape: pygame.Rect | None = None,
+        rect: pygame.Rect | None = None,
         parent: Plant = None,
         dna: DNA = None,
     ):
-        if not shape:
-            shape = tile.rect.copy()
+        if not rect:
+            rect = tile.rect.copy()
 
         if not dna:
             dna = DNA(
@@ -61,7 +69,7 @@ class Plant(Organism):
 
         super().__init__(
             tile,
-            shape,
+            rect,
             settings.entities.PLANT_STARTING_HEALTH(),
             settings.entities.PLANT_STARTING_ENERGY(),
             dna,
@@ -133,19 +141,6 @@ class Plant(Organism):
 
         self.energy += adjusted_energy_gain
 
-    ########################## Draw #################################
-    # TODO rethink plant drawing with biomes
-    def draw(self):
-        super().draw()
-
-        pygame.draw.rect(
-            pygame.display.get_surface(),
-            self.tile.color.lerp(
-                self.color, settings.colors.PLANT_TILE_COLOR_VISIBILITY
-            ),
-            self.shape.scale_by(self.health_ratio()),
-        )
-
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
@@ -174,6 +169,7 @@ class Plant(Organism):
                 self.save_to_csv()
 
         self.tile.remove_plant()
+        self.kill()
 
     def get_attacked(self, attacking_organism: Organism):
         super().get_attacked(attacking_organism)

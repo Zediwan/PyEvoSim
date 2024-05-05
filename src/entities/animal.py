@@ -37,6 +37,14 @@ class Animal(Organism):
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
         return 0.75
+    
+    @property
+    def MAX_ALPHA(self) -> float:
+        return settings.colors.ANIMAL_MAX_ALPHA
+    
+    @property
+    def MIN_ALPHA(self) -> float:
+        return settings.colors.ANIMAL_MIN_ALPHA
 
     animals_birthed: int = 0
     animals_died: int = 0
@@ -44,12 +52,12 @@ class Animal(Organism):
     def __init__(
         self,
         tile: Tile,
-        shape: pygame.Rect | None = None,
+        rect: pygame.Rect | None = None,
         parent: Animal = None,
         dna: DNA = None,
     ):
-        if not shape:
-            shape = tile.rect.copy()
+        if not rect:
+            rect = tile.rect.copy()
 
         if not dna:
             dna = DNA(
@@ -61,7 +69,7 @@ class Animal(Organism):
 
         super().__init__(
             tile,
-            shape,
+            rect,
             settings.entities.ANIMAL_STARTING_HEALTH(),
             settings.entities.ANIMAL_STARTING_ENERGY(),
             dna,
@@ -138,13 +146,6 @@ class Animal(Organism):
         if self.desired_tile_movement:
             self.enter_tile(self.desired_tile_movement)
 
-    ########################## Drawing #################################
-
-    def draw(self):
-        super().draw()
-
-        pygame.draw.rect(pygame.display.get_surface(), self.color, self.shape)
-
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
@@ -175,6 +176,7 @@ class Animal(Organism):
                 self.save_to_csv()
 
         self.tile.remove_animal()
+        self.kill()
 
     def attack(self, organism_to_attack: Organism):
         assert (

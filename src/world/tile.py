@@ -22,6 +22,7 @@ class Tile:
     ):
         # Tile
         self.rect: pygame.Rect = rect
+        self.image: pygame.Surface = pygame.Surface(self.rect.size)
         self.neighbors: dict[helper.direction.Direction, Tile] = {}
 
         # Height
@@ -182,26 +183,19 @@ class Tile:
             )
 
     ########################## Main methods #################################
-    def update(self):
-        if self.has_animal():
-            self.animal.update()
+    def draw(self, screen: pygame.Surface):
+        screen.fill(self.color, self.rect)
 
-        if self.has_plant():
-            self.plant.update()
+        # if self.has_animal():
+        #     self.animal.draw(screen)
+        #     if settings.gui.draw_animal_health:
+        #         self.draw_stat(self.animal.health)
 
-    def draw(self):
-        pygame.display.get_surface().fill(self.color, self.rect)
+        #     if settings.gui.draw_animal_energy:
+        #         self.draw_stat(self.animal.energy)
 
-        if self.has_animal():
-            self.animal.draw()
-            if settings.gui.draw_animal_health:
-                self.draw_stat(self.animal.health)
-
-            if settings.gui.draw_animal_energy:
-                self.draw_stat(self.animal.energy)
-
-        elif self.has_plant():
-            self.plant.draw()
+        # elif self.has_plant():
+        #     self.plant.draw(screen)
 
         if settings.gui.draw_height_level:
             self.draw_stat(self.height * 9)
