@@ -8,6 +8,7 @@ import settings.colors
 import settings.database
 import settings.entities
 import settings.screen
+import settings.simulation
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
@@ -146,7 +147,7 @@ class Plant(Organism):
         super().enter_tile(tile)
 
         if self.tile:
-            self.tile.remove_plant()
+            self.tile.plant.remove(self)
 
         self.tile = tile
         tile.add_plant(self)
@@ -156,7 +157,7 @@ class Plant(Organism):
     def check_tile_assignment(self):
         if not self.tile:
             raise ValueError("Plant does not have a tile!")
-        if self != self.tile.plant:
+        if not self.tile.plant.has(self):
             raise ValueError("Plant-Tile assignment not equal.")
 
     ########################## Energy and Health #################################
@@ -168,7 +169,6 @@ class Plant(Organism):
             if settings.database.save_plants_csv:
                 self.save_to_csv()
 
-        self.tile.remove_plant()
         self.kill()
 
     def get_attacked(self, attacking_organism: Organism):
@@ -190,6 +190,7 @@ class Plant(Organism):
                 settings.entities.PLANT_OFFSPRING_HEALTH_FACTOR * self.MAX_HEALTH
             )
             offspring.mutate()
+            settings.simulation.organisms.add(offspring)
             # print("Plant offspring birthed!")
 
     def copy(self, tile: Tile):

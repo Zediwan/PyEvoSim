@@ -8,6 +8,7 @@ import settings.colors
 import settings.database
 import settings.entities
 import settings.screen
+import settings.simulation
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
@@ -28,7 +29,7 @@ class Animal(Organism):
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return 0.001
+        return 1
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:
@@ -106,7 +107,7 @@ class Animal(Organism):
 
         """
         if self.tile.has_plant():
-            best_growth = self.tile.plant.health
+            best_growth = self.tile.plant.sprite.health
             destination = None
         else:
             best_growth = 0
@@ -116,10 +117,10 @@ class Animal(Organism):
         for n in ns:
             if n.has_animal():
                 continue
-            if not n.plant:
+            if not n.has_plant():
                 continue
-            if n.plant.health > best_growth:
-                best_growth = n.plant.health
+            if n.plant.sprite.health > best_growth:
+                best_growth = n.plant.sprite.health
                 destination = n
 
         self.desired_tile_movement = destination
@@ -133,7 +134,7 @@ class Animal(Organism):
         """
         super().handle_attack()
         if self.tile.has_plant() and self.wants_to_eat():
-            self.attack(self.tile.plant)
+            self.attack(self.tile.plant.sprite)
 
     def handle_movement(self):
         """
@@ -153,7 +154,7 @@ class Animal(Organism):
             raise ValueError("Animal trying to enter a tile that is already occupied.")
 
         if self.tile:
-            self.tile.remove_animal()
+            self.tile.animal.remove(self)
 
         self.tile = tile
         tile.add_animal(self)
@@ -163,7 +164,7 @@ class Animal(Organism):
     def check_tile_assignment(self):
         if not self.tile:
             raise ValueError("Animal does not have a tile!")
-        if self != self.tile.animal:
+        if not self.tile.animal.has(self):
             raise ValueError("Animal-Tile assignment not equal.")
 
     ########################## Energy and Health #################################
@@ -175,7 +176,6 @@ class Animal(Organism):
             if settings.database.save_animals_csv:
                 self.save_to_csv()
 
-        self.tile.remove_animal()
         self.kill()
 
     def attack(self, organism_to_attack: Organism):
@@ -204,6 +204,7 @@ class Animal(Organism):
             self.energy -= REPRODUCTION_ENERGY_COST
             offspring = self.copy(unoccupied_neighbor)
             offspring.mutate()
+            settings.simulation.organisms.add(offspring)
 
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)

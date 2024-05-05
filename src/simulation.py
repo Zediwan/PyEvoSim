@@ -172,10 +172,10 @@ class Simulation:
                         self.handle_stat_panels()
 
                         if tile.has_animal():
-                            self.selected_organism = tile.animal
+                            self.selected_organism = tile.animal.sprite
                             self.selected_organism.show_stats(pygame.display.get_surface())
                         elif tile.has_plant():
-                            self.selected_organism = tile.plant
+                            self.selected_organism = tile.plant.sprite
                             self.selected_organism.show_stats(pygame.display.get_surface())
                         else:
                             if self.selected_organism:
