@@ -28,6 +28,7 @@ class Tile:
         # Height
         self._height: float = height
         self._moisture: float = moisture
+
         self.plant_growth_potential: float
         self.color: pygame.Color
         self.has_water: bool
@@ -182,23 +183,24 @@ class Tile:
         screen.fill(self.color, self.rect)
 
         if settings.gui.draw_height_level:
-            self.draw_stat(self.height * 9)
+            self.draw_stat(self.height * 9, screen)
 
     ########################## Tile Organism influence #################################
 
     ########################## Drawing #################################
-    def draw_stat(self, stat: float):
+    def draw_stat(self, stat: float, screen: pygame.Surface):
         if self.has_animal():
             col = self.animal.sprite.color
         else:
             col = self.color
 
-        text = settings.font.font.render(
-            str(round(stat)), True, settings.colors.choose_visible_text_color(col)
+        text = settings.font.tile_font.render(
+            str(int(stat)),
+            True,
+            settings.colors.choose_visible_text_color(col)
         )
-        pygame.display.get_surface().blit(
-            text, settings.font.get_centered_text_coordinates(self.rect, text)
-        )
+        text_rect: pygame.Rect = text.get_rect(center = self.rect.center)
+        screen.blit(text, text_rect)
 
     ########################## Tile Property Handling #################################
     def add_animal(self, animal):

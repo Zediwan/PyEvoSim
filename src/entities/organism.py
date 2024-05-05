@@ -338,11 +338,11 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.stat_panel = stats.stat_panel.StatPanel(self.get_headers(), stats_data)
 
         pygame.draw.rect(
-                pygame.display.get_surface(),
-                settings.colors.SELECTED_ORGANISM_COLOR,
-                self.rect,
-                width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
-            )
+            screen,
+            settings.colors.SELECTED_ORGANISM_COLOR,
+            self.rect,
+            width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+        )
 
         self.stat_panel.update(self.rect, stats_data)
         self.stat_panel.draw(screen)
