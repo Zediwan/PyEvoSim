@@ -14,7 +14,7 @@ from world.world import World
 
 
 class Simulation:
-    STARTING_FPS_LIMIT: int = 60
+    STARTING_FPS_LIMIT: int = 120
 
     def __init__(self, height: int = settings.screen.SCREEN_HEIGHT, width: int = settings.screen.SCREEN_WIDTH, tile_size: int = settings.screen.TILE_SIZE):
         self.clock: pygame.time.Clock = pygame.time.Clock()
@@ -23,8 +23,6 @@ class Simulation:
 
         # Game speed
         self.fps_max_limit: int = self.STARTING_FPS_LIMIT
-        self.increase_game_speed: bool = False
-        self.decrease_game_speed: bool = False
 
         self.selected_organism: Organism = None
 
@@ -144,26 +142,11 @@ class Simulation:
                             self.world = World(self.world.height, self.world.width, self.world.tile_size)
                             self.selected_organism = None
                             self.world.draw(pygame.display.get_surface())
-                        elif (event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT):
-                            self.increase_game_speed = True
-                            self.decrease_game_speed = False
-                        elif (event.key == pygame.K_DOWN and pygame.key.get_mods() and pygame.KMOD_SHIFT):
-                            self.increase_game_speed = False
-                            self.decrease_game_speed = True
                         if event.key == pygame.K_ESCAPE:
                             self.in_menu = True
                             self.was_paused = self.is_paused
                             self.is_paused = True
                             self.simulating = False
-                    if event.type == pygame.KEYUP:
-                        if event.key == pygame.K_UP and pygame.key.get_mods() and pygame.KMOD_SHIFT:
-                            self.increase_game_speed = False
-                        elif (
-                            event.key == pygame.K_DOWN
-                            and pygame.key.get_mods()
-                            and pygame.KMOD_SHIFT
-                        ):
-                            self.decrease_game_speed = False
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_x, mouse_y = pygame.mouse.get_pos()
                         tile: Tile = self.world.get_tile(mouse_x, mouse_y)
@@ -194,7 +177,6 @@ class Simulation:
                 pygame.display.get_surface().fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
                 self.world.draw(pygame.display.get_surface())
                 self.handle_stat_panels()
-                self.handle_game_speed()
                 self.display_selected_organisms_stats()
                 if not self.is_paused:
                     self.world.update()
@@ -223,19 +205,6 @@ class Simulation:
             else:
                 self.selected_organism.stat_panel = None
                 self.selected_organism = None
-
-    def handle_game_speed(self):
-        if (
-            self.increase_game_speed
-            and self.fps_max_limit + settings.simulation.GAME_SPEED_CHANGE
-            <= settings.simulation.MAX_FPS_LIMIT
-        ):
-            self.fps_max_limit += settings.simulation.GAME_SPEED_CHANGE
-        elif (
-            self.decrease_game_speed
-            and self.fps_max_limit > settings.simulation.GAME_SPEED_CHANGE
-        ):
-            self.fps_max_limit -= settings.simulation.GAME_SPEED_CHANGE
 
     def handle_stat_panels(self):
         self.update_stats()

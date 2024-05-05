@@ -12,7 +12,7 @@ def starting_screen():
     pass
 
 def simulate():
-    pygame.display.set_caption("Evolution Simulation")
+    pygame.display.set_caption("Simulation")
     simulation.run()
 
 def menu():
@@ -36,7 +36,7 @@ def menu():
         "PLAY",
         settings.gui.button_font,
         settings.colors.BUTTON_TEXT_BASE_COLOR,
-        settings.colors.BUTTON_TEXT_HOVER_COLOR
+        settings.colors.BUTTON_TEXT_HOVER_COLOR,
     )
 
     options_button_x: int = SCREEN.get_rect().centerx
@@ -149,15 +149,3 @@ if __name__ == "__main__":
 
     simulation = Simulation()
     menu()
-
-    # while True:
-    #     events = pygame.event.get()
-    #     for event in events:
-    #         if event.type == pygame.QUIT:
-    #             exit()
-
-    #         if event.type == pygame.MOUSEBUTTONDOWN:
-    #             pass
-
-    #     pygame.display.update()
-    #     CLOCK.tick()
