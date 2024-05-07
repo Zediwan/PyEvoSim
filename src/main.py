@@ -1,30 +1,119 @@
 import sys
 
 import pygame
-from simulation import Simulation
 from gui.button import Button
+from world.world import World
 import settings.screen
 import settings.colors
 import settings.gui
 
-def starting_screen():
-    pygame.display.set_caption("Starting Screen")
-    pass
+def generate_world():
+    pygame.display.set_caption("Generate World")
+    SCREEN.fill(settings.colors.BACKGROUND_COLOR)
 
-def simulate():
+    TITLE_TEXT: pygame.Surface = settings.gui.title_font.render(
+        "WORLD GENERATION",
+        True,
+        settings.colors.TEXT_COLOR,
+        settings.colors.BACKGROUND_COLOR
+    )
+    TITLE_RECT: pygame.Rect = TITLE_TEXT.get_rect(
+        bottom = SCREEN.get_rect().top + SCREEN.get_rect().centery*.25,
+        centerx = (SCREEN.get_rect().centerx)
+    )
+
+    generate_world_button_x: int = 0
+    generate_world_button_y: int = 0
+    GENERATE_WORLD_BUTTON: Button = Button(
+        (generate_world_button_x, generate_world_button_y),
+        "GENERATE WORLD",
+        settings.gui.button_font,
+        settings.colors.BUTTON_TEXT_BASE_COLOR,
+        settings.colors.BUTTON_TEXT_HOVER_COLOR,
+        settings.colors.BACKGROUND_COLOR
+    )
+    GENERATE_WORLD_BUTTON.rect.bottomleft = SCREEN.get_rect().bottomleft
+    GENERATE_WORLD_BUTTON.text_rect.bottomleft = SCREEN.get_rect().bottomleft
+
+    start_button_x: int = 0
+    start_button_y: int = 0
+    START_BUTTON: Button = Button(
+        (start_button_x, start_button_y),
+        "START",
+        settings.gui.button_font,
+        settings.colors.BUTTON_TEXT_BASE_COLOR,
+        settings.colors.BUTTON_TEXT_HOVER_COLOR,
+        settings.colors.BACKGROUND_COLOR
+    )
+    START_BUTTON.rect.bottomright = SCREEN.get_rect().bottomright
+    START_BUTTON.text_rect.bottomright = SCREEN.get_rect().bottomright
+
+    world_rect: pygame.Rect = SCREEN.get_rect()
+    world: World = World(world_rect, settings.screen.TILE_SIZE)
+
+    while True:
+        MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
+
+        if world:
+            world.draw(SCREEN)
+
+        SCREEN.blit(TITLE_TEXT, TITLE_RECT)
+
+        for button in [GENERATE_WORLD_BUTTON, START_BUTTON]:
+            button.change_color(MOUSE_POSITION)
+            button.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if GENERATE_WORLD_BUTTON.check_for_input(MOUSE_POSITION):
+                    world = World(world_rect, settings.screen.TILE_SIZE)
+                if START_BUTTON.check_for_input(MOUSE_POSITION):
+                    simulate(world)
+
+        pygame.display.update()
+
+def simulate(world: World):
     pygame.display.set_caption("Simulation")
-    simulation.run()
+    SCREEN.fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
+    running: bool = True
 
-def menu():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+
+            if running:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        running = False
+            else:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        running = True
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                    menu(world)
+
+        if running:
+            world.update()
+            world.draw(SCREEN)
+
+        pygame.display.update()
+
+def menu(world: World = None):
     pygame.display.set_caption("Menu")
     SCREEN.fill(settings.colors.BACKGROUND_COLOR)
 
-    MENU_TEXT: pygame.Surface = settings.gui.title_font.render(
+    TITLE_TEXT: pygame.Surface = settings.gui.title_font.render(
         settings.gui.menu_title_text,
         True,
         settings.colors.TEXT_COLOR
     )
-    MENU_TEXT_RECT: pygame.Rect = MENU_TEXT.get_rect(
+    TITLE_RECT: pygame.Rect = TITLE_TEXT.get_rect(
         top = SCREEN.get_rect().top + SCREEN.get_rect().centery//10,
         centerx = (SCREEN.get_rect().centerx)
     )
@@ -60,7 +149,7 @@ def menu():
     )
 
     while True:
-        SCREEN.blit(MENU_TEXT, MENU_TEXT_RECT)
+        SCREEN.blit(TITLE_TEXT, TITLE_RECT)
         MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
 
         for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
@@ -73,7 +162,10 @@ def menu():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BUTTON.check_for_input(MOUSE_POSITION):
-                    simulate()
+                    if world:
+                        simulate(world)
+                    else:
+                        generate_world()
                 if OPTIONS_BUTTON.check_for_input(MOUSE_POSITION):
                     options()
                 if QUIT_BUTTON.check_for_input(MOUSE_POSITION):
@@ -85,12 +177,12 @@ def options():
     pygame.display.set_caption("Options")
     SCREEN.fill(settings.colors.BACKGROUND_COLOR)
 
-    OPTIONS_TEXT: pygame.Surface = settings.gui.title_font.render(
+    TITLE_TEXT: pygame.Surface = settings.gui.title_font.render(
         settings.gui.options_title_text,
         True,
         settings.colors.TEXT_COLOR
     )
-    OPTIONS_TEXT_RECT: pygame.Rect = OPTIONS_TEXT.get_rect(
+    TITLE_RECT: pygame.Rect = TITLE_TEXT.get_rect(
         top = SCREEN.get_rect().top + SCREEN.get_rect().centery//10,
         centerx = (SCREEN.get_rect().centerx)
     )
@@ -116,7 +208,7 @@ def options():
     OPTIONS_PLACEHOLDER.fill(pygame.Color(40, 40, 40))
 
     while True:
-        SCREEN.blit(OPTIONS_TEXT, OPTIONS_TEXT_RECT)
+        SCREEN.blit(TITLE_TEXT, TITLE_RECT)
         SCREEN.blit(OPTIONS_PLACEHOLDER, OPTIONS_PLACEHOLDER_RECT)
         MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
 
@@ -147,5 +239,27 @@ if __name__ == "__main__":
     CLOCK: pygame.time.Clock = pygame.time.Clock()
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
-    simulation = Simulation()
     menu()
+
+def placeholder_state():
+    pygame.display.set_caption("Name")
+    SCREEN.fill(settings.colors.BACKGROUND_COLOR)
+
+    TITLE_TEXT: pygame.Surface = settings.gui.title_font.render(
+        "Title text",
+        True,
+        settings.colors.TEXT_COLOR
+    )
+    TITLE_RECT: pygame.Rect = TITLE_TEXT.get_rect(
+        top = SCREEN.get_rect().top + SCREEN.get_rect().centery//10,
+        centerx = (SCREEN.get_rect().centerx)
+    )
+
+    while True:
+        SCREEN.blit(TITLE_TEXT, TITLE_RECT)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+
+        pygame.display.update()

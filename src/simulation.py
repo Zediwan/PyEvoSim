@@ -16,10 +16,11 @@ from world.world import World
 class Simulation:
     STARTING_FPS_LIMIT: int = 120
 
-    def __init__(self, height: int = settings.screen.SCREEN_HEIGHT, width: int = settings.screen.SCREEN_WIDTH, tile_size: int = settings.screen.TILE_SIZE):
+    def __init__(self, rect: pygame.Rect = None, tile_size: int = settings.screen.TILE_SIZE):
         self.clock: pygame.time.Clock = pygame.time.Clock()
-
-        self.world: World = World(height, width, tile_size)
+        if rect is None:
+            rect = pygame.Rect(0, 0, settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT)
+        self.world: World = World(rect, tile_size)
 
         # Game speed
         self.fps_max_limit: int = self.STARTING_FPS_LIMIT
@@ -45,7 +46,7 @@ class Simulation:
         self.menu_background.set_alpha(settings.colors.MENU_BACKGROUND_ALPHA)
         self.menu_background.fill(settings.colors.MENU_BACKGROUND_COLOR)
         self.menu_background_rect: pygame.Rect = pygame.display.get_surface().get_rect()
-        self.menu_text: pygame.Surface = settings.gui.menu_font.render(
+        self.menu_text: pygame.Surface = settings.gui.title_font.render(
             settings.gui.menu_title_text,
             True,
             settings.colors.MENU_FONT_COLOR,
@@ -117,8 +118,7 @@ class Simulation:
     # TODO implement menu panel
     def run(self):
         while True:
-            events = pygame.event.get()
-            for event in events:
+            for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -139,7 +139,7 @@ class Simulation:
                             settings.gui.draw_animal_energy = not settings.gui.draw_animal_energy
                             self.world.draw(pygame.display.get_surface())
                         elif (event.key == pygame.K_r and pygame.key.get_mods() and pygame.KMOD_SHIFT):
-                            self.world = World(self.world.height, self.world.width, self.world.tile_size)
+                            self.world = World(self.world.rect, self.world.tile_size)
                             self.selected_organism = None
                             self.world.draw(pygame.display.get_surface())
                         if event.key == pygame.K_ESCAPE:
@@ -192,8 +192,8 @@ class Simulation:
             self.clock.tick(self.fps_max_limit)
 
     def draw_menu(self):
-            pygame.display.get_surface().blit(self.menu_background, self.menu_background_rect)
-            pygame.display.get_surface().blit(self.menu_text, self.menu_text_rect)
+        pygame.display.get_surface().blit(self.menu_background, self.menu_background_rect)
+        pygame.display.get_surface().blit(self.menu_text, self.menu_text_rect)
 
     def display_selected_organisms_stats(self):
         if self.selected_organism:
@@ -230,12 +230,10 @@ class Simulation:
             self.stat_surfaces[key] = self.panel_font.render(updated_text, True, settings.colors.STAT_BAR_FONT_COLOR)
 
     def upper_stat_panel(self):
-        # Drawing base panel for upper stats
         pygame.display.get_surface().blit(self.panel_top_border, self.panel_top_border_rect)
         pygame.display.get_surface().blit(self.panel_top, self.panel_top_rect)
 
     def lower_stat_panel(self):
-        # Drawing base panel for lower stats
         pygame.display.get_surface().blit(self.panel_bottom_border, self.panel_bottom_border_rect)
         pygame.display.get_surface().blit(self.panel_bottom, self.panel_bottom_rect)
 

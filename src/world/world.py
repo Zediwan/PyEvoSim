@@ -22,20 +22,18 @@ logging.basicConfig(
 
 
 class World(pygame.sprite.Sprite):
-    def __init__(self, height: int, width: int, tile_size: int):
+    def __init__(self, rect: pygame.Rect, tile_size: int):
         pygame.sprite.Sprite.__init__(self)
         self.starting_time_seconds = (pygame.time.get_ticks() / 1000)
         self.age_ticks: int = 0
 
         self.tile_size = tile_size
-        self.height, self.width = World.adjust_dimensions(height, width, self.tile_size)
-        self.rect = pygame.Rect(0, 0, self.width, self.height)
-        self.rows = math.floor(self.height / self.tile_size)
-        self.cols = math.floor(self.width / self.tile_size)
+        self.rect = World.adjust_dimensions(rect, self.tile_size)
+        self.cols = math.floor(self.rect.width / self.tile_size)
+        self.rows = math.floor(self.rect.height / self.tile_size)
 
         self.generate_frequency()
         self.reset_stats()
-
         settings.simulation.organisms.empty()
 
         self.tiles: list[Tile] = []
@@ -43,7 +41,6 @@ class World(pygame.sprite.Sprite):
             for col in range(self.cols):
                 self.tiles.append(self.create_tile(row, col))
         self.add_neighbors()
-        # self.create_river()
 
         settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
@@ -64,49 +61,9 @@ class World(pygame.sprite.Sprite):
     def update(self):
         self.age_ticks += 1
         settings.simulation.organisms.update()
-        # for tile in self.tiles:
-        #     tile.update()
-        #     self.handle_border_update(tile)
-        #     self.handle_coast_update(tile)
-        #     if settings.simulation.spawn_plants_anywhere:
-        #         if (
-        #             not tile.has_plant()
-        #             and random.random()
-        #             <= tile.moisture
-        #             * settings.simulation.chance_to_spawn_plant_anywhere
-        #         ):
-        #             self.spawn_plant(tile)
 
-    def handle_coast_update(self, tile):
-        if settings.simulation.spawn_plants_at_coast:
-            if tile.is_coast and not tile.has_animal():
-                if (
-                    random.random()
-                    <= settings.simulation.chance_to_spawn_plant_at_coast
-                    and not tile.has_plant()
-                ):
-                    self.spawn_plant(tile)
-
-    def handle_border_update(self, tile: Tile):
-        if (
-            settings.simulation.spawn_animals_at_border
-            or settings.simulation.spawn_plants_at_border
-        ):
-            if tile.is_border and not tile.has_water:
-                if settings.simulation.spawn_animals_at_border:
-                    if (
-                        random.random()
-                        <= settings.simulation.chance_to_spawn_animal_at_border
-                        and not tile.has_animal()
-                    ):
-                        self.spawn_animal(tile)
-                if settings.simulation.spawn_plants_at_border:
-                    if (
-                        random.random()
-                        <= settings.simulation.chance_to_spawn_plant_at_border
-                        and not tile.has_plant()
-                    ):
-                        self.spawn_plant(tile)
+    def refresh_tiles(self):
+        pass
 
     def draw(self, screen: pygame.Surface):
         for tile in self.tiles:
@@ -116,22 +73,9 @@ class World(pygame.sprite.Sprite):
     def is_border_tile(self, row: int, col: int) -> bool:
         return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
 
-    # def create_river(self, tile_to_start: Tile | None = None):
-    #     if not tile_to_start:
-    #         tile = self.highest_tile
-    #     else:
-    #         tile = tile_to_start
-    #     while tile != None and tile.steepest_decline_direction != None and tile.water <= 0:
-    #         tile.water = lerp(10, 1, tile.height/self.highest_tile.height)
-    #         tile: Tile | None = tile.get_neighbor(tile.steepest_decline_direction)
-    #         river_branch_chance = 0.2 * random.random()
-    #         if random.random() < river_branch_chance and tile != None and tile.steepest_decline_direction != None:
-    #             branch_of = tile.get_neighbor(choice(Direction.get_neighboring_directions(tile.steepest_decline_direction)))
-    #             self.create_river(branch_of)
-
     def create_tile(self, row: int, col: int) -> Tile:
         rect = pygame.Rect(
-            col * self.tile_size, row * self.tile_size, self.tile_size, self.tile_size
+            col * self.tile_size + self.rect.left, row * self.tile_size + self.rect.top, self.tile_size, self.tile_size
         )
         height, moisture = self.generate_noise_values(row, col)
 
@@ -195,6 +139,8 @@ class World(pygame.sprite.Sprite):
                         Direction.WEST, self.tiles[row * self.cols + col - 1]
                     )
 
+
+    # World generation
     def generate_frequency(self):
         # TODO add a slider for this in world gen mode
         frequency_max = 7  # TODO make this a setting
@@ -250,6 +196,7 @@ class World(pygame.sprite.Sprite):
             settings.noise.scale_1 + settings.noise.scale_2 + settings.noise.scale_3
         )  # Normalize back in range -1 to 1
 
+        # Normalise to range 0 to 1
         height += 1
         height /= 2
 
@@ -263,8 +210,8 @@ class World(pygame.sprite.Sprite):
         )
 
         if settings.simulation.island_mode:
-            nx = 2 * col * self.tile_size / self.width - 1
-            ny = 2 * row * self.tile_size / self.height - 1
+            nx = 2 * col * self.tile_size / self.rect.width - 1
+            ny = 2 * row * self.tile_size / self.rect.height - 1
             d = 1 - (1 - math.pow(nx, 2)) * (1 - math.pow(ny, 2))
             mix = 0.7
             height = pygame.math.lerp(height, 1 - d, mix)
@@ -281,6 +228,8 @@ class World(pygame.sprite.Sprite):
             raise ValueError(f"Moisture value not in range [0, 1] {moisture}")
         return height, moisture
 
+
+    # World interaction
     def get_tile(self, x: int, y: int) -> Tile:
         col = x // self.tile_size
         row = y // self.tile_size
@@ -289,8 +238,11 @@ class World(pygame.sprite.Sprite):
         else:
             raise ValueError("Coordinates are out of the world bounds.")
 
+
+    # Helper
     @staticmethod
-    def adjust_dimensions(height, width, tile_size):
-        adjusted_height = (height // tile_size) * tile_size
-        adjusted_width = (width // tile_size) * tile_size
-        return adjusted_height, adjusted_width
+    def adjust_dimensions(rect: pygame.Rect, tile_size: int) -> pygame.Rect:
+        rect.width = (rect.width // tile_size) * tile_size
+        rect.height = (rect.height // tile_size) * tile_size
+
+        return rect
