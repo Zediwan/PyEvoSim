@@ -70,8 +70,17 @@ def generate_world():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if GENERATE_WORLD_BUTTON.check_for_input(MOUSE_POSITION):
                     world = World(world_rect, settings.screen.TILE_SIZE)
-                if START_BUTTON.check_for_input(MOUSE_POSITION):
+                elif START_BUTTON.check_for_input(MOUSE_POSITION):
                     simulate(world)
+                else:
+                    drawing = True
+            if event.type == pygame.MOUSEBUTTONUP:
+                drawing = False
+            if event.type == pygame.MOUSEMOTION and drawing:
+                MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
+                tile = world.get_tile(MOUSE_POSITION[0], MOUSE_POSITION[1])
+                tile.height = 0
+                tile.set_height_moisture_dependent_attributes()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     world.spawn_animals(chance_to_spawn=settings.simulation.chance_to_spawn_animals_with_enter_key)
