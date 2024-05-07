@@ -8,20 +8,10 @@ draw_animal_health = False
 show_dead_organisms_stats = True
 
 #
-title_font_size: float = 200
+title_font_size: float = 150
 title_font: pygame.font.Font = pygame.font.Font(None, title_font_size)
 menu_title_text: str = "MENU"
 options_title_text: str = "OPTIONS"
-
-# Menu
-
-menu_font_size: float = 200
-menu_font: pygame.font.Font = pygame.font.Font(None, menu_font_size)
-
-# Options
-
-menu_font_size: float = 200
-menu_font: pygame.font.Font = pygame.font.Font(None, menu_font_size)
 
 # Buttons
 button_font_size: float = 100
