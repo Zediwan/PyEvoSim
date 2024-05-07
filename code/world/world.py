@@ -68,9 +68,9 @@ class World(pygame.sprite.Sprite):
         settings.simulation.organisms.update()
 
     def refresh_tiles(self):
-        # for tile in self.tiles:
-        #     tile.update()
-        pass
+        for row in self.tiles:
+            for tile in row:
+                tile.set_height_moisture_dependent_attributes()
 
     def draw(self, screen: pygame.Surface):
         for row in self.tiles:
@@ -136,7 +136,7 @@ class World(pygame.sprite.Sprite):
         col = x // self.tile_size
         row = y // self.tile_size
         if row < self.rows and col < self.cols:
-            return self.tiles[(row * self.cols) + col]
+            return self.tiles[row][col]
         else:
             raise ValueError("Coordinates are out of the world bounds.")
 
