@@ -25,7 +25,7 @@ class Button():
         self.text: pygame.Surface = self.font.render(self.text_input, True, self.base_color)
         if self.image is None:
             if self.background_color:
-                self.image = pygame.Surface((int(self.text.get_width() * 2), int(self.text.get_height() * 1.2)))
+                self.image = pygame.Surface((self.text.get_width(), self.text.get_height()))
                 self.image.fill(self.background_color)
             else:
                 self.image = self.text
