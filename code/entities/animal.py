@@ -29,15 +29,15 @@ class Animal(Organism):
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return .001
+        return .01
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:
-        return 0.5
+        return 0.25
 
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
-        return 0.75
+        return 0.6
     
     @property
     def MAX_ALPHA(self) -> float:
