@@ -41,10 +41,10 @@ class World(pygame.sprite.Sprite):
         print(self.moisture_frequency_x)
         print(self.moisture_frequency_y)
 
-        self.tiles: list[Tile] = []
+        self.tiles = [[None for _ in range(self.cols)] for _ in range(self.rows)]
         for row in range(self.rows):
             for col in range(self.cols):
-                self.tiles.append(self.create_tile(row, col))
+                self.tiles[row][col] = self.create_tile(row, col)
         self.add_neighbors()
 
         settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
@@ -73,8 +73,9 @@ class World(pygame.sprite.Sprite):
         pass
 
     def draw(self, screen: pygame.Surface):
-        for tile in self.tiles:
-            tile.draw(screen)
+        for row in self.tiles:
+            for tile in row:
+                tile.draw(screen)
         settings.simulation.organisms.draw(screen)
 
     def is_border_tile(self, row: int, col: int) -> bool:
@@ -92,12 +93,14 @@ class World(pygame.sprite.Sprite):
         )
 
     def spawn_animals(self, chance_to_spawn: float = 1):
-        for tile in self.tiles:
-            self.spawn_animal(tile, chance_to_spawn=chance_to_spawn)
+        for row in self.tiles:
+            for tile in row:
+                self.spawn_animal(tile, chance_to_spawn=chance_to_spawn)
 
     def spawn_plants(self, chance_to_spawn: float = 1):
-        for tile in self.tiles:
-            self.spawn_plant(tile, chance_to_spawn=chance_to_spawn)
+        for row in self.tiles:
+            for tile in row:
+                self.spawn_plant(tile, chance_to_spawn=chance_to_spawn)
 
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
         if (
@@ -118,23 +121,15 @@ class World(pygame.sprite.Sprite):
     def add_neighbors(self):
         for row in range(self.rows):
             for col in range(self.cols):
-                tile: Tile = self.tiles[row * self.cols + col]
+                tile: Tile = self.tiles[row][col]
                 if row > 0:
-                    tile.add_neighbor(
-                        Direction.NORTH, self.tiles[(row - 1) * self.cols + col]
-                    )
+                    tile.add_neighbor(Direction.NORTH, self.tiles[row-1][col])
                 if col < self.cols - 1:
-                    tile.add_neighbor(
-                        Direction.EAST, self.tiles[row * self.cols + col + 1]
-                    )
+                    tile.add_neighbor(Direction.EAST, self.tiles[row][col+1])
                 if row < self.rows - 1:
-                    tile.add_neighbor(
-                        Direction.SOUTH, self.tiles[(row + 1) * self.cols + col]
-                    )
+                    tile.add_neighbor(Direction.SOUTH, self.tiles[row+1][col])
                 if col > 0:
-                    tile.add_neighbor(
-                        Direction.WEST, self.tiles[row * self.cols + col - 1]
-                    )
+                    tile.add_neighbor(Direction.WEST, self.tiles[row][col-1])
 
     # World interaction
     def get_tile(self, x: int, y: int) -> Tile:
