@@ -1,3 +1,6 @@
+import random
+import settings.noise
+
 freq_x1 = 1
 freq_y1 = 1
 freq_x2 = 2
@@ -16,9 +19,3 @@ offset_y3 = 16.6
 
 height_power = 2  # TODO make this a slider in the settings
 height_fudge_factor = 1.2  # Should be a number near 1
-
-def get_height_value(x: int, y: int) -> float:
-    return 0
-
-def get_moisture_value(x: int, y: int) -> float:
-    return 0

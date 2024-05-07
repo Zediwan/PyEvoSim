@@ -4,6 +4,7 @@ import pygame
 from gui.button import Button
 from world.world import World
 import settings.screen
+import settings.simulation
 import settings.colors
 import settings.gui
 
@@ -71,6 +72,11 @@ def generate_world():
                     world = World(world_rect, settings.screen.TILE_SIZE)
                 if START_BUTTON.check_for_input(MOUSE_POSITION):
                     simulate(world)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    world.spawn_animals(chance_to_spawn=settings.simulation.chance_to_spawn_animals_with_enter_key)
+                elif event.key == pygame.K_p:
+                    world.spawn_plants(chance_to_spawn= .2)
 
         pygame.display.update()
 
