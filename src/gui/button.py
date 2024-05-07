@@ -49,5 +49,4 @@ class Button():
         else:
             if self.background_color:
                 self.image.fill(self.background_color)
-            else:
-                self.text = self.font.render(self.text_input, True, self.base_color)
+            self.text = self.font.render(self.text_input, True, self.base_color)
