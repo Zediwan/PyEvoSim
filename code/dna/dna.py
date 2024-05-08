@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-
 import pygame
 
 import settings.dna
