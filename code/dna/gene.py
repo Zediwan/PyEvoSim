@@ -40,6 +40,4 @@ class Gene:
         )
 
     def mutate(self) -> None:
-        self.value += (
-            self._mutation_range * 2 * random.random()
-        ) - self._mutation_range
+        self.value += random.uniform(-self._mutation_range, self._mutation_range)
