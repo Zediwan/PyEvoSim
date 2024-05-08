@@ -41,11 +41,14 @@ class World(pygame.sprite.Sprite):
         print(self.moisture_frequency_x)
         print(self.moisture_frequency_y)
 
-        self.tiles = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.tiles = pygame.sprite.Group()
+        tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)]
         for row in range(self.rows):
             for col in range(self.cols):
-                self.tiles[row][col] = self.create_tile(row, col)
-        self.add_neighbors()
+                tile = self.create_tile(row, col)
+                tiles_grid[row][col] = tile
+                self.tiles.add(tile)
+        self.add_neighbors(tiles_grid)
 
         settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
@@ -68,14 +71,10 @@ class World(pygame.sprite.Sprite):
         settings.simulation.organisms.update()
 
     def refresh_tiles(self):
-        for row in self.tiles:
-            for tile in row:
-                tile.set_height_moisture_dependent_attributes()
+        self.tiles.update()
 
     def draw(self, screen: pygame.Surface):
-        for row in self.tiles:
-            for tile in row:
-                tile.draw(screen)
+        self.tiles.draw(screen)
         settings.simulation.organisms.draw(screen)
 
     def is_border_tile(self, row: int, col: int) -> bool:
@@ -93,14 +92,12 @@ class World(pygame.sprite.Sprite):
         )
 
     def spawn_animals(self, chance_to_spawn: float = 1):
-        for row in self.tiles:
-            for tile in row:
-                self.spawn_animal(tile, chance_to_spawn=chance_to_spawn)
+        for tile in self.tiles:
+            self.spawn_animal(tile, chance_to_spawn=chance_to_spawn)
 
     def spawn_plants(self, chance_to_spawn: float = 1):
-        for row in self.tiles:
-            for tile in row:
-                self.spawn_plant(tile, chance_to_spawn=chance_to_spawn)
+        for tile in self.tiles:
+            self.spawn_plant(tile, chance_to_spawn=chance_to_spawn)
 
     def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
         if (
@@ -118,28 +115,28 @@ class World(pygame.sprite.Sprite):
         ):
             settings.simulation.organisms.add(Plant(tile))
 
-    def add_neighbors(self):
+    def add_neighbors(self, tiles):
         for row in range(self.rows):
             for col in range(self.cols):
-                tile: Tile = self.tiles[row][col]
+                tile: Tile = tiles[row][col]
                 if row > 0:
-                    tile.add_neighbor(Direction.NORTH, self.tiles[row-1][col])
+                    tile.add_neighbor(Direction.NORTH, tiles[row-1][col])
                 if col < self.cols - 1:
-                    tile.add_neighbor(Direction.EAST, self.tiles[row][col+1])
+                    tile.add_neighbor(Direction.EAST, tiles[row][col+1])
                 if row < self.rows - 1:
-                    tile.add_neighbor(Direction.SOUTH, self.tiles[row+1][col])
+                    tile.add_neighbor(Direction.SOUTH, tiles[row+1][col])
                 if col > 0:
-                    tile.add_neighbor(Direction.WEST, self.tiles[row][col-1])
+                    tile.add_neighbor(Direction.WEST, tiles[row][col-1])
 
     # World interaction
     def get_tile(self, x: int, y: int) -> Tile:
-        col = x // self.tile_size
-        row = y // self.tile_size
-        if row < self.rows and col < self.cols:
-            return self.tiles[row][col]
-        else:
-            raise ValueError("Coordinates are out of the world bounds.")
-
+        s = pygame.sprite.Sprite()
+        s.rect = pygame.Rect(x, y, 1, 1)
+        return pygame.sprite.spritecollide(
+            s,
+            self.tiles,
+            False
+            )
 
     # Helper
     @staticmethod

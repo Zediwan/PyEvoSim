@@ -12,7 +12,7 @@ import settings.gui
 import settings.simulation
 
 
-class Tile:
+class Tile(pygame.sprite.Sprite):
     def __init__(
         self,
         rect: pygame.Rect,
@@ -20,6 +20,7 @@ class Tile:
         moisture: float = 0,
         is_border: bool = False,
     ):
+        pygame.sprite.Sprite.__init__(self)
         # Tile
         self.rect: pygame.Rect = rect
         self.image: pygame.Surface = pygame.Surface(self.rect.size)
@@ -177,8 +178,12 @@ class Tile:
             raise ValueError(
                 f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
             )
+        self.image.fill(self.color)
 
     ########################## Main methods #################################
+    def update(self):
+        self.set_height_moisture_dependent_attributes()
+
     def draw(self, screen: pygame.Surface):
         screen.fill(self.color, self.rect)
 
