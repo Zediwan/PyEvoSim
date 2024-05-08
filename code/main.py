@@ -7,6 +7,7 @@ import settings.screen
 import settings.simulation
 import settings.colors
 import settings.gui
+import settings.font
 
 def starting_screen():
     SCREEN.fill(settings.colors.BACKGROUND_COLOR)
@@ -107,15 +108,24 @@ def generate_world():
     START_BUTTON.text_rect.bottomright = SCREEN.get_rect().bottomright
 
     world_rect: pygame.Rect = SCREEN.get_rect()
-    world: World = World(world_rect, settings.screen.TILE_SIZE)
+    tile_size: int = world_rect.width // 150
+    world: World = World(world_rect, tile_size)
+
+    brush_size = (10, 10)
 
     while True:
         MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
 
-        if world:
-            world.draw(SCREEN)
+        world.draw(SCREEN)
 
         SCREEN.blit(TITLE_TEXT, TITLE_RECT)
+
+        pygame.draw.rect(
+            SCREEN,
+            pygame.Color("white"),
+            pygame.Rect(MOUSE_POSITION[0]- brush_size[0]/2, MOUSE_POSITION[1]- brush_size[1]/2, brush_size[0], brush_size[1]),
+            width=2
+        )
 
         for button in [GENERATE_WORLD_BUTTON, START_BUTTON]:
             button.change_color(MOUSE_POSITION)
@@ -126,7 +136,7 @@ def generate_world():
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if GENERATE_WORLD_BUTTON.check_for_input(MOUSE_POSITION):
-                    world = World(world_rect, settings.screen.TILE_SIZE)
+                    world = World(world_rect, tile_size)
                 elif START_BUTTON.check_for_input(MOUSE_POSITION):
                     simulate(world)
                 else:
@@ -134,10 +144,11 @@ def generate_world():
             if event.type == pygame.MOUSEBUTTONUP:
                 drawing = False
             if event.type == pygame.MOUSEMOTION and drawing:
-                MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
-                tile = world.get_tile(MOUSE_POSITION[0], MOUSE_POSITION[1])
-                tile.height = 0
-                tile.set_height_moisture_dependent_attributes()
+                intersecting_tiles = world.get_tiles((MOUSE_POSITION[0], MOUSE_POSITION[1]), (brush_size[0], brush_size[1]))
+                if intersecting_tiles:
+                    for tile in intersecting_tiles:
+                        tile.height = 0
+                    world.refresh_tiles()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     world.spawn_animals(chance_to_spawn=settings.simulation.chance_to_spawn_animals_with_enter_key)
@@ -171,13 +182,17 @@ def simulate(world: World):
                     simulation_options(world)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                tile = world.get_tile(pos[0], pos[1])
-                if tile:
-                    tile = tile[0]
+                intersected_tiles = world.get_tiles((pos[0], pos[1]))
+                if intersected_tiles:
+                    tile = intersected_tiles[0]
                     if tile.has_animal():
                         selected_org = tile.animal.sprite
                     elif tile.has_plant():
                         selected_org = tile.plant.sprite
+                    else:
+                        selected_org = None
+                else:
+                    selected_org = None
 
         if running:
             world.update()
@@ -187,6 +202,14 @@ def simulate(world: World):
         if selected_org:
             selected_org.show_stats(SCREEN)
 
+        fps_screen = settings.gui.title_font.render(f"{int(CLOCK.get_fps())}", True, pygame.Color("black"))
+        fps_screen.set_alpha(100)
+        SCREEN.blit(
+            fps_screen,
+            fps_screen.get_rect(topleft = (0,0))
+        )
+
+        CLOCK.tick()
         pygame.display.update()
 
 def simulation_options(world: World):

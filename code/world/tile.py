@@ -185,7 +185,7 @@ class Tile(pygame.sprite.Sprite):
         self.set_height_moisture_dependent_attributes()
 
     def draw(self, screen: pygame.Surface):
-        screen.fill(self.color, self.rect)
+        screen.blit(self.image, self.rect)
 
         if settings.gui.draw_height_level:
             self.draw_stat(self.height * 9, screen)

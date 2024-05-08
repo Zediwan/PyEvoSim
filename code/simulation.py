@@ -14,19 +14,21 @@ from world.world import World
 
 
 class Simulation:
-    STARTING_FPS_LIMIT: int = 120
-
-    def __init__(self, rect: pygame.Rect = None, tile_size: int = settings.screen.TILE_SIZE):
-        self.clock: pygame.time.Clock = pygame.time.Clock()
+    def __init__(self, rect: pygame.Rect = None, tile_size: int = None):
         if rect is None:
             rect = pygame.Rect(0, 0, settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT)
-        self.world: World = World(rect, tile_size)
+        self.rect: pygame.Rect = rect
+        self.image: pygame.Surface = pygame.Surface(rect)
 
-        # Game speed
-        self.fps_max_limit: int = self.STARTING_FPS_LIMIT
+        if tile_size is None:
+            tile_size = self.rect.width // 10
+        self.world: World = World(self.rect, tile_size)
+        self.clock: pygame.time.Clock = pygame.time.Clock()
+        self.fps_max_limit: int = 120
 
         self.selected_organism: Organism = None
 
+        # States
         self.is_paused: bool = False
         self.simulating: bool = True
         self.in_menu: bool = False
@@ -149,7 +151,7 @@ class Simulation:
                             self.simulating = False
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_x, mouse_y = pygame.mouse.get_pos()
-                        tile: Tile = self.world.get_tile(mouse_x, mouse_y)
+                        tile: Tile = self.world.get_tiles(mouse_x, mouse_y)
 
                         self.world.draw(pygame.display.get_surface())
                         self.handle_stat_panels()
