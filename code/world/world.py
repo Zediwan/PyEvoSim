@@ -33,10 +33,10 @@ class World(pygame.sprite.Sprite):
 
         # Set World frequency
         range_max = 2000
-        self.height_frequency_x = 1 / ((random.random()*range_max*2)-range_max)
-        self.height_frequency_y = 1 / ((random.random()*range_max*2)-range_max)
-        self.moisture_frequency_x = 1 / ((random.random()*range_max*2)-range_max)
-        self.moisture_frequency_y = 1 / ((random.random()*range_max*2)-range_max)
+        self.height_frequency_x = 1 / random.uniform(-range_max, range_max)
+        self.height_frequency_y = 1 / random.uniform(-range_max, range_max)
+        self.moisture_frequency_x = 1 / random.uniform(-range_max, range_max)
+        self.moisture_frequency_y = 1 / random.uniform(-range_max, range_max)
 
         self.tiles = pygame.sprite.Group()
         tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)]
@@ -148,11 +148,11 @@ class World(pygame.sprite.Sprite):
 
     def get_tile(self, pos: tuple[int, int]) -> Tile:
         # Transform global coordinates into world coordinates
-        pos[0] -= self.rect.left
-        pos[1] -= self.rect.top
+        x = pos[0] - self.rect.left
+        y = pos[1] - self.rect.top
         
         s = pygame.sprite.Sprite()
-        s.rect = pygame.Rect(pos[0], pos[1], 1, 1)
+        s.rect = pygame.Rect(x, y, 1, 1)
         return pygame.sprite.spritecollideany(s, self.tiles)
 
     # Helper

@@ -110,7 +110,7 @@ def generate_world():
     START_BUTTON.text_rect.bottomright = SCREEN.get_rect().bottomright
 
     world_rect: pygame.Rect = SCREEN.get_rect().scale_by(.8, .8)
-    tile_size: int = world_rect.width // 150
+    tile_size: int = world_rect.width // 120
 
     world: World = None
     drawing = False
@@ -166,9 +166,9 @@ def generate_world():
             if world:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
-                        world.spawn_animals(chance_to_spawn=settings.simulation.chance_to_spawn_animals_with_enter_key)
+                        world.spawn_animals(chance_to_spawn=.01)
                     elif event.key == pygame.K_p:
-                        world.spawn_plants(chance_to_spawn= .2)
+                        world.spawn_plants(chance_to_spawn= .1)
 
         pygame.display.update()
 
@@ -188,7 +188,7 @@ def simulate(world: World):
                     simulation_options(world)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                tile = world.get_tile((pos[0] - world.rect.left, pos[1] - world.rect.top))
+                tile = world.get_tile((pos[0], pos[1]))
                 if tile:
                     if tile.has_animal():
                         selected_org = tile.animal.sprite
@@ -196,6 +196,8 @@ def simulate(world: World):
                         selected_org = tile.plant.sprite
                     else:
                         selected_org = None
+                        if not tile.has_water:
+                            world.spawn_animal(tile)
                 else:
                     selected_org = None
             if event.type == pygame.VIDEORESIZE:
@@ -215,7 +217,7 @@ def simulate(world: World):
         world.draw(SCREEN)
 
         if selected_org:
-            selected_org.show_stats(SCREEN)
+            selected_org.show_stats(SCREEN, world.rect.topleft)
 
         fps_screen = settings.gui.title_font.render(f"{int(CLOCK.get_fps())}", True, pygame.Color("black"))
         fps_screen.set_alpha(100)
@@ -285,8 +287,7 @@ def general_options():
         settings.colors.TEXT_COLOR
     )
     TITLE_RECT: pygame.Rect = TITLE_TEXT.get_rect(
-        midtop = SCREEN.get_rect().midtop//10,
-        centerx = SCREEN.get_rect().centerx
+        midtop = SCREEN.get_rect().midtop
     )
 
     BACK_BUTTON: Button = Button(

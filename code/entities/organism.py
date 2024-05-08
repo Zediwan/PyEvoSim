@@ -140,10 +140,10 @@ class Organism(ABC, pygame.sprite.Sprite):
     def energy(self, value: float):
         if value < self.MIN_ENERGY:
             self._energy = self.MIN_ENERGY
-            self.health += value
+            self.health += value * settings.entities.ENERGY_TO_HEALTH_RATIO
         elif value > self.MAX_ENERGY:
             self._energy = self.MAX_ENERGY
-            self.health += value - self.MAX_ENERGY
+            self.health += (value - self.MAX_ENERGY) * settings.entities.ENERGY_TO_HEALTH_RATIO
         else:
             self._energy = value
 
@@ -324,7 +324,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self._set_attributes_from_dna()
 
     ########################## Stats #################################
-    def show_stats(self, screen: pygame.Surface):
+    def show_stats(self, screen: pygame.Surface, offset):
         stats_data = self.get_stats()
 
         if not self.stat_panel:
@@ -333,11 +333,11 @@ class Organism(ABC, pygame.sprite.Sprite):
         pygame.draw.rect(
             screen,
             settings.colors.SELECTED_ORGANISM_COLOR,
-            self.rect,
+            self.rect.move(offset[0], offset[1]),
             width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
         )
 
-        self.stat_panel.update(self.rect, stats_data)
+        self.stat_panel.update(self.rect.move(offset[0], offset[1]), stats_data)
         self.stat_panel.draw(screen)
 
     def get_stats(self) -> list:
