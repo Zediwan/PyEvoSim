@@ -111,10 +111,13 @@ def generate_world():
     tile_size: int = world_rect.width // 150
     world: World = World(world_rect, tile_size)
 
-    brush_size = (10, 10)
+    brush_size = 10
+    brush_outline = 2
+    brush_rect: pygame.Rect = pygame.Rect(0, 0, brush_size, brush_size)
 
     while True:
         MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
+        brush_rect.center = (MOUSE_POSITION[0], MOUSE_POSITION[1])
 
         world.draw(SCREEN)
 
@@ -123,8 +126,8 @@ def generate_world():
         pygame.draw.rect(
             SCREEN,
             pygame.Color("white"),
-            pygame.Rect(MOUSE_POSITION[0]- brush_size[0]/2, MOUSE_POSITION[1]- brush_size[1]/2, brush_size[0], brush_size[1]),
-            width=2
+            brush_rect,
+            width=brush_outline
         )
 
         for button in [GENERATE_WORLD_BUTTON, START_BUTTON]:
@@ -144,7 +147,7 @@ def generate_world():
             if event.type == pygame.MOUSEBUTTONUP:
                 drawing = False
             if event.type == pygame.MOUSEMOTION and drawing:
-                intersecting_tiles = world.get_tiles((MOUSE_POSITION[0], MOUSE_POSITION[1]), (brush_size[0], brush_size[1]))
+                intersecting_tiles = world.get_tiles(brush_rect)
                 if intersecting_tiles:
                     for tile in intersecting_tiles:
                         tile.height = 0
@@ -182,9 +185,8 @@ def simulate(world: World):
                     simulation_options(world)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                intersected_tiles = world.get_tiles((pos[0], pos[1]))
-                if intersected_tiles:
-                    tile = intersected_tiles[0]
+                tile = world.get_tile((pos[0], pos[1]))
+                if tile:
                     if tile.has_animal():
                         selected_org = tile.animal.sprite
                     elif tile.has_plant():

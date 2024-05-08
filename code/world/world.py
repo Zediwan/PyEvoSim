@@ -126,15 +126,15 @@ class World(pygame.sprite.Sprite):
                 if col > 0:
                     tile.add_neighbor(Direction.WEST, tiles[row][col-1])
 
-    # World interaction
-    def get_tiles(self, pos: tuple[int, int], size: tuple[int, int] = (1, 1)) -> Tile:
+    def get_tiles(self, rect: pygame.Rect) -> list[Tile]:
         s = pygame.sprite.Sprite()
-        s.rect = pygame.Rect(pos[0] - size[0]/2, pos[1] - size[1]/2, size[0], size[1])
-        return pygame.sprite.spritecollide(
-            s,
-            self.tiles,
-            False
-            )
+        s.rect = rect
+        return pygame.sprite.spritecollide(s, self.tiles, False)
+
+    def get_tile(self, pos: tuple[int, int]) -> Tile:
+        s = pygame.sprite.Sprite()
+        s.rect = pygame.Rect(pos[0], pos[1], 1, 1)
+        return pygame.sprite.spritecollideany(s, self.tiles)
 
     # Helper
     @staticmethod
