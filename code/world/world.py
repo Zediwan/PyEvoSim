@@ -19,7 +19,8 @@ class World(pygame.sprite.Sprite):
     def __init__(self, rect: pygame.Rect, tile_size: int):
         pygame.sprite.Sprite.__init__(self)
         self.rect: pygame.Rect = World.adjust_dimensions(rect, tile_size)
-        self.image: pygame.Surface = pygame.Surface(self.rect.size)
+        self.organism_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        self.ground_surface: pygame.Surface = pygame.Surface(self.rect.size)
 
         self.tile_size = tile_size
         self.cols = self.rect.width // tile_size
@@ -45,7 +46,7 @@ class World(pygame.sprite.Sprite):
                 tiles_grid[row][col] = tile
                 self.tiles.add(tile)
         self.add_neighbors(tiles_grid)
-        self.tiles.draw(self.image)
+        self.tiles.draw(self.ground_surface)
 
         settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
@@ -69,18 +70,21 @@ class World(pygame.sprite.Sprite):
 
     def refresh_tiles(self):
         self.tiles.update()
-        self.tiles.draw(self.image)
+        self.tiles.draw(self.ground_surface)
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.image, self.rect)
-        settings.simulation.organisms.draw(screen)
+        screen.blit(self.ground_surface, self.rect)
+        # Clear previous drawings on the organism surface
+        self.organism_surface.fill((0, 0, 0, 0))
+        settings.simulation.organisms.draw(self.organism_surface)
+        screen.blit(self.organism_surface, self.rect)
 
     def is_border_tile(self, row: int, col: int) -> bool:
         return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
 
     def create_tile(self, row: int, col: int) -> Tile:
-        x = col * self.tile_size + self.rect.left
-        y = row * self.tile_size + self.rect.top
+        x = col * self.tile_size
+        y = row * self.tile_size
 
         return Tile(
             pygame.Rect(x ,y ,self.tile_size, self.tile_size),
@@ -127,11 +131,19 @@ class World(pygame.sprite.Sprite):
                     tile.add_neighbor(Direction.WEST, tiles[row][col-1])
 
     def get_tiles(self, rect: pygame.Rect) -> list[Tile]:
+        # Transform rect global coordinates into world coordinates
+        rect.x -= self.rect.left
+        rect.y -= self.rect.top
+
         s = pygame.sprite.Sprite()
         s.rect = rect
         return pygame.sprite.spritecollide(s, self.tiles, False)
 
     def get_tile(self, pos: tuple[int, int]) -> Tile:
+        # Transform global coordinates into world coordinates
+        pos[0] -= self.rect.left
+        pos[1] -= self.rect.top
+        
         s = pygame.sprite.Sprite()
         s.rect = pygame.Rect(pos[0], pos[1], 1, 1)
         return pygame.sprite.spritecollideany(s, self.tiles)

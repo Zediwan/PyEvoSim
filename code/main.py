@@ -107,13 +107,13 @@ def generate_world():
     START_BUTTON.rect.bottomright = SCREEN.get_rect().bottomright
     START_BUTTON.text_rect.bottomright = SCREEN.get_rect().bottomright
 
-    world_rect: pygame.Rect = SCREEN.get_rect()
+    world_rect: pygame.Rect = SCREEN.get_rect().scale_by(.8, .8)
     tile_size: int = world_rect.width // 150
     world: World = World(world_rect, tile_size)
 
     brush_size = 20
     brush_outline = 2
-    brush_rect: pygame.Rect = pygame.Rect(0, 0, brush_size, brush_size)
+    brush_rect: pygame.Rect = pygame.Rect(0 , 0, brush_size, brush_size)
 
     while True:
         MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
@@ -168,6 +168,7 @@ def simulate(world: World):
     selected_org = None
 
     while True:
+        SCREEN.fill(settings.colors.BACKGROUND_COLOR)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
@@ -187,7 +188,7 @@ def simulate(world: World):
                     simulation_options(world)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                tile = world.get_tile((pos[0], pos[1]))
+                tile = world.get_tile((pos[0] - world.rect.left, pos[1] - world.rect.top))
                 if tile:
                     if tile.has_animal():
                         selected_org = tile.animal.sprite
@@ -322,7 +323,7 @@ if __name__ == "__main__":
     pygame.init()
     SCREEN: pygame.Surface = pygame.display.set_mode(
             (settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT),
-            pygame.HWSURFACE | pygame.DOUBLEBUF
+            pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
         )
     CLOCK: pygame.time.Clock = pygame.time.Clock()
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
