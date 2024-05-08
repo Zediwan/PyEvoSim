@@ -135,13 +135,17 @@ def menu(world: World = None):
 
     play_button_x: int = SCREEN.get_rect().centerx
     play_button_y: int = SCREEN.get_rect().centery - SCREEN.get_rect().height//20
+    text = "PLAY"
+    if world:
+        text = "BACK"
     PLAY_BUTTON: Button = Button(
         (play_button_x, play_button_y),
-        "PLAY",
+        text,
         settings.gui.button_font,
         settings.colors.BUTTON_TEXT_BASE_COLOR,
         settings.colors.BUTTON_TEXT_HOVER_COLOR,
     )
+
 
     options_button_x: int = SCREEN.get_rect().centerx
     options_button_y: int = SCREEN.get_rect().centery + SCREEN.get_rect().height//20
