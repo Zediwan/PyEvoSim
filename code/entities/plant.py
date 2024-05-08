@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import random
-
 import pygame
 
 import settings.colors
@@ -181,17 +180,15 @@ class Plant(Organism):
         super().reproduce()
         option = self.tile.get_random_neigbor(no_plant=True, no_water=True)
         if option:
-            self.energy -= (
-                settings.entities.PLANT_REPRODUCTION_ENERGY_COST_FACTOR
-                * self.MAX_ENERGY
-            )
+            ENERGY_TO_CHILD = max(
+                settings.entities.PLANT_REPRODUCTION_ENERGY_COST_FACTOR * self.MAX_ENERGY,
+                self.energy * .8
+                )
+            self.energy -= ENERGY_TO_CHILD
             offspring = self.copy(option)
-            offspring.health = (
-                settings.entities.PLANT_OFFSPRING_HEALTH_FACTOR * self.MAX_HEALTH
-            )
-            offspring.energy = (
-                settings.entities.PLANT_OFFSPRING_ENERGY_FACTOR * self.MAX_HEALTH
-            )
+            offspring_energy_distribution = .5
+            offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
+            offspring.health = (ENERGY_TO_CHILD * (1-offspring_energy_distribution)) * settings.entities.ENERGY_TO_HEALTH_RATIO
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
             # print("Plant offspring birthed!")

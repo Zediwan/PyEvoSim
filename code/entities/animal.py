@@ -200,9 +200,12 @@ class Animal(Organism):
             no_animal=True, no_water=True
         )
         if unoccupied_neighbor:
-            REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-            self.energy -= REPRODUCTION_ENERGY_COST
+            ENERGY_TO_CHILD = self.MAX_ENERGY / 2
+            self.energy -= ENERGY_TO_CHILD
             offspring = self.copy(unoccupied_neighbor)
+            offspring_energy_distribution = .4
+            offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
+            offspring.health = (ENERGY_TO_CHILD * (1-offspring_energy_distribution)) * settings.entities.ENERGY_TO_HEALTH_RATIO
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
 
