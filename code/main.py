@@ -111,7 +111,7 @@ def generate_world():
     tile_size: int = world_rect.width // 150
     world: World = World(world_rect, tile_size)
 
-    brush_size = 10
+    brush_size = 20
     brush_outline = 2
     brush_rect: pygame.Rect = pygame.Rect(0, 0, brush_size, brush_size)
 
@@ -150,7 +150,9 @@ def generate_world():
                 intersecting_tiles = world.get_tiles(brush_rect)
                 if intersecting_tiles:
                     for tile in intersecting_tiles:
-                        tile.height = 0
+                        change_in_height = 0.01
+                        if tile.height >= change_in_height:
+                            tile.height -= change_in_height
                     world.refresh_tiles()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
