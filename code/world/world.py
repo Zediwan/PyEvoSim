@@ -20,7 +20,7 @@ class World(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.rect: pygame.Rect = World.adjust_dimensions(rect, tile_size)
         self.organism_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
-        self.ground_surface: pygame.Surface = pygame.Surface(self.rect.size)
+        self.ground_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
 
         self.tile_size = tile_size
         self.cols = self.rect.width // tile_size
@@ -67,6 +67,13 @@ class World(pygame.sprite.Sprite):
     def update(self):
         self.age_ticks += 1
         settings.simulation.organisms.update()
+
+    # TODO work in progress not properly working right now
+    def resize(self, rect: pygame.Rect):
+        self.rect = self.rect.fit(rect)
+        self.organism_surface = pygame.Surface(self.organism_surface.get_rect().fit(rect).size)
+        self.ground_surface = pygame.Surface(self.ground_surface.get_rect().fit(rect).size)
+        self.refresh_tiles()
 
     def refresh_tiles(self):
         self.tiles.update()

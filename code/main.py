@@ -68,6 +68,9 @@ def starting_menu():
                 if QUIT_BUTTON.check_for_input(MOUSE_POSITION):
                     exit()
 
+            if event.type == pygame.VIDEORESIZE:
+                starting_menu()
+
         pygame.display.update()
 
 def generate_world():
@@ -83,7 +86,6 @@ def generate_world():
         bottom = SCREEN.get_rect().top + SCREEN.get_rect().centery*.25,
         centerx = (SCREEN.get_rect().centerx)
     )
-
 
     GENERATE_WORLD_BUTTON: Button = Button(
         (0, 0),
@@ -109,26 +111,39 @@ def generate_world():
 
     world_rect: pygame.Rect = SCREEN.get_rect().scale_by(.8, .8)
     tile_size: int = world_rect.width // 150
-    world: World = World(world_rect, tile_size)
+
+    world: World = None
+    drawing = False
 
     brush_size = 20
     brush_outline = 2
     brush_rect: pygame.Rect = pygame.Rect(0 , 0, brush_size, brush_size)
 
     while True:
+        SCREEN.blit(TITLE_TEXT, TITLE_RECT)
+
         MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
         brush_rect.center = (MOUSE_POSITION[0], MOUSE_POSITION[1])
 
-        world.draw(SCREEN)
+        if world:
+            world.draw(SCREEN)
 
-        SCREEN.blit(TITLE_TEXT, TITLE_RECT)
-
-        pygame.draw.rect(
-            SCREEN,
-            pygame.Color("white"),
-            brush_rect,
-            width=brush_outline
-        )
+            if world_rect.contains(brush_rect):
+                # Draw cursor highlight
+                pygame.draw.rect(
+                    SCREEN,
+                    pygame.Color("white"),
+                    brush_rect,
+                    width=brush_outline
+                )
+            if drawing:
+                intersecting_tiles = world.get_tiles(brush_rect)
+                if intersecting_tiles:
+                    for tile in intersecting_tiles:
+                        change_in_height = 0.01
+                        if tile.height >= change_in_height:
+                            tile.height -= change_in_height
+                    world.refresh_tiles()
 
         for button in [GENERATE_WORLD_BUTTON, START_BUTTON]:
             button.change_color(MOUSE_POSITION)
@@ -146,19 +161,14 @@ def generate_world():
                     drawing = True
             if event.type == pygame.MOUSEBUTTONUP:
                 drawing = False
-            if event.type == pygame.MOUSEMOTION and drawing:
-                intersecting_tiles = world.get_tiles(brush_rect)
-                if intersecting_tiles:
-                    for tile in intersecting_tiles:
-                        change_in_height = 0.01
-                        if tile.height >= change_in_height:
-                            tile.height -= change_in_height
-                    world.refresh_tiles()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    world.spawn_animals(chance_to_spawn=settings.simulation.chance_to_spawn_animals_with_enter_key)
-                elif event.key == pygame.K_p:
-                    world.spawn_plants(chance_to_spawn= .2)
+            if event.type == pygame.VIDEORESIZE:
+                generate_world()
+            if world:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a:
+                        world.spawn_animals(chance_to_spawn=settings.simulation.chance_to_spawn_animals_with_enter_key)
+                    elif event.key == pygame.K_p:
+                        world.spawn_plants(chance_to_spawn= .2)
 
         pygame.display.update()
 
@@ -172,16 +182,6 @@ def simulate(world: World):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
-
-            if running:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        running = False
-            else:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        running = True
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
@@ -198,6 +198,16 @@ def simulate(world: World):
                         selected_org = None
                 else:
                     selected_org = None
+            if event.type == pygame.VIDEORESIZE:
+                world.resize(SCREEN.get_rect().scale_by(.8, .8))
+            if running:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        running = False
+            else:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        running = True
 
         if running:
             world.update()
@@ -275,8 +285,8 @@ def general_options():
         settings.colors.TEXT_COLOR
     )
     TITLE_RECT: pygame.Rect = TITLE_TEXT.get_rect(
-        top = SCREEN.get_rect().top + SCREEN.get_rect().centery//10,
-        centerx = (SCREEN.get_rect().centerx)
+        midtop = SCREEN.get_rect().midtop//10,
+        centerx = SCREEN.get_rect().centerx
     )
 
     BACK_BUTTON: Button = Button(
@@ -308,10 +318,11 @@ def general_options():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
-
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if BACK_BUTTON.check_for_input(MOUSE_POSITION):
                     starting_menu()
+            if event.type == pygame.VIDEORESIZE:
+                general_options()
 
         pygame.display.update()
 
@@ -323,10 +334,10 @@ if __name__ == "__main__":
     pygame.init()
     SCREEN: pygame.Surface = pygame.display.set_mode(
             (settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT),
-            pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
+            pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA | pygame.RESIZABLE
         )
     CLOCK: pygame.time.Clock = pygame.time.Clock()
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
+    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.VIDEORESIZE])
     pygame.display.set_caption("Evolution Simulation")
 
     starting_menu()
@@ -350,5 +361,7 @@ def placeholder_state():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+            if event.type == pygame.VIDEORESIZE:
+                placeholder_state()
 
         pygame.display.update()
