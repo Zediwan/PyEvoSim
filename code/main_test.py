@@ -21,6 +21,8 @@ if __name__ == "__main__":
     world_rect = SCREEN.get_rect().scale_by(.5, .5)
     world = World(world_rect)
     
+    chunk_clicked = None
+
     moving_right: bool = False
     moving_left: bool = False
     moving_up: bool = False
@@ -28,8 +30,18 @@ if __name__ == "__main__":
     settings.test.offset_x = 0
     settings.test.offset_y = 0
     
+    world.draw(SCREEN)
+
     while True:
         SCREEN.fill(pygame.Color(0,0,0))
+        world.draw(SCREEN)
+        if chunk_clicked:
+            pygame.draw.rect(
+                SCREEN,
+                pygame.Color("red"),
+                chunk_clicked.global_rect,
+                width=5
+            )
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -53,19 +65,28 @@ if __name__ == "__main__":
                     moving_up = False
                 if event.key == pygame.K_DOWN:
                     moving_down = False
-        
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                chunk_clicked = world.get_chunk_at(pos[0], pos[1])
+
         if moving_right:
-            settings.test.offset_x += 1
-        if moving_left:
-            settings.test.offset_x -= 1
+            settings.test.shift_x = 1
+            settings.test.offset_x += settings.test.shift_x
+        elif moving_left:
+            settings.test.shift_x = -1
+            settings.test.offset_x += settings.test.shift_x
+        else:
+            settings.test.shift_x = 0
         if moving_up:
-            settings.test.offset_y -= 1
-        if moving_down:
-            settings.test.offset_y += 1
+            settings.test.shift_y = -1
+            settings.test.offset_y += settings.test.shift_y
+        elif moving_down:
+            settings.test.shift_y = 1
+            settings.test.offset_y += settings.test.shift_y
+        else:
+            settings.test.shift_y = 0
         if moving_right or moving_left or moving_down or moving_up:
             world.load_active_chunks()
-                    
-        world.draw(SCREEN)
         
         fps_screen = settings.gui.title_font.render(f"{int(CLOCK.get_fps())}", True, pygame.Color("white"))
         fps_screen.set_alpha(100)

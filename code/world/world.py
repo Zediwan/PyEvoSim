@@ -27,8 +27,8 @@ class World(pygame.sprite.Sprite):
 
         self.chunks: dict[str, Chunk] = {}
         self._active_chunks: list[Chunk] = []
-        self.num_visible_chunks_x = (self.rect.width // Chunk.size) + 2
-        self.num_visible_chunks_y = (self.rect.height // Chunk.size) + 2
+        self.num_visible_chunks_x = (self.rect.width // Chunk.size) + 3
+        self.num_visible_chunks_y = (self.rect.height // Chunk.size) + 3
         self.load_active_chunks()
 
         self.reset_stats()
@@ -39,21 +39,6 @@ class World(pygame.sprite.Sprite):
     def age_seconds(self):
         # TODO this should not count the time the world was paused
         return int((pygame.time.get_ticks() / 1000) - self.starting_time_seconds)
-
-    @property
-    def active_chunks(self) -> list[Chunk]:
-        chunks = []
-        for y in range(self.num_visible_chunks_y):
-            for x in range(self.num_visible_chunks_x):
-                target_x = x - 1 - int(round(settings.test.offset_x / Chunk.size))
-                target_y = y - 1 - int(round(settings.test.offset_y / Chunk.size))
-                chunk_key = str(target_x) + ";" + str(target_y)
-                # If the chunk does not exist then create it
-                if chunk_key not in self.chunks:
-                    self.chunks[chunk_key] = Chunk(target_x, target_y)
-                    print(f"New chunk created {chunk_key}")
-                chunks.append(self.chunks[chunk_key])
-        return chunks
 
     def load_active_chunks(self):
         chunks = []
@@ -86,7 +71,10 @@ class World(pygame.sprite.Sprite):
     def draw(self, screen: pygame.Surface):
         # Chunks
         for chunk in self._active_chunks:
-            chunk.draw(screen)
+            if settings.test.debug_mode:
+                chunk.draw(screen)
+            else:
+                chunk.draw(self.image)
 
         # World border
         pygame.draw.rect(
@@ -99,19 +87,22 @@ class World(pygame.sprite.Sprite):
         # Draw onto screen
         screen.blit(self.image, self.rect)
 
-    # # Interaction
-    # def get_tile_at(self, x: int, y: int):
-    #     return self.get_chunk_at(x, y).get_tile_at(x, y)
+    # Interaction
+    def get_tile_at(self, x: int, y: int):
+        return self.get_chunk_at(x, y).get_tile_at(x, y)
 
-    # def get_chunk_at(self, x: int, y: int) -> Chunk:
-    #     if not self.rect.collidepoint((x,y)):
-    #         raise ValueError("Point does not lie in world")
+    def get_chunk_at(self, x: int, y: int) -> Chunk:
+        # if not self.rect.collidepoint((x,y)):
+        #     raise ValueError("Point does not lie in world")
 
-    #     # shift by offset
-    #     x += settings.test.offset_x
-    #     y += settings.test.offset_y
+        pygame.draw.line(
+            pygame.display.get_surface(),
+            pygame.Color("red"),
+            self.rect.topleft,
+            (x, y)
+        )
 
-    #     for chunk in self._active_chunks:
-    #         collide = chunk.rect.collidepoint(x, y)
-    #         if collide:
-    #             return chunk
+        for chunk in self._active_chunks:
+            if chunk.global_rect.collidepoint(x, y):
+                return chunk
+        return None

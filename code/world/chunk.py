@@ -5,12 +5,13 @@ import settings.test
 import helper.noise
 
 class Chunk(pygame.sprite.Sprite):
-    tiles_per_axis: int = 32
+    tiles_per_axis: int = 16
     size: int  = tiles_per_axis * Tile.size
     
     def __init__(self, x: int, y: int, rect: pygame.Rect) -> None:
         pygame.sprite.Sprite.__init__(self)
-        self.rect: pygame.Rect = pygame.Rect(x * Chunk.size + rect.left, y * Chunk.size + rect.top, Chunk.size, Chunk.size)
+        self.rect: pygame.Rect = pygame.Rect(x * Chunk.size, y * Chunk.size, Chunk.size, Chunk.size)
+        self.global_rect = self.rect.move(rect.left, rect.top) # This is used for debug mode
         self.image: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         self.image.fill(pygame.Color(0,0,0,0))
         
@@ -20,27 +21,26 @@ class Chunk(pygame.sprite.Sprite):
         self.tiles = pygame.sprite.Group()
         self.organisms = pygame.sprite.Group()
         
+        # Setup tiles
         for y in range(Chunk.tiles_per_axis):
             for x in range(Chunk.tiles_per_axis):
-                global_x = (x * Tile.size) + self.rect.left
-                global_y = (y * Tile.size) + self.rect.top
-                self.add_tile(global_x, global_y)
+                local_x = (x * Tile.size)
+                local_y = (y * Tile.size)
+                self.add_tile(local_x, local_y)
                 
         self.reload()
         
-    def add_tile(self, x_global: int, y_global: int):
+    def add_tile(self, local_x: int, local_y: int):
         # TODO think if there is a better way to check if a tile is in the chunk in world coordinates
-        rect = pygame.Rect(x_global, y_global, Tile.size, Tile.size)
-        if not self.rect.contains(rect):
+        global_x, global_y = self.transform_local_to_global_coordinates(local_x, local_y)
+        if not self.rect.collidepoint(global_x, global_y):
             raise ValueError("Tile trying to be added that doesn't belong in this chunk.")
         else:
-            x_local = x_global - self.rect.left
-            y_local = y_global - self.rect.top
             self.tiles.add(
-                Tile(x_local, 
-                     y_local,
-                     height = helper.noise.generate_height_values(x_global / 1000, y_global/ 1000),
-                     moisture = helper.noise.generate_moisture_values(x_global/ 1000, y_global/ 1000)
+                Tile(local_x,
+                     local_y,
+                     height = helper.noise.generate_height_values(global_x / 1000, global_y/ 1000),
+                     moisture = helper.noise.generate_moisture_values(global_x/ 1000, global_y/ 1000)
                      )
                 )
         
@@ -64,25 +64,33 @@ class Chunk(pygame.sprite.Sprite):
             width=1
         )
         
+        # Update global rect
+        #self.global_rect.move_ip(settings.test.shift_x, settings.test.shift_y)
+
+        if settings.test.debug_mode:
+            rect = self.global_rect.move(settings.test.offset_x, settings.test.offset_y)
+        else:
+            rect = self.rect.move(settings.test.offset_x, settings.test.offset_y)
+
         # Draw onto screen
-        screen.blit(self.image, self.rect.move(settings.test.offset_x, settings.test.offset_y))
+        screen.blit(self.image, rect)
         
     def reload(self):
         self.tiles.update()
         self.tiles.draw(self.tile_image)
         self.image.blit(self.tile_image, (0, 0))  
         
-    # # Interaction
-    # def get_tile_at(self, x: int, y: int):
-    #     pass
+    # Interaction
+    def get_tile_at(self, x: int, y: int):
+        pass
     
-    # # Coordinates
-    # def transform_global_to_local_coordinates(self, x_global: int, y_global: int) -> tuple[int, int]:
-    #     x_local = x_global - self.rect.left
-    #     y_local = y_global - self.rect.top
-    #     return (x_local, y_local)
+    # Coordinates
+    def transform_global_to_local_coordinates(self, x_global: int, y_global: int) -> tuple[int, int]:
+        x_local = x_global - self.rect.left
+        y_local = y_global - self.rect.top
+        return (x_local, y_local)
     
-    # def transform_local_to_global_coordinates(self, x_local: int, y_local: int) -> tuple[int, int]:
-    #     x_global = x_local + self.rect.left
-    #     y_global = y_local + self.rect.top
-    #     return (x_global, y_global)      
+    def transform_local_to_global_coordinates(self, x_local: int, y_local: int) -> tuple[int, int]:
+        x_global = x_local + self.rect.left
+        y_global = y_local + self.rect.top
+        return (x_global, y_global)
