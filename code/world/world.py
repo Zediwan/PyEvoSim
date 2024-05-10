@@ -1,5 +1,4 @@
 import datetime
-import random
 
 import pygame
 
@@ -10,10 +9,8 @@ import settings.simulation
 from entities.animal import Animal
 from entities.organism import Organism
 from entities.plant import Plant
-from helper.direction import Direction
 import settings.test
 from world.chunk import Chunk
-from world.tile import Tile
 
 
 class World(pygame.sprite.Sprite):
@@ -92,17 +89,7 @@ class World(pygame.sprite.Sprite):
         return self.get_chunk_at(x, y).get_tile_at(x, y)
 
     def get_chunk_at(self, x: int, y: int) -> Chunk:
-        # if not self.rect.collidepoint((x,y)):
-        #     raise ValueError("Point does not lie in world")
-
-        pygame.draw.line(
-            pygame.display.get_surface(),
-            pygame.Color("red"),
-            self.rect.topleft,
-            (x, y)
-        )
-
         for chunk in self._active_chunks:
-            if chunk.global_rect.collidepoint(x, y):
+            if chunk.visible_rect.collidepoint(x, y):
                 return chunk
         return None

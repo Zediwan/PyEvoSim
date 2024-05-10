@@ -64,16 +64,16 @@ class Chunk(pygame.sprite.Sprite):
             width=1
         )
         
-        # Update global rect
-        #self.global_rect.move_ip(settings.test.shift_x, settings.test.shift_y)
-
         if settings.test.debug_mode:
-            rect = self.global_rect.move(settings.test.offset_x, settings.test.offset_y)
+            rect = self.global_rect
         else:
-            rect = self.rect.move(settings.test.offset_x, settings.test.offset_y)
+            rect = self.rect
 
+        # Set the current visible rectangle
+        # TODO find if this can be done in a better way
+        self.visible_rect = rect.move(settings.test.offset_x, settings.test.offset_y)
         # Draw onto screen
-        screen.blit(self.image, rect)
+        screen.blit(self.image, self.visible_rect)
         
     def reload(self):
         self.tiles.update()

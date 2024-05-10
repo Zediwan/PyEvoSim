@@ -36,10 +36,11 @@ if __name__ == "__main__":
         SCREEN.fill(pygame.Color(0,0,0))
         world.draw(SCREEN)
         if chunk_clicked:
+            # Display the selected chunk
             pygame.draw.rect(
                 SCREEN,
                 pygame.Color("red"),
-                chunk_clicked.global_rect,
+                chunk_clicked.visible_rect,
                 width=5
             )
         
@@ -70,21 +71,13 @@ if __name__ == "__main__":
                 chunk_clicked = world.get_chunk_at(pos[0], pos[1])
 
         if moving_right:
-            settings.test.shift_x = 1
-            settings.test.offset_x += settings.test.shift_x
-        elif moving_left:
-            settings.test.shift_x = -1
-            settings.test.offset_x += settings.test.shift_x
-        else:
-            settings.test.shift_x = 0
+            settings.test.offset_x -= 1
+        if moving_left:
+            settings.test.offset_x += 1
         if moving_up:
-            settings.test.shift_y = -1
-            settings.test.offset_y += settings.test.shift_y
-        elif moving_down:
-            settings.test.shift_y = 1
-            settings.test.offset_y += settings.test.shift_y
-        else:
-            settings.test.shift_y = 0
+            settings.test.offset_y += 1
+        if moving_down:
+            settings.test.offset_y -= 1
         if moving_right or moving_left or moving_down or moving_up:
             world.load_active_chunks()
         
