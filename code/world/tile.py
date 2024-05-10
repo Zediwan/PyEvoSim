@@ -13,16 +13,19 @@ import settings.simulation
 
 
 class Tile(pygame.sprite.Sprite):
+    size = 4
+
     def __init__(
         self,
-        rect: pygame.Rect,
+        x: int,
+        y: int,
         height: float = 0,
         moisture: float = 0,
         is_border: bool = False,
     ):
         pygame.sprite.Sprite.__init__(self)
         # Tile
-        self.rect: pygame.Rect = rect
+        self.rect: pygame.Rect = pygame.Rect(x, y, Tile.size, Tile.size)
         self.image: pygame.Surface = pygame.Surface(self.rect.size)
         self.neighbors: dict[helper.direction.Direction, Tile] = {}
 
@@ -189,8 +192,6 @@ class Tile(pygame.sprite.Sprite):
 
         if settings.gui.draw_height_level:
             self.draw_stat(self.height * 9, screen)
-
-    ########################## Tile Organism influence #################################
 
     ########################## Drawing #################################
     def draw_stat(self, stat: float, screen: pygame.Surface):

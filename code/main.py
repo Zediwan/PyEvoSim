@@ -8,6 +8,7 @@ import settings.simulation
 import settings.colors
 import settings.gui
 import settings.font
+from world.tile import Tile
 
 def starting_screen():
     SCREEN.fill(settings.colors.BACKGROUND_COLOR)
@@ -110,7 +111,7 @@ def generate_world():
     START_BUTTON.text_rect.bottomright = SCREEN.get_rect().bottomright
 
     world_rect: pygame.Rect = SCREEN.get_rect().scale_by(.8, .8)
-    tile_size: int = world_rect.width // 120
+    Tile.size = world_rect.width // 120
 
     world: World = None
     drawing = False
@@ -154,7 +155,7 @@ def generate_world():
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if GENERATE_WORLD_BUTTON.check_for_input(MOUSE_POSITION):
-                    world = World(world_rect, tile_size)
+                    world = World(world_rect)
                 elif START_BUTTON.check_for_input(MOUSE_POSITION):
                     simulate(world)
                 else:

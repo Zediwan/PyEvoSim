@@ -11,42 +11,27 @@ from entities.animal import Animal
 from entities.organism import Organism
 from entities.plant import Plant
 from helper.direction import Direction
-import helper.noise
+import settings.test
+from world.chunk import Chunk
 from world.tile import Tile
 
 
 class World(pygame.sprite.Sprite):
-    def __init__(self, rect: pygame.Rect, tile_size: int):
+    def __init__(self, rect: pygame.Rect):
         pygame.sprite.Sprite.__init__(self)
-        self.rect: pygame.Rect = World.adjust_dimensions(rect, tile_size)
-        self.organism_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
-        self.ground_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        self.rect: pygame.Rect = rect
+        self.image: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
 
-        self.tile_size = tile_size
-        self.cols = self.rect.width // tile_size
-        self.rows = self.rect.height // tile_size
         self.starting_time_seconds = (pygame.time.get_ticks() / 1000)
         self.age_ticks: int = 0
 
+        self.chunks: dict[str, Chunk] = {}
+        self._active_chunks: list[Chunk] = []
+        self.num_visible_chunks_x = (self.rect.width // Chunk.size) + 2
+        self.num_visible_chunks_y = (self.rect.height // Chunk.size) + 2
+        self.load_active_chunks()
+
         self.reset_stats()
-        settings.simulation.organisms.empty()
-
-        # Set World frequency
-        range_max = 2000
-        self.height_frequency_x = 1 / random.uniform(-range_max, range_max)
-        self.height_frequency_y = 1 / random.uniform(-range_max, range_max)
-        self.moisture_frequency_x = 1 / random.uniform(-range_max, range_max)
-        self.moisture_frequency_y = 1 / random.uniform(-range_max, range_max)
-
-        self.tiles = pygame.sprite.Group()
-        tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)]
-        for row in range(self.rows):
-            for col in range(self.cols):
-                tile = self.create_tile(row, col)
-                tiles_grid[row][col] = tile
-                self.tiles.add(tile)
-        self.add_neighbors(tiles_grid)
-        self.tiles.draw(self.ground_surface)
 
         settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
@@ -54,6 +39,35 @@ class World(pygame.sprite.Sprite):
     def age_seconds(self):
         # TODO this should not count the time the world was paused
         return int((pygame.time.get_ticks() / 1000) - self.starting_time_seconds)
+
+    @property
+    def active_chunks(self) -> list[Chunk]:
+        chunks = []
+        for y in range(self.num_visible_chunks_y):
+            for x in range(self.num_visible_chunks_x):
+                target_x = x - 1 - int(round(settings.test.offset_x / Chunk.size))
+                target_y = y - 1 - int(round(settings.test.offset_y / Chunk.size))
+                chunk_key = str(target_x) + ";" + str(target_y)
+                # If the chunk does not exist then create it
+                if chunk_key not in self.chunks:
+                    self.chunks[chunk_key] = Chunk(target_x, target_y)
+                    print(f"New chunk created {chunk_key}")
+                chunks.append(self.chunks[chunk_key])
+        return chunks
+
+    def load_active_chunks(self):
+        chunks = []
+        for y in range(self.num_visible_chunks_y):
+            for x in range(self.num_visible_chunks_x):
+                target_x = x - 1 - int(round(settings.test.offset_x / Chunk.size))
+                target_y = y - 1 - int(round(settings.test.offset_y / Chunk.size))
+                chunk_key = f"{target_x};{target_y}"
+                # If the chunk does not exist then create it
+                if chunk_key not in self.chunks:
+                    self.chunks[chunk_key] = Chunk(target_x, target_y, self.rect)
+                    print(f"New chunk created {chunk_key}")
+                chunks.append(self.chunks[chunk_key])
+        self._active_chunks = chunks
 
     def reset_stats(self):
         Organism.organisms_birthed = 0
@@ -66,99 +80,38 @@ class World(pygame.sprite.Sprite):
 
     def update(self):
         self.age_ticks += 1
-        settings.simulation.organisms.update()
-
-    # TODO work in progress not properly working right now
-    def resize(self, rect: pygame.Rect):
-        self.rect = self.rect.fit(rect)
-        self.organism_surface = pygame.Surface(self.organism_surface.get_rect().fit(rect).size)
-        self.ground_surface = pygame.Surface(self.ground_surface.get_rect().fit(rect).size)
-        self.refresh_tiles()
-
-    def refresh_tiles(self):
-        self.tiles.update()
-        self.tiles.draw(self.ground_surface)
+        for chunk in self._active_chunks:
+            chunk.update()
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.ground_surface, self.rect)
-        # Clear previous drawings on the organism surface
-        self.organism_surface.fill((0, 0, 0, 0))
-        settings.simulation.organisms.draw(self.organism_surface)
-        screen.blit(self.organism_surface, self.rect)
+        # Chunks
+        for chunk in self._active_chunks:
+            chunk.draw(screen)
 
-    def is_border_tile(self, row: int, col: int) -> bool:
-        return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
-
-    def create_tile(self, row: int, col: int) -> Tile:
-        x = col * self.tile_size
-        y = row * self.tile_size
-
-        return Tile(
-            pygame.Rect(x ,y ,self.tile_size, self.tile_size),
-            height = helper.noise.generate_height_values(x * self.height_frequency_x, y * self.height_frequency_x),
-            moisture = helper.noise.generate_moisture_values(x * self.moisture_frequency_x, y * self.moisture_frequency_y),
-            is_border = self.is_border_tile(row=row, col=col),
+        # World border
+        pygame.draw.rect(
+            self.image,
+            pygame.Color("red"),
+            self.image.get_rect(topleft = (0, 0)),
+            width=4
         )
 
-    def spawn_animals(self, chance_to_spawn: float = 1):
-        for tile in self.tiles:
-            self.spawn_animal(tile, chance_to_spawn=chance_to_spawn)
+        # Draw onto screen
+        screen.blit(self.image, self.rect)
 
-    def spawn_plants(self, chance_to_spawn: float = 1):
-        for tile in self.tiles:
-            self.spawn_plant(tile, chance_to_spawn=chance_to_spawn)
+    # # Interaction
+    # def get_tile_at(self, x: int, y: int):
+    #     return self.get_chunk_at(x, y).get_tile_at(x, y)
 
-    def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
-        if (
-            random.random() <= chance_to_spawn
-            and not tile.has_water
-            and not tile.has_animal()
-        ):
-            settings.simulation.organisms.add(Animal(tile))
+    # def get_chunk_at(self, x: int, y: int) -> Chunk:
+    #     if not self.rect.collidepoint((x,y)):
+    #         raise ValueError("Point does not lie in world")
 
-    def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
-        if (
-            random.random() <= chance_to_spawn
-            and not tile.has_water
-            and not tile.has_plant()
-        ):
-            settings.simulation.organisms.add(Plant(tile))
+    #     # shift by offset
+    #     x += settings.test.offset_x
+    #     y += settings.test.offset_y
 
-    def add_neighbors(self, tiles):
-        for row in range(self.rows):
-            for col in range(self.cols):
-                tile: Tile = tiles[row][col]
-                if row > 0:
-                    tile.add_neighbor(Direction.NORTH, tiles[row-1][col])
-                if col < self.cols - 1:
-                    tile.add_neighbor(Direction.EAST, tiles[row][col+1])
-                if row < self.rows - 1:
-                    tile.add_neighbor(Direction.SOUTH, tiles[row+1][col])
-                if col > 0:
-                    tile.add_neighbor(Direction.WEST, tiles[row][col-1])
-
-    def get_tiles(self, rect: pygame.Rect) -> list[Tile]:
-        # Transform rect global coordinates into world coordinates
-        rect.x -= self.rect.left
-        rect.y -= self.rect.top
-
-        s = pygame.sprite.Sprite()
-        s.rect = rect
-        return pygame.sprite.spritecollide(s, self.tiles, False)
-
-    def get_tile(self, pos: tuple[int, int]) -> Tile:
-        # Transform global coordinates into world coordinates
-        x = pos[0] - self.rect.left
-        y = pos[1] - self.rect.top
-        
-        s = pygame.sprite.Sprite()
-        s.rect = pygame.Rect(x, y, 1, 1)
-        return pygame.sprite.spritecollideany(s, self.tiles)
-
-    # Helper
-    @staticmethod
-    def adjust_dimensions(rect: pygame.Rect, tile_size: int) -> pygame.Rect:
-        rect.width = (rect.width // tile_size) * tile_size
-        rect.height = (rect.height // tile_size) * tile_size
-
-        return rect
+    #     for chunk in self._active_chunks:
+    #         collide = chunk.rect.collidepoint(x, y)
+    #         if collide:
+    #             return chunk
