@@ -22,6 +22,8 @@ if __name__ == "__main__":
     world = World(world_rect)
     
     chunk_clicked = None
+    tile_clicked = None
+    tile_clicked_visible_rect = None
 
     moving_right: bool = False
     moving_left: bool = False
@@ -35,13 +37,20 @@ if __name__ == "__main__":
     while True:
         SCREEN.fill(pygame.Color(0,0,0))
         world.draw(SCREEN)
+
         if chunk_clicked:
-            # Display the selected chunk
             pygame.draw.rect(
                 SCREEN,
-                pygame.Color("red"),
+                pygame.Color("white"),
                 chunk_clicked.visible_rect,
-                width=5
+                width=2
+            )
+        if tile_clicked:
+            pygame.draw.rect(
+                SCREEN,
+                pygame.Color("white"),
+                tile_clicked.visible_rect,
+                width=1
             )
         
         for event in pygame.event.get():
@@ -69,6 +78,8 @@ if __name__ == "__main__":
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 chunk_clicked = world.get_chunk_at(pos[0], pos[1])
+                if chunk_clicked:
+                    tile_clicked = chunk_clicked.get_tile_at(pos[0], pos[1])
 
         if moving_right:
             settings.test.offset_x -= 1

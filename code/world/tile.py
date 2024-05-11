@@ -10,15 +10,17 @@ import settings.colors
 import settings.font
 import settings.gui
 import settings.simulation
+import settings.test
 
 
 class Tile(pygame.sprite.Sprite):
-    size = 4
+    size = 12
 
     def __init__(
         self,
         x: int,
         y: int,
+        chunk_rec: pygame.Rect,
         height: float = 0,
         moisture: float = 0,
         is_border: bool = False,
@@ -26,6 +28,8 @@ class Tile(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         # Tile
         self.rect: pygame.Rect = pygame.Rect(x, y, Tile.size, Tile.size)
+        self.global_rect = self.rect.move(chunk_rec.left, chunk_rec.top)
+
         self.image: pygame.Surface = pygame.Surface(self.rect.size)
         self.neighbors: dict[helper.direction.Direction, Tile] = {}
 
@@ -77,6 +81,14 @@ class Tile(pygame.sprite.Sprite):
         else:
             self._height = value
         self.set_height_moisture_dependent_attributes()
+
+    @property
+    def visible_rect(self):
+        if settings.test.debug_mode:
+            rect = self.global_rect
+        else:
+            rect = self.rect
+        return rect.move(settings.test.offset_x, settings.test.offset_y)
 
     ########################## Initialisation #################################
     def set_height_moisture_dependent_attributes(self):
@@ -185,9 +197,17 @@ class Tile(pygame.sprite.Sprite):
 
     ########################## Main methods #################################
     def update(self):
-        self.set_height_moisture_dependent_attributes()
+        pass
 
     def draw(self, screen: pygame.Surface):
+        # tile borders
+        # pygame.draw.rect(
+        #     self.image,
+        #     pygame.Color("gray40"),
+        #     self.image.get_rect(topleft = (0,0)),
+        #     width=1
+        # )
+
         screen.blit(self.image, self.rect)
 
         if settings.gui.draw_height_level:
