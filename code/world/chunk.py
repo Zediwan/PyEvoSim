@@ -8,14 +8,13 @@ class Chunk(pygame.sprite.Sprite):
     tiles_per_axis: int = 4
     size: int  = tiles_per_axis * Tile.size
     
-    def __init__(self, x: int, y: int, world_rect: pygame.Rect) -> None:
+    def __init__(self, x: int, y: int, global_offset_x: int, global_offset_y: int) -> None:
         pygame.sprite.Sprite.__init__(self)
         self.starting_rect: pygame.Rect = pygame.Rect(x * Chunk.size, y * Chunk.size, Chunk.size, Chunk.size)
-        self.global_rect = self.starting_rect.move(world_rect.left, world_rect.top) # This is used for debug mode
+        self.global_rect = self.starting_rect.move(global_offset_x, global_offset_y) # This is used for debug mode
 
         self.image: pygame.Surface = pygame.Surface(self.starting_rect.size, pygame.SRCALPHA)
         self.image.fill(pygame.Color(0,0,0,0))
-        
         self.tile_image = self.image.copy()
         self.organism_image = self.image.copy()
         
@@ -42,10 +41,11 @@ class Chunk(pygame.sprite.Sprite):
             self.tiles.add(
                 Tile(local_x,
                      local_y,
-                     self.global_rect,
+                     self.global_rect.left,
+                     self.global_rect.top,
                      height = helper.noise.generate_height_values(global_x / 1000, global_y/ 1000),
                      moisture = helper.noise.generate_moisture_values(global_x/ 1000, global_y/ 1000)
-                     )
+                    )
                 )
         else:
             raise ValueError("Tile trying to be added that doesn't belong in this chunk.")

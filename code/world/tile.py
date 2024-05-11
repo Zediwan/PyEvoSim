@@ -20,7 +20,8 @@ class Tile(pygame.sprite.Sprite):
         self,
         x: int,
         y: int,
-        chunk_rec: pygame.Rect,
+        global_offset_x: int,
+        global_offset_y: int,
         height: float = 0,
         moisture: float = 0,
         is_border: bool = False,
@@ -28,7 +29,7 @@ class Tile(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         # Tile
         self.rect: pygame.Rect = pygame.Rect(x, y, Tile.size, Tile.size)
-        self.global_rect = self.rect.move(chunk_rec.left, chunk_rec.top)
+        self.global_rect = self.rect.move(global_offset_x, global_offset_y)
 
         self.image: pygame.Surface = pygame.Surface(self.rect.size)
         self.neighbors: dict[helper.direction.Direction, Tile] = {}

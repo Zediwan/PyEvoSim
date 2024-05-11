@@ -46,7 +46,7 @@ class World(pygame.sprite.Sprite):
                 chunk_key = f"{target_x};{target_y}"
                 # If the chunk does not exist then create it
                 if chunk_key not in self.chunks:
-                    self.chunks[chunk_key] = Chunk(target_x, target_y, self.rect)
+                    self.chunks[chunk_key] = Chunk(target_x, target_y, self.rect.left, self.rect.top)
                     print(f"New chunk created {chunk_key}")
                 chunks.append(self.chunks[chunk_key])
         self._active_chunks = chunks
@@ -76,7 +76,7 @@ class World(pygame.sprite.Sprite):
         # World border
         pygame.draw.rect(
             self.image,
-            pygame.Color("red"),
+            pygame.Color("gray10"),
             self.image.get_rect(topleft = (0, 0)),
             width=4
         )
