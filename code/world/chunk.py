@@ -5,7 +5,7 @@ import settings.test
 import helper.noise
 
 class Chunk(pygame.sprite.Sprite):
-    tiles_per_axis: int = 4
+    tiles_per_axis: int = 16
     size: int  = tiles_per_axis * Tile.size
     
     def __init__(self, x: int, y: int, global_offset_x: int, global_offset_y: int) -> None:
@@ -61,14 +61,6 @@ class Chunk(pygame.sprite.Sprite):
         # self.organism_image.fill(pygame.Color(0,0,0,0))
         # self.organisms.draw(self.organism_image)
         # self.image.blit(self.organism_image, (0, 0))
-
-        # Chunk borders
-        pygame.draw.rect(
-            self.image,
-            pygame.Color("gray20"),
-            self.image.get_rect(topleft = (0,0)),
-            width=1
-        )
         
         # Draw onto screen
         if settings.test.debug_mode:
@@ -79,6 +71,13 @@ class Chunk(pygame.sprite.Sprite):
     def reload(self):
         self.tiles.draw(self.tile_image)
         self.image.blit(self.tile_image, (0, 0))  
+        # Chunk borders
+        pygame.draw.rect(
+            self.image,
+            pygame.Color("gray20"),
+            self.image.get_rect(topleft = (0,0)),
+            width=1
+        )
         
     # Interaction
     def get_tile_at(self, x_global: int, y_global: int) -> Tile:

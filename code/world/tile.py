@@ -14,7 +14,7 @@ import settings.test
 
 
 class Tile(pygame.sprite.Sprite):
-    size = 12
+    size = 16
 
     def __init__(
         self,
@@ -85,11 +85,7 @@ class Tile(pygame.sprite.Sprite):
 
     @property
     def visible_rect(self):
-        if settings.test.debug_mode:
-            rect = self.global_rect
-        else:
-            rect = self.global_rect
-        return rect.move(settings.test.offset_x, settings.test.offset_y)
+        return self.global_rect.move(settings.test.offset_x, settings.test.offset_y)
 
     ########################## Initialisation #################################
     def set_height_moisture_dependent_attributes(self):
@@ -195,13 +191,6 @@ class Tile(pygame.sprite.Sprite):
                 f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
             )
         self.image.fill(self.color)
-
-    ########################## Main methods #################################
-    def update(self):
-        pass
-
-    def draw(self, screen: pygame.Surface):
-        # tile borders
         # pygame.draw.rect(
         #     self.image,
         #     pygame.Color("gray40"),
@@ -209,6 +198,11 @@ class Tile(pygame.sprite.Sprite):
         #     width=1
         # )
 
+    ########################## Main methods #################################
+    def update(self):
+        pass
+
+    def draw(self, screen: pygame.Surface):
         screen.blit(self.image, self.rect)
 
         if settings.gui.draw_height_level:
