@@ -31,6 +31,8 @@ if __name__ == "__main__":
     moving_down: bool = False
     settings.test.offset_x = 0
     settings.test.offset_y = 0
+    settings.test.change_x = 0
+    settings.test.change_y = 0
     
     world.draw(SCREEN)
 
@@ -60,12 +62,16 @@ if __name__ == "__main__":
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     moving_right = True
+                    moving_left = False
                 if event.key == pygame.K_LEFT:
                     moving_left = True
+                    moving_right = False
                 if event.key == pygame.K_UP:
                     moving_up = True
+                    moving_down = False
                 if event.key == pygame.K_DOWN:
                     moving_down = True
+                    moving_up = False
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
                     moving_right = False
@@ -83,14 +89,19 @@ if __name__ == "__main__":
                 else:
                     tile_clicked = None
 
+        # Camera movement
+        settings.test.change_x = 0
         if moving_right:
-            settings.test.offset_x -= 1
+            settings.test.change_x = 1
         if moving_left:
-            settings.test.offset_x += 1
+            settings.test.change_x = -1
+        settings.test.offset_x += settings.test.change_x
+        settings.test.change_y = 0
         if moving_up:
-            settings.test.offset_y += 1
+            settings.test.change_y = -1
         if moving_down:
-            settings.test.offset_y -= 1
+            settings.test.change_y = 1
+        settings.test.offset_y += settings.test.change_y
         if moving_right or moving_left or moving_down or moving_up:
             world.load_active_chunks()
         
