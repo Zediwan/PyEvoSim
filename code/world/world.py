@@ -26,7 +26,7 @@ class World(pygame.sprite.Sprite):
         self._active_chunks: list[Chunk] = []
         self.num_visible_chunks_x = (self.rect.width // Chunk.size) + 2
         self.num_visible_chunks_y = (self.rect.height // Chunk.size) + 2
-        self.load_active_chunks()
+        self.load_unload_chunks()
 
         self.reset_stats()
 
@@ -37,22 +37,40 @@ class World(pygame.sprite.Sprite):
         # TODO this should not count the time the world was paused
         return int((pygame.time.get_ticks() / 1000) - self.starting_time_seconds)
 
-    def load_active_chunks(self):
+    @property
+    def active_chunks(self):
+        if settings.test.change_x != 0 or settings.test.change_y != 0:
+            self.load_unload_chunks()
+        return self._active_chunks
+
+    def load_unload_chunks(self):
         target_x_offset = settings.test.offset_x // Chunk.size
         target_y_offset = settings.test.offset_y // Chunk.size
-        chunks = []
+        self._active_chunks.clear()
         for y in range(self.num_visible_chunks_y):
             target_y = y - 1 - target_y_offset
             for x in range(self.num_visible_chunks_x):
                 target_x = x - 1 - target_x_offset
-                chunk_key = (target_x, target_y)
-                # If the chunk does not exist then create it
-                chunk = self.chunks.get(chunk_key)
-                if not chunk:
-                    chunk = Chunk(target_x, target_y, self.rect.left, self.rect.top)
-                    self.chunks[chunk_key] = chunk
-                chunks.append(chunk)
-        self._active_chunks = chunks
+                self.load_chunk(target_x, target_y)
+
+    def load_chunk(self, x, y) -> Chunk:
+        # Load a chunk at the specified grid position
+        chunk_key = (x, y)
+        chunk = self.chunks.get(chunk_key)
+        if not chunk:
+            chunk = Chunk(x, y, self.rect.left, self.rect.top)
+            self.chunks[chunk_key] = chunk
+        if chunk not in self._active_chunks:
+            self._active_chunks.append(chunk)
+        return chunk
+
+    def unload_chunk(self, x, y):
+        # Unload a chunk at the specified grid position
+        chunk_key = (x, y)
+        chunk = self.chunks.get(chunk_key)
+        if chunk and chunk in self._active_chunks:
+            self._active_chunks.remove(chunk)
+            del self.chunks[chunk_key]
 
     def reset_stats(self):
         Organism.organisms_birthed = 0
@@ -65,12 +83,12 @@ class World(pygame.sprite.Sprite):
 
     def update(self):
         self.age_ticks += 1
-        for chunk in self._active_chunks:
+        for chunk in self.active_chunks:
             chunk.update()
 
     def draw(self, screen: pygame.Surface):
         # Chunks
-        for chunk in self._active_chunks:
+        for chunk in self.active_chunks:
             if settings.test.debug_mode:
                 chunk.draw(screen)
             else:
@@ -96,7 +114,7 @@ class World(pygame.sprite.Sprite):
             return None
 
     def get_chunk_at(self, x: int, y: int) -> Chunk:
-        for chunk in self._active_chunks:
+        for chunk in self.active_chunks:
             if chunk.visible_rect.collidepoint(x, y):
                 return chunk
         return None

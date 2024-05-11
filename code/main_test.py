@@ -18,7 +18,7 @@ if __name__ == "__main__":
     SCREEN.fill(pygame.Color("white"))
     
     # Make the world half the screen
-    world_rect = SCREEN.get_rect().scale_by(.5, .5)
+    world_rect = SCREEN.get_rect().scale_by(.8, .8)
     world = World(world_rect)
     
     chunk_clicked = None
@@ -102,8 +102,6 @@ if __name__ == "__main__":
         if moving_down:
             settings.test.change_y = 1
         settings.test.offset_y += settings.test.change_y
-        if moving_right or moving_left or moving_down or moving_up:
-            world.load_active_chunks()
         
         fps_screen = settings.gui.title_font.render(f"{int(CLOCK.get_fps())}", True, pygame.Color("white"))
         fps_screen.set_alpha(100)
