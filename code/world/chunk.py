@@ -40,22 +40,22 @@ class Chunk(pygame.sprite.Sprite):
 
     @property
     def visible_rect(self) -> pygame.Rect:
-        return self.rect.move(settings.test.offset_x, settings.test.offset_y)
+        return self.global_rect.move(settings.test.offset_x, settings.test.offset_y)
 
     def add_tile(self, local_x: int, local_y: int):
         # TODO think if there is a better way to check if a tile is in the chunk in world coordinates
         global_x, global_y = self.transform_local_to_global_coordinates(local_x, local_y)
-        if not self.starting_rect.collidepoint(global_x, global_y):
-            raise ValueError("Tile trying to be added that doesn't belong in this chunk.")
-        else:
+        if self.starting_rect.collidepoint(global_x, global_y):
             self.tiles.add(
                 Tile(local_x,
                      local_y,
-                     self.rect,
+                     self.global_rect,
                      height = helper.noise.generate_height_values(global_x / 1000, global_y/ 1000),
                      moisture = helper.noise.generate_moisture_values(global_x/ 1000, global_y/ 1000)
                      )
                 )
+        else:
+            raise ValueError("Tile trying to be added that doesn't belong in this chunk.")
         
     def update(self):
         self.organisms.update()
@@ -78,7 +78,10 @@ class Chunk(pygame.sprite.Sprite):
         )
         
         # Draw onto screen
-        screen.blit(self.image, self.visible_rect)
+        if settings.test.debug_mode:
+            screen.blit(self.image, self.visible_rect)
+        else:
+            screen.blit(self.image, self.rect.move(settings.test.offset_x, settings.test.offset_y))
         
     def reload(self):
         self.tiles.draw(self.tile_image)

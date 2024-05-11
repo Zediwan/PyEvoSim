@@ -87,7 +87,7 @@ class Tile(pygame.sprite.Sprite):
         if settings.test.debug_mode:
             rect = self.global_rect
         else:
-            rect = self.rect
+            rect = self.global_rect
         return rect.move(settings.test.offset_x, settings.test.offset_y)
 
     ########################## Initialisation #################################

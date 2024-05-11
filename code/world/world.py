@@ -86,7 +86,11 @@ class World(pygame.sprite.Sprite):
 
     # Interaction
     def get_tile_at(self, x: int, y: int):
-        return self.get_chunk_at(x, y).get_tile_at(x, y)
+        chunk = self.get_chunk_at(x, y)
+        if chunk:
+            return chunk.get_tile_at(x, y)
+        else:
+            return None
 
     def get_chunk_at(self, x: int, y: int) -> Chunk:
         for chunk in self._active_chunks:
