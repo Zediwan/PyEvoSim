@@ -18,7 +18,7 @@ if __name__ == "__main__":
     SCREEN.fill(pygame.Color("white"))
     
     # Make the world half the screen
-    world_rect = SCREEN.get_rect().scale_by(1, 1)
+    world_rect = SCREEN.get_rect().scale_by(.5, .5)
     world = World(world_rect)
     
     chunk_clicked = None
