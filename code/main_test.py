@@ -80,6 +80,8 @@ if __name__ == "__main__":
                 chunk_clicked = world.get_chunk_at(pos[0], pos[1])
                 if chunk_clicked:
                     tile_clicked = chunk_clicked.get_tile_at(pos[0], pos[1])
+                else:
+                    tile_clicked = None
 
         if moving_right:
             settings.test.offset_x -= 1
