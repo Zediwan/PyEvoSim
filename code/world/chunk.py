@@ -30,13 +30,6 @@ class Chunk(pygame.sprite.Sprite):
                 self.add_tile(local_x, local_y)
                 
         self.reload()
-        
-    @property
-    def rect(self) -> pygame.Rect:
-        if settings.test.debug_mode:
-            return self.global_rect
-        else:
-            return self.starting_rect
 
     @property
     def visible_rect(self) -> pygame.Rect:
@@ -81,7 +74,7 @@ class Chunk(pygame.sprite.Sprite):
         if settings.test.debug_mode:
             screen.blit(self.image, self.visible_rect)
         else:
-            screen.blit(self.image, self.rect.move(settings.test.offset_x, settings.test.offset_y))
+            screen.blit(self.image, self.starting_rect.move(settings.test.offset_x, settings.test.offset_y))
         
     def reload(self):
         self.tiles.draw(self.tile_image)

@@ -1,3 +1,3 @@
 offset_x = 0
 offset_y = 0
-debug_mode = True
+debug_mode = False
