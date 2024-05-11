@@ -38,11 +38,13 @@ class World(pygame.sprite.Sprite):
         return int((pygame.time.get_ticks() / 1000) - self.starting_time_seconds)
 
     def load_active_chunks(self):
+        target_x_offset = int(round(settings.test.offset_x / Chunk.size))
+        target_y_offset = int(round(settings.test.offset_y / Chunk.size))
         chunks = []
         for y in range(self.num_visible_chunks_y):
+            target_y = y - 1 - target_y_offset
             for x in range(self.num_visible_chunks_x):
-                target_x = x - 1 - int(round(settings.test.offset_x / Chunk.size))
-                target_y = y - 1 - int(round(settings.test.offset_y / Chunk.size))
+                target_x = x - 1 - target_x_offset
                 chunk_key = (target_x, target_y)
                 # If the chunk does not exist then create it
                 if chunk_key not in self.chunks:
@@ -50,7 +52,6 @@ class World(pygame.sprite.Sprite):
                     print(f"New chunk created {chunk_key}")
                 chunks.append(self.chunks[chunk_key])
         self._active_chunks = chunks
-
     def reset_stats(self):
         Organism.organisms_birthed = 0
         Organism.organisms_died = 0
