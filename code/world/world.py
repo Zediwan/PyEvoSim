@@ -43,7 +43,7 @@ class World(pygame.sprite.Sprite):
             for x in range(self.num_visible_chunks_x):
                 target_x = x - 1 - int(round(settings.test.offset_x / Chunk.size))
                 target_y = y - 1 - int(round(settings.test.offset_y / Chunk.size))
-                chunk_key = f"{target_x};{target_y}"
+                chunk_key = (target_x, target_y)
                 # If the chunk does not exist then create it
                 if chunk_key not in self.chunks:
                     self.chunks[chunk_key] = Chunk(target_x, target_y, self.rect.left, self.rect.top)
