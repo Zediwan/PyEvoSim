@@ -49,7 +49,6 @@ class World(pygame.sprite.Sprite):
                 # If the chunk does not exist then create it
                 if chunk_key not in self.chunks:
                     self.chunks[chunk_key] = Chunk(target_x, target_y, self.rect.left, self.rect.top)
-                    print(f"New chunk created {chunk_key}")
                 chunks.append(self.chunks[chunk_key])
         self._active_chunks = chunks
     def reset_stats(self):
