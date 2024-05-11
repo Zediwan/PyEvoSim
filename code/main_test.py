@@ -18,7 +18,7 @@ if __name__ == "__main__":
     SCREEN.fill(pygame.Color("white"))
     
     # Make the world half the screen
-    world_rect = SCREEN.get_rect().scale_by(.5, .5)
+    world_rect = SCREEN.get_rect().scale_by(1, 1)
     world = World(world_rect)
     
     chunk_clicked = None
@@ -41,16 +41,16 @@ if __name__ == "__main__":
         if chunk_clicked:
             pygame.draw.rect(
                 SCREEN,
-                pygame.Color("white"),
+                pygame.Color("black"),
                 chunk_clicked.visible_rect,
                 width=2
             )
         if tile_clicked:
             pygame.draw.rect(
                 SCREEN,
-                pygame.Color("white"),
+                pygame.Color("black"),
                 tile_clicked.visible_rect,
-                width=1
+                width=2
             )
         
         for event in pygame.event.get():
