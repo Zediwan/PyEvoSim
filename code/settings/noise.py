@@ -1,3 +1,6 @@
+import random
+import settings.noise
+
 freq_x1 = 1
 freq_y1 = 1
 freq_x2 = 2

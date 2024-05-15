@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import random
-
 import pygame
 
 import settings.colors
 import settings.database
 import settings.entities
 import settings.screen
+import settings.simulation
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
@@ -37,6 +37,14 @@ class Plant(Organism):
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
         return settings.entities.PLANT_MIN_REPRODUCTION_ENERGY
+    
+    @property
+    def MAX_ALPHA(self) -> float:
+        return settings.colors.PLANT_MAX_ALPHA
+    
+    @property
+    def MIN_ALPHA(self) -> float:
+        return settings.colors.PLANT_MIN_ALPHA
 
     plants_birthed: int = 0
     plants_died: int = 0
@@ -44,12 +52,12 @@ class Plant(Organism):
     def __init__(
         self,
         tile: Tile,
-        shape: pygame.Rect | None = None,
+        rect: pygame.Rect | None = None,
         parent: Plant = None,
         dna: DNA = None,
     ):
-        if not shape:
-            shape = tile.rect.copy()
+        if not rect:
+            rect = tile.rect.copy()
 
         if not dna:
             dna = DNA(
@@ -61,7 +69,7 @@ class Plant(Organism):
 
         super().__init__(
             tile,
-            shape,
+            rect,
             settings.entities.PLANT_STARTING_HEALTH(),
             settings.entities.PLANT_STARTING_ENERGY(),
             dna,
@@ -133,25 +141,12 @@ class Plant(Organism):
 
         self.energy += adjusted_energy_gain
 
-    ########################## Draw #################################
-    # TODO rethink plant drawing with biomes
-    def draw(self):
-        super().draw()
-
-        pygame.draw.rect(
-            pygame.display.get_surface(),
-            self.tile.color.lerp(
-                self.color, settings.colors.PLANT_TILE_COLOR_VISIBILITY
-            ),
-            self.shape.scale_by(self.health_ratio()),
-        )
-
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
 
         if self.tile:
-            self.tile.remove_plant()
+            self.tile.plant.remove(self)
 
         self.tile = tile
         tile.add_plant(self)
@@ -161,7 +156,7 @@ class Plant(Organism):
     def check_tile_assignment(self):
         if not self.tile:
             raise ValueError("Plant does not have a tile!")
-        if self != self.tile.plant:
+        if not self.tile.plant.has(self):
             raise ValueError("Plant-Tile assignment not equal.")
 
     ########################## Energy and Health #################################
@@ -173,7 +168,7 @@ class Plant(Organism):
             if settings.database.save_plants_csv:
                 self.save_to_csv()
 
-        self.tile.remove_plant()
+        self.kill()
 
     def get_attacked(self, attacking_organism: Organism):
         super().get_attacked(attacking_organism)
@@ -185,15 +180,17 @@ class Plant(Organism):
         super().reproduce()
         option = self.tile.get_random_neigbor(no_plant=True, no_water=True)
         if option:
-            self.energy -= (
-                settings.entities.PLANT_REPRODUCTION_ENERGY_COST_FACTOR
-                * self.MAX_ENERGY
-            )
+            ENERGY_TO_CHILD = max(
+                settings.entities.PLANT_REPRODUCTION_ENERGY_COST_FACTOR * self.MAX_ENERGY,
+                self.energy * .8
+                )
+            self.energy -= ENERGY_TO_CHILD
             offspring = self.copy(option)
-            offspring.health = (
-                settings.entities.PLANT_OFFSPRING_HEALTH_FACTOR * self.MAX_HEALTH
-            )
+            offspring_energy_distribution = .5
+            offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
+            offspring.health = (ENERGY_TO_CHILD * (1-offspring_energy_distribution)) * settings.entities.ENERGY_TO_HEALTH_RATIO
             offspring.mutate()
+            settings.simulation.organisms.add(offspring)
             # print("Plant offspring birthed!")
 
     def copy(self, tile: Tile):
