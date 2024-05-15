@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-
 import pygame
 
 import settings.dna
@@ -56,9 +54,9 @@ class DNA:
     @property
     def color(self):
         return pygame.Color(
-            math.floor(self.color_r_gene.value),
-            math.floor(self.color_g_gene.value),
-            math.floor(self.color_b_gene.value),
+            int(self.color_r_gene.value),
+            int(self.color_g_gene.value),
+            int(self.color_b_gene.value),
         )
 
     def copy(self) -> DNA:

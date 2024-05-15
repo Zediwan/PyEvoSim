@@ -8,6 +8,7 @@ import settings.colors
 import settings.database
 import settings.entities
 import settings.screen
+import settings.simulation
 from dna.dna import DNA
 from entities.organism import Organism
 from world.tile import Tile
@@ -28,15 +29,23 @@ class Animal(Organism):
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return 0.001
+        return .01
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:
-        return 0.5
+        return 0.25
 
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
-        return 0.75
+        return 0.6
+    
+    @property
+    def MAX_ALPHA(self) -> float:
+        return settings.colors.ANIMAL_MAX_ALPHA
+    
+    @property
+    def MIN_ALPHA(self) -> float:
+        return settings.colors.ANIMAL_MIN_ALPHA
 
     animals_birthed: int = 0
     animals_died: int = 0
@@ -44,12 +53,12 @@ class Animal(Organism):
     def __init__(
         self,
         tile: Tile,
-        shape: pygame.Rect | None = None,
+        rect: pygame.Rect | None = None,
         parent: Animal = None,
         dna: DNA = None,
     ):
-        if not shape:
-            shape = tile.rect.copy()
+        if not rect:
+            rect = tile.rect.copy()
 
         if not dna:
             dna = DNA(
@@ -61,7 +70,7 @@ class Animal(Organism):
 
         super().__init__(
             tile,
-            shape,
+            rect,
             settings.entities.ANIMAL_STARTING_HEALTH(),
             settings.entities.ANIMAL_STARTING_ENERGY(),
             dna,
@@ -98,7 +107,7 @@ class Animal(Organism):
 
         """
         if self.tile.has_plant():
-            best_growth = self.tile.plant.health
+            best_growth = self.tile.plant.sprite.health
             destination = None
         else:
             best_growth = 0
@@ -108,10 +117,10 @@ class Animal(Organism):
         for n in ns:
             if n.has_animal():
                 continue
-            if not n.plant:
+            if not n.has_plant():
                 continue
-            if n.plant.health > best_growth:
-                best_growth = n.plant.health
+            if n.plant.sprite.health > best_growth:
+                best_growth = n.plant.sprite.health
                 destination = n
 
         self.desired_tile_movement = destination
@@ -125,7 +134,7 @@ class Animal(Organism):
         """
         super().handle_attack()
         if self.tile.has_plant() and self.wants_to_eat():
-            self.attack(self.tile.plant)
+            self.attack(self.tile.plant.sprite)
 
     def handle_movement(self):
         """
@@ -138,13 +147,6 @@ class Animal(Organism):
         if self.desired_tile_movement:
             self.enter_tile(self.desired_tile_movement)
 
-    ########################## Drawing #################################
-
-    def draw(self):
-        super().draw()
-
-        pygame.draw.rect(pygame.display.get_surface(), self.color, self.shape)
-
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
@@ -152,7 +154,7 @@ class Animal(Organism):
             raise ValueError("Animal trying to enter a tile that is already occupied.")
 
         if self.tile:
-            self.tile.remove_animal()
+            self.tile.animal.remove(self)
 
         self.tile = tile
         tile.add_animal(self)
@@ -162,7 +164,7 @@ class Animal(Organism):
     def check_tile_assignment(self):
         if not self.tile:
             raise ValueError("Animal does not have a tile!")
-        if self != self.tile.animal:
+        if not self.tile.animal.has(self):
             raise ValueError("Animal-Tile assignment not equal.")
 
     ########################## Energy and Health #################################
@@ -174,7 +176,7 @@ class Animal(Organism):
             if settings.database.save_animals_csv:
                 self.save_to_csv()
 
-        self.tile.remove_animal()
+        self.kill()
 
     def attack(self, organism_to_attack: Organism):
         assert (
@@ -198,10 +200,14 @@ class Animal(Organism):
             no_animal=True, no_water=True
         )
         if unoccupied_neighbor:
-            REPRODUCTION_ENERGY_COST = self.MAX_ENERGY / 2
-            self.energy -= REPRODUCTION_ENERGY_COST
+            ENERGY_TO_CHILD = self.MAX_ENERGY / 2
+            self.energy -= ENERGY_TO_CHILD
             offspring = self.copy(unoccupied_neighbor)
+            offspring_energy_distribution = .4
+            offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
+            offspring.health = (ENERGY_TO_CHILD * (1-offspring_energy_distribution)) * settings.entities.ENERGY_TO_HEALTH_RATIO
             offspring.mutate()
+            settings.simulation.organisms.add(offspring)
 
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)
