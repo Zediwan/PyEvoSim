@@ -156,6 +156,9 @@ def generate_world():
                 if GENERATE_WORLD_BUTTON.check_for_input(MOUSE_POSITION):
                     world = World(world_rect, tile_size)
                 elif START_BUTTON.check_for_input(MOUSE_POSITION):
+                    if len(settings.simulation.organisms) == 0:
+                        world.spawn_animals(.01)
+                        world.spawn_plants(.5)
                     simulate(world)
                 else:
                     drawing = True
