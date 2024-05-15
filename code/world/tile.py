@@ -12,7 +12,7 @@ import settings.gui
 import settings.simulation
 
 
-class Tile:
+class Tile(pygame.sprite.Sprite):
     def __init__(
         self,
         rect: pygame.Rect,
@@ -20,26 +20,24 @@ class Tile:
         moisture: float = 0,
         is_border: bool = False,
     ):
+        pygame.sprite.Sprite.__init__(self)
         # Tile
         self.rect: pygame.Rect = rect
+        self.image: pygame.Surface = pygame.Surface(self.rect.size)
         self.neighbors: dict[helper.direction.Direction, Tile] = {}
 
         # Height
         self._height: float = height
         self._moisture: float = moisture
+
         self.plant_growth_potential: float
         self.color: pygame.Color
         self.has_water: bool
         self.set_height_moisture_dependent_attributes()
 
         # Organisms
-        from entities.animal import Animal
-
-        self.animal: Animal | None = None
-
-        from entities.plant import Plant
-
-        self.plant: Plant | None = None
+        self.animal: pygame.sprite.GroupSingle = pygame.sprite.GroupSingle()
+        self.plant: pygame.sprite.GroupSingle = pygame.sprite.GroupSingle()
 
         self.is_border: bool = is_border
         self.is_coast: bool = False
@@ -180,54 +178,41 @@ class Tile:
             raise ValueError(
                 f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
             )
+        self.image.fill(self.color)
 
     ########################## Main methods #################################
     def update(self):
-        if self.has_animal():
-            self.animal.update()
+        self.set_height_moisture_dependent_attributes()
 
-        if self.has_plant():
-            self.plant.update()
-
-    def draw(self):
-        pygame.display.get_surface().fill(self.color, self.rect)
-
-        if self.has_animal():
-            self.animal.draw()
-            if settings.gui.draw_animal_health:
-                self.draw_stat(self.animal.health)
-
-            if settings.gui.draw_animal_energy:
-                self.draw_stat(self.animal.energy)
-
-        elif self.has_plant():
-            self.plant.draw()
+    def draw(self, screen: pygame.Surface):
+        screen.blit(self.image, self.rect)
 
         if settings.gui.draw_height_level:
-            self.draw_stat(self.height * 9)
+            self.draw_stat(self.height * 9, screen)
 
     ########################## Tile Organism influence #################################
 
     ########################## Drawing #################################
-    def draw_stat(self, stat: float):
+    def draw_stat(self, stat: float, screen: pygame.Surface):
         if self.has_animal():
-            col = self.animal.color
+            col = self.animal.sprite.color
         else:
             col = self.color
 
-        text = settings.font.font.render(
-            str(round(stat)), True, settings.colors.choose_visible_text_color(col)
+        text = settings.font.tile_font.render(
+            str(int(stat)),
+            True,
+            settings.colors.choose_visible_text_color(col)
         )
-        pygame.display.get_surface().blit(
-            text, settings.font.get_centered_text_coordinates(self.rect, text)
-        )
+        text_rect: pygame.Rect = text.get_rect(center = self.rect.center)
+        screen.blit(text, text_rect)
 
     ########################## Tile Property Handling #################################
     def add_animal(self, animal):
         if self.has_animal():
             raise ValueError("Trying to add an animal despite tile already holding one")
 
-        self.animal = animal
+        self.animal.add(animal)
         self.times_visted += 1
 
         if animal.tile != self:
@@ -239,24 +224,18 @@ class Tile:
         if self.has_plant():
             raise ValueError("Trying to add an plant despite tile already holding one")
 
-        self.plant = plant
+        self.plant.add(plant)
 
         if plant.tile != self:
             raise ValueError(
                 "Plant's tile reference not matching with tile's plant reference"
             )
 
-    def remove_animal(self):
-        self.animal = None
-
-    def remove_plant(self):
-        self.plant = None
-
     def has_animal(self) -> bool:
-        return self.animal is not None
+        return self.animal
 
     def has_plant(self) -> bool:
-        return self.plant is not None
+        return self.plant
 
     def add_neighbor(self, direction: helper.direction.Direction, tile: Tile):
         self.neighbors[direction] = tile

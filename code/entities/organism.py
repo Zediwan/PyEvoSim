@@ -55,6 +55,16 @@ class Organism(ABC, pygame.sprite.Sprite):
     def MIN_REPRODUCTION_ENERGY(self) -> float:
         pass
 
+    @property
+    @abstractmethod
+    def MAX_ALPHA(self) -> float:
+        pass
+
+    @property
+    @abstractmethod
+    def MIN_ALPHA(self) -> float:
+        pass
+
     # Stats
     organisms_birthed: int = 0
     organisms_died: int = 0
@@ -63,34 +73,15 @@ class Organism(ABC, pygame.sprite.Sprite):
     def __init__(
         self,
         tile: Tile,
-        shape: pygame.Rect,
+        rect: pygame.Rect,
         health: float,
         energy: float,
-        dna: DNA = None,
+        dna: DNA,
     ):
         pygame.sprite.Sprite.__init__(self)
 
-        self.id = Organism.next_organism_id
-        Organism.next_organism_id += 1
-
-        if not dna:
-            dna = DNA(
-                settings.colors.BASE_ORGANISM_COLOR,
-                settings.entities.ORGANISM_BASE_ATTACK_POWER,
-                settings.entities.ORGANISM_BASE_MOISTURE_PREFERENCE,
-                settings.entities.ORGANISM_BASE_HEIGHT_PREFERENCE,
-            )
-        self.dna: DNA = dna
-
-        self._set_attributes_from_dna()
-
-        self.health = health
-        self.energy = energy
-
-        self.shape: pygame.Rect = shape
-        self.parent: Organism
-
         # Stats
+        self.stat_panel: stats.stat_panel.StatPanel | None = None
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
@@ -101,7 +92,18 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.birth_time: int = pygame.time.get_ticks()
         self.death_time: int | None = None
 
-        self.stat_panel: stats.stat_panel.StatPanel | None = None
+        self.rect: pygame.Rect = rect
+        self.image: pygame.Surface = pygame.Surface(self.rect.size)
+
+        self.id = Organism.next_organism_id
+        Organism.next_organism_id += 1
+
+        self.health = health
+        self.energy = energy
+
+        self.parent: Organism
+        self.dna: DNA = dna
+        self._set_attributes_from_dna()
 
         self.tile: Tile = None
         self.enter_tile(tile)
@@ -111,6 +113,9 @@ class Organism(ABC, pygame.sprite.Sprite):
             raise ValueError("Trying to set attributes from DNA despite DNA being None")
 
         self.color: pygame.Color = self.dna.color
+        self.image.fill(self.color)
+        self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
+
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
         self.height_preference: float = self.dna.prefered_height_gene.value
@@ -135,10 +140,10 @@ class Organism(ABC, pygame.sprite.Sprite):
     def energy(self, value: float):
         if value < self.MIN_ENERGY:
             self._energy = self.MIN_ENERGY
-            self.health += value
+            self.health += value * settings.entities.ENERGY_TO_HEALTH_RATIO
         elif value > self.MAX_ENERGY:
             self._energy = self.MAX_ENERGY
-            self.health += value - self.MAX_ENERGY
+            self.health += (value - self.MAX_ENERGY) * settings.entities.ENERGY_TO_HEALTH_RATIO
         else:
             self._energy = value
 
@@ -231,20 +236,14 @@ class Organism(ABC, pygame.sprite.Sprite):
         """
         if not self.is_alive():
             self.die()
-
-    ########################## Drawing #################################
-
-    @abstractmethod
-    def draw(self):
-        if not self.is_alive():
-            raise ValueError(
-                "Organism is being drawn despite being dead. ", self.health
-            )
+        else:
+            # TODO Test best place for this performance wise
+            self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
 
     ########################## Tile #################################
     @abstractmethod
     def enter_tile(self, tile: Tile):
-        self.shape.topleft = tile.rect.topleft
+        self.rect.topleft = tile.rect.topleft
         self.tiles_visited += 1
 
     @abstractmethod
@@ -325,14 +324,21 @@ class Organism(ABC, pygame.sprite.Sprite):
         self._set_attributes_from_dna()
 
     ########################## Stats #################################
-    def show_stats(self):
+    def show_stats(self, screen: pygame.Surface, offset):
         stats_data = self.get_stats()
 
         if not self.stat_panel:
             self.stat_panel = stats.stat_panel.StatPanel(self.get_headers(), stats_data)
 
-        self.stat_panel.update(self.shape, stats_data)
-        self.stat_panel.draw()
+        pygame.draw.rect(
+            screen,
+            settings.colors.SELECTED_ORGANISM_COLOR,
+            self.rect.move(offset[0], offset[1]),
+            width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+        )
+
+        self.stat_panel.update(self.rect.move(offset[0], offset[1]), stats_data)
+        self.stat_panel.draw(screen)
 
     def get_stats(self) -> list:
         return [

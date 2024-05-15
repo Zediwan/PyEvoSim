@@ -24,8 +24,8 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 
 ## Milestone 2: Organism Database interaction
 
-- [ ] Enable querying of the database.
-- [ ] Enable filtering of the database.
+- [x] Enable querying of the database.
+- [x] Enable filtering of the database.
 
 ## Milestone 3: Visualization and Genetic Analysis
 

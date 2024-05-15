@@ -41,7 +41,7 @@ class StatPanel(pygame.sprite.Sprite):
         self.surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
         self.surface.set_alpha(self.alpha)
 
-    def draw(self):
+    def draw(self, screen: pygame.Surface):
         self.surface.fill(settings.colors.STAT_PANEL_BACKGROUND_COLOR)
 
         y = self.border_size
@@ -62,8 +62,7 @@ class StatPanel(pygame.sprite.Sprite):
 
             y += name_surface.get_height()
 
-        main_surface = pygame.display.get_surface()
-        main_surface.blit(self.surface, self.rect)
+        screen.blit(self.surface, self.rect)
 
     def update(self, base: pygame.Rect, stats: list[float]):
         world_width, world_height = pygame.display.get_surface().get_size()
