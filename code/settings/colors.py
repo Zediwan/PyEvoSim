@@ -2,12 +2,37 @@ import random
 
 import pygame
 
+
+def choose_visible_text_color(background_color: pygame.Color):
+    if background_color.grayscale().r < 150:
+        return pygame.color.Color("white")
+    else:
+        return pygame.color.Color("black")
+
+
 # Simulation
 SIMULATION_BACKGROUND_COLOR: pygame.Color = pygame.Color("white")
-MENU_BACKGROUND_COLOR: pygame.Color = pygame.Color("grey")
+
+# Base
+BACKGROUND_COLOR: pygame.Color = pygame.Color(50, 50, 50)
+TEXT_COLOR: pygame.Color = pygame.Color("white")
+
+# Button
+BUTTON_TEXT_HOVER_COLOR: pygame.Color = pygame.Color("gray50")
+BUTTON_TEXT_BASE_COLOR: pygame.Color = pygame.Color("white")
+
+# Options
+
+# Menu
+MENU_BACKGROUND_COLOR: pygame.Color = pygame.Color(50, 50, 50)
+MENU_BACKGROUND_ALPHA: pygame.Color = 200
+MENU_FONT_COLOR: pygame.Color = pygame.Color("white")
+
 STAT_BAR_BACKGROUND_COLOR: pygame.Color = pygame.Color("grey")
 STAT_BAR_BORDER_COLOR: pygame.Color = pygame.Color("black")
 STAT_BAR_FONT_COLOR: pygame.Color = pygame.Color("black")
+SELECTED_ORGANISM_COLOR: pygame.Color = pygame.Color("white")
+SELECTED_ORGANISM_RECT_WIDTH: float = 1
 
 # Stat Panel
 STAT_PANEL_BACKGROUND_COLOR: pygame.Color = pygame.Color("black")
@@ -35,6 +60,8 @@ BASE_ORGANISM_COLOR: pygame.Color = pygame.Color("black")
 
 
 # Animals pygame.Colors
+ANIMAL_MAX_ALPHA: float = 255
+ANIMAL_MIN_ALPHA: float = 150
 def BASE_ANIMAL_COLOR():
     return pygame.Color(
         random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
@@ -43,6 +70,5 @@ def BASE_ANIMAL_COLOR():
 
 # Plant pygame.Colors
 BASE_PLANT_COLOR: pygame.Color = pygame.Color(76, 141, 29)
-PLANT_TILE_COLOR_VISIBILITY: float = (
-    0.2  # If the number is bigger the color of the plant gets more importance than the tile color
-)
+PLANT_MAX_ALPHA: float = 100
+PLANT_MIN_ALPHA: float = 20
