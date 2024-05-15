@@ -11,21 +11,21 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 
 ## Milestone 0.1: Expansion of Organisms DNA attributes
 
-- [ ] Creating a DNA class to hold information about an organism.
-- [ ] Adding new attributes to the DNA class.
-- [ ] Implement effects of attributes on animals properties.
-- [ ] Enable mutation of DNA during reproduction.
+- [x] Creating a DNA class to hold information about an organism.
+- [x] Adding new attributes to the DNA class.
+- [x] Implement effects of attributes on animals properties.
+- [x] Enable mutation of DNA during reproduction.
 
 ## Milestone 1: Organism Database
 
-- [ ] Create a database with all organisms that have existed / exist in the simulation.
-- [ ] Enable automatic saving of organisms to the database
-- [ ] Track different statistics about the life of the organism like a movement heatmap, kills, etc.
+- [x] Create a database with all organisms that have existed / exist in the simulation.
+- [x] Enable automatic saving of organisms to the database
+- [x] Track different statistics about the life of the organism like a movement heatmap, kills, etc.
 
 ## Milestone 2: Organism Database interaction
 
-- [ ] Enable querying of the database.
-- [ ] Enable filtering of the database.
+- [x] Enable querying of the database.
+- [x] Enable filtering of the database.
 
 ## Milestone 3: Visualization and Genetic Analysis
 
