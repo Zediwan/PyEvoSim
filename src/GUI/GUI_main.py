@@ -7,38 +7,45 @@ from pandastable import Table
 pysqldf = lambda q: sqldf(q, globals())
 
 # Read the csv into a panda df
-db = pd.read_csv("organism_database_20240428124116.csv")
+db = pd.read_csv('C:\\Users\Milos-Uni\EvolutionSimulation\databases\organism_database_20240428124116.csv')
+
+# Create the main window
+root = tk.Tk()
+root.title("Evolution Simulation")
+
+# Define frame globally
+frame = tk.Frame(root)
+frame.pack(fill='both', expand=True)
 
 def querry_input():
     # Retrieve the input from the entry widget
     user_querry = entry.get()
-    
+
     # Pass input to a pandasql and get the result
     output = pysqldf(user_querry)
 
     #update the table
     update_table(output)
-    
+
     # Print the result to the console
     #print(output)
-    
+
 def new_query():
     # Clear the entry widget
     entry.delete(0, tk.END)
-    
+
     # Reset the result label
     update_table(db)
 
 # Update the table with new data
 def update_table(dataframe):
+    global frame
+    frame.destroy()
+
     frame = tk.Frame(root)
     frame.pack(fill='both', expand=True)
     pt = Table(frame, dataframe=dataframe)
     pt.show()
-
-# Create the main window
-root = tk.Tk()
-root.title("Evolution Simulation")
 
 # entry widget for user input
 entry = tk.Entry(root, width=40)
@@ -53,9 +60,7 @@ new_query_button = tk.Button(root, text="New Query", command=new_query)
 new_query_button.pack(pady=5)
 
 # Initial table display
-initial_frame = tk.Frame(root)
-initial_frame.pack(fill='both', expand=True)
-table = Table(initial_frame, dataframe=db)
+table = Table(frame, dataframe=db)
 table.show()
 
 root.mainloop()
