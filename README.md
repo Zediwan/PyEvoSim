@@ -45,16 +45,6 @@ With the `ESCAPE` button the user can acces the [simulation settings](assets/ima
 
 By pressing with the mouse on a tile without and organism a new animal can be spawned.
 
-### Database interaction
-
-Provide instructions and examples for use. Include screenshots as needed.
-
-To add a screenshot, create an `assets/images` folder in your repository and upload your screenshot to it. Then, using the relative filepath, add it to your README using the following syntax:
-
-    ```md
-    ![alt text](assets/images/screenshot.png)
-    ```
-
 ### GUI interaction
 To access the GUI, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
 
