@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pygame
 
+import random
 import settings.dna
 from dna.gene import Gene
 
@@ -13,6 +14,7 @@ class DNA:
         attack_power: float,
         prefered_moisture: float,
         prefered_height: float,
+        muation_chance: float
     ) -> None:
         self.color_r_gene: Gene = Gene(
             settings.dna.color_max,
@@ -50,6 +52,9 @@ class DNA:
             prefered_height,
             settings.dna.prefered_height_muation_range,
         )
+        self.mutation_chance_gene: Gene = Gene(
+            1, 0, muation_chance, .1
+        )
 
     @property
     def color(self):
@@ -65,6 +70,7 @@ class DNA:
             self.attack_power_gene.value,
             self.prefered_moisture_gene.value,
             self.prefered_height_gene.value,
+            self.mutation_chance_gene.value
         )
 
     def mutate(self) -> None:
@@ -75,5 +81,7 @@ class DNA:
             self.attack_power_gene,
             self.prefered_moisture_gene,
             self.prefered_height_gene,
+            self.mutation_chance_gene
         ]:
-            gene.mutate()
+            if self.mutation_chance_gene.value <= random.random():
+                gene.mutate()
