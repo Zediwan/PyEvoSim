@@ -8,7 +8,7 @@ from ttkthemes import ThemedTk
 
 
 #Read the csv into a panda df
-db = pd.read_csv("src/GUI/organism_database_20240428124116.csv")
+db = pd.read_csv("code/database/organism_database_20240428124116.csv")
 
 #Takes sql statement from user and returns the querried pandadf
 def querry_input():
