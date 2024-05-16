@@ -19,6 +19,8 @@ Below, you'll find information on how to set up and run the simulation, as well 
 
 ## Usage
 
+This project can be used to try out different simulation conditions and settings which can be analysed later on. 
+
 ### Simulation
 
 To run the simulation you need to run the [main.py](code/simulation/main.py) file. When an organism dies in the simulation it is logged to a database with all the relevant information.
