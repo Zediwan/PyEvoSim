@@ -67,7 +67,6 @@ def BASE_ANIMAL_COLOR():
         random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
     )
 
-
 # Plant pygame.Colors
 BASE_PLANT_COLOR: pygame.Color = pygame.Color(76, 141, 29)
 PLANT_MAX_ALPHA: float = 100
