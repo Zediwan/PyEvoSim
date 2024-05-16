@@ -21,11 +21,11 @@ Below, you'll find information on how to set up and run the simulation, as well 
 
 ### Simulation
 
-To run the simulation you need to run the [main.py](code/simulaiton/main.py) file.
+To run the simulation you need to run the [main.py](code/simulation/main.py) file.
 
 #### World generation
 
-Then you get the [starting menu](assets/images/Screenshot_Starting_Menu.png). From here you can press `GENERATE WORLD` to get to the [world generator](assets/images/Screenshot_Generate_World_empty.png).
+Then you get the [starting menu](assets/images/Screenshot Starting Menu.png). From here you can press `GENERATE WORLD` to get to the [world generator](assets/images/Screenshot_Generate_World_empty.png).
 
 Now by pressing `GENERATE WORLD` you can repeatedly [generate new worlds](assets/images/Screenshot_Generate_World_filled.png) until you find one you like.
 
