@@ -43,6 +43,7 @@ When pressing `SPACE` the user can pause the simulation and run it again by pres
 
 With the `ESCAPE` button the user can acces the [simulation settings](assets/images/Screenshot_Simulation_settings.png). (This is work in progress and has no use case for now, except from returning to the main menu)
 
+By pressing with the mouse on a tile without and organism a new animal can be spawned.
 
 ### Database interaction
 
