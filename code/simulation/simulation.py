@@ -9,6 +9,11 @@ from world.world import World
 
 class Simulation():
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
+    runtime_theme = pygame_menu.Theme(
+            background_color = pygame_menu.pygame_menu.themes.TRANSPARENT_COLOR,
+            title = False,
+            widget_margin = (0, 15),
+        )
 
     def __init__(self) -> None:
         pygame.init()
@@ -43,6 +48,7 @@ class Simulation():
         self._setup_options_menu()
         self._setup_database_options_menu()
         self._setup_generation_settings_menu()
+        self._setup_simulation_settings_menu()
 
     def _setup_starting_menu(self) -> None:
         self.starting_menu.add.button("Create a World", self.world_generation_loop)
@@ -60,29 +66,37 @@ class Simulation():
         self.database_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_generation_settings_menu(self) -> None:
-        theme = pygame_menu.Theme(
-            background_color = pygame_menu.pygame_menu.themes.TRANSPARENT_COLOR,
-            title = False,
-            widget_margin = (0, 15),
-        )
         self._generation_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
-            theme=theme,
+            theme=self.runtime_theme,
             title="",
         )
-        #self._generation_settings_menu.add.range_slider()
+
         self._generation_settings_menu.add.button("Generate World", self.generate_new_world)
+
         self.animal_spawning_chance = 0
-        #self._generation_settings_menu.add.text_input("ASC: ", self.animal_spawning_chance, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onchange=self.update_animal_spawning_chance,)
         self._generation_settings_menu.add.range_slider("ASC", self.animal_spawning_chance, (0,1), increment=.01, onchange=self.update_animal_spawning_chance,)
         self.plant_spawning_chance = 0
         self._generation_settings_menu.add.range_slider("PSC", self.plant_spawning_chance, (0,1), increment=.01, onchange=self.update_plant_spawning_chance,)
+
         self._generation_settings_menu.add.button("Spawn animals", self.spawn_animals)
         self._generation_settings_menu.add.button("Spawn plants", self.spawn_plants)
-        self._generation_settings_menu.add.button("Start simulation", self.run)
+        self._generation_settings_menu.add.button("Start simulation", self.run_loop)
         self._generation_settings_menu.add.button("Back", self.starting_menu.mainloop, self._surface)
+
+    def _setup_simulation_settings_menu(self) -> None:
+        self._simulation_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+        self._simulation_settings_menu.add.button("B1")
+        self._simulation_settings_menu.add.button("B2")
+        self._simulation_settings_menu.add.button("Back", self.world_generation_loop)
 
     def spawn_animals(self):
         self.world.spawn_animals(self.animal_spawning_chance)
@@ -96,7 +110,7 @@ class Simulation():
     def update_plant_spawning_chance(self, value):
         self.plant_spawning_chance = value
 
-    def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
+    def _update_gui(self, menu: pygame_menu.Menu = None, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
         self._surface.fill(pygame_menu.pygame_menu.themes.THEME_GREEN.background_color)
         if draw_grid:
             # TODO implement grid drawing
@@ -104,8 +118,8 @@ class Simulation():
 
         self.world.draw(self._surface)
 
-        if draw_menu:
-            self._generation_settings_menu.draw(self._surface)
+        if draw_menu and menu is not None:
+            menu.draw(self._surface)
 
         if draw_fps:
             fps_screen: pygame.Surface = settings.gui.title_font.render(f"{int(self._clock.get_fps())}", True, pygame.Color("black"))
@@ -125,7 +139,7 @@ class Simulation():
                 if event.type == pygame.QUIT:
                     self._quit()
 
-            self._update_gui()
+            self._update_gui(self._generation_settings_menu)
             pygame.display.flip()
             self._clock.tick(self._fps)
 
@@ -133,12 +147,12 @@ class Simulation():
         # TODO add loading bar
         self.world = World(self.world.rect.copy(), self.world.tile_size)
 
-    def run(self) -> None:
+    def run_loop(self) -> None:
         paused = False
         while True:
             events = pygame.event.get()
 
-            self._generation_settings_menu.update(events) # TODO change to runtime settings menu
+            self._simulation_settings_menu.update(events) # TODO change to runtime settings menu
 
             for event in events:
                 if event.type == pygame.QUIT:
@@ -147,7 +161,7 @@ class Simulation():
                     if event.key == pygame.K_SPACE:
                         paused = not paused
                     elif event.key == pygame.K_ESCAPE:
-                        self.starting_menu.mainloop(self._surface)
+                        self.world_generation_loop()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     tile = self.world.get_tile((pos[0], pos[1]))
@@ -167,7 +181,7 @@ class Simulation():
                 self.world.update()
 
             self.world.draw(self._surface)
-            self._update_gui()
+            self._update_gui(self._simulation_settings_menu)
             if self.selected_org:
                 # TODO change this so there is a new stat panel that is locked in place
                 self.selected_org.show_stats(self._surface, self.world.rect.topleft)
