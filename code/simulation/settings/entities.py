@@ -1,7 +1,5 @@
 import random
 
-import pygame
-
 # Organisms
 ENERGY_TO_HEALTH_RATIO: float = 0.5
 HEALTH_TO_ENERGY_RATIO: float = 1 / ENERGY_TO_HEALTH_RATIO
@@ -12,10 +10,12 @@ ORGANISM_BASE_HEIGHT_PREFERENCE: float = 0.5
 
 # Animals
 STARTING_ANIMAL_SPAWNING_CHANCE = 0.001
-ANIMAL_BASE_ATTACK_POWER: float = 8
+ANIMAL_BASE_ATTACK_POWER: float = 16
 ANIMAL_BASE_ENERGY_MAINTANCE: float = 10
 DROWNING_DAMAGE: float = 10
 
+def ANIMAL_STARTING_ATTACK_POWER():
+    return ANIMAL_BASE_ATTACK_POWER * random.random()
 
 def ANIMAL_STARTING_HEALTH():
     return PLANT_MAX_HEALTH * random.uniform(0.2, 0.4)
@@ -32,6 +32,8 @@ def ANIMAL_BASE_MOISTURE_PREFERENCE():
 def ANIMAL_BASE_HEIGHT_PREFERENCE():
     return random.random()
 
+def ANIMAL_STARTING_MUTATION_CHANCE():
+    return random.random()
 
 # Plants
 STARTING_PLANT_SPAWNING_CHANCE = 0.5
@@ -62,4 +64,7 @@ def PLANT_BASE_MOISTURE_PREFERENCE():
 
 
 def PLANT_BASE_HEIGHT_PREFERENCE():
+    return random.random()
+
+def PLANT_STARTING_MUTATION_CHANCE():
     return random.random()

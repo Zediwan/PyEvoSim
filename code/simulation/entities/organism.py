@@ -371,6 +371,7 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.color.b,
             self.moisture_preference,
             self.height_preference,
+            self.dna.mutation_chance_gene.value
         ]
 
     def get_headers(self) -> list[str]:
@@ -400,6 +401,7 @@ class Organism(ABC, pygame.sprite.Sprite):
             "Color blue value",
             "Moisture preference",
             "Height preference",
+            "Mutation chance"
         ]
 
     def save_to_csv(self):

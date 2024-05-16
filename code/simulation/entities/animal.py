@@ -63,9 +63,10 @@ class Animal(Organism):
         if not dna:
             dna = DNA(
                 settings.colors.BASE_ANIMAL_COLOR(),
-                settings.entities.ANIMAL_BASE_ATTACK_POWER,
+                settings.entities.ANIMAL_STARTING_ATTACK_POWER(),
                 settings.entities.ANIMAL_BASE_MOISTURE_PREFERENCE(),
-                settings.entities.PLANT_BASE_HEIGHT_PREFERENCE(),
+                settings.entities.ANIMAL_BASE_HEIGHT_PREFERENCE(),
+                settings.entities.ANIMAL_STARTING_MUTATION_CHANCE()
             )
 
         super().__init__(

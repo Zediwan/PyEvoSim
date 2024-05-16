@@ -65,6 +65,7 @@ class Plant(Organism):
                 settings.entities.PLANT_BASE_ATTACK_POWER,
                 settings.entities.PLANT_BASE_MOISTURE_PREFERENCE(),
                 settings.entities.PLANT_BASE_HEIGHT_PREFERENCE(),
+                settings.entities.PLANT_STARTING_MUTATION_CHANCE()
             )
 
         super().__init__(
