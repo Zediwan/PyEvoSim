@@ -5,6 +5,7 @@ import settings.database
 import settings.screen
 import settings.gui
 import settings.noise
+import settings.entities
 
 from world.world import World
 
@@ -42,16 +43,57 @@ class Simulation():
 
         self._setup_menus()
 
+    ##### SETUP ######################################################################
     def _setup_menus(self) -> None:
         self.starting_menu = pygame_menu.Menu("Starting Menu", self._surface.get_width(), self._surface.get_height(), theme=self.base_theme)
         self.options_menu = pygame_menu.Menu("Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.database_options = pygame_menu.Menu("Database Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
+        self._dna_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+        self._entity_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+        self._organism_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+        self._animal_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+        self._plant_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
 
         self._setup_starting_menu()
         self._setup_options_menu()
         self._setup_database_options_menu()
         self._setup_generation_settings_menu()
         self._setup_simulation_settings_menu()
+        self._setup_dna_settings_menu()
+        self._setup_entity_settings_menu()
+        self._setup_organism_settings_menu()
+        self._setup_animal_settings_menu()
+        self._setup_plant_settings_menu()
 
     def _setup_starting_menu(self) -> None:
         self.starting_menu.add.button("Create a World", self.world_generation_loop)
@@ -126,9 +168,38 @@ class Simulation():
             theme=self.runtime_theme,
             title="",
         )
-        self._simulation_settings_menu.add.button("B1")
-        self._simulation_settings_menu.add.button("B2")
+        self._simulation_settings_menu.add.button("Entities", self._entity_settings_menu)
+        self._simulation_settings_menu.add.button("DNA", self._dna_settings_menu)
         self._simulation_settings_menu.add.button("Back", self.world_generation_loop)
+
+    def _setup_dna_settings_menu(self) -> None:
+        self._dna_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_entity_settings_menu(self) -> None:
+        self._entity_settings_menu.add.button("Organisms", self._organism_settings_menu)
+        self._entity_settings_menu.add.button("Animals", self._animal_settings_menu)
+        self._entity_settings_menu.add.button("Plants", self._plant_settings_menu)
+        self._entity_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_organism_settings_menu(self) -> None:
+        self._organism_settings_menu.add.range_slider("Value 1", 0, (0, 1), increment=1)
+        self._organism_settings_menu.add.range_slider("Value 2", 0, (0, 1), increment=1)
+        self._organism_settings_menu.add.range_slider("Value 3", 0, (0, 1), increment=1)
+        self._organism_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_animal_settings_menu(self) -> None:
+        self._animal_settings_menu.add.range_slider("Value 1", 0, (0, 1), increment=1)
+        self._animal_settings_menu.add.range_slider("Value 2", 0, (0, 1), increment=1)
+        self._animal_settings_menu.add.range_slider("Value 3", 0, (0, 1), increment=1)
+        self._animal_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_plant_settings_menu(self) -> None:
+        self._plant_settings_menu.add.range_slider("Value 1", 0, (0, 1), increment=1)
+        self._plant_settings_menu.add.range_slider("Value 2", 0, (0, 1), increment=1)
+        self._plant_settings_menu.add.range_slider("Value 3", 0, (0, 1), increment=1)
+        self._plant_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    ###########################################################################
 
     def spawn_animals(self):
         self.world.spawn_animals(self.animal_spawning_chance)
@@ -142,6 +213,7 @@ class Simulation():
     def update_plant_spawning_chance(self, value):
         self.plant_spawning_chance = value
 
+    ##### LOOPS ######################################################################
     def _update_gui(self, menu: pygame_menu.Menu = None, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
         self._surface.fill(pygame_menu.pygame_menu.themes.THEME_GREEN.background_color)
         if draw_grid:
@@ -246,9 +318,9 @@ class Simulation():
 
             self._clock.tick(self._fps)
 
+    def mainlopp(self) -> None:
+        self.starting_menu.mainloop(self._surface)
+
     def _quit(self) -> None:
         pygame.quit()
         exit()
-
-    def mainlopp(self) -> None:
-        self.starting_menu.mainloop(self._surface)
