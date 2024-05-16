@@ -21,7 +21,9 @@ Below, you'll find information on how to set up and run the simulation, as well 
 
 ### Simulation
 
-To run the simulation you need to run the [main.py](code/simulation/main.py) file.
+To run the simulation you need to run the [main.py](code/simulation/main.py) file. When an organism dies in the simulation it is logged to a database with all the relevant information.
+
+Note: the database can be inspected without running the simulation as it uses a database from an older run.
 
 #### World generation
 
@@ -45,8 +47,8 @@ With the `ESCAPE` button the user can acces the [simulation settings](assets/ima
 
 By pressing with the mouse on a tile without and organism a new animal can be spawned.
 
-### GUI interaction
-To access the GUI, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
+### Database
+To access, filter and query the database, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
 
 To sort data in ascending/descending order in a column, right-click on the column and choose "Sort by "column name"" followed by an arrow.
 
