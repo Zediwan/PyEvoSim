@@ -55,6 +55,22 @@ To add a screenshot, create an `assets/images` folder in your repository and upl
     ![alt text](assets/images/screenshot.png)
     ```
 
+### GUI interaction
+To access the GUI, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
+
+To sort data in ascending/descending order in a column, right-click on the column and choose "Sort by "column name"" followed by an arrow.
+
+You can also apply a function (e.g. calculate the mean of a column with numerical data) by right-clicking on a column and choosing "Apply function".
+A little window pops up and you can choose between various functions, choose if the column will be updated by the values or a column will be created with a given name.
+
+To filter data to your liking, click on a row, right-click and choose "Filter Rows".
+![panels_filter](https://github.com/Zediwan/EvolutionSimulation/assets/42497189/9473d428-6164-4782-b09c-cdbdc4cb21cb)
+Either you can use String Queries or by clicking on the green plus symbol, you can define a custom filter where you can specify the column, the condition and the comparison value:
+![example_filter](https://github.com/Zediwan/EvolutionSimulation/assets/42497189/482f922f-0e04-46e5-b325-97b1eaec54d9)
+It is also possible to add more filters by clickinig on the green plus symbol.
+To apply filters, check the box "show filtered only" and click on the key symbol.
+To delete filters, click on the red cross symbol.
+
 ## Contributing
 
 If you'd like to contribute to the project, please follow these steps:
