@@ -166,6 +166,9 @@ def generate_world():
                 drawing = False
             if event.type == pygame.VIDEORESIZE:
                 generate_world()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    starting_menu()
             if world:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
@@ -253,6 +256,16 @@ def simulation_options(world: World):
         settings.colors.BUTTON_TEXT_HOVER_COLOR
     )
 
+    MENU_BUTTON: Button = Button(
+        SCREEN.get_rect().center,
+        "MENU",
+        settings.gui.button_font,
+        settings.colors.BUTTON_TEXT_BASE_COLOR,
+        settings.colors.BUTTON_TEXT_HOVER_COLOR
+    )
+    MENU_BUTTON.rect.bottom = SCREEN.get_rect().bottom
+    MENU_BUTTON.text_rect.bottom = SCREEN.get_rect().bottom
+
     OPTIONS_PLACEHOLDER_RECT: pygame.Rect = pygame.Rect(
         SCREEN.get_rect().centerx // 2,
         SCREEN.get_rect().centery // 2,
@@ -267,16 +280,20 @@ def simulation_options(world: World):
         SCREEN.blit(OPTIONS_PLACEHOLDER, OPTIONS_PLACEHOLDER_RECT)
         MOUSE_POSITION: tuple[int, int] = pygame.mouse.get_pos()
 
-        for button in [BACK_BUTTON]:
+        for button in [BACK_BUTTON, MENU_BUTTON]:
             button.change_color(MOUSE_POSITION)
             button.update(SCREEN)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
-
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if BACK_BUTTON.check_for_input(MOUSE_POSITION):
+                    simulate(world)
+                if MENU_BUTTON.check_for_input(MOUSE_POSITION):
+                    starting_menu()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
                     simulate(world)
 
         pygame.display.update()
@@ -327,7 +344,9 @@ def general_options():
                     starting_menu()
             if event.type == pygame.VIDEORESIZE:
                 general_options()
-
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    starting_menu()
         pygame.display.update()
 
 def exit():
@@ -367,5 +386,9 @@ def placeholder_state():
                 exit()
             if event.type == pygame.VIDEORESIZE:
                 placeholder_state()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    # Previous state
+                    pass
 
         pygame.display.update()
