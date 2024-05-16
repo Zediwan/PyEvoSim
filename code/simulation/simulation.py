@@ -15,6 +15,8 @@ class Simulation():
             widget_margin = (0, 15),
         )
 
+    brush_outline = 2
+
     def __init__(self) -> None:
         pygame.init()
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.VIDEORESIZE])
@@ -86,6 +88,8 @@ class Simulation():
         self._generation_settings_menu.add.button("Start simulation", self.run_loop)
         self._generation_settings_menu.add.button("Back", self.starting_menu.mainloop, self._surface)
 
+        self.brush_rect: pygame.Rect = pygame.Rect(0 , 0, 20, 20)
+
     def _setup_simulation_settings_menu(self) -> None:
         self._simulation_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
@@ -132,6 +136,8 @@ class Simulation():
     def world_generation_loop(self) -> None:
         while True:
             events = pygame.event.get()
+            mouse_pos = pygame.mouse.get_pos()
+            self.brush_rect.center = mouse_pos
 
             self._generation_settings_menu.update(events)
 
@@ -140,6 +146,15 @@ class Simulation():
                     self._quit()
 
             self._update_gui(self._generation_settings_menu)
+
+            if self.world.rect.contains(self.brush_rect):
+                # Draw cursor highlight
+                pygame.draw.rect(
+                    self._surface,
+                    pygame.Color("white"),
+                    self.brush_rect,
+                    width=self.brush_outline
+                )
             pygame.display.flip()
             self._clock.tick(self._fps)
 
