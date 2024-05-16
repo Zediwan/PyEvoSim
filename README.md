@@ -59,11 +59,11 @@ A little window pops up and you can choose between various functions, choose if 
 
 To filter data to your liking, click on a row, right-click and choose `Filter Rows`.
 
-![panels_filter](https://github.com/Zediwan/EvolutionSimulation/assets/42497189/9473d428-6164-4782-b09c-cdbdc4cb21cb)
+![panels_filter](assets/images/Screenshot_Panels_filter.png)
 
 Either you can use String Queries or by clicking on the green plus symbol, you can define a custom filter where you can specify the column, the condition and the comparison value:
 
-![example_filter](https://github.com/Zediwan/EvolutionSimulation/assets/42497189/482f922f-0e04-46e5-b325-97b1eaec54d9)
+![example_filter](assets/images/Screenshot_Example_filter.png)
 
 It is also possible to add more filters by clickinig on the green plus symbol.
 
