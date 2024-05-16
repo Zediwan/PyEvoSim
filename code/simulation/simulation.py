@@ -1,244 +1,226 @@
-import sys
-
 import pygame
+import pygame_menu
 
-import helper.formatter
-import settings.colors
-import settings.gui
+import settings.database
 import settings.screen
-from entities.animal import Animal
-from entities.organism import Organism
-from entities.plant import Plant
-from world.tile import Tile
+import settings.gui
+
 from world.world import World
 
-
-class Simulation:
-    def __init__(self, rect: pygame.Rect = None, tile_size: int = None):
-        if rect is None:
-            rect = pygame.Rect(0, 0, settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT)
-        self.rect: pygame.Rect = rect
-        self.image: pygame.Surface = pygame.Surface(rect)
-
-        if tile_size is None:
-            tile_size = self.rect.width // 10
-        self.world: World = World(self.rect, tile_size)
-        self.clock: pygame.time.Clock = pygame.time.Clock()
-        self.fps_max_limit: int = 120
-
-        self.selected_organism: Organism = None
-
-        # States
-        self.is_paused: bool = False
-        self.simulating: bool = True
-        self.in_menu: bool = False
-
-        # Menu
-        self.setup_menu()
-
-        # Stats
-        self.setup_stat_dict()
-
-        # Stat Panels
-        self.setup_stat_panels()
-        self.setup_stat_surfaces_and_boxes()
-
-    def setup_menu(self):
-        self.menu_background: pygame.Surface = pygame.Surface(pygame.display.get_surface().get_size())
-        self.menu_background.set_alpha(settings.colors.MENU_BACKGROUND_ALPHA)
-        self.menu_background.fill(settings.colors.MENU_BACKGROUND_COLOR)
-        self.menu_background_rect: pygame.Rect = pygame.display.get_surface().get_rect()
-        self.menu_text: pygame.Surface = settings.gui.title_font.render(
-            settings.gui.menu_title_text,
-            True,
-            settings.colors.MENU_FONT_COLOR,
+class Simulation():
+    base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
+    runtime_theme = pygame_menu.Theme(
+            background_color = pygame_menu.pygame_menu.themes.TRANSPARENT_COLOR,
+            title = False,
+            widget_margin = (0, 15),
         )
-        self.menu_text_rect: pygame.Rect = self.menu_text.get_rect(center=(pygame.display.get_surface().get_width() / 2, pygame.display.get_surface().get_height() / 2))
 
-    def setup_stat_dict(self):
-        self.stats = {
-            "World runtime seconds": (self.world.age_seconds, "top"),
-            "Ticks in World": (self.world.age_ticks, "top"),
-            "FPS": (int(self.clock.get_fps()), "top"),
-            "FPS Max Setting": (int(self.fps_max_limit), "top"),
-            "Organisms birthed": (Organism.organisms_birthed, "bottom"),
-            "Organisms died": (Organism.organisms_died, "bottom"),
-            "Animals birthed": (Animal.animals_birthed, "bottom"),
-            "Animals died": (Animal.animals_died, "bottom"),
-            "Plants birthed": (Plant.plants_birthed, "bottom"),
-            "Plants died": (Plant.plants_died, "bottom"),
-        }
+    brush_outline = 2
 
-    def setup_stat_panels(self):
-        self.panel_height: int = int(settings.gui.stat_panel_height_percentage * pygame.display.get_surface().get_height())
-        self.panel_font_size: int = int(settings.gui.stat_panel_font_percentage * self.panel_height)
-        self.panel_font: pygame.font.Font = pygame.font.SysFont(None, self.panel_font_size)
+    def __init__(self) -> None:
+        pygame.init()
+        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.VIDEORESIZE])
 
-        self.panel_top_rect: pygame.Rect = pygame.Rect(0, 0, pygame.display.get_surface().get_width(), self.panel_height)
-        self.panel_top: pygame.Surface = pygame.Surface(self.panel_top_rect.size)
-        self.panel_top.fill(settings.colors.STAT_BAR_BACKGROUND_COLOR)
+        self._width = settings.screen.SCREEN_WIDTH
+        self._height = settings.screen.SCREEN_HEIGHT
+        self._surface: pygame.Surface = pygame.display.set_mode(
+                (self._width, self._height),
+                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
+            )
+        pygame.display.set_caption("Evolution Simulation")
 
-        self.panel_top_border_rect: pygame.Rect = self.panel_top_rect.move(0, settings.gui.stat_panel_line_width)
-        self.panel_top_border: pygame.Surface = pygame.Surface(self.panel_top_border_rect.size)
-        self.panel_top_border.fill(settings.colors.STAT_BAR_BORDER_COLOR)
+        self._clock = pygame.time.Clock()
+        self._fps = 320
 
-        self.panel_bottom_rect: pygame.Rect = pygame.Rect(0, pygame.display.get_surface().get_height() - self.panel_height, pygame.display.get_surface().get_width(), self.panel_height)
-        self.panel_bottom: pygame.Surface = pygame.Surface(self.panel_bottom_rect.size)
-        self.panel_bottom.fill(settings.colors.STAT_BAR_BACKGROUND_COLOR)
+        rect = self._surface.get_rect()
+        rect.width *= .75
+        world_rect: pygame.Rect = rect
+        tile_size: int = world_rect.width // 120
+        self.world: World = World(world_rect, tile_size)
+        self.selected_org = None
 
-        self.panel_bottom_border_rect: pygame.Rect = self.panel_bottom_rect.move(0, -settings.gui.stat_panel_line_width)
-        self.panel_bottom_border: pygame.Surface = pygame.Surface(self.panel_bottom_border_rect.size)
-        self.panel_bottom_border.fill(settings.colors.STAT_BAR_BORDER_COLOR)
+        self._setup_menus()
 
-    def setup_stat_surfaces_and_boxes(self):
-        self.stat_surfaces = {}
-        self.stat_rects = {}
-        self.top_stats = {key: value for key, value in self.stats.items() if value[1] == 'top'}
-        self.bottom_stats = {key: value for key, value in self.stats.items() if value[1] == 'bottom'}
+    def _setup_menus(self) -> None:
+        self.starting_menu = pygame_menu.Menu("Starting Menu", self._surface.get_width(), self._surface.get_height(), theme=self.base_theme)
+        self.options_menu = pygame_menu.Menu("Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
+        self.database_options = pygame_menu.Menu("Database Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
 
-        # Setup for top panel
-        top_spacing = pygame.display.get_surface().get_width() / (len(self.top_stats) + 1)
-        top_panel_y = self.panel_height / 2
-        for index, (key, (value, _)) in enumerate(self.top_stats.items(), start=1):
-            text_surface = self.panel_font.render(f"{key}: {value}", True, settings.colors.STAT_BAR_FONT_COLOR)
-            text_rect = text_surface.get_rect(center=(top_spacing * index, top_panel_y))
-            self.stat_surfaces[key] = text_surface
-            self.stat_rects[key] = text_rect
+        self._setup_starting_menu()
+        self._setup_options_menu()
+        self._setup_database_options_menu()
+        self._setup_generation_settings_menu()
+        self._setup_simulation_settings_menu()
 
-        # Setup for bottom panel
-        bottom_spacing = pygame.display.get_surface().get_width() / (len(self.bottom_stats) + 1)
-        bottom_panel_y = pygame.display.get_surface().get_height() - self.panel_height / 2
-        for index, (key, (value, _)) in enumerate(self.bottom_stats.items(), start=1):
-            text_surface = self.panel_font.render(f"{key}: {value}", True, settings.colors.STAT_BAR_FONT_COLOR)
-            text_rect = text_surface.get_rect(center=(bottom_spacing * index, bottom_panel_y))
-            self.stat_surfaces[key] = text_surface
-            self.stat_rects[key] = text_rect
+    def _setup_starting_menu(self) -> None:
+        self.starting_menu.add.button("Create a World", self.world_generation_loop)
+        self.starting_menu.add.button("Options", self.options_menu)
+        self.starting_menu.add.button("Quit", quit)
 
-    # TODO enable spawning of animals and plants via mouse
-    # TODO enable stat displaying of animals and plants by klicking on them via mouse
-    # TODO implement settings panel
-    # TODO implement menu panel
-    def run(self):
+    def _setup_options_menu(self) -> None:
+        self.options_menu.add.button("Database", self.database_options)
+        self.options_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_database_options_menu(self) -> None:
+        self.database_options.add.toggle_switch("Create database", settings.database.save_csv, onchange=settings.database.update_save_csv)
+        self.database_options.add.toggle_switch("Save Animals to database", settings.database.save_animals_csv, onchange=settings.database.update_save_animals_csv)
+        self.database_options.add.toggle_switch("Save Plants to database", settings.database.save_plants_csv, onchange=settings.database.update_save_plants_csv)
+        self.database_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_generation_settings_menu(self) -> None:
+        self._generation_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+
+        self._generation_settings_menu.add.button("Generate World", self.generate_new_world)
+
+        self.animal_spawning_chance = 0
+        self._generation_settings_menu.add.range_slider("ASC", self.animal_spawning_chance, (0,1), increment=.01, onchange=self.update_animal_spawning_chance,)
+        self.plant_spawning_chance = 0
+        self._generation_settings_menu.add.range_slider("PSC", self.plant_spawning_chance, (0,1), increment=.01, onchange=self.update_plant_spawning_chance,)
+
+        self._generation_settings_menu.add.button("Spawn animals", self.spawn_animals)
+        self._generation_settings_menu.add.button("Spawn plants", self.spawn_plants)
+        self._generation_settings_menu.add.button("Start simulation", self.run_loop)
+        self._generation_settings_menu.add.button("Back", self.starting_menu.mainloop, self._surface)
+
+        self.brush_rect: pygame.Rect = pygame.Rect(0 , 0, 20, 20)
+
+    def _setup_simulation_settings_menu(self) -> None:
+        self._simulation_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+        self._simulation_settings_menu.add.button("B1")
+        self._simulation_settings_menu.add.button("B2")
+        self._simulation_settings_menu.add.button("Back", self.world_generation_loop)
+
+    def spawn_animals(self):
+        self.world.spawn_animals(self.animal_spawning_chance)
+
+    def spawn_plants(self):
+        self.world.spawn_plants(self.plant_spawning_chance)
+
+    def update_animal_spawning_chance(self, value):
+        self.animal_spawning_chance = value
+
+    def update_plant_spawning_chance(self, value):
+        self.plant_spawning_chance = value
+
+    def _update_gui(self, menu: pygame_menu.Menu = None, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
+        self._surface.fill(pygame_menu.pygame_menu.themes.THEME_GREEN.background_color)
+        if draw_grid:
+            # TODO implement grid drawing
+            pass
+
+        self.world.draw(self._surface)
+
+        if draw_menu and menu is not None:
+            menu.draw(self._surface)
+
+        if draw_fps:
+            fps_screen: pygame.Surface = settings.gui.title_font.render(f"{int(self._clock.get_fps())}", True, pygame.Color("black"))
+            fps_screen.set_alpha(100)
+            self._surface.blit(
+                fps_screen,
+                fps_screen.get_rect(topright = self._surface.get_rect().topright)
+            )
+
+    def world_generation_loop(self) -> None:
+        drawing = False
         while True:
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            mouse_pos = pygame.mouse.get_pos()
+            self.brush_rect.center = mouse_pos
+
+            self._generation_settings_menu.update(events)
+
+            for event in events:
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self._quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    drawing = True
+                if event.type == pygame.MOUSEBUTTONUP:
+                    drawing = False
 
-                if self.simulating:
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_SPACE:
-                            self.is_paused = not self.is_paused
-                        elif event.key == pygame.K_RETURN:
-                            self.world.spawn_animals(chance_to_spawn=settings.simulation.chance_to_spawn_animals_with_enter_key)
-                        elif event.key == pygame.K_1 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                            settings.gui.draw_height_level = not settings.gui.draw_height_level
-                            self.world.draw(pygame.display.get_surface())
-                        elif event.key == pygame.K_2 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                            settings.gui.draw_animal_health = not settings.gui.draw_animal_health
-                            self.world.draw(pygame.display.get_surface())
-                        elif event.key == pygame.K_3 and pygame.key.get_mods() and pygame.KMOD_ALT:
-                            settings.gui.draw_animal_energy = not settings.gui.draw_animal_energy
-                            self.world.draw(pygame.display.get_surface())
-                        elif (event.key == pygame.K_r and pygame.key.get_mods() and pygame.KMOD_SHIFT):
-                            self.world = World(self.world.rect, self.world.tile_size)
-                            self.selected_organism = None
-                            self.world.draw(pygame.display.get_surface())
-                        if event.key == pygame.K_ESCAPE:
-                            self.in_menu = True
-                            self.was_paused = self.is_paused
-                            self.is_paused = True
-                            self.simulating = False
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        tile: Tile = self.world.get_tiles(mouse_x, mouse_y)
+            if drawing:
+                intersecting_tiles = self.world.get_tiles(self.brush_rect)
+                if intersecting_tiles:
+                    for tile in intersecting_tiles:
+                        change_in_height = 0.01
+                        if tile.height >= change_in_height:
+                            tile.height -= change_in_height
+                    self.world.refresh_tiles()
 
-                        self.world.draw(pygame.display.get_surface())
-                        self.handle_stat_panels()
+            self._update_gui(self._generation_settings_menu)
 
+            if self.world.rect.contains(self.brush_rect):
+                # Draw cursor highlight
+                pygame.draw.rect(
+                    self._surface,
+                    pygame.Color("white"),
+                    self.brush_rect,
+                    width=self.brush_outline
+                )
+            pygame.display.flip()
+            self._clock.tick(self._fps)
+
+    def generate_new_world(self) -> None:
+        # TODO add loading bar
+        self.world = World(self.world.rect.copy(), self.world.tile_size)
+
+    def run_loop(self) -> None:
+        paused = False
+        while True:
+            events = pygame.event.get()
+
+            self._simulation_settings_menu.update(events) # TODO change to runtime settings menu
+
+            for event in events:
+                if event.type == pygame.QUIT:
+                    self._quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        paused = not paused
+                    elif event.key == pygame.K_ESCAPE:
+                        self.world_generation_loop()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    tile = self.world.get_tile((pos[0], pos[1]))
+                    if tile:
                         if tile.has_animal():
-                            self.selected_organism: Organism = tile.animal.sprite
-                            self.display_selected_organisms_stats()
+                            self.selected_org = tile.animal.sprite
                         elif tile.has_plant():
-                            self.selected_organism: Organism = tile.plant.sprite
-                            self.display_selected_organisms_stats()
+                            self.selected_org = tile.plant.sprite
                         else:
-                            if self.selected_organism:
-                                self.selected_organism.stat_panel = None
-                                self.selected_organism = None
-                elif self.in_menu:
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            self.is_paused = self.was_paused
-                            self.simulating = True
-                            self.in_menu = False
-                else:
-                    pass
+                            self.selected_org = None
+                            if not tile.has_water:
+                                self.world.spawn_animal(tile)
+                    else:
+                        self.selected_org = None
 
-            if self.simulating:
-                pygame.display.get_surface().fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
-                self.world.draw(pygame.display.get_surface())
-                self.handle_stat_panels()
-                self.display_selected_organisms_stats()
-                if not self.is_paused:
-                    self.world.update()
-            elif self.in_menu:
-                pygame.display.get_surface().fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
-                self.world.draw(pygame.display.get_surface())
-                self.handle_stat_panels()
-                self.draw_menu()
-            else:
-                pygame.display.get_surface().fill(pygame.Color("red"))
+            if not paused:
+                self.world.update()
 
-            pygame.display.update()
-            self.clock.tick(self.fps_max_limit)
+            self.world.draw(self._surface)
+            self._update_gui(self._simulation_settings_menu)
+            if self.selected_org:
+                # TODO change this so there is a new stat panel that is locked in place
+                self.selected_org.show_stats(self._surface, self.world.rect.topleft)
+            pygame.display.flip()
 
-    def draw_menu(self):
-        pygame.display.get_surface().blit(self.menu_background, self.menu_background_rect)
-        pygame.display.get_surface().blit(self.menu_text, self.menu_text_rect)
+            self._clock.tick(self._fps)
 
-    def display_selected_organisms_stats(self):
-        if self.selected_organism:
-            if (
-                self.selected_organism.is_alive()
-                or settings.gui.show_dead_organisms_stats
-            ):
-                self.selected_organism.show_stats(pygame.display.get_surface())
-            else:
-                self.selected_organism.stat_panel = None
-                self.selected_organism = None
+    def _quit(self) -> None:
+        pygame.quit()
+        exit()
 
-    def handle_stat_panels(self):
-        self.update_stats()
-        self.upper_stat_panel()
-        self.lower_stat_panel()
-        self.draw_stats()
-
-    def update_stats(self):
-        self.stats["World runtime seconds"] = (self.world.age_seconds, "top")
-        self.stats["Ticks in World"] = (self.world.age_ticks, "top")
-        self.stats["FPS"] = (int(self.clock.get_fps()), "top")
-        self.stats["FPS Max Setting"] = (int(self.fps_max_limit), "top")
-        self.stats["Organisms birthed"] = (Organism.organisms_birthed, "bottom")
-        self.stats["Organisms died"] = (Organism.organisms_died, "bottom")
-        self.stats["Animals birthed"] =  (Animal.animals_birthed, "bottom")
-        self.stats["Animals died"] = (Animal.animals_died, "bottom")
-        self.stats["Plants birthed"] =  (Plant.plants_birthed, "bottom")
-        self.stats["Plants died"] = (Plant.plants_died, "bottom")
-
-        # Update the text surfaces
-        for key, (value, _) in self.stats.items():
-            updated_text = f"{key}: {helper.formatter.format_number(value)}"
-            self.stat_surfaces[key] = self.panel_font.render(updated_text, True, settings.colors.STAT_BAR_FONT_COLOR)
-
-    def upper_stat_panel(self):
-        pygame.display.get_surface().blit(self.panel_top_border, self.panel_top_border_rect)
-        pygame.display.get_surface().blit(self.panel_top, self.panel_top_rect)
-
-    def lower_stat_panel(self):
-        pygame.display.get_surface().blit(self.panel_bottom_border, self.panel_bottom_border_rect)
-        pygame.display.get_surface().blit(self.panel_bottom, self.panel_bottom_rect)
-
-    def draw_stats(self):
-        for key in self.stats:
-            pygame.display.get_surface().blit(self.stat_surfaces[key], self.stat_rects[key])
+    def mainlopp(self) -> None:
+        self.starting_menu.mainloop(self._surface)
