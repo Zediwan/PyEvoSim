@@ -31,13 +31,6 @@ class World(pygame.sprite.Sprite):
         self.reset_stats()
         settings.simulation.organisms.empty()
 
-        # Set World frequency
-        range_max = 2000
-        self.height_frequency_x = 1 / random.uniform(-range_max, range_max)
-        self.height_frequency_y = 1 / random.uniform(-range_max, range_max)
-        self.moisture_frequency_x = 1 / random.uniform(-range_max, range_max)
-        self.moisture_frequency_y = 1 / random.uniform(-range_max, range_max)
-
         self.tiles = pygame.sprite.Group()
         tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)]
         for row in range(self.rows):
@@ -95,8 +88,8 @@ class World(pygame.sprite.Sprite):
 
         return Tile(
             pygame.Rect(x ,y ,self.tile_size, self.tile_size),
-            height = helper.noise.generate_height_values(x * self.height_frequency_x, y * self.height_frequency_x),
-            moisture = helper.noise.generate_moisture_values(x * self.moisture_frequency_x, y * self.moisture_frequency_y),
+            height = helper.noise.generate_height_values(x * settings.noise.height_freq_x, y * settings.noise.height_freq_y),
+            moisture = helper.noise.generate_moisture_values(x * settings.noise.moisture_freq_x, y * settings.noise.moisture_freq_y),
             is_border = self.is_border_tile(row=row, col=col),
         )
 

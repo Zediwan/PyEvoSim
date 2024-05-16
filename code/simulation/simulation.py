@@ -4,6 +4,7 @@ import pygame_menu
 import settings.database
 import settings.screen
 import settings.gui
+import settings.noise
 
 from world.world import World
 
@@ -76,13 +77,40 @@ class Simulation():
             title="",
         )
 
+        #TODO update these so changes to the sliders can be instantly seen on the world
+        self._generation_settings_menu.add.range_slider("Fx1", settings.noise.freq_x1, (0,10), increment=1, onchange=settings.noise.set_freq_x1)
+        self._generation_settings_menu.add.range_slider("Fy1", settings.noise.freq_y1, (0,10), increment=1, onchange=settings.noise.set_freq_y1)
+        self._generation_settings_menu.add.range_slider("Scale1", settings.noise.scale_1, (0,1), increment=.1, onchange=settings.noise.set_scale_1)
+        self._generation_settings_menu.add.range_slider("offsx1", settings.noise.offset_x1, (0,20), increment=1, onchange=settings.noise.set_offset_x1)
+        self._generation_settings_menu.add.range_slider("offsy1", settings.noise.offset_y1, (0,20), increment=1, onchange=settings.noise.set_offset_y1)
+        self._generation_settings_menu.add.range_slider("Fx2", settings.noise.freq_x2, (0,10), increment=1, onchange=settings.noise.set_freq_x2)
+        self._generation_settings_menu.add.range_slider("Fy2", settings.noise.freq_y2, (0,10), increment=1, onchange=settings.noise.set_freq_y2)
+        self._generation_settings_menu.add.range_slider("Scale2", settings.noise.scale_2, (0,1), increment=.1, onchange=settings.noise.set_scale_2)
+        self._generation_settings_menu.add.range_slider("offsx2", settings.noise.offset_x2, (0,20), increment=1, onchange=settings.noise.set_offset_x2)
+        self._generation_settings_menu.add.range_slider("offsy2", settings.noise.offset_y2, (0,20), increment=1, onchange=settings.noise.set_offset_y2)
+        self._generation_settings_menu.add.range_slider("Fx3", settings.noise.freq_x3, (0,10), increment=1, onchange=settings.noise.set_freq_x3)
+        self._generation_settings_menu.add.range_slider("Fy3", settings.noise.freq_y3, (0,10), increment=1, onchange=settings.noise.set_freq_y3)
+        self._generation_settings_menu.add.range_slider("Scale3", settings.noise.scale_3, (0,1), increment=.1, onchange=settings.noise.set_scale_3)
+        self._generation_settings_menu.add.range_slider("offsx3", settings.noise.offset_x3, (0,20), increment=1, onchange=settings.noise.set_offset_x3)
+        self._generation_settings_menu.add.range_slider("offsy3", settings.noise.offset_y3, (0,20), increment=1, onchange=settings.noise.set_offset_y3)
+        self._generation_settings_menu.add.range_slider("hpow", settings.noise.height_power, (1, 4), increment=1, onchange=settings.noise.set_height_power)
+        self._generation_settings_menu.add.range_slider("hfudge", settings.noise.height_fudge_factor, (.5, 1.5), increment=.1, onchange=settings.noise.set_fudge_factor)
+
+        self._generation_settings_menu.add.range_slider("hfx", settings.noise.height_freq_x, (-.01, .01), increment=.0001, onchange=settings.noise.set_height_freq_x)
+        self._generation_settings_menu.add.range_slider("hfy", settings.noise.height_freq_y, (-.01, .01), increment=.0001, onchange=settings.noise.set_height_freq_y)
+        self._generation_settings_menu.add.range_slider("mfx", settings.noise.moisture_freq_x, (-.01, .01), increment=.0001, onchange=settings.noise.set_moisture_freq_x)
+        self._generation_settings_menu.add.range_slider("mfy", settings.noise.moisture_freq_y, (-.01, .01), increment=.0001, onchange=settings.noise.set_moisture_freq_y)
+
+        self._generation_settings_menu.add.range_slider("moisture", settings.noise.moisture, (0, 1), increment=.01, onchange=settings.noise.set_moisture)
+        self._generation_settings_menu.add.range_slider("height", settings.noise.height, (0, 1), increment=.01, onchange=settings.noise.set_height)
+
+        # TODO add a randomise button
         self._generation_settings_menu.add.button("Generate World", self.generate_new_world)
 
         self.animal_spawning_chance = 0
         self._generation_settings_menu.add.range_slider("ASC", self.animal_spawning_chance, (0,1), increment=.01, onchange=self.update_animal_spawning_chance,)
         self.plant_spawning_chance = 0
         self._generation_settings_menu.add.range_slider("PSC", self.plant_spawning_chance, (0,1), increment=.01, onchange=self.update_plant_spawning_chance,)
-
         self._generation_settings_menu.add.button("Spawn animals", self.spawn_animals)
         self._generation_settings_menu.add.button("Spawn plants", self.spawn_plants)
         self._generation_settings_menu.add.button("Start simulation", self.run_loop)
@@ -161,7 +189,7 @@ class Simulation():
 
             self._update_gui(self._generation_settings_menu)
 
-            if self.world.rect.contains(self.brush_rect):
+            if self.world.rect.colliderect(self.brush_rect):
                 # Draw cursor highlight
                 pygame.draw.rect(
                     self._surface,

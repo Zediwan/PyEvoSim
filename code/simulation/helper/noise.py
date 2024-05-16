@@ -25,6 +25,9 @@ def generate_height_values(x: int, y: int) -> float:
     
     height = math.pow(height * settings.noise.height_fudge_factor, settings.noise.height_power)
     height = pygame.math.clamp(height, 0, 1)
+    height += (settings.noise.height*2)
+    height -= 1
+    height = pygame.math.clamp(height, 0, 1)
     
     return height
 
@@ -35,6 +38,10 @@ def generate_moisture_values(x: int, y: int) -> float:
     moisture += 1
     moisture /= 2
     
+    moisture += (settings.noise.moisture*2)
+    moisture -= 1
+    moisture = pygame.math.clamp(moisture, 0, 1)
+
     if not(0 <= moisture <= 1):
         raise ValueError(f"Moisture value not in range [0, 1] {moisture}")
     return moisture
