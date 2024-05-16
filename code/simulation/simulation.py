@@ -30,6 +30,7 @@ class Simulation():
         world_rect: pygame.Rect = rect
         tile_size: int = world_rect.width // 120
         self.world: World = World(world_rect, tile_size)
+        self.selected_org = None
 
         self._setup_menus()
 
@@ -145,12 +146,31 @@ class Simulation():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         paused = not paused
+                    elif event.key == pygame.K_ESCAPE:
+                        self.starting_menu.mainloop(self._surface)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    tile = self.world.get_tile((pos[0], pos[1]))
+                    if tile:
+                        if tile.has_animal():
+                            self.selected_org = tile.animal.sprite
+                        elif tile.has_plant():
+                            self.selected_org = tile.plant.sprite
+                        else:
+                            self.selected_org = None
+                            if not tile.has_water:
+                                self.world.spawn_animal(tile)
+                    else:
+                        self.selected_org = None
 
             if not paused:
                 self.world.update()
 
             self.world.draw(self._surface)
             self._update_gui()
+            if self.selected_org:
+                # TODO change this so there is a new stat panel that is locked in place
+                self.selected_org.show_stats(self._surface, self.world.rect.topleft)
             pygame.display.flip()
 
             self._clock.tick(self._fps)

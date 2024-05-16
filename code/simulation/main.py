@@ -68,63 +68,6 @@ from simulation import Simulation
 
 #         pygame.display.update()
 
-def simulate(world: World):
-    SCREEN.fill(settings.colors.SIMULATION_BACKGROUND_COLOR)
-    running: bool = True
-    selected_org = None
-
-    while True:
-        SCREEN.fill(settings.colors.BACKGROUND_COLOR)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                    simulation_options(world)
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                tile = world.get_tile((pos[0], pos[1]))
-                if tile:
-                    if tile.has_animal():
-                        selected_org = tile.animal.sprite
-                    elif tile.has_plant():
-                        selected_org = tile.plant.sprite
-                    else:
-                        selected_org = None
-                        if not tile.has_water:
-                            world.spawn_animal(tile)
-                else:
-                    selected_org = None
-            if event.type == pygame.VIDEORESIZE:
-                world.resize(SCREEN.get_rect().scale_by(.8, .8))
-            if running:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        running = False
-            else:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        running = True
-
-        if running:
-            world.update()
-
-        world.draw(SCREEN)
-
-        if selected_org:
-            selected_org.show_stats(SCREEN, world.rect.topleft)
-
-        fps_screen = settings.gui.title_font.render(f"{int(CLOCK.get_fps())}", True, pygame.Color("black"))
-        fps_screen.set_alpha(100)
-        SCREEN.blit(
-            fps_screen,
-            fps_screen.get_rect(topleft = (0,0))
-        )
-
-        CLOCK.tick()
-        pygame.display.update()
-
 def simulation_options(world: World):
     SCREEN.fill(settings.colors.BACKGROUND_COLOR)
 
