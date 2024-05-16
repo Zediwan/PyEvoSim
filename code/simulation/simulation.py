@@ -134,6 +134,7 @@ class Simulation():
             )
 
     def world_generation_loop(self) -> None:
+        drawing = False
         while True:
             events = pygame.event.get()
             mouse_pos = pygame.mouse.get_pos()
@@ -144,6 +145,19 @@ class Simulation():
             for event in events:
                 if event.type == pygame.QUIT:
                     self._quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    drawing = True
+                if event.type == pygame.MOUSEBUTTONUP:
+                    drawing = False
+
+            if drawing:
+                intersecting_tiles = self.world.get_tiles(self.brush_rect)
+                if intersecting_tiles:
+                    for tile in intersecting_tiles:
+                        change_in_height = 0.01
+                        if tile.height >= change_in_height:
+                            tile.height -= change_in_height
+                    self.world.refresh_tiles()
 
             self._update_gui(self._generation_settings_menu)
 
