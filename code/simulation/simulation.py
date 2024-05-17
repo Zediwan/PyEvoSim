@@ -4,11 +4,9 @@ import pygame_menu
 import settings.database
 import settings.screen
 import settings.gui
-import settings.noise
 import settings.entities
 
 from world.world import World
-from entities.animal import Animal
 
 class Simulation():
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
@@ -49,6 +47,17 @@ class Simulation():
         self.starting_menu = pygame_menu.Menu("Starting Menu", self._surface.get_width(), self._surface.get_height(), theme=self.base_theme)
         self.options_menu = pygame_menu.Menu("Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.database_options = pygame_menu.Menu("Database Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
+
+        ### Generation Loop menus
+        self._world_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
+
+        ### Simulation Loop menus
         self._dna_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
@@ -88,7 +97,10 @@ class Simulation():
         self._setup_starting_menu()
         self._setup_options_menu()
         self._setup_database_options_menu()
+        # Generation
         self._setup_generation_settings_menu()
+        self._setup_world_settings_menu()
+        # Simulation
         self._setup_simulation_settings_menu()
         self._setup_dna_settings_menu()
         self._setup_entity_settings_menu()
@@ -111,6 +123,7 @@ class Simulation():
         self.database_options.add.toggle_switch("Save Plants to database", settings.database.save_plants_csv, onchange=settings.database.update_save_plants_csv)
         self.database_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
+    #### GENERATION STATE ######################################################
     def _setup_generation_settings_menu(self) -> None:
         self._generation_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
@@ -120,35 +133,7 @@ class Simulation():
             title="",
         )
 
-        #TODO update these so changes to the sliders can be instantly seen on the world
-        self._generation_settings_menu.add.range_slider("Fx1", settings.noise.freq_x1, (0,10), increment=1, onchange=settings.noise.set_freq_x1)
-        self._generation_settings_menu.add.range_slider("Fy1", settings.noise.freq_y1, (0,10), increment=1, onchange=settings.noise.set_freq_y1)
-        self._generation_settings_menu.add.range_slider("Scale1", settings.noise.scale_1, (0,1), increment=.1, onchange=settings.noise.set_scale_1)
-        self._generation_settings_menu.add.range_slider("offsx1", settings.noise.offset_x1, (0,20), increment=1, onchange=settings.noise.set_offset_x1)
-        self._generation_settings_menu.add.range_slider("offsy1", settings.noise.offset_y1, (0,20), increment=1, onchange=settings.noise.set_offset_y1)
-        self._generation_settings_menu.add.range_slider("Fx2", settings.noise.freq_x2, (0,10), increment=1, onchange=settings.noise.set_freq_x2)
-        self._generation_settings_menu.add.range_slider("Fy2", settings.noise.freq_y2, (0,10), increment=1, onchange=settings.noise.set_freq_y2)
-        self._generation_settings_menu.add.range_slider("Scale2", settings.noise.scale_2, (0,1), increment=.1, onchange=settings.noise.set_scale_2)
-        self._generation_settings_menu.add.range_slider("offsx2", settings.noise.offset_x2, (0,20), increment=1, onchange=settings.noise.set_offset_x2)
-        self._generation_settings_menu.add.range_slider("offsy2", settings.noise.offset_y2, (0,20), increment=1, onchange=settings.noise.set_offset_y2)
-        self._generation_settings_menu.add.range_slider("Fx3", settings.noise.freq_x3, (0,10), increment=1, onchange=settings.noise.set_freq_x3)
-        self._generation_settings_menu.add.range_slider("Fy3", settings.noise.freq_y3, (0,10), increment=1, onchange=settings.noise.set_freq_y3)
-        self._generation_settings_menu.add.range_slider("Scale3", settings.noise.scale_3, (0,1), increment=.1, onchange=settings.noise.set_scale_3)
-        self._generation_settings_menu.add.range_slider("offsx3", settings.noise.offset_x3, (0,20), increment=1, onchange=settings.noise.set_offset_x3)
-        self._generation_settings_menu.add.range_slider("offsy3", settings.noise.offset_y3, (0,20), increment=1, onchange=settings.noise.set_offset_y3)
-        self._generation_settings_menu.add.range_slider("hpow", settings.noise.height_power, (1, 4), increment=1, onchange=settings.noise.set_height_power)
-        self._generation_settings_menu.add.range_slider("hfudge", settings.noise.height_fudge_factor, (.5, 1.5), increment=.1, onchange=settings.noise.set_fudge_factor)
-
-        self._generation_settings_menu.add.range_slider("hfx", settings.noise.height_freq_x, (-.01, .01), increment=.0001, onchange=settings.noise.set_height_freq_x)
-        self._generation_settings_menu.add.range_slider("hfy", settings.noise.height_freq_y, (-.01, .01), increment=.0001, onchange=settings.noise.set_height_freq_y)
-        self._generation_settings_menu.add.range_slider("mfx", settings.noise.moisture_freq_x, (-.01, .01), increment=.0001, onchange=settings.noise.set_moisture_freq_x)
-        self._generation_settings_menu.add.range_slider("mfy", settings.noise.moisture_freq_y, (-.01, .01), increment=.0001, onchange=settings.noise.set_moisture_freq_y)
-
-        self._generation_settings_menu.add.range_slider("moisture", settings.noise.moisture, (0, 1), increment=.01, onchange=settings.noise.set_moisture)
-        self._generation_settings_menu.add.range_slider("height", settings.noise.height, (0, 1), increment=.01, onchange=settings.noise.set_height)
-
-        # TODO add a randomise button
-        self._generation_settings_menu.add.button("Generate World", self.generate_new_world)
+        self._generation_settings_menu.add.button("World", self._world_settings_menu)
 
         self.animal_spawning_chance = 0
         self._generation_settings_menu.add.range_slider("ASC", self.animal_spawning_chance, (0,1), increment=.01, onchange=self.update_animal_spawning_chance,)
@@ -161,6 +146,39 @@ class Simulation():
 
         self.brush_rect: pygame.Rect = pygame.Rect(0 , 0, 20, 20)
 
+    def _setup_world_settings_menu(self) -> None:
+        #TODO update these so changes to the sliders can be instantly seen on the world
+        self._world_settings_menu.add.range_slider("Fx1", self.world.freq_x1, (0,10), increment=1, onchange=self.world.set_freq_x1)
+        self._world_settings_menu.add.range_slider("Fy1", self.world.freq_y1, (0,10), increment=1, onchange=self.world.set_freq_y1)
+        self._world_settings_menu.add.range_slider("Scale1", self.world.scale_1, (0,1), increment=.1, onchange=self.world.set_scale_1)
+        self._world_settings_menu.add.range_slider("offsx1", self.world.offset_x1, (0,20), increment=1, onchange=self.world.set_offset_x1)
+        self._world_settings_menu.add.range_slider("offsy1", self.world.offset_y1, (0,20), increment=1, onchange=self.world.set_offset_y1)
+        self._world_settings_menu.add.range_slider("Fx2", self.world.freq_x2, (0,10), increment=1, onchange=self.world.set_freq_x2)
+        self._world_settings_menu.add.range_slider("Fy2", self.world.freq_y2, (0,10), increment=1, onchange=self.world.set_freq_y2)
+        self._world_settings_menu.add.range_slider("Scale2", self.world.scale_2, (0,1), increment=.1, onchange=self.world.set_scale_2)
+        self._world_settings_menu.add.range_slider("offsx2", self.world.offset_x2, (0,20), increment=1, onchange=self.world.set_offset_x2)
+        self._world_settings_menu.add.range_slider("offsy2", self.world.offset_y2, (0,20), increment=1, onchange=self.world.set_offset_y2)
+        self._world_settings_menu.add.range_slider("Fx3", self.world.freq_x3, (0,10), increment=1, onchange=self.world.set_freq_x3)
+        self._world_settings_menu.add.range_slider("Fy3", self.world.freq_y3, (0,10), increment=1, onchange=self.world.set_freq_y3)
+        self._world_settings_menu.add.range_slider("Scale3", self.world.scale_3, (0,1), increment=.1, onchange=self.world.set_scale_3)
+        self._world_settings_menu.add.range_slider("offsx3", self.world.offset_x3, (0,20), increment=1, onchange=self.world.set_offset_x3)
+        self._world_settings_menu.add.range_slider("offsy3", self.world.offset_y3, (0,20), increment=1, onchange=self.world.set_offset_y3)
+        self._world_settings_menu.add.range_slider("hpow", self.world.height_power, (1, 4), increment=1, onchange=self.world.set_height_power)
+        self._world_settings_menu.add.range_slider("hfudge", self.world.height_fudge_factor, (.5, 1.5), increment=.1, onchange=self.world.set_fudge_factor)
+
+        self._world_settings_menu.add.range_slider("hfx", self.world.height_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_x)
+        self._world_settings_menu.add.range_slider("hfy", self.world.height_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_y)
+        self._world_settings_menu.add.range_slider("mfx", self.world.moisture_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_x)
+        self._world_settings_menu.add.range_slider("mfy", self.world.moisture_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_y)
+
+        self._world_settings_menu.add.range_slider("moisture", self.world.moisture, (0, 1), increment=.01, onchange=self.world.set_moisture)
+        self._world_settings_menu.add.range_slider("height", self.world.height, (0, 1), increment=.01, onchange=self.world.set_height)
+
+        # TODO add a randomise button
+        self._world_settings_menu.add.button("Randomize", self.world.randomise_freqs) # TODO update this so when randomising a new world is loaded
+        self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    #### SIMULATION STATE ######################################################
     def _setup_simulation_settings_menu(self) -> None:
         self._simulation_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
@@ -274,10 +292,6 @@ class Simulation():
                 )
             pygame.display.flip()
             self._clock.tick(self._fps)
-
-    def generate_new_world(self) -> None:
-        # TODO add loading bar
-        self.world = World(self.world.rect.copy(), self.world.tile_size)
 
     def run_loop(self) -> None:
         paused = False

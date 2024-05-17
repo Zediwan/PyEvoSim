@@ -4,10 +4,7 @@ import random
 
 import pygame
 
-import settings.colors
 import settings.database
-import settings.entities
-import settings.screen
 import settings.simulation
 from dna.dna import DNA
 from entities.organism import Organism
