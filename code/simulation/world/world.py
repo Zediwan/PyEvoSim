@@ -103,28 +103,20 @@ class World(pygame.sprite.Sprite):
             is_border = self.is_border_tile(row=row, col=col),
         )
 
-    def spawn_animals(self, chance_to_spawn: float = 1):
-        for tile in self.tiles:
-            self.spawn_animal(tile, chance_to_spawn=chance_to_spawn)
+    def spawn_animals(self, amount: float = 1):
+        for tile in random.choices(self.tiles.sprites(), k = amount):
+            self.spawn_animal(tile)
 
-    def spawn_plants(self, chance_to_spawn: float = 1):
-        for tile in self.tiles:
-            self.spawn_plant(tile, chance_to_spawn=chance_to_spawn)
+    def spawn_plants(self, amount: float = 1):
+        for tile in random.choices(self.tiles.sprites(), k = amount):
+            self.spawn_plant(tile)
 
-    def spawn_animal(self, tile: Tile, chance_to_spawn: float = 1):
-        if (
-            random.random() <= chance_to_spawn
-            and not tile.has_water
-            and not tile.has_animal()
-        ):
+    def spawn_animal(self, tile: Tile):
+        if not(tile.has_water or tile.has_animal()):
             settings.simulation.organisms.add(Animal(tile))
 
-    def spawn_plant(self, tile: Tile, chance_to_spawn: float = 1):
-        if (
-            random.random() <= chance_to_spawn
-            and not tile.has_water
-            and not tile.has_plant()
-        ):
+    def spawn_plant(self, tile: Tile):
+        if not(tile.has_water or tile.has_plant()):
             settings.simulation.organisms.add(Plant(tile))
 
     def add_neighbors(self, tiles):

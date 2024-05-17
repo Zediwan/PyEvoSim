@@ -186,12 +186,8 @@ class Simulation():
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_spawning_settings_menu(self) -> None:
-        self.animal_spawning_chance = 0
-        self._spawning_settings_menu.add.range_slider("ASC", self.animal_spawning_chance, (0,1), increment=.01, onchange=self.update_animal_spawning_chance,)
-        self.plant_spawning_chance = 0
-        self._spawning_settings_menu.add.range_slider("PSC", self.plant_spawning_chance, (0,1), increment=.01, onchange=self.update_plant_spawning_chance,)
-        self._spawning_settings_menu.add.button("Spawn animals", self.spawn_animals)
-        self._spawning_settings_menu.add.button("Spawn plants", self.spawn_plants)
+        self._spawning_settings_menu.add.text_input("Num. Animals: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.spawn_animals)
+        self._spawning_settings_menu.add.text_input("Num. Plants: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.spawn_plants)
         self._spawning_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_dna_settings_menu(self) -> None:
@@ -267,17 +263,11 @@ class Simulation():
     def toggle_pause(self, value):
         self.paused = not value
 
-    def spawn_animals(self):
-        self.world.spawn_animals(self.animal_spawning_chance)
+    def spawn_animals(self, value):
+        self.world.spawn_animals(value)
 
-    def spawn_plants(self):
-        self.world.spawn_plants(self.plant_spawning_chance)
-
-    def update_animal_spawning_chance(self, value):
-        self.animal_spawning_chance = value
-
-    def update_plant_spawning_chance(self, value):
-        self.plant_spawning_chance = value
+    def spawn_plants(self, value):
+        self.world.spawn_plants(value)
 
     ##### LOOPS ######################################################################
     def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
