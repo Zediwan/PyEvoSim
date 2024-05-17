@@ -68,10 +68,6 @@ class Plant(Organism):
         cls._MIN_REPRODUCTION_ENERGY = value
 
     @classmethod
-    def set_movement_energy_cost(cls, value: float):
-        cls._MOVEMENT_ENERGY_COST = value
-
-    @classmethod
     def set_starting_health(cls, value: float):
         cls._STARTING_HEALTH = value
 
