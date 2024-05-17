@@ -257,19 +257,17 @@ class Animal(Organism):
 
     ########################## Reproduction #################################
     def reproduce(self):
-        unoccupied_neighbor = self.tile.get_random_neigbor(
-            no_animal=True, no_water=True
-        )
-        if unoccupied_neighbor:
+        options = self.tile.get_random_neigbor(no_animal=True, no_water=True)
+        if options:
             # TODO create a gene that defines the amount of energy given to the child
             # TODO add a gene that defines how long an animal is pregnant
             ENERGY_TO_CHILD = self.MAX_ENERGY / 2
             self.energy -= ENERGY_TO_CHILD
-            offspring = self.copy(unoccupied_neighbor)
+            offspring = self.copy(options)
             # TODO add a gene that defines the energy distribution
             offspring_energy_distribution = .4
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
-            offspring.health = (ENERGY_TO_CHILD * (1-offspring_energy_distribution)) * settings.entities.ENERGY_TO_HEALTH_RATIO
+            offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
 

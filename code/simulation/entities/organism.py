@@ -9,7 +9,6 @@ import pygame
 
 import settings.colors
 import settings.database
-import settings.entities
 import settings.screen
 import stats.stat_panel
 from dna.dna import DNA
@@ -140,10 +139,10 @@ class Organism(ABC, pygame.sprite.Sprite):
     def energy(self, value: float):
         if value < self.MIN_ENERGY:
             self._energy = self.MIN_ENERGY
-            self.health += value * settings.entities.ENERGY_TO_HEALTH_RATIO
+            self.health += value
         elif value > self.MAX_ENERGY:
             self._energy = self.MAX_ENERGY
-            self.health += (value - self.MAX_ENERGY) * settings.entities.ENERGY_TO_HEALTH_RATIO
+            self.health += value - self.MAX_ENERGY
         else:
             self._energy = value
 

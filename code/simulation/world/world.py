@@ -4,7 +4,6 @@ import random
 import pygame
 
 import settings.database
-import settings.entities
 import settings.simulation
 from entities.animal import Animal
 from entities.organism import Organism

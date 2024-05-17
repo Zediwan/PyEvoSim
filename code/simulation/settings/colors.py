@@ -55,8 +55,3 @@ TROPICAL_RAIN_FOREST_COLOR: pygame.Color = pygame.Color(156, 187, 169)
 
 # Organism pygame.Colors
 BASE_ORGANISM_COLOR: pygame.Color = pygame.Color("black")
-
-# Plant pygame.Colors
-BASE_PLANT_COLOR: pygame.Color = pygame.Color(76, 141, 29)
-PLANT_MAX_ALPHA: float = 100
-PLANT_MIN_ALPHA: float = 20

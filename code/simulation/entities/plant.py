@@ -5,7 +5,6 @@ import pygame
 
 import settings.colors
 import settings.database
-import settings.entities
 import settings.screen
 import settings.simulation
 from dna.dna import DNA
@@ -15,38 +14,118 @@ from world.tile import Tile
 
 class Plant(Organism):
     _BASE_ENERGY_MAINTENANCE: float = 1
+    _MAX_HEALTH: float = 200
+    _MAX_ENERGY: float = 100
+    _NUTRITION_FACTOR: float = 0.8
+    _REPRODUCTION_CHANCE: float = 1
+    _MIN_REPRODUCTION_HEALTH: float = 0
+    _MIN_REPRODUCTION_ENERGY: float = 0.3
+
+    # Starting values
+    _STARTING_HEALTH: float = _MAX_HEALTH
+    _STARTING_ENERGY: float = _MAX_ENERGY
+    _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (0, 0)
+    _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
+
+    _REPRODUCTION_ENERGY_COST_FACTOR: float = 0.5
+    _OFFSPRING_HEALTH_FACTOR: float = 0
+    _OFFSPRING_ENERGY_FACTOR: float = 0.5
+    _PHOTOSYNTHESIS_ENERGY_MULTIPLIER: float = 4
+    _COAST_ENERGY_MULTIPLIER: float = 3
+
+    _BASE_COLOR: pygame.Color = pygame.Color(76, 141, 29)
+    _MAX_ALPHA: float = 100
+    _MIN_ALPHA: float = 20
+
+    @classmethod
+    def set_base_energy_maintenance(cls, value: float):
+        cls._BASE_ENERGY_MAINTENANCE = value
+
+    @classmethod
+    def set_max_health(cls, value: float):
+        cls._MAX_HEALTH = value
+
+    @classmethod
+    def set_max_energy(cls, value: float):
+        cls._MAX_ENERGY = value
+
+    @classmethod
+    def set_nutrition_factor(cls, value: float):
+        cls._NUTRITION_FACTOR = value
+
+    @classmethod
+    def set_reproduction_chance(cls, value: float):
+        cls._REPRODUCTION_CHANCE = value
+
+    @classmethod
+    def set_min_reproduction_health(cls, value: float):
+        cls._MIN_REPRODUCTION_HEALTH = value
+
+    @classmethod
+    def set_min_reproduction_energy(cls, value: float):
+        cls._MIN_REPRODUCTION_ENERGY = value
+
+    @classmethod
+    def set_movement_energy_cost(cls, value: float):
+        cls._MOVEMENT_ENERGY_COST = value
+
+    @classmethod
+    def set_starting_health(cls, value: float):
+        cls._STARTING_HEALTH = value
+
+    @classmethod
+    def set_starting_energy(cls, value: float):
+        cls._STARTING_ENERGY = value
+
+    @classmethod
+    def set_starting_attack_power_range(cls, value: tuple[float, float]):
+        cls._STARTING_ATTACK_POWER_RANGE = value
+
+    @classmethod
+    def set_starting_moisture_preference_range(cls, value: tuple[float, float]):
+        cls._STARTING_MOISTURE_PREFERENCE_RANGE = value
+
+    @classmethod
+    def set_starting_height_preference(cls, value: tuple[float, float]):
+        cls._STARTING_HEIGHT_PREFERENCE_RANGE = value
+
+    @classmethod
+    def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
+        cls._STARTING_MUTATION_CHANCE_RANGE = value
 
     @property
     def MAX_HEALTH(self) -> float:
-        return settings.entities.PLANT_MAX_HEALTH
+        return Plant._MAX_HEALTH
 
     @property
     def MAX_ENERGY(self) -> float:
-        return settings.entities.PLANT_MAX_ENERGY
+        return Plant._MAX_ENERGY
 
     @property
     def NUTRITION_FACTOR(self) -> float:
-        return settings.entities.PLANT_NUTRITION_FACTOR
+        return Plant._NUTRITION_FACTOR
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return settings.entities.PLANT_REPRODUCTION_CHANCE_FACTOR * self.health_ratio()
+        return Plant._REPRODUCTION_CHANCE
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:
-        return settings.entities.PLANT_MIN_REPRODUCTION_HEALTH
+        return Plant._MIN_REPRODUCTION_HEALTH
 
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
-        return settings.entities.PLANT_MIN_REPRODUCTION_ENERGY
+        return Plant._MIN_REPRODUCTION_ENERGY
     
     @property
     def MAX_ALPHA(self) -> float:
-        return settings.colors.PLANT_MAX_ALPHA
+        return Plant._MAX_ALPHA
     
     @property
     def MIN_ALPHA(self) -> float:
-        return settings.colors.PLANT_MIN_ALPHA
+        return Plant._MIN_ALPHA
 
     plants_birthed: int = 0
     plants_died: int = 0
@@ -63,18 +142,18 @@ class Plant(Organism):
 
         if not dna:
             dna = DNA(
-                settings.colors.BASE_PLANT_COLOR,
-                settings.entities.PLANT_BASE_ATTACK_POWER,
-                settings.entities.PLANT_BASE_MOISTURE_PREFERENCE(),
-                settings.entities.PLANT_BASE_HEIGHT_PREFERENCE(),
-                settings.entities.PLANT_STARTING_MUTATION_CHANCE()
+                Plant._BASE_COLOR,
+                random.uniform(Plant._STARTING_ATTACK_POWER_RANGE[0], Plant._STARTING_ATTACK_POWER_RANGE[1]),
+                random.uniform(Plant._STARTING_MOISTURE_PREFERENCE_RANGE[0], Plant._STARTING_MOISTURE_PREFERENCE_RANGE[1]),
+                random.uniform(Plant._STARTING_HEIGHT_PREFERENCE_RANGE[0], Plant._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
+                random.uniform(Plant._STARTING_MUTATION_CHANCE_RANGE[0], Plant._STARTING_MUTATION_CHANCE_RANGE[1]),
             )
 
         super().__init__(
             tile,
             rect,
-            settings.entities.PLANT_STARTING_HEALTH(),
-            settings.entities.PLANT_STARTING_ENERGY(),
+            Plant._STARTING_HEALTH,
+            Plant._STARTING_ENERGY,
             dna,
         )
 
@@ -82,23 +161,6 @@ class Plant(Organism):
 
     ########################## Update #################################
     def update(self):
-        """
-        Update the plant's state and perform photosynthesis.
-
-        This method updates the plant's state by calling the parent class's update method and then performs photosynthesis.
-        The steps performed in this method are as follows:
-
-        1. Call the parent class's update method:
-        - This updates the plant's health and energy based on its current state.
-
-        2. Perform photosynthesis:
-        - Calculate the base energy gained through photosynthesis by multiplying a random number between 0 and 1 with the plant's growth potential and the energy multiplier for photosynthesis.
-        - Calculate the preference match for height and moisture by subtracting the differences between the tile's height and moisture and the plant's height and moisture preferences from 1.
-        - Adjust the base energy gain by multiplying it with the average of the height preference match and moisture preference match.
-        - Add the adjusted energy gain to the plant's energy.
-
-        This method is called during the plant's update process to update its state and simulate photosynthesis.
-        """
         super().update()
         self.photosynthesise()
 
@@ -128,7 +190,7 @@ class Plant(Organism):
         base_energy = (
             random.random()
             * self.tile.plant_growth_potential
-            * settings.entities.PLANT_PHOTOSYNTHESIS_ENERGY_MULTIPLIER
+            * Plant._PHOTOSYNTHESIS_ENERGY_MULTIPLIER
         )
 
         # Calculate the preference match
@@ -184,18 +246,17 @@ class Plant(Organism):
 
     ########################## Reproduction #################################
     def reproduce(self):
-        super().reproduce()
         option = self.tile.get_random_neigbor(no_plant=True, no_water=True)
         if option:
             ENERGY_TO_CHILD = max(
-                settings.entities.PLANT_REPRODUCTION_ENERGY_COST_FACTOR * self.MAX_ENERGY,
+                Plant._REPRODUCTION_ENERGY_COST_FACTOR * self.MAX_ENERGY,
                 self.energy * .8
                 )
             self.energy -= ENERGY_TO_CHILD
             offspring = self.copy(option)
             offspring_energy_distribution = .5
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
-            offspring.health = (ENERGY_TO_CHILD * (1-offspring_energy_distribution)) * settings.entities.ENERGY_TO_HEALTH_RATIO
+            offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
             # print("Plant offspring birthed!")
@@ -205,6 +266,3 @@ class Plant(Organism):
         Plant.plants_birthed += 1
 
         return Plant(tile, parent=self, dna=self.dna.copy())
-
-    def mutate(self):
-        super().mutate()

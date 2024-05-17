@@ -3,9 +3,8 @@ import pygame_menu
 
 import settings.database
 import settings.screen
-import settings.gui
-import settings.entities
 from entities.animal import Animal
+from entities.plant import Plant
 
 from world.world import World
 
@@ -19,6 +18,7 @@ class Simulation():
     TRANSPARENT_BLACK_COLOR = (0, 0, 0, 100)
 
     brush_outline = 2
+    fps_font = pygame.font.Font(None, 100)
 
     def __init__(self) -> None:
         pygame.init()
@@ -236,7 +236,29 @@ class Simulation():
         self._animal_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_plant_settings_menu(self) -> None:
+        #self._plant_settings_menu.add.label("Spawning Attack Power Range")
+        #self._plant_settings_menu.add.range_slider("", Plant._STARTING_ATTACK_POWER_RANGE, (0, 50), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_attack_power_range)
+        self._plant_settings_menu.add.label("Spawning Moisture Preference Range")
+        self._plant_settings_menu.add.range_slider("", Plant._STARTING_MOISTURE_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_moisture_preference_range)
+        self._plant_settings_menu.add.label("Spawning Height Preference Range")
+        self._plant_settings_menu.add.range_slider("", Plant._STARTING_HEIGHT_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_height_preference)
+        self._plant_settings_menu.add.label("Spawning Mutation Chance Range")
+        self._plant_settings_menu.add.range_slider("", Plant._STARTING_MUTATION_CHANCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_mutation_chance_range)
 
+        self._plant_settings_menu.add.label("Energy Maintenance Cost")
+        self._plant_settings_menu.add.range_slider("", Plant._BASE_ENERGY_MAINTENANCE, (0, 100), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_base_energy_maintenance)
+        self._plant_settings_menu.add.label("Max Health")
+        self._plant_settings_menu.add.range_slider("", Plant._MAX_HEALTH, (1, 1000), increment=10, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_max_health)
+        self._plant_settings_menu.add.label("Max Energy")
+        self._plant_settings_menu.add.range_slider("", Plant._MAX_ENERGY, (1, 1000), increment=10, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_max_energy)
+        self._plant_settings_menu.add.label("Nutriton Factor")
+        self._plant_settings_menu.add.range_slider("", Plant._NUTRITION_FACTOR, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_nutrition_factor)
+        self._plant_settings_menu.add.label("Reproduction Chance")
+        self._plant_settings_menu.add.range_slider("", Plant._REPRODUCTION_CHANCE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_reproduction_chance)
+        self._plant_settings_menu.add.label("Min Health % to reproduce")
+        self._plant_settings_menu.add.range_slider("", Plant._MIN_REPRODUCTION_HEALTH, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_min_reproduction_health)
+        self._plant_settings_menu.add.label("Min Energy % to reproduce")
+        self._plant_settings_menu.add.range_slider("", Plant._MIN_REPRODUCTION_ENERGY, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_min_reproduction_energy)
 
         self._plant_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
@@ -269,7 +291,7 @@ class Simulation():
             self._running_settings_menu.draw(self._surface)
 
         if draw_fps:
-            fps_screen: pygame.Surface = settings.gui.title_font.render(f"{int(self._clock.get_fps())}", True, pygame.Color("black"))
+            fps_screen: pygame.Surface = self.fps_font.render(f"{int(self._clock.get_fps())}", True, pygame.Color("black"))
             fps_screen.set_alpha(100)
             self._surface.blit(
                 fps_screen,
