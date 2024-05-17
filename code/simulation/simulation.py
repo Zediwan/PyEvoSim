@@ -39,6 +39,7 @@ class Simulation():
         tile_size: int = world_rect.width // 120
         self.world: World = World(world_rect, tile_size)
         self.selected_org = None
+        self.paused = True
 
         self._setup_menus()
 
@@ -56,7 +57,13 @@ class Simulation():
             theme=self.runtime_theme,
             title="",
         )
-
+        self._spawning_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="",
+        )
         ### Simulation Loop menus
         self._dna_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
@@ -98,10 +105,10 @@ class Simulation():
         self._setup_options_menu()
         self._setup_database_options_menu()
         # Generation
-        self._setup_generation_settings_menu()
+        self._setup_running_settings_menu()
         self._setup_world_settings_menu()
+        self._setup_spawning_settings_menu()
         # Simulation
-        self._setup_simulation_settings_menu()
         self._setup_dna_settings_menu()
         self._setup_entity_settings_menu()
         self._setup_organism_settings_menu()
@@ -109,7 +116,7 @@ class Simulation():
         self._setup_plant_settings_menu()
 
     def _setup_starting_menu(self) -> None:
-        self.starting_menu.add.button("Create a World", self.world_generation_loop)
+        self.starting_menu.add.button("Create a World", self.run_loop)
         self.starting_menu.add.button("Options", self.options_menu)
         self.starting_menu.add.button("Quit", quit)
 
@@ -123,9 +130,9 @@ class Simulation():
         self.database_options.add.toggle_switch("Save Plants to database", settings.database.save_plants_csv, onchange=settings.database.update_save_plants_csv)
         self.database_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
-    #### GENERATION STATE ######################################################
-    def _setup_generation_settings_menu(self) -> None:
-        self._generation_settings_menu = pygame_menu.Menu(
+    #### RUNNING STATE ######################################################
+    def _setup_running_settings_menu(self) -> None:
+        self._running_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
@@ -133,16 +140,13 @@ class Simulation():
             title="",
         )
 
-        self._generation_settings_menu.add.button("World", self._world_settings_menu)
+        self._running_settings_menu.add.button("World", self._world_settings_menu)
+        self._running_settings_menu.add.button("Spawning", self._spawning_settings_menu)
+        self._running_settings_menu.add.button("Entities", self._entity_settings_menu)
+        self._running_settings_menu.add.button("DNA", self._dna_settings_menu)
 
-        self.animal_spawning_chance = 0
-        self._generation_settings_menu.add.range_slider("ASC", self.animal_spawning_chance, (0,1), increment=.01, onchange=self.update_animal_spawning_chance,)
-        self.plant_spawning_chance = 0
-        self._generation_settings_menu.add.range_slider("PSC", self.plant_spawning_chance, (0,1), increment=.01, onchange=self.update_plant_spawning_chance,)
-        self._generation_settings_menu.add.button("Spawn animals", self.spawn_animals)
-        self._generation_settings_menu.add.button("Spawn plants", self.spawn_plants)
-        self._generation_settings_menu.add.button("Start simulation", self.run_loop)
-        self._generation_settings_menu.add.button("Back", self.starting_menu.mainloop, self._surface)
+        self._running_settings_menu.add.toggle_switch("", (not self.paused), self.toggle_pause, state_text=("Paused", "Running"), toggleswitch_id="GameState")
+        self._running_settings_menu.add.button("Back", self.starting_menu.mainloop, self._surface)
 
         self.brush_rect: pygame.Rect = pygame.Rect(0 , 0, 20, 20)
 
@@ -178,18 +182,14 @@ class Simulation():
         self._world_settings_menu.add.button("Randomize", self.world.randomise_freqs) # TODO update this so when randomising a new world is loaded
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
-    #### SIMULATION STATE ######################################################
-    def _setup_simulation_settings_menu(self) -> None:
-        self._simulation_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
-            position=(self.world.rect.right, 0, False),
-            theme=self.runtime_theme,
-            title="",
-        )
-        self._simulation_settings_menu.add.button("Entities", self._entity_settings_menu)
-        self._simulation_settings_menu.add.button("DNA", self._dna_settings_menu)
-        self._simulation_settings_menu.add.button("Back", self.world_generation_loop)
+    def _setup_spawning_settings_menu(self) -> None:
+        self.animal_spawning_chance = 0
+        self._spawning_settings_menu.add.range_slider("ASC", self.animal_spawning_chance, (0,1), increment=.01, onchange=self.update_animal_spawning_chance,)
+        self.plant_spawning_chance = 0
+        self._spawning_settings_menu.add.range_slider("PSC", self.plant_spawning_chance, (0,1), increment=.01, onchange=self.update_plant_spawning_chance,)
+        self._spawning_settings_menu.add.button("Spawn animals", self.spawn_animals)
+        self._spawning_settings_menu.add.button("Spawn plants", self.spawn_plants)
+        self._spawning_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_dna_settings_menu(self) -> None:
         self._dna_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
@@ -220,7 +220,10 @@ class Simulation():
         self._plant_settings_menu.add.range_slider("Value 3", 0, (0, 1), increment=1)
         self._plant_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
-    ###########################################################################
+    ####### CALLBACK FUNCTIONS ########################################################
+
+    def toggle_pause(self, value):
+        self.paused = not value
 
     def spawn_animals(self):
         self.world.spawn_animals(self.animal_spawning_chance)
@@ -235,16 +238,15 @@ class Simulation():
         self.plant_spawning_chance = value
 
     ##### LOOPS ######################################################################
-    def _update_gui(self, menu: pygame_menu.Menu = None, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
+    def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
         self._surface.fill(pygame_menu.pygame_menu.themes.THEME_GREEN.background_color)
         if draw_grid:
             # TODO implement grid drawing
             pass
 
         self.world.draw(self._surface)
-
-        if draw_menu and menu is not None:
-            menu.draw(self._surface)
+        if draw_menu:
+            self._running_settings_menu.draw(self._surface)
 
         if draw_fps:
             fps_screen: pygame.Surface = settings.gui.title_font.render(f"{int(self._clock.get_fps())}", True, pygame.Color("black"))
@@ -254,60 +256,23 @@ class Simulation():
                 fps_screen.get_rect(topright = self._surface.get_rect().topright)
             )
 
-    def world_generation_loop(self) -> None:
-        drawing = False
-        while True:
-            events = pygame.event.get()
-            mouse_pos = pygame.mouse.get_pos()
-            self.brush_rect.center = mouse_pos
-
-            self._generation_settings_menu.update(events)
-
-            for event in events:
-                if event.type == pygame.QUIT:
-                    self._quit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    drawing = True
-                if event.type == pygame.MOUSEBUTTONUP:
-                    drawing = False
-
-            if drawing:
-                intersecting_tiles = self.world.get_tiles(self.brush_rect)
-                if intersecting_tiles:
-                    for tile in intersecting_tiles:
-                        change_in_height = 0.01
-                        if tile.height >= change_in_height:
-                            tile.height -= change_in_height
-                    self.world.refresh_tiles()
-
-            self._update_gui(self._generation_settings_menu)
-
-            if self.world.rect.colliderect(self.brush_rect):
-                # Draw cursor highlight
-                pygame.draw.rect(
-                    self._surface,
-                    pygame.Color("white"),
-                    self.brush_rect,
-                    width=self.brush_outline
-                )
-            pygame.display.flip()
-            self._clock.tick(self._fps)
-
     def run_loop(self) -> None:
-        paused = False
+        #drawing = False
         while True:
+            # mouse_pos = pygame.mouse.get_pos()
+            # self.brush_rect.center = mouse_pos
+
             events = pygame.event.get()
 
-            self._simulation_settings_menu.update(events) # TODO change to runtime settings menu
+            self._running_settings_menu.update(events) # TODO change to runtime settings menu
 
             for event in events:
                 if event.type == pygame.QUIT:
                     self._quit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        paused = not paused
-                    elif event.key == pygame.K_ESCAPE:
-                        self.world_generation_loop()
+                        self._running_settings_menu.get_widget("GameState").set_value(self.paused)
+                        self.paused = not self.paused
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     tile = self.world.get_tile((pos[0], pos[1]))
@@ -322,15 +287,29 @@ class Simulation():
                                 self.world.spawn_animal(tile)
                     else:
                         self.selected_org = None
+                    #drawing = True
+                # if event.type == pygame.MOUSEBUTTONUP:
+                #     drawing = False
 
-            if not paused:
+            if not self.paused:
                 self.world.update()
 
             self.world.draw(self._surface)
-            self._update_gui(self._simulation_settings_menu)
+            self._update_gui()
+
+            # if self.world.rect.colliderect(self.brush_rect):
+            #     # Draw cursor highlight
+            #     pygame.draw.rect(
+            #         self._surface,
+            #         pygame.Color("white"),
+            #         self.brush_rect,
+            #         width=self.brush_outline
+            #     )
+
             if self.selected_org:
                 # TODO change this so there is a new stat panel that is locked in place
                 self.selected_org.show_stats(self._surface, self.world.rect.topleft)
+
             pygame.display.flip()
 
             self._clock.tick(self._fps)

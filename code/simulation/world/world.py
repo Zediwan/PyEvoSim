@@ -161,23 +161,23 @@ class World(pygame.sprite.Sprite):
 
     ############ NOISE ############################################################
     def _setup_noise_settings(self):
-        self.freq_x1 = 1
-        self.freq_y1 = 1
-        self.freq_x2 = 2
-        self.freq_y2 = 2
-        self.freq_x3 = 4
-        self.freq_y3 = 4
-        self.scale_1 = 1
-        self.scale_2 = 0.5
-        self.scale_3 = 0.25
-        self.offset_x1 = 0
-        self.offset_y1 = 0
-        self.offset_x2 = 4.7
-        self.offset_y2 = 2.3
-        self.offset_x3 = 19.1
-        self.offset_y3 = 16.6
-        self.height_power = 2  # TODO make this a slider in the settings
-        self.height_fudge_factor = 1.2  # Should be a number near 1
+        self.freq_x1: float = 1
+        self.freq_y1: float = 1
+        self.freq_x2: float = 2
+        self.freq_y2: float = 2
+        self.freq_x3: float = 4
+        self.freq_y3: float = 4
+        self.scale_1: float = random.uniform(.66, 1)
+        self.scale_2: float = random.uniform(.33, .66)
+        self.scale_3: float = random.uniform(0, .33)
+        self.offset_x1: float = 0
+        self.offset_y1: float = 0
+        self.offset_x2: float = 4.7
+        self.offset_y2: float = 2.3
+        self.offset_x3: float = 19.1
+        self.offset_y3: float = 16.6
+        self.height_power: float = 2  # TODO make this a slider in the settings
+        self.height_fudge_factor: float = 1.2  # Should be a number near 1
         self.height_freq_x: float = random.uniform(-0.01, 0.01)
         self.height_freq_y: float = random.uniform(-0.01, 0.01)
         self.moisture_freq_x: float = random.uniform(-0.01, 0.01)
