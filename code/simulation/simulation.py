@@ -12,7 +12,6 @@ class Simulation():
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
     runtime_theme = pygame_menu.Theme(
             background_color = pygame_menu.pygame_menu.themes.TRANSPARENT_COLOR,
-            title = False,
             widget_margin = (0, 15),
         )
     TRANSPARENT_BLACK_COLOR = (0, 0, 0, 100)
@@ -51,66 +50,71 @@ class Simulation():
         self.options_menu = pygame_menu.Menu("Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.database_options = pygame_menu.Menu("Database Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
 
-        ### Generation Loop menus
+        ### Runtime Loop menus
+        self._running_settings_menu = pygame_menu.Menu(
+            width=self._surface.get_width()-self.world.rect.right,
+            height=self._height,
+            position=(self.world.rect.right, 0, False),
+            theme=self.runtime_theme,
+            title="Simulation",
+        )
         self._world_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="",
+            title="World",
         )
         self._spawning_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="",
+            title="Spawning",
         )
-        ### Simulation Loop menus
         self._dna_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="",
+            title="DNA",
         )
         self._entity_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="",
+            title="Entity",
         )
         self._organism_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="",
+            title="Organism",
         )
         self._animal_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="",
+            title="Animal",
         )
         self._plant_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._height,
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="",
+            title="Plant",
         )
 
         self._setup_starting_menu()
         self._setup_options_menu()
         self._setup_database_options_menu()
-        # Generation
+        # Runtime
         self._setup_running_settings_menu()
         self._setup_world_settings_menu()
         self._setup_spawning_settings_menu()
-        # Simulation
         self._setup_dna_settings_menu()
         self._setup_entity_settings_menu()
         self._setup_organism_settings_menu()
@@ -135,14 +139,6 @@ class Simulation():
 
     #### RUNNING STATE ######################################################
     def _setup_running_settings_menu(self) -> None:
-        self._running_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
-            position=(self.world.rect.right, 0, False),
-            theme=self.runtime_theme,
-            title="",
-        )
-
         self._running_settings_menu.add.button("World", self._world_settings_menu)
         self._running_settings_menu.add.button("Spawning", self._spawning_settings_menu)
         self._running_settings_menu.add.button("Entities", self._entity_settings_menu)
@@ -290,7 +286,7 @@ class Simulation():
 
             events = pygame.event.get()
 
-            self._running_settings_menu.update(events) # TODO change to runtime settings menu
+            self._running_settings_menu.update(events)
 
             for event in events:
                 if event.type == pygame.QUIT:
