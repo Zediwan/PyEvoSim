@@ -14,6 +14,8 @@ from world.tile import Tile
 
 
 class Plant(Organism):
+    _BASE_ENERGY_MAINTENANCE: float = 1
+
     @property
     def MAX_HEALTH(self) -> float:
         return settings.entities.PLANT_MAX_HEALTH
@@ -175,6 +177,10 @@ class Plant(Organism):
         super().get_attacked(attacking_organism)
         if not self.is_alive():
             attacking_organism.plants_killed += 1
+
+    def get_energy_maintenance(self) -> float:
+        # TODO update this so it is different for different plants
+        return Plant._BASE_ENERGY_MAINTENANCE
 
     ########################## Reproduction #################################
     def reproduce(self):

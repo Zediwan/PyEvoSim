@@ -8,6 +8,7 @@ import settings.noise
 import settings.entities
 
 from world.world import World
+from entities.animal import Animal
 
 class Simulation():
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
@@ -188,9 +189,11 @@ class Simulation():
         self._organism_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_animal_settings_menu(self) -> None:
-        self._animal_settings_menu.add.range_slider("Value 1", 0, (0, 1), increment=1)
-        self._animal_settings_menu.add.range_slider("Value 2", 0, (0, 1), increment=1)
-        self._animal_settings_menu.add.range_slider("Value 3", 0, (0, 1), increment=1)
+        # self._animal_settings_menu.add.range_slider("Reproduction Chance", Animal.REPRODUCTION_CHANCE, (0, 1), increment=0.01, onchange=Animal.update_reproduction_chance)
+        # self._animal_settings_menu.add.range_slider("Minimum Reproduction Health", Animal.MIN_REPRODUCTION_HEALTH, (0, 1), increment=0.01, onchange=Animal.update_min_reproduction_health)
+        # self._animal_settings_menu.add.range_slider("Minimum Reproduction Energy", Animal.MIN_REPRODUCTION_ENERGY, (0, 1), increment=0.01, onchange=Animal.update_min_reproduction_energy)
+        # self._animal_settings_menu.add.range_slider("Max Health", Animal.MAX_HEALTH, (50, 200), increment=5, onchange=Animal.update_max_health)
+        # self._animal_settings_menu.add.range_slider("Max Energy", Animal.MAX_ENERGY, (100, 300), increment=10, onchange=Animal.update_max_energy)
         self._animal_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_plant_settings_menu(self) -> None:

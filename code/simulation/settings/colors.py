@@ -1,5 +1,3 @@
-import random
-
 import pygame
 
 
@@ -57,15 +55,6 @@ TROPICAL_RAIN_FOREST_COLOR: pygame.Color = pygame.Color(156, 187, 169)
 
 # Organism pygame.Colors
 BASE_ORGANISM_COLOR: pygame.Color = pygame.Color("black")
-
-
-# Animals pygame.Colors
-ANIMAL_MAX_ALPHA: float = 255
-ANIMAL_MIN_ALPHA: float = 150
-def BASE_ANIMAL_COLOR():
-    return pygame.Color(
-        random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
-    )
 
 # Plant pygame.Colors
 BASE_PLANT_COLOR: pygame.Color = pygame.Color(76, 141, 29)
