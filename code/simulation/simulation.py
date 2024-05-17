@@ -186,8 +186,8 @@ class Simulation():
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_spawning_settings_menu(self) -> None:
-        self._spawning_settings_menu.add.text_input("Num. Animals: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.spawn_animals)
-        self._spawning_settings_menu.add.text_input("Num. Plants: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.spawn_plants)
+        self._spawning_settings_menu.add.text_input("Num. Animals: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.world.spawn_animals)
+        self._spawning_settings_menu.add.text_input("Num. Plants: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.world.spawn_plants)
         self._spawning_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_dna_settings_menu(self) -> None:
@@ -263,12 +263,6 @@ class Simulation():
     def toggle_pause(self, value):
         self.paused = not value
 
-    def spawn_animals(self, value):
-        self.world.spawn_animals(value)
-
-    def spawn_plants(self, value):
-        self.world.spawn_plants(value)
-
     ##### LOOPS ######################################################################
     def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
         self._surface.fill(pygame_menu.pygame_menu.themes.THEME_GREEN.background_color)
@@ -305,6 +299,8 @@ class Simulation():
                     if event.key == pygame.K_SPACE:
                         self._running_settings_menu.get_widget("GameState").set_value(self.paused)
                         self.paused = not self.paused
+                    if event.key == pygame.K_ESCAPE:
+                        self._running_settings_menu._back()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     tile = self.world.get_tile((pos[0], pos[1]))
