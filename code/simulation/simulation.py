@@ -116,7 +116,8 @@ class Simulation():
         self._setup_plant_settings_menu()
 
     def _setup_starting_menu(self) -> None:
-        self.starting_menu.add.button("Create a World", self.run_loop)
+        self.starting_menu.add.button("Simulation", self.run_loop)
+        self.starting_menu.add.button("Data Analysis") # TODO add fuction call to data analysis module
         self.starting_menu.add.button("Options", self.options_menu)
         self.starting_menu.add.button("Quit", quit)
 
