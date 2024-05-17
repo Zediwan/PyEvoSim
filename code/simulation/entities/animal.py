@@ -31,6 +31,62 @@ class Animal(Organism):
     _STARTING_HEIGHT_PREFERENCE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
 
+    @classmethod
+    def set_base_energy_maintenance(cls, value: float):
+        cls._BASE_ENERGY_MAINTENANCE = value
+
+    @classmethod
+    def set_max_health(cls, value: float):
+        cls._MAX_HEALTH = value
+
+    @classmethod
+    def set_max_energy(cls, value: float):
+        cls._MAX_ENERGY = value
+
+    @classmethod
+    def set_nutrition_factor(cls, value: float):
+        cls._NUTRITION_FACTOR = value
+
+    @classmethod
+    def set_reproduction_chance(cls, value: float):
+        cls._REPRODUCTION_CHANCE = value
+
+    @classmethod
+    def set_min_reproduction_health(cls, value: float):
+        cls._MIN_REPRODUCTION_HEALTH = value
+
+    @classmethod
+    def set_min_reproduction_energy(cls, value: float):
+        cls._MIN_REPRODUCTION_ENERGY = value
+
+    @classmethod
+    def set_movement_energy_cost(cls, value: float):
+        cls._MOVEMENT_ENERGY_COST = value
+
+    @classmethod
+    def set_starting_health(cls, value: float):
+        cls._STARTING_HEALTH = value
+
+    @classmethod
+    def set_starting_energy(cls, value: float):
+        cls._STARTING_ENERGY = value
+
+    @classmethod
+    def set_starting_attack_power_range(cls, value: tuple[float, float]):
+        cls._STARTING_ATTACK_POWER_RANGE = value
+
+    @classmethod
+    def set_starting_moisture_preference_range(cls, value: tuple[float, float]):
+        cls._STARTING_MOISTURE_PREFERENCE_RANGE = value
+
+    @classmethod
+    def set_starting_height_preference(cls, value: tuple[float, float]):
+        cls._STARTING_HEIGHT_PREFERENCE = value
+
+    @classmethod
+    def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
+        cls._STARTING_MUTATION_CHANCE_RANGE = value
+
     @property
     def MAX_HEALTH(self) -> float:
         return Animal._MAX_HEALTH
