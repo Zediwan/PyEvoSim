@@ -28,7 +28,7 @@ class Animal(Organism):
     _STARTING_ENERGY: float = _MAX_ENERGY
     _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (8, 16)
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
-    _STARTING_HEIGHT_PREFERENCE: tuple[float, float] = (0, 1)
+    _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
 
     @classmethod
@@ -81,7 +81,7 @@ class Animal(Organism):
 
     @classmethod
     def set_starting_height_preference(cls, value: tuple[float, float]):
-        cls._STARTING_HEIGHT_PREFERENCE = value
+        cls._STARTING_HEIGHT_PREFERENCE_RANGE = value
 
     @classmethod
     def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
@@ -143,7 +143,7 @@ class Animal(Organism):
                 Animal.BASE_ANIMAL_COLOR(),
                 random.uniform(Animal._STARTING_ATTACK_POWER_RANGE[0], Animal._STARTING_ATTACK_POWER_RANGE[1]),
                 random.uniform(Animal._STARTING_MOISTURE_PREFERENCE_RANGE[0], Animal._STARTING_MOISTURE_PREFERENCE_RANGE[1]),
-                random.uniform(Animal._STARTING_HEIGHT_PREFERENCE[0], Animal._STARTING_HEIGHT_PREFERENCE[1]),
+                random.uniform(Animal._STARTING_HEIGHT_PREFERENCE_RANGE[0], Animal._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Animal._STARTING_MUTATION_CHANCE_RANGE[0], Animal._STARTING_MUTATION_CHANCE_RANGE[1]),
             )
 

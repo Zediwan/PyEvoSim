@@ -201,21 +201,20 @@ class Simulation():
         self._entity_settings_menu.add.button("Organisms", self._organism_settings_menu)
         self._entity_settings_menu.add.button("Animals", self._animal_settings_menu)
         self._entity_settings_menu.add.button("Plants", self._plant_settings_menu)
+
         self._entity_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_organism_settings_menu(self) -> None:
-        self._organism_settings_menu.add.range_slider("Value 1", 0, (0, 1), increment=1)
-        self._organism_settings_menu.add.range_slider("Value 2", 0, (0, 1), increment=1)
-        self._organism_settings_menu.add.range_slider("Value 3", 0, (0, 1), increment=1)
+
         self._organism_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_animal_settings_menu(self) -> None:
         self._animal_settings_menu.add.label("Spawning Attack Power Range")
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_ATTACK_POWER_RANGE, (0, 50), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_attack_power_range)
-        self._animal_settings_menu.add.label("Spawning Moisture Range")
+        self._animal_settings_menu.add.label("Spawning Moisture Preference Range")
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_MOISTURE_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_moisture_preference_range)
-        self._animal_settings_menu.add.label("Spawning Height Range")
-        self._animal_settings_menu.add.range_slider("", Animal._STARTING_HEIGHT_PREFERENCE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_height_preference)
+        self._animal_settings_menu.add.label("Spawning Height Preference Range")
+        self._animal_settings_menu.add.range_slider("", Animal._STARTING_HEIGHT_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_height_preference)
         self._animal_settings_menu.add.label("Spawning Mutation Chance Range")
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_MUTATION_CHANCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_mutation_chance_range)
 
@@ -237,9 +236,8 @@ class Simulation():
         self._animal_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_plant_settings_menu(self) -> None:
-        self._plant_settings_menu.add.range_slider("Value 1", 0, (0, 1), increment=1)
-        self._plant_settings_menu.add.range_slider("Value 2", 0, (0, 1), increment=1)
-        self._plant_settings_menu.add.range_slider("Value 3", 0, (0, 1), increment=1)
+
+
         self._plant_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     ####### CALLBACK FUNCTIONS ########################################################
