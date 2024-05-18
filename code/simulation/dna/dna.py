@@ -25,20 +25,20 @@ class DNA:
 
     #region class methods
     @classmethod
-    def set_attack_power_mutation_range(value):
-        DNA.attack_power_mutation_range = value
+    def set_attack_power_mutation_range(cls, value):
+        cls.attack_power_mutation_range = value
 
     @classmethod
-    def set_color_mutation_range(value):
-        DNA.color_mutation_range = value
+    def set_color_mutation_range(cls, value):
+        cls.color_mutation_range = value
 
     @classmethod
-    def set_prefered_moisture_mutation_range(value):
-        DNA.prefered_moisture_muation_range = value
+    def set_prefered_moisture_mutation_range(cls, value):
+        cls.prefered_moisture_muation_range = value
 
     @classmethod
-    def set_prefered_height_mutation_range(value):
-        DNA.prefered_height_muation_range = value
+    def set_prefered_height_mutation_range(cls, value):
+        cls.prefered_height_muation_range = value
     #endregion
 
     def __init__(
