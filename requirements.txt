@@ -267,6 +267,7 @@ pydocstyle @ file:///Users/cbousseau/work/recipes/ci_py311/pydocstyle_1677933616
 pyerfa @ file:///Users/cbousseau/work/recipes/ci_py311/pyerfa_1677933632816/work
 pyflakes @ file:///Users/cbousseau/work/recipes/ci_py311/pyflakes_1677927066386/work
 pygame==2.5.2
+pygame-menu==4.4.3
 Pygments @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_29bs9f_dh9/croot/pygments_1684279974747/work
 PyJWT @ file:///Users/cbousseau/work/recipes/ci_py311/pyjwt_1677933681463/work
 pylint @ file:///Users/cbousseau/work/recipes/ci_py311/pylint_1677933699245/work
@@ -429,6 +430,7 @@ pyobjc-framework-WebKit==10.1
 pyodbc @ file:///Users/cbousseau/work/recipes/ci_py311/pyodbc_1678001241548/work
 pyOpenSSL @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_b8whqav6qm/croot/pyopenssl_1690223428943/work
 pyparsing @ file:///Users/cbousseau/work/recipes/ci_py311/pyparsing_1677910832141/work
+pyperclip==1.8.2
 PyQt5==5.15.10
 PyQt5-Qt5==5.15.12
 PyQt5-sip==12.13.0

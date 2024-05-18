@@ -8,7 +8,6 @@ import pygame
 import helper.direction
 import settings.colors
 import settings.font
-import settings.gui
 import settings.simulation
 
 
@@ -187,7 +186,8 @@ class Tile(pygame.sprite.Sprite):
     def draw(self, screen: pygame.Surface):
         screen.blit(self.image, self.rect)
 
-        if settings.gui.draw_height_level:
+        # TODO reneable
+        if False:
             self.draw_stat(self.height * 9, screen)
 
     ########################## Tile Organism influence #################################

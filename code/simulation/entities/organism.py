@@ -9,7 +9,6 @@ import pygame
 
 import settings.colors
 import settings.database
-import settings.entities
 import settings.screen
 import stats.stat_panel
 from dna.dna import DNA
@@ -140,10 +139,10 @@ class Organism(ABC, pygame.sprite.Sprite):
     def energy(self, value: float):
         if value < self.MIN_ENERGY:
             self._energy = self.MIN_ENERGY
-            self.health += value * settings.entities.ENERGY_TO_HEALTH_RATIO
+            self.health += value
         elif value > self.MAX_ENERGY:
             self._energy = self.MAX_ENERGY
-            self.health += (value - self.MAX_ENERGY) * settings.entities.ENERGY_TO_HEALTH_RATIO
+            self.health += value - self.MAX_ENERGY
         else:
             self._energy = value
 
@@ -179,7 +178,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self._post_update()
 
     def use_maintanance_energy(self):
-        self.energy -= settings.entities.ORGANISM_BASE_ENERGY_MAINTANCE
+        self.energy -= self.get_energy_maintenance()
 
     def handle_aging(self):
         """
@@ -211,7 +210,8 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.reproduce()
 
     def handle_drowning(self):
-        pass
+        if self.tile.has_water:
+            self.health -= 10 # TODO update drowning logic
 
     def think(self):
         pass
@@ -288,19 +288,18 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @abstractmethod
     def get_attacked(self, attacking_organism: Organism):
-        if not (
-            self.tile.is_neighbor(attacking_organism.tile)
-            or self.tile == attacking_organism.tile
-        ):
-            raise ValueError(
-                "Organism attacking is not on a neighbor tile or same tile."
-            )
+        if not (self.tile.is_neighbor(attacking_organism.tile) or self.tile == attacking_organism.tile):
+            raise ValueError("Organism attacking is not on a neighbor tile or same tile.")
+        else:
+            damage = attacking_organism.attack_power
 
-        damage = attacking_organism.attack_power
+            if damage > 0:
+                self.health -= damage
+                attacking_organism.energy += damage * self.NUTRITION_FACTOR
 
-        if damage > 0:
-            self.health -= damage
-            attacking_organism.energy += damage * self.NUTRITION_FACTOR
+    @abstractmethod
+    def get_energy_maintenance(self) -> float:
+        pass
 
     ########################## Reproduction #################################
     @abstractmethod
@@ -308,6 +307,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         pass
 
     def can_reproduce(self) -> bool:
+        # TODO add a gene that defines these thresholds
         return (
             self.health_ratio() >= self.MIN_REPRODUCTION_HEALTH
             and self.energy_ratio() >= self.MIN_REPRODUCTION_ENERGY
@@ -317,7 +317,6 @@ class Organism(ABC, pygame.sprite.Sprite):
     def copy(self, tile: Tile) -> Organism:
         self.num_offspring += 1
         Organism.organisms_birthed += 1
-        pass
 
     def mutate(self):
         self.dna.mutate()
@@ -325,6 +324,7 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     ########################## Stats #################################
     def show_stats(self, screen: pygame.Surface, offset):
+        # TODO rework this with new gui
         stats_data = self.get_stats()
 
         if not self.stat_panel:

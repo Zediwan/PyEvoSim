@@ -35,8 +35,8 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 
 ## Milestone 4: User Interaction and GUI Improvements
 
-- [ ] Develop a user-friendly GUI for simulation settings adjustment.
-- [ ] Enable users to view an animal's statistics and DNA attributes by clicking on them.
+- [X] Develop a user-friendly GUI for simulation settings adjustment.
+- [X] Enable users to view an animal's statistics and DNA attributes by clicking on them.
 
 ## Milestone 5: Neural Networks
 
