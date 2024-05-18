@@ -57,7 +57,7 @@ class Simulation():
             height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
-            title="Tests",
+            title="Simulation",
         )
         self._world_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
