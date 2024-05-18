@@ -334,7 +334,7 @@ class Simulation():
             fps_screen.set_alpha(100)
             self._surface.blit(
                 fps_screen,
-                fps_screen.get_rect(topright = self._surface.get_rect().topright)
+                fps_screen.get_rect(bottomleft = self._surface.get_rect().bottomleft)
             )
 
     def run_loop(self) -> None:
