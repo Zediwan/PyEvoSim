@@ -4,10 +4,7 @@ import random
 
 import pygame
 
-import settings.colors
 import settings.database
-import settings.entities
-import settings.screen
 import settings.simulation
 from dna.dna import DNA
 from entities.organism import Organism
@@ -15,37 +12,118 @@ from world.tile import Tile
 
 
 class Animal(Organism):
+    _BASE_ENERGY_MAINTENANCE: float = 10
+    _MAX_HEALTH: float = 100
+    _MAX_ENERGY: float = 100
+    _NUTRITION_FACTOR: float = 1
+    _REPRODUCTION_CHANCE: float = 0.01
+    _MIN_REPRODUCTION_HEALTH: float = 0.25
+    _MIN_REPRODUCTION_ENERGY: float = 0.6
+    _MAX_ALPHA: float = 255
+    _MIN_ALPHA: float = 150
+    _MOVEMENT_ENERGY_COST: float = 2
+
+    # Starting values
+    _STARTING_HEALTH: float = _MAX_HEALTH
+    _STARTING_ENERGY: float = _MAX_ENERGY
+    _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (8, 16)
+    _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
+
+    @classmethod
+    def set_base_energy_maintenance(cls, value: float):
+        cls._BASE_ENERGY_MAINTENANCE = value
+
+    @classmethod
+    def set_max_health(cls, value: float):
+        cls._MAX_HEALTH = value
+
+    @classmethod
+    def set_max_energy(cls, value: float):
+        cls._MAX_ENERGY = value
+
+    @classmethod
+    def set_nutrition_factor(cls, value: float):
+        cls._NUTRITION_FACTOR = value
+
+    @classmethod
+    def set_reproduction_chance(cls, value: float):
+        cls._REPRODUCTION_CHANCE = value
+
+    @classmethod
+    def set_min_reproduction_health(cls, value: float):
+        cls._MIN_REPRODUCTION_HEALTH = value
+
+    @classmethod
+    def set_min_reproduction_energy(cls, value: float):
+        cls._MIN_REPRODUCTION_ENERGY = value
+
+    @classmethod
+    def set_movement_energy_cost(cls, value: float):
+        cls._MOVEMENT_ENERGY_COST = value
+
+    @classmethod
+    def set_starting_health(cls, value: float):
+        cls._STARTING_HEALTH = value
+
+    @classmethod
+    def set_starting_energy(cls, value: float):
+        cls._STARTING_ENERGY = value
+
+    @classmethod
+    def set_starting_attack_power_range(cls, value: tuple[float, float]):
+        cls._STARTING_ATTACK_POWER_RANGE = value
+
+    @classmethod
+    def set_starting_moisture_preference_range(cls, value: tuple[float, float]):
+        cls._STARTING_MOISTURE_PREFERENCE_RANGE = value
+
+    @classmethod
+    def set_starting_height_preference(cls, value: tuple[float, float]):
+        cls._STARTING_HEIGHT_PREFERENCE_RANGE = value
+
+    @classmethod
+    def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
+        cls._STARTING_MUTATION_CHANCE_RANGE = value
+
     @property
     def MAX_HEALTH(self) -> float:
-        return 100
+        return Animal._MAX_HEALTH
 
     @property
     def MAX_ENERGY(self) -> float:
-        return 200
+        return Animal._MAX_ENERGY
 
     @property
     def NUTRITION_FACTOR(self) -> float:
-        return 1
+        return Animal._NUTRITION_FACTOR
 
     @property
     def REPRODUCTION_CHANCE(self) -> float:
-        return .01
+        return Animal._REPRODUCTION_CHANCE
 
     @property
     def MIN_REPRODUCTION_HEALTH(self) -> float:
-        return 0.25
+        return Animal._MIN_REPRODUCTION_HEALTH
 
     @property
     def MIN_REPRODUCTION_ENERGY(self) -> float:
-        return 0.6
+        return Animal._MIN_REPRODUCTION_ENERGY
     
     @property
     def MAX_ALPHA(self) -> float:
-        return settings.colors.ANIMAL_MAX_ALPHA
+        return Animal._MAX_ALPHA
     
     @property
     def MIN_ALPHA(self) -> float:
-        return settings.colors.ANIMAL_MIN_ALPHA
+        return Animal._MIN_ALPHA
+
+    @staticmethod
+    def BASE_ANIMAL_COLOR() -> pygame.Color:
+        return pygame.Color(
+            random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+        )
 
     animals_birthed: int = 0
     animals_died: int = 0
@@ -53,7 +131,7 @@ class Animal(Organism):
     def __init__(
         self,
         tile: Tile,
-        rect: pygame.Rect | None = None,
+        rect: pygame.Rect = None,
         parent: Animal = None,
         dna: DNA = None,
     ):
@@ -62,39 +140,24 @@ class Animal(Organism):
 
         if not dna:
             dna = DNA(
-                settings.colors.BASE_ANIMAL_COLOR(),
-                settings.entities.ANIMAL_STARTING_ATTACK_POWER(),
-                settings.entities.ANIMAL_BASE_MOISTURE_PREFERENCE(),
-                settings.entities.ANIMAL_BASE_HEIGHT_PREFERENCE(),
-                settings.entities.ANIMAL_STARTING_MUTATION_CHANCE()
+                Animal.BASE_ANIMAL_COLOR(),
+                random.uniform(Animal._STARTING_ATTACK_POWER_RANGE[0], Animal._STARTING_ATTACK_POWER_RANGE[1]),
+                random.uniform(Animal._STARTING_MOISTURE_PREFERENCE_RANGE[0], Animal._STARTING_MOISTURE_PREFERENCE_RANGE[1]),
+                random.uniform(Animal._STARTING_HEIGHT_PREFERENCE_RANGE[0], Animal._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
+                random.uniform(Animal._STARTING_MUTATION_CHANCE_RANGE[0], Animal._STARTING_MUTATION_CHANCE_RANGE[1]),
             )
 
         super().__init__(
             tile,
             rect,
-            settings.entities.ANIMAL_STARTING_HEALTH(),
-            settings.entities.ANIMAL_STARTING_ENERGY(),
+            Animal._STARTING_HEALTH,
+            Animal._STARTING_ENERGY,
             dna,
         )
 
         self.parent: Animal | None = parent
 
     ########################## Update #################################
-    def use_maintanance_energy(self):
-        super().use_maintanance_energy()
-        self.energy -= random.random() * settings.entities.ANIMAL_BASE_ENERGY_MAINTANCE
-
-    def handle_drowning(self):
-        """
-        Handles the drowning behavior of the animal.
-
-        If the animal's current tile has water (determined by the `has_water` attribute of the tile), the animal's health will be decreased by the value specified in the `DROWNING_DAMAGE` constant in the `settings.entities` module.
-
-        """
-        super().handle_drowning()
-        if self.tile.has_water:
-            self.health -= settings.entities.DROWNING_DAMAGE
-
     def think(self):
         super().think()
         """
@@ -147,20 +210,21 @@ class Animal(Organism):
         super().handle_movement()
         if self.desired_tile_movement:
             self.enter_tile(self.desired_tile_movement)
+            self.energy -= Animal._MOVEMENT_ENERGY_COST
 
     ########################## Tile #################################
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
         if tile.has_animal():
             raise ValueError("Animal trying to enter a tile that is already occupied.")
+        else:
+            if self.tile:
+                self.tile.animal.remove(self)
 
-        if self.tile:
-            self.tile.animal.remove(self)
+            self.tile = tile
+            tile.add_animal(self)
 
-        self.tile = tile
-        tile.add_animal(self)
-
-        self.check_tile_assignment()
+            self.check_tile_assignment()
 
     def check_tile_assignment(self):
         if not self.tile:
@@ -173,18 +237,10 @@ class Animal(Organism):
         super().die()
         Animal.animals_died += 1
 
-        if settings.database.save_csv:
-            if settings.database.save_animals_csv:
-                self.save_to_csv()
+        if settings.database.save_csv and settings.database.save_animals_csv:
+            self.save_to_csv()
 
         self.kill()
-
-    def attack(self, organism_to_attack: Organism):
-        assert (
-            self.tile.is_neighbor(organism_to_attack.tile)
-            or self.tile == organism_to_attack.tile
-        ), "Organism to attack is not a neighbor or on own tile."
-        organism_to_attack.get_attacked(self)
 
     def get_attacked(self, attacking_organism: Organism):
         super().get_attacked(attacking_organism)
@@ -192,21 +248,26 @@ class Animal(Organism):
             attacking_organism.animals_killed += 1
 
     def wants_to_eat(self) -> bool:
+        # TODO add genes that define eating habits of animals
         return self.energy_ratio() < 1 or self.health_ratio() < 1
+
+    def get_energy_maintenance(self) -> float:
+        # TODO update this so it is different for different animals
+        return Animal._BASE_ENERGY_MAINTENANCE
 
     ########################## Reproduction #################################
     def reproduce(self):
-        super().reproduce()
-        unoccupied_neighbor = self.tile.get_random_neigbor(
-            no_animal=True, no_water=True
-        )
-        if unoccupied_neighbor:
+        options = self.tile.get_random_neigbor(no_animal=True, no_water=True)
+        if options:
+            # TODO create a gene that defines the amount of energy given to the child
+            # TODO add a gene that defines how long an animal is pregnant
             ENERGY_TO_CHILD = self.MAX_ENERGY / 2
             self.energy -= ENERGY_TO_CHILD
-            offspring = self.copy(unoccupied_neighbor)
+            offspring = self.copy(options)
+            # TODO add a gene that defines the energy distribution
             offspring_energy_distribution = .4
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
-            offspring.health = (ENERGY_TO_CHILD * (1-offspring_energy_distribution)) * settings.entities.ENERGY_TO_HEALTH_RATIO
+            offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
 
