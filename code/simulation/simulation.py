@@ -27,7 +27,7 @@ class Simulation():
         self._height = settings.screen.SCREEN_HEIGHT
         self._surface: pygame.Surface = pygame.display.set_mode(
                 (self._width, self._height),
-                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
+                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA | pygame.RESIZABLE
             )
         pygame.display.set_caption("Evolution Simulation")
 
@@ -48,61 +48,62 @@ class Simulation():
     def _setup_menus(self) -> None:
         self.starting_menu = pygame_menu.Menu("Starting Menu", self._surface.get_width(), self._surface.get_height(), theme=self.base_theme)
         self.options_menu = pygame_menu.Menu("Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
+        self.screen_options = pygame_menu.Menu("Screen Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.database_options = pygame_menu.Menu("Database Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
 
         ### Runtime Loop menus
         self._running_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="Simulation",
         )
         self._world_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="World",
         )
         self._spawning_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="Spawning",
         )
         self._dna_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="DNA",
         )
         self._entity_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="Entity",
         )
         self._organism_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="Organism",
         )
         self._animal_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="Animal",
         )
         self._plant_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
-            height=self._height,
+            height=self._surface.get_height(),
             position=(self.world.rect.right, 0, False),
             theme=self.runtime_theme,
             title="Plant",
@@ -110,6 +111,7 @@ class Simulation():
 
         self._setup_starting_menu()
         self._setup_options_menu()
+        self._setup_screen_options_menu()
         self._setup_database_options_menu()
         # Runtime
         self._setup_running_settings_menu()
@@ -128,8 +130,23 @@ class Simulation():
         self.starting_menu.add.button("Quit", quit)
 
     def _setup_options_menu(self) -> None:
+        self.options_menu.add.button("Screen", self.screen_options)
         self.options_menu.add.button("Database", self.database_options)
         self.options_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_screen_options_menu(self) -> None:
+        self.screen_options.add.toggle_switch("Fullscreen", False) # TODO implement fullscreen mode
+        self.screen_options.add.dropselect(
+            "Screen Resolution",
+            [("1920, 1080", (1920, 1080)),
+             ("1366, 768", (1366, 768)),
+             ("1280, 1024", (1280, 1024)),
+             ("1024, 768", (1024, 768)),
+             ("4800, 1200", (4800, 1200)),
+             ("1600, 1000", (1600, 1000))],
+        ) # TODO implement resolution setting
+
+        self.screen_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_database_options_menu(self) -> None:
         self.database_options.add.toggle_switch("Create database", settings.database.save_csv, onchange=settings.database.update_save_csv)
