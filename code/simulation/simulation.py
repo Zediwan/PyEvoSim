@@ -7,6 +7,7 @@ from entities.animal import Animal
 from entities.plant import Plant
 import settings.simulation
 from dna.dna import DNA
+import math
 
 from world.world import World
 
@@ -53,6 +54,7 @@ class Simulation():
         self.world: World = World(world_rect, tile_size)
         self.selected_org = None
         self.paused = True
+        self.alternating_moisture = False
         #endregion
 
         self._setup_menus()
@@ -207,7 +209,8 @@ class Simulation():
         self._world_settings_menu.add.range_slider("mfx", self.world.moisture_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_x)
         self._world_settings_menu.add.range_slider("mfy", self.world.moisture_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_y)
 
-        self._world_settings_menu.add.range_slider("moisture", self.world.moisture, (0, 1), increment=.01, onchange=self.world.set_moisture)
+        self._world_settings_menu.add.range_slider("moisture", self.world.moisture, (0, 1), increment=.01, onchange=self.world.set_moisture, rangeslider_id="moisture")
+        self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.toggle_alternating_moisture) # TODO add method to change moisture over time
         self._world_settings_menu.add.range_slider("height", self.world.height, (0, 1), increment=.01, onchange=self.world.set_height)
 
         # TODO add a randomise button
@@ -313,6 +316,10 @@ class Simulation():
 
     def reset_stats(self):
         settings.simulation.reset_stats()
+
+    def toggle_alternating_moisture(self, enabled):
+        self.alternating_moisture = enabled
+
     #endregion
 
     #region loops
@@ -373,6 +380,10 @@ class Simulation():
 
             if not self.paused:
                 self.world.update()
+                if self.alternating_moisture:
+                    moist = self.world.moisture + math.cos(pygame.time.get_ticks()/100000)/10000
+                    self._world_settings_menu.get_widget("moisture").set_value(moist)
+                    self.world.set_moisture(moist)
 
             self.world.draw(self._surface)
             self._update_gui()
