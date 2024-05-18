@@ -16,6 +16,7 @@ import math
 class World(pygame.sprite.Sprite):
     def __init__(self, rect: pygame.Rect, tile_size: int):
         pygame.sprite.Sprite.__init__(self)
+
         self.rect: pygame.Rect = rect
         self.organism_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         self.ground_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
@@ -24,11 +25,12 @@ class World(pygame.sprite.Sprite):
         self.cols = self.rect.width // tile_size
         self.rows = self.rect.height // tile_size
 
-        self.starting_time_seconds = (pygame.time.get_ticks() / 1000)
-        self.age_ticks: int = 0
-
         self._setup_noise_settings()
 
+        #region time
+        self.starting_time_msec: int = pygame.time.get_ticks()
+        self.age_ticks: int = 0
+        #endregion
         #region tiles
         self.tiles = pygame.sprite.Group()
         tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)]
@@ -45,9 +47,9 @@ class World(pygame.sprite.Sprite):
 
     #region properties
     @property
-    def age_seconds(self):
+    def age_msec(self):
         # TODO this should not count the time the world was paused
-        return int((pygame.time.get_ticks() / 1000) - self.starting_time_seconds)
+        return pygame.time.get_ticks() - self.starting_time_msec
     #endregion
 
     #region main methods

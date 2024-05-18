@@ -1,7 +1,4 @@
 import pygame
-from entities.organism import Organism
-from entities.animal import Animal
-from entities.plant import Plant
 
 organisms = pygame.sprite.Group()
 
@@ -9,6 +6,9 @@ def reset_organisms():
     organisms.empty()
 
 def reset_stats():
+    from entities.organism import Organism
+    from entities.animal import Animal
+    from entities.plant import Plant
     Organism.organisms_birthed = 0
     Organism.organisms_died = 0
     Organism.next_organism_id = 0

@@ -3,11 +3,44 @@ from __future__ import annotations
 import pygame
 
 import random
-import settings.dna
 from dna.gene import Gene
 
 
 class DNA:
+    attack_power_min: float = 0
+    attack_power_max: float = 50
+    attack_power_mutation_range: float = 2
+
+    color_min: float = 1
+    color_max: float = 255
+    color_mutation_range: float = 10
+
+    prefered_moisture_min: float = 0
+    prefered_moisture_max: float = 1
+    prefered_moisture_muation_range: float = 0.2
+
+    prefered_height_min: float = 0
+    prefered_height_max: float = 1
+    prefered_height_muation_range: float = 0.2
+
+    #region class methods
+    @classmethod
+    def set_attack_power_mutation_range(value):
+        DNA.attack_power_mutation_range = value
+
+    @classmethod
+    def set_color_mutation_range(value):
+        DNA.color_mutation_range = value
+
+    @classmethod
+    def set_prefered_moisture_mutation_range(value):
+        DNA.prefered_moisture_muation_range = value
+
+    @classmethod
+    def set_prefered_height_mutation_range(value):
+        DNA.prefered_height_muation_range = value
+    #endregion
+
     def __init__(
         self,
         color: pygame.Color,
@@ -17,40 +50,40 @@ class DNA:
         muation_chance: float
     ) -> None:
         self.color_r_gene: Gene = Gene(
-            settings.dna.color_max,
-            settings.dna.color_min,
-            value=color.r,
-            mutation_range=settings.dna.color_mutation_range,
+            DNA.color_max,
+            DNA.color_min,
+            color.r,
+            DNA.color_mutation_range,
         )
         self.color_g_gene: Gene = Gene(
-            settings.dna.color_max,
-            settings.dna.color_min,
-            value=color.g,
-            mutation_range=settings.dna.color_mutation_range,
+            DNA.color_max,
+            DNA.color_min,
+            color.g,
+            DNA.color_mutation_range,
         )
         self.color_b_gene: Gene = Gene(
-            settings.dna.color_max,
-            settings.dna.color_min,
-            value=color.b,
-            mutation_range=settings.dna.color_mutation_range,
+            DNA.color_max,
+            DNA.color_min,
+            color.b,
+            DNA.color_mutation_range,
         )
         self.attack_power_gene: Gene = Gene(
-            settings.dna.attack_power_max,
-            settings.dna.attack_power_min,
-            value=attack_power,
-            mutation_range=settings.dna.attack_power_mutation_range,
+            DNA.attack_power_max,
+            DNA.attack_power_min,
+            attack_power,
+            DNA.attack_power_mutation_range,
         )
         self.prefered_moisture_gene: Gene = Gene(
-            settings.dna.prefered_moisture_max,
-            settings.dna.prefered_moisture_min,
+            DNA.prefered_moisture_max,
+            DNA.prefered_moisture_min,
             prefered_moisture,
-            settings.dna.prefered_moisture_muation_range,
+            DNA.prefered_moisture_muation_range,
         )
         self.prefered_height_gene: Gene = Gene(
-            settings.dna.prefered_height_max,
-            settings.dna.prefered_height_min,
+            DNA.prefered_height_max,
+            DNA.prefered_height_min,
             prefered_height,
-            settings.dna.prefered_height_muation_range,
+            DNA.prefered_height_muation_range,
         )
         self.mutation_chance_gene: Gene = Gene(
             1, 0, muation_chance, .1

@@ -6,6 +6,7 @@ import settings.screen
 from entities.animal import Animal
 from entities.plant import Plant
 import settings.simulation
+from dna.dna import DNA
 
 from world.world import World
 
@@ -29,6 +30,7 @@ class Simulation():
         pygame.init()
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
+        #region surface
         self._width = settings.screen.SCREEN_WIDTH
         self._height = settings.screen.SCREEN_HEIGHT
         self._surface: pygame.Surface = pygame.display.set_mode(
@@ -36,10 +38,14 @@ class Simulation():
                 pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
             )
         pygame.display.set_caption("Evolution Simulation")
+        #endregion
 
+        #region time
         self._clock = pygame.time.Clock()
         self._fps = 320
+        #endregion
 
+        #region simulation
         rect = self._surface.get_rect()
         rect.width *= .75
         world_rect: pygame.Rect = rect
@@ -47,6 +53,7 @@ class Simulation():
         self.world: World = World(world_rect, tile_size)
         self.selected_org = None
         self.paused = True
+        #endregion
 
         self._setup_menus()
 
@@ -215,6 +222,15 @@ class Simulation():
         self._spawning_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_dna_settings_menu(self) -> None:
+        self._dna_settings_menu.add.label("Attack Power Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.attack_power_mutation_range, (0, DNA.attack_power_max), increment=1, onchange=DNA.set_attack_power_mutation_range)
+        self._dna_settings_menu.add.label("Color Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.color_mutation_range, (0, DNA.color_max), increment=1, onchange=DNA.set_color_mutation_range)
+        self._dna_settings_menu.add.label("Prefered Moisture Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.prefered_moisture_muation_range, (0, DNA.prefered_moisture_max), increment=.01, onchange=DNA.set_prefered_moisture_mutation_range)
+        self._dna_settings_menu.add.label("Prefered Height Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.prefered_height_muation_range, (0, DNA.prefered_height_max), increment=.01, onchange=DNA.set_prefered_height_mutation_range)
+
         self._dna_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_entity_settings_menu(self) -> None:
@@ -230,7 +246,7 @@ class Simulation():
 
     def _setup_animal_settings_menu(self) -> None:
         self._animal_settings_menu.add.label("Spawning Attack Power Range")
-        self._animal_settings_menu.add.range_slider("", Animal._STARTING_ATTACK_POWER_RANGE, (0, 50), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_attack_power_range)
+        self._animal_settings_menu.add.range_slider("", Animal._STARTING_ATTACK_POWER_RANGE, (0, DNA.attack_power_max), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_attack_power_range)
         self._animal_settings_menu.add.label("Spawning Moisture Preference Range")
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_MOISTURE_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_moisture_preference_range)
         self._animal_settings_menu.add.label("Spawning Height Preference Range")
