@@ -30,7 +30,6 @@ class Plant(Organism):
     _MAX_ALPHA: float = 100
     _MIN_ALPHA: float = 20
     #endregion
-
     #region starting values
     _STARTING_HEALTH: float = _MAX_HEALTH
     _STARTING_ENERGY: float = _MAX_ENERGY
@@ -39,7 +38,6 @@ class Plant(Organism):
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
     #endregion
-
     #region class setting setters
     @classmethod
     def set_base_energy_maintenance(cls, value: float):
@@ -93,7 +91,6 @@ class Plant(Organism):
     def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_MUTATION_CHANCE_RANGE = value
     #endregion
-
     #region class properties
     @property
     def MAX_HEALTH(self) -> float:
@@ -127,7 +124,6 @@ class Plant(Organism):
     def MIN_ALPHA(self) -> float:
         return Plant._MIN_ALPHA
     #endregion
-
     #region stats
     plants_birthed: int = 0
     plants_died: int = 0
@@ -140,9 +136,9 @@ class Plant(Organism):
         parent: Plant = None,
         dna: DNA = None,
     ):
+        #region defaults
         if not rect:
             rect = tile.rect.copy()
-
         if not dna:
             dna = DNA(
                 Plant._BASE_COLOR,
@@ -151,6 +147,7 @@ class Plant(Organism):
                 random.uniform(Plant._STARTING_HEIGHT_PREFERENCE_RANGE[0], Plant._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Plant._STARTING_MUTATION_CHANCE_RANGE[0], Plant._STARTING_MUTATION_CHANCE_RANGE[1]),
             )
+        #endregion
 
         super().__init__(
             tile,

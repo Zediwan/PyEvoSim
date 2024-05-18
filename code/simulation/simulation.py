@@ -10,6 +10,7 @@ import settings.simulation
 from world.world import World
 
 class Simulation():
+    brush_outline = 2
     #region themes
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
     runtime_theme = pygame_menu.Theme(
@@ -17,13 +18,9 @@ class Simulation():
             widget_margin = (0, 15),
         )
     #endregion
-
     #region colors
     TRANSPARENT_BLACK_COLOR = (0, 0, 0, 100)
     #endregion
-
-    brush_outline = 2
-
     #region fonts
     fps_font = pygame.font.Font(None, 100)
     #endregion

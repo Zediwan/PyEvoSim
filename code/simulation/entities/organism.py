@@ -65,7 +65,6 @@ class Organism(ABC, pygame.sprite.Sprite):
     def MIN_ALPHA(self) -> float:
         pass
     #endregion
-
     #region stats
     organisms_birthed: int = 0
     organisms_died: int = 0
