@@ -12,6 +12,7 @@ from world.tile import Tile
 
 
 class Animal(Organism):
+    #region class settings
     _BASE_ENERGY_MAINTENANCE: float = 10
     _MAX_HEALTH: float = 100
     _MAX_ENERGY: float = 100
@@ -22,15 +23,16 @@ class Animal(Organism):
     _MAX_ALPHA: float = 255
     _MIN_ALPHA: float = 150
     _MOVEMENT_ENERGY_COST: float = 2
-
-    # Starting values
+    #endregion
+    #region starting values
     _STARTING_HEALTH: float = _MAX_HEALTH
     _STARTING_ENERGY: float = _MAX_ENERGY
     _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (8, 16)
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
-
+    #endregion
+    #region class setting setters
     @classmethod
     def set_base_energy_maintenance(cls, value: float):
         cls._BASE_ENERGY_MAINTENANCE = value
@@ -86,7 +88,8 @@ class Animal(Organism):
     @classmethod
     def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_MUTATION_CHANCE_RANGE = value
-
+    #endregion
+    #region class properties
     @property
     def MAX_HEALTH(self) -> float:
         return Animal._MAX_HEALTH
@@ -124,9 +127,11 @@ class Animal(Organism):
         return pygame.Color(
             random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
         )
-
+    #endregion
+    #region stats
     animals_birthed: int = 0
     animals_died: int = 0
+    #endregion
 
     def __init__(
         self,
@@ -135,6 +140,7 @@ class Animal(Organism):
         parent: Animal = None,
         dna: DNA = None,
     ):
+        #region defaults
         if not rect:
             rect = tile.rect.copy()
 
@@ -146,6 +152,7 @@ class Animal(Organism):
                 random.uniform(Animal._STARTING_HEIGHT_PREFERENCE_RANGE[0], Animal._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Animal._STARTING_MUTATION_CHANCE_RANGE[0], Animal._STARTING_MUTATION_CHANCE_RANGE[1]),
             )
+        #endregion
 
         super().__init__(
             tile,
@@ -157,7 +164,7 @@ class Animal(Organism):
 
         self.parent: Animal | None = parent
 
-    ########################## Update #################################
+    #region main methods
     def think(self):
         super().think()
         """
@@ -211,8 +218,9 @@ class Animal(Organism):
         if self.desired_tile_movement:
             self.enter_tile(self.desired_tile_movement)
             self.energy -= Animal._MOVEMENT_ENERGY_COST
+    #endregion
 
-    ########################## Tile #################################
+    #region tiles
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
         if tile.has_animal():
@@ -231,8 +239,9 @@ class Animal(Organism):
             raise ValueError("Animal does not have a tile!")
         if not self.tile.animal.has(self):
             raise ValueError("Animal-Tile assignment not equal.")
+    #endregion
 
-    ########################## Energy and Health #################################
+    #region energy and health
     def die(self):
         super().die()
         Animal.animals_died += 1
@@ -242,6 +251,12 @@ class Animal(Organism):
 
         self.kill()
 
+    def get_energy_maintenance(self) -> float:
+        # TODO update this so it is different for different animals
+        return Animal._BASE_ENERGY_MAINTENANCE
+    #endregion
+
+    #region attacking
     def get_attacked(self, attacking_organism: Organism):
         super().get_attacked(attacking_organism)
         if not self.is_alive():
@@ -250,12 +265,9 @@ class Animal(Organism):
     def wants_to_eat(self) -> bool:
         # TODO add genes that define eating habits of animals
         return self.energy_ratio() < 1 or self.health_ratio() < 1
+    #endregion
 
-    def get_energy_maintenance(self) -> float:
-        # TODO update this so it is different for different animals
-        return Animal._BASE_ENERGY_MAINTENANCE
-
-    ########################## Reproduction #################################
+    #region reproduction
     def reproduce(self):
         options = self.tile.get_random_neigbor(no_animal=True, no_water=True)
         if options:
@@ -276,3 +288,4 @@ class Animal(Organism):
         Animal.animals_birthed += 1
 
         return Animal(tile, parent=self, dna=self.dna.copy())
+    #endregion
