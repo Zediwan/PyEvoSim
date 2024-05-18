@@ -35,7 +35,7 @@ class Simulation():
         self._height = settings.screen.SCREEN_HEIGHT
         self._surface: pygame.Surface = pygame.display.set_mode(
                 (self._width, self._height),
-                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
+                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA | pygame.FULLSCREEN
             )
         pygame.display.set_caption("Evolution Simulation")
         #endregion
@@ -49,7 +49,7 @@ class Simulation():
         rect = self._surface.get_rect()
         rect.width *= .75
         world_rect: pygame.Rect = rect
-        tile_size: int = world_rect.width // 120
+        tile_size: int = world_rect.width // 100
         self.world: World = World(world_rect, tile_size)
         self.selected_org = None
         self.paused = True
@@ -306,10 +306,7 @@ class Simulation():
 
     def change_tile_size(self, value):
         # TODO think of a better way to update the references of the world
-        self.world = World(self.world.rect, value)
-        self._world_settings_menu.clear()
-        self._setup_world_settings_menu()
-        self._running_settings_menu._open(self._world_settings_menu)
+        pass
 
     def clear_organisms(self):
         settings.simulation.reset_organisms()
