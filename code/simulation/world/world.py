@@ -6,7 +6,6 @@ import pygame
 import settings.database
 import settings.simulation
 from entities.animal import Animal
-from entities.organism import Organism
 from entities.plant import Plant
 from helper.direction import Direction
 from world.tile import Tile
@@ -28,9 +27,9 @@ class World(pygame.sprite.Sprite):
         self.starting_time_seconds = (pygame.time.get_ticks() / 1000)
         self.age_ticks: int = 0
 
-        self.reset()
-
         self._setup_noise_settings()
+
+        #region tiles
         self.tiles = pygame.sprite.Group()
         tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)]
         for row in range(self.rows):
@@ -40,47 +39,27 @@ class World(pygame.sprite.Sprite):
                 self.tiles.add(tile)
         self.add_neighbors(tiles_grid)
         self.tiles.draw(self.ground_surface)
+        #endregion
 
         settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
+    #region properties
     @property
     def age_seconds(self):
         # TODO this should not count the time the world was paused
         return int((pygame.time.get_ticks() / 1000) - self.starting_time_seconds)
+    #endregion
 
-    def reset(self):
-        self.reset_stats()
-        settings.simulation.organisms.empty()
-
-    def reset_stats(self):
-        Organism.organisms_birthed = 0
-        Organism.organisms_died = 0
-        Organism.next_organism_id = 0
-        Animal.animals_birthed = 0
-        Animal.animals_died = 0
-        Plant.plants_birthed = 0
-        Plant.plants_died = 0
-
+    #region main methods
     def update(self):
         self.age_ticks += 1
         settings.simulation.organisms.update()
 
-    # TODO work in progress not properly working right now
-    # def resize(self, rect: pygame.Rect):
-    #     self.rect = self.rect.fit(rect)
-    #     self.organism_surface = pygame.Surface(self.organism_surface.get_rect().fit(rect).size)
-    #     self.ground_surface = pygame.Surface(self.ground_surface.get_rect().fit(rect).size)
-    #     self.refresh_tiles()
-
-    def update_height_and_moisture(self):
+    def reload(self):
         for tile in self.tiles.sprites():
             tile.height = self.generate_height_values(tile.rect.x * self.height_freq_x, tile.rect.y * self.height_freq_y)
             tile.moisture = self.generate_moisture_values(tile.rect.x * self.moisture_freq_x, tile.rect.y * self.moisture_freq_y)
-        self.tiles.draw(self.ground_surface)
-
-    def refresh_tiles(self):
-        self.tiles.update()
-        self.tiles.draw(self.ground_surface)
+            tile.draw(self.ground_surface)
 
     def draw(self, screen: pygame.Surface):
         screen.blit(self.ground_surface, self.rect)
@@ -88,21 +67,9 @@ class World(pygame.sprite.Sprite):
         self.organism_surface.fill((0, 0, 0, 0))
         settings.simulation.organisms.draw(self.organism_surface)
         screen.blit(self.organism_surface, self.rect)
+    #endregion
 
-    def is_border_tile(self, row: int, col: int) -> bool:
-        return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
-
-    def create_tile(self, row: int, col: int) -> Tile:
-        x = col * self.tile_size
-        y = row * self.tile_size
-
-        return Tile(
-            pygame.Rect(x ,y ,self.tile_size, self.tile_size),
-            height = self.generate_height_values(x * self.height_freq_x, y * self.height_freq_y),
-            moisture = self.generate_moisture_values(x * self.moisture_freq_x, y * self.moisture_freq_y),
-            is_border = self.is_border_tile(row=row, col=col),
-        )
-
+    #region spawning
     def spawn_animals(self, amount: float = 1):
         for tile in random.choices(self.tiles.sprites(), k = amount):
             self.spawn_animal(tile)
@@ -118,6 +85,19 @@ class World(pygame.sprite.Sprite):
     def spawn_plant(self, tile: Tile):
         if not(tile.has_water or tile.has_plant()):
             settings.simulation.organisms.add(Plant(tile))
+    #endregion
+
+    #region tiles
+    def create_tile(self, row: int, col: int) -> Tile:
+        x = col * self.tile_size
+        y = row * self.tile_size
+
+        return Tile(
+            pygame.Rect(x ,y ,self.tile_size, self.tile_size),
+            height = self.generate_height_values(x * self.height_freq_x, y * self.height_freq_y),
+            moisture = self.generate_moisture_values(x * self.moisture_freq_x, y * self.moisture_freq_y),
+            is_border = self.is_border_tile(row=row, col=col),
+        )
 
     def add_neighbors(self, tiles):
         for row in range(self.rows):
@@ -131,6 +111,9 @@ class World(pygame.sprite.Sprite):
                     tile.add_neighbor(Direction.SOUTH, tiles[row+1][col])
                 if col > 0:
                     tile.add_neighbor(Direction.WEST, tiles[row][col-1])
+
+    def is_border_tile(self, row: int, col: int) -> bool:
+        return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
 
     def get_tiles(self, rect: pygame.Rect) -> list[Tile]:
         # Transform rect global coordinates into world coordinates
@@ -149,8 +132,9 @@ class World(pygame.sprite.Sprite):
         s = pygame.sprite.Sprite()
         s.rect = pygame.Rect(x, y, 1, 1)
         return pygame.sprite.spritecollideany(s, self.tiles)
+    #endregion
 
-    ############ NOISE ############################################################
+    #region noise
     def _setup_noise_settings(self):
         self.freq_x1: float = 1
         self.freq_y1: float = 1
@@ -176,105 +160,7 @@ class World(pygame.sprite.Sprite):
         self.moisture: float = 0.5
         self.height: float = 0.5
 
-    def set_freq_x1(self, value):
-        self.freq_x1 = value
-        self.update_height_and_moisture()
-
-    def set_freq_y1(self, value):
-        self.freq_y1 = value
-        self.update_height_and_moisture()
-
-    def set_freq_x2(self, value):
-        self.freq_x2 = value
-        self.update_height_and_moisture()
-
-    def set_freq_y2(self, value):
-        self.freq_y2 = value
-        self.update_height_and_moisture()
-
-    def set_freq_x3(self, value):
-        self.freq_x3 = value
-        self.update_height_and_moisture()
-
-    def set_freq_y3(self, value):
-        self.freq_y3 = value
-        self.update_height_and_moisture()
-
-    def set_scale_1(self, value):
-        self.scale_1 = value
-        self.update_height_and_moisture()
-
-    def set_scale_2(self, value):
-        self.scale_2 = value
-        self.update_height_and_moisture()
-
-    def set_scale_3(self, value):
-        self.scale_3 = value
-        self.update_height_and_moisture()
-
-    def set_offset_x1(self, value):
-        self.offset_x1 = value
-        self.update_height_and_moisture()
-
-    def set_offset_y1(self, value):
-        self.offset_y1 = value
-        self.update_height_and_moisture()
-
-    def set_offset_x2(self, value):
-        self.offset_x2 = value
-        self.update_height_and_moisture()
-
-    def set_offset_y2(self, value):
-        self.offset_y2 = value
-        self.update_height_and_moisture()
-
-    def set_offset_x3(self, value):
-        self.offset_x3 = value
-        self.update_height_and_moisture()
-
-    def set_offset_y3(self, value):
-        self.offset_y3 = value
-        self.update_height_and_moisture()
-
-    def set_height_power(self, value):
-        self.height_power = value
-        self.update_height_and_moisture()
-
-    def set_fudge_factor(self, value):
-        self.height_fudge_factor = value
-        self.update_height_and_moisture()
-
-    def set_height_freq_x(self, value):
-        self.height_freq_x = value
-        self.update_height_and_moisture()
-
-    def set_height_freq_y(self, value):
-        self.height_freq_y = value
-        self.update_height_and_moisture()
-
-    def set_moisture_freq_x(self, value):
-        self.moisture_freq_x = value
-        self.update_height_and_moisture()
-
-    def set_moisture_freq_y(self, value):
-        self.moisture_freq_y = value
-        self.update_height_and_moisture()
-
-    def randomise_freqs(self):
-        self.height_freq_x = random.uniform(-0.01, 0.01)
-        self.height_freq_y = random.uniform(-0.01, 0.01)
-        self.moisture_freq_x = random.uniform(-0.01, 0.01)
-        self.moisture_freq_y = random.uniform(-0.01, 0.01)
-        self.update_height_and_moisture()
-
-    def set_moisture(self, value):
-        self.moisture = value
-        self.update_height_and_moisture()
-
-    def set_height(self, value):
-        self.height = value
-        self.update_height_and_moisture()
-
+    #region noise generators
     def generate_height_values(self, x: int, y: int) -> float:
         noise1 = noise.snoise2((x * self.freq_x1) + self.offset_x1, (y * self.freq_y1) + self.offset_y1)
         noise1 *= self.scale_1
@@ -316,10 +202,115 @@ class World(pygame.sprite.Sprite):
         if not(0 <= moisture <= 1):
             raise ValueError(f"Moisture value not in range [0, 1] {moisture}")
         return moisture
-    ######################### Helper ############################################################
+    #endregion
+
+    #region noise setters
+    def set_freq_x1(self, value):
+        self.freq_x1 = value
+        self.reload()
+
+    def set_freq_y1(self, value):
+        self.freq_y1 = value
+        self.reload()
+
+    def set_freq_x2(self, value):
+        self.freq_x2 = value
+        self.reload()
+
+    def set_freq_y2(self, value):
+        self.freq_y2 = value
+        self.reload()
+
+    def set_freq_x3(self, value):
+        self.freq_x3 = value
+        self.reload()
+
+    def set_freq_y3(self, value):
+        self.freq_y3 = value
+        self.reload()
+
+    def set_scale_1(self, value):
+        self.scale_1 = value
+        self.reload()
+
+    def set_scale_2(self, value):
+        self.scale_2 = value
+        self.reload()
+
+    def set_scale_3(self, value):
+        self.scale_3 = value
+        self.reload()
+
+    def set_offset_x1(self, value):
+        self.offset_x1 = value
+        self.reload()
+
+    def set_offset_y1(self, value):
+        self.offset_y1 = value
+        self.reload()
+
+    def set_offset_x2(self, value):
+        self.offset_x2 = value
+        self.reload()
+
+    def set_offset_y2(self, value):
+        self.offset_y2 = value
+        self.reload()
+
+    def set_offset_x3(self, value):
+        self.offset_x3 = value
+        self.reload()
+
+    def set_offset_y3(self, value):
+        self.offset_y3 = value
+        self.reload()
+
+    def set_height_power(self, value):
+        self.height_power = value
+        self.reload()
+
+    def set_fudge_factor(self, value):
+        self.height_fudge_factor = value
+        self.reload()
+
+    def set_height_freq_x(self, value):
+        self.height_freq_x = value
+        self.reload()
+
+    def set_height_freq_y(self, value):
+        self.height_freq_y = value
+        self.reload()
+
+    def set_moisture_freq_x(self, value):
+        self.moisture_freq_x = value
+        self.reload()
+
+    def set_moisture_freq_y(self, value):
+        self.moisture_freq_y = value
+        self.reload()
+
+    def set_moisture(self, value):
+        self.moisture = value
+        self.reload()
+
+    def set_height(self, value):
+        self.height = value
+        self.reload()
+    #endregion
+
+    def randomise_freqs(self):
+        self.height_freq_x = random.uniform(-0.01, 0.01)
+        self.height_freq_y = random.uniform(-0.01, 0.01)
+        self.moisture_freq_x = random.uniform(-0.01, 0.01)
+        self.moisture_freq_y = random.uniform(-0.01, 0.01)
+        self.reload()
+    #endregion
+
+    #region static methods
     @staticmethod
     def adjust_dimensions(rect: pygame.Rect, tile_size: int) -> pygame.Rect:
         rect.width = (rect.width // tile_size) * tile_size
         rect.height = (rect.height // tile_size) * tile_size
 
         return rect
+    #endregion

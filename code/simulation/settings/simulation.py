@@ -1,6 +1,21 @@
 import pygame
+from entities.organism import Organism
+from entities.animal import Animal
+from entities.plant import Plant
 
 organisms = pygame.sprite.Group()
+
+def reset_organisms():
+    organisms.empty()
+
+def reset_stats():
+    Organism.organisms_birthed = 0
+    Organism.organisms_died = 0
+    Organism.next_organism_id = 0
+    Animal.animals_birthed = 0
+    Animal.animals_died = 0
+    Plant.plants_birthed = 0
+    Plant.plants_died = 0
 
 spawn_plants_anywhere: bool = True
 spawn_plants_at_border: bool = False
