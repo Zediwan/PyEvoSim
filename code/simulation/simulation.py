@@ -21,13 +21,13 @@ class Simulation():
 
     def __init__(self) -> None:
         pygame.init()
-        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.VIDEORESIZE])
+        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
         self._width = settings.screen.SCREEN_WIDTH
         self._height = settings.screen.SCREEN_HEIGHT
         self._surface: pygame.Surface = pygame.display.set_mode(
                 (self._width, self._height),
-                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA | pygame.RESIZABLE
+                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
             )
         pygame.display.set_caption("Evolution Simulation")
 
@@ -196,6 +196,8 @@ class Simulation():
 
         # TODO add a randomise button
         self._world_settings_menu.add.button("Randomize", self.world.randomise_freqs) # TODO update this so when randomising a new world is loaded
+        self._world_settings_menu.add.text_input("Tile size: ", self.world.tile_size, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.change_tile_size)
+
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_spawning_settings_menu(self) -> None:
@@ -275,6 +277,13 @@ class Simulation():
 
     def toggle_pause(self, value):
         self.paused = not value
+
+    def change_tile_size(self, value):
+        # TODO think of a better way to update the references of the world
+        self.world = World(self.world.rect, value)
+        self._world_settings_menu.clear()
+        self._setup_world_settings_menu()
+        self._running_settings_menu._open(self._world_settings_menu)
 
     ##### LOOPS ######################################################################
     def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True) -> None:

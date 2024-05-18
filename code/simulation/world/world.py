@@ -17,7 +17,7 @@ import math
 class World(pygame.sprite.Sprite):
     def __init__(self, rect: pygame.Rect, tile_size: int):
         pygame.sprite.Sprite.__init__(self)
-        self.rect: pygame.Rect = World.adjust_dimensions(rect, tile_size)
+        self.rect: pygame.Rect = rect
         self.organism_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         self.ground_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
 
@@ -66,11 +66,11 @@ class World(pygame.sprite.Sprite):
         settings.simulation.organisms.update()
 
     # TODO work in progress not properly working right now
-    def resize(self, rect: pygame.Rect):
-        self.rect = self.rect.fit(rect)
-        self.organism_surface = pygame.Surface(self.organism_surface.get_rect().fit(rect).size)
-        self.ground_surface = pygame.Surface(self.ground_surface.get_rect().fit(rect).size)
-        self.refresh_tiles()
+    # def resize(self, rect: pygame.Rect):
+    #     self.rect = self.rect.fit(rect)
+    #     self.organism_surface = pygame.Surface(self.organism_surface.get_rect().fit(rect).size)
+    #     self.ground_surface = pygame.Surface(self.ground_surface.get_rect().fit(rect).size)
+    #     self.refresh_tiles()
 
     def update_height_and_moisture(self):
         for tile in self.tiles.sprites():
