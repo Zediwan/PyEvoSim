@@ -13,6 +13,7 @@ from world.tile import Tile
 
 
 class Plant(Organism):
+    #region class settings
     _BASE_ENERGY_MAINTENANCE: float = 1
     _MAX_HEALTH: float = 200
     _MAX_ENERGY: float = 100
@@ -20,25 +21,24 @@ class Plant(Organism):
     _REPRODUCTION_CHANCE: float = 1
     _MIN_REPRODUCTION_HEALTH: float = 0
     _MIN_REPRODUCTION_ENERGY: float = 0.3
-
-    # Starting values
+    _REPRODUCTION_ENERGY_COST_FACTOR: float = 0.5
+    _OFFSPRING_HEALTH_FACTOR: float = 0
+    _OFFSPRING_ENERGY_FACTOR: float = 0.5
+    _PHOTOSYNTHESIS_ENERGY_MULTIPLIER: float = 4
+    _COAST_ENERGY_MULTIPLIER: float = 3
+    _BASE_COLOR: pygame.Color = pygame.Color(76, 141, 29)
+    _MAX_ALPHA: float = 100
+    _MIN_ALPHA: float = 20
+    #endregion
+    #region starting values
     _STARTING_HEALTH: float = _MAX_HEALTH
     _STARTING_ENERGY: float = _MAX_ENERGY
     _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (0, 0)
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
-
-    _REPRODUCTION_ENERGY_COST_FACTOR: float = 0.5
-    _OFFSPRING_HEALTH_FACTOR: float = 0
-    _OFFSPRING_ENERGY_FACTOR: float = 0.5
-    _PHOTOSYNTHESIS_ENERGY_MULTIPLIER: float = 4
-    _COAST_ENERGY_MULTIPLIER: float = 3
-
-    _BASE_COLOR: pygame.Color = pygame.Color(76, 141, 29)
-    _MAX_ALPHA: float = 100
-    _MIN_ALPHA: float = 20
-
+    #endregion
+    #region class setting setters
     @classmethod
     def set_base_energy_maintenance(cls, value: float):
         cls._BASE_ENERGY_MAINTENANCE = value
@@ -90,7 +90,8 @@ class Plant(Organism):
     @classmethod
     def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_MUTATION_CHANCE_RANGE = value
-
+    #endregion
+    #region class properties
     @property
     def MAX_HEALTH(self) -> float:
         return Plant._MAX_HEALTH
@@ -122,9 +123,11 @@ class Plant(Organism):
     @property
     def MIN_ALPHA(self) -> float:
         return Plant._MIN_ALPHA
-
+    #endregion
+    #region stats
     plants_birthed: int = 0
     plants_died: int = 0
+    #endregion
 
     def __init__(
         self,
@@ -133,9 +136,9 @@ class Plant(Organism):
         parent: Plant = None,
         dna: DNA = None,
     ):
+        #region defaults
         if not rect:
             rect = tile.rect.copy()
-
         if not dna:
             dna = DNA(
                 Plant._BASE_COLOR,
@@ -144,6 +147,7 @@ class Plant(Organism):
                 random.uniform(Plant._STARTING_HEIGHT_PREFERENCE_RANGE[0], Plant._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Plant._STARTING_MUTATION_CHANCE_RANGE[0], Plant._STARTING_MUTATION_CHANCE_RANGE[1]),
             )
+        #endregion
 
         super().__init__(
             tile,
@@ -155,7 +159,7 @@ class Plant(Organism):
 
         self.parent: Plant | None = parent
 
-    ########################## Update #################################
+    #region main methods
     def update(self):
         super().update()
         self.photosynthesise()
@@ -201,8 +205,9 @@ class Plant(Organism):
         )
 
         self.energy += adjusted_energy_gain
+    #endregion
 
-    ########################## Tile #################################
+    #region tile
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
 
@@ -219,8 +224,9 @@ class Plant(Organism):
             raise ValueError("Plant does not have a tile!")
         if not self.tile.plant.has(self):
             raise ValueError("Plant-Tile assignment not equal.")
+    #endregion
 
-    ########################## Energy and Health #################################
+    #region health and energy
     def die(self):
         super().die()
         Plant.plants_died += 1
@@ -231,16 +237,19 @@ class Plant(Organism):
 
         self.kill()
 
+    def get_energy_maintenance(self) -> float:
+        # TODO update this so it is different for different plants
+        return Plant._BASE_ENERGY_MAINTENANCE
+    #endregion
+
+    #region attacking
     def get_attacked(self, attacking_organism: Organism):
         super().get_attacked(attacking_organism)
         if not self.is_alive():
             attacking_organism.plants_killed += 1
+    #endregion
 
-    def get_energy_maintenance(self) -> float:
-        # TODO update this so it is different for different plants
-        return Plant._BASE_ENERGY_MAINTENANCE
-
-    ########################## Reproduction #################################
+    #region reproduction
     def reproduce(self):
         option = self.tile.get_random_neigbor(no_plant=True, no_water=True)
         if option:
@@ -262,3 +271,4 @@ class Plant(Organism):
         Plant.plants_birthed += 1
 
         return Plant(tile, parent=self, dna=self.dna.copy())
+    #endregion

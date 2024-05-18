@@ -5,24 +5,32 @@ import settings.database
 import settings.screen
 from entities.animal import Animal
 from entities.plant import Plant
+import settings.simulation
+from dna.dna import DNA
 
 from world.world import World
 
 class Simulation():
+    brush_outline = 2
+    #region themes
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
     runtime_theme = pygame_menu.Theme(
             background_color = pygame_menu.pygame_menu.themes.TRANSPARENT_COLOR,
             widget_margin = (0, 15),
         )
+    #endregion
+    #region colors
     TRANSPARENT_BLACK_COLOR = (0, 0, 0, 100)
-
-    brush_outline = 2
+    #endregion
+    #region fonts
     fps_font = pygame.font.Font(None, 100)
+    #endregion
 
     def __init__(self) -> None:
         pygame.init()
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
+        #region surface
         self._width = settings.screen.SCREEN_WIDTH
         self._height = settings.screen.SCREEN_HEIGHT
         self._surface: pygame.Surface = pygame.display.set_mode(
@@ -30,10 +38,14 @@ class Simulation():
                 pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
             )
         pygame.display.set_caption("Evolution Simulation")
+        #endregion
 
+        #region time
         self._clock = pygame.time.Clock()
         self._fps = 320
+        #endregion
 
+        #region simulation
         rect = self._surface.get_rect()
         rect.width *= .75
         world_rect: pygame.Rect = rect
@@ -41,17 +53,17 @@ class Simulation():
         self.world: World = World(world_rect, tile_size)
         self.selected_org = None
         self.paused = True
+        #endregion
 
         self._setup_menus()
 
-    ##### SETUP ######################################################################
+    #region setup
     def _setup_menus(self) -> None:
+        #region menu initialisation
         self.starting_menu = pygame_menu.Menu("Starting Menu", self._surface.get_width(), self._surface.get_height(), theme=self.base_theme)
         self.options_menu = pygame_menu.Menu("Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.screen_options = pygame_menu.Menu("Screen Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.database_options = pygame_menu.Menu("Database Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
-
-        ### Runtime Loop menus
         self._running_settings_menu = pygame_menu.Menu(
             width=self._surface.get_width()-self.world.rect.right,
             height=self._surface.get_height(),
@@ -108,12 +120,13 @@ class Simulation():
             theme=self.runtime_theme,
             title="Plant",
         )
+        #endregion
 
+        #region menu setup
         self._setup_starting_menu()
         self._setup_options_menu()
         self._setup_screen_options_menu()
         self._setup_database_options_menu()
-        # Runtime
         self._setup_running_settings_menu()
         self._setup_world_settings_menu()
         self._setup_spawning_settings_menu()
@@ -122,7 +135,9 @@ class Simulation():
         self._setup_organism_settings_menu()
         self._setup_animal_settings_menu()
         self._setup_plant_settings_menu()
+        #endregion
 
+    #region main menus
     def _setup_starting_menu(self) -> None:
         self.starting_menu.add.button("Simulation", self.run_loop)
         self.starting_menu.add.button("Data Analysis") # TODO add fuction call to data analysis module
@@ -153,8 +168,9 @@ class Simulation():
         self.database_options.add.toggle_switch("Save Animals to database", settings.database.save_animals_csv, onchange=settings.database.update_save_animals_csv)
         self.database_options.add.toggle_switch("Save Plants to database", settings.database.save_plants_csv, onchange=settings.database.update_save_plants_csv)
         self.database_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+    #endregion
 
-    #### RUNNING STATE ######################################################
+    #region simulation menus
     def _setup_running_settings_menu(self) -> None:
         self._running_settings_menu.add.button("World", self._world_settings_menu)
         self._running_settings_menu.add.button("Spawning", self._spawning_settings_menu)
@@ -206,6 +222,15 @@ class Simulation():
         self._spawning_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_dna_settings_menu(self) -> None:
+        self._dna_settings_menu.add.label("Attack Power Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.attack_power_mutation_range, (0, DNA.attack_power_max), increment=1, onchange=DNA.set_attack_power_mutation_range)
+        self._dna_settings_menu.add.label("Color Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.color_mutation_range, (0, DNA.color_max), increment=1, onchange=DNA.set_color_mutation_range)
+        self._dna_settings_menu.add.label("Prefered Moisture Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.prefered_moisture_muation_range, (0, DNA.prefered_moisture_max), increment=.01, onchange=DNA.set_prefered_moisture_mutation_range)
+        self._dna_settings_menu.add.label("Prefered Height Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.prefered_height_muation_range, (0, DNA.prefered_height_max), increment=.01, onchange=DNA.set_prefered_height_mutation_range)
+
         self._dna_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_entity_settings_menu(self) -> None:
@@ -221,7 +246,7 @@ class Simulation():
 
     def _setup_animal_settings_menu(self) -> None:
         self._animal_settings_menu.add.label("Spawning Attack Power Range")
-        self._animal_settings_menu.add.range_slider("", Animal._STARTING_ATTACK_POWER_RANGE, (0, 50), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_attack_power_range)
+        self._animal_settings_menu.add.range_slider("", Animal._STARTING_ATTACK_POWER_RANGE, (0, DNA.attack_power_max), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_attack_power_range)
         self._animal_settings_menu.add.label("Spawning Moisture Preference Range")
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_MOISTURE_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_moisture_preference_range)
         self._animal_settings_menu.add.label("Spawning Height Preference Range")
@@ -272,9 +297,10 @@ class Simulation():
         self._plant_settings_menu.add.range_slider("", Plant._MIN_REPRODUCTION_ENERGY, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_min_reproduction_energy)
 
         self._plant_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+    #endregion
+    #endregion
 
-    ####### CALLBACK FUNCTIONS ########################################################
-
+    #region callback functions
     def toggle_pause(self, value):
         self.paused = not value
 
@@ -285,7 +311,14 @@ class Simulation():
         self._setup_world_settings_menu()
         self._running_settings_menu._open(self._world_settings_menu)
 
-    ##### LOOPS ######################################################################
+    def clear_organisms(self):
+        settings.simulation.reset_organisms()
+
+    def reset_stats(self):
+        settings.simulation.reset_stats()
+    #endregion
+
+    #region loops
     def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
         self._surface.fill(pygame_menu.pygame_menu.themes.THEME_GREEN.background_color)
         if draw_grid:
@@ -301,7 +334,7 @@ class Simulation():
             fps_screen.set_alpha(100)
             self._surface.blit(
                 fps_screen,
-                fps_screen.get_rect(topright = self._surface.get_rect().topright)
+                fps_screen.get_rect(bottomleft = self._surface.get_rect().bottomleft)
             )
 
     def run_loop(self) -> None:
@@ -366,6 +399,7 @@ class Simulation():
 
     def mainlopp(self) -> None:
         self.starting_menu.mainloop(self._surface)
+    #endregion
 
     def _quit(self) -> None:
         pygame.quit()
