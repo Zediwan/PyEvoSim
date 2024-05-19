@@ -19,8 +19,6 @@ class Plant(Organism):
     _MAX_ENERGY: float = 100
     _NUTRITION_FACTOR: float = 0.8
     _REPRODUCTION_CHANCE: float = 1
-    _MIN_REPRODUCTION_HEALTH: float = 0
-    _MIN_REPRODUCTION_ENERGY: float = 0.3
     _REPRODUCTION_ENERGY_COST_FACTOR: float = 0.5
     _OFFSPRING_HEALTH_FACTOR: float = 0
     _OFFSPRING_ENERGY_FACTOR: float = 0.5
@@ -37,6 +35,8 @@ class Plant(Organism):
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (.1, 1)
+    _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (.1, 1)
     #endregion
     #region class setting setters
     @classmethod
@@ -60,20 +60,20 @@ class Plant(Organism):
         cls._REPRODUCTION_CHANCE = value
 
     @classmethod
-    def set_min_reproduction_health(cls, value: float):
-        cls._MIN_REPRODUCTION_HEALTH = value
-
-    @classmethod
-    def set_min_reproduction_energy(cls, value: float):
-        cls._MIN_REPRODUCTION_ENERGY = value
-
-    @classmethod
     def set_starting_health(cls, value: float):
         cls._STARTING_HEALTH = value
 
     @classmethod
     def set_starting_energy(cls, value: float):
         cls._STARTING_ENERGY = value
+
+    @classmethod
+    def set_starting_min_reproduction_health_range(cls, value: tuple[float, float]):
+        cls._STARTING_MIN_REPRODUCTION_HEALTH_RANGE = value
+
+    @classmethod
+    def set_starting_min_reproduction_energy_range(cls, value: tuple[float, float]):
+        cls._STARTING_MIN_REPRODUCTION_ENERGY_RANGE = value
 
     @classmethod
     def set_starting_attack_power_range(cls, value: tuple[float, float]):
@@ -107,14 +107,6 @@ class Plant(Organism):
     @property
     def REPRODUCTION_CHANCE(self) -> float:
         return Plant._REPRODUCTION_CHANCE
-
-    @property
-    def MIN_REPRODUCTION_HEALTH(self) -> float:
-        return Plant._MIN_REPRODUCTION_HEALTH
-
-    @property
-    def MIN_REPRODUCTION_ENERGY(self) -> float:
-        return Plant._MIN_REPRODUCTION_ENERGY
     
     @property
     def MAX_ALPHA(self) -> float:
@@ -146,6 +138,8 @@ class Plant(Organism):
                 random.uniform(Plant._STARTING_MOISTURE_PREFERENCE_RANGE[0], Plant._STARTING_MOISTURE_PREFERENCE_RANGE[1]),
                 random.uniform(Plant._STARTING_HEIGHT_PREFERENCE_RANGE[0], Plant._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Plant._STARTING_MUTATION_CHANCE_RANGE[0], Plant._STARTING_MUTATION_CHANCE_RANGE[1]),
+                random.uniform(Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1]),
+                random.uniform(Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1])
             )
         #endregion
 

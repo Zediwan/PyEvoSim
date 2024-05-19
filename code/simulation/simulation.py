@@ -230,6 +230,10 @@ class Simulation():
         self._dna_settings_menu.add.range_slider("", DNA.prefered_moisture_muation_range, (0, DNA.prefered_moisture_max), increment=.01, onchange=DNA.set_prefered_moisture_mutation_range)
         self._dna_settings_menu.add.label("Prefered Height Mutation Range")
         self._dna_settings_menu.add.range_slider("", DNA.prefered_height_muation_range, (0, DNA.prefered_height_max), increment=.01, onchange=DNA.set_prefered_height_mutation_range)
+        self._dna_settings_menu.add.label("Min Reproduction Health Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.min_reproduction_health_mutation_range, (0, DNA.min_reproduction_health_max), increment=.01, onchange=DNA.set_min_reproduction_health_mutation_range)
+        self._dna_settings_menu.add.label("Min Reproduction Energy Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.min_reproduction_energy_mutation_range, (0, DNA.min_reproduction_energy_max), increment=.01, onchange=DNA.set_min_reproduction_energy_mutation_range)
 
         self._dna_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
@@ -253,6 +257,10 @@ class Simulation():
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_HEIGHT_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_height_preference)
         self._animal_settings_menu.add.label("Spawning Mutation Chance Range")
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_MUTATION_CHANCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_mutation_chance_range)
+        self._animal_settings_menu.add.label("Spawning Min Health % to reproduce")
+        self._animal_settings_menu.add.range_slider("", Animal._STARTING_MIN_REPRODUCTION_HEALTH_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_min_reproduction_health_range)
+        self._animal_settings_menu.add.label("Spawning Min Energy % to reproduce")
+        self._animal_settings_menu.add.range_slider("", Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_min_reproduction_energy_range)
 
         self._animal_settings_menu.add.label("Energy Maintenance Cost")
         self._animal_settings_menu.add.range_slider("", Animal._BASE_ENERGY_MAINTENANCE, (0, 100), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_base_energy_maintenance)
@@ -264,10 +272,6 @@ class Simulation():
         self._animal_settings_menu.add.range_slider("", Animal._NUTRITION_FACTOR, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_nutrition_factor)
         self._animal_settings_menu.add.label("Reproduction Chance")
         self._animal_settings_menu.add.range_slider("", Animal._REPRODUCTION_CHANCE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_reproduction_chance)
-        self._animal_settings_menu.add.label("Min Health % to reproduce")
-        self._animal_settings_menu.add.range_slider("", Animal._MIN_REPRODUCTION_HEALTH, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_min_reproduction_health)
-        self._animal_settings_menu.add.label("Min Energy % to reproduce")
-        self._animal_settings_menu.add.range_slider("", Animal._MIN_REPRODUCTION_ENERGY, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_min_reproduction_energy)
 
         self._animal_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
@@ -280,6 +284,10 @@ class Simulation():
         self._plant_settings_menu.add.range_slider("", Plant._STARTING_HEIGHT_PREFERENCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_height_preference)
         self._plant_settings_menu.add.label("Spawning Mutation Chance Range")
         self._plant_settings_menu.add.range_slider("", Plant._STARTING_MUTATION_CHANCE_RANGE, (0, 1), increment=.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_mutation_chance_range)
+        self._plant_settings_menu.add.label("Spawning Min Health % to reproduce")
+        self._plant_settings_menu.add.range_slider("", Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_min_reproduction_health_range)
+        self._plant_settings_menu.add.label("Spawning Min Energy % to reproduce")
+        self._plant_settings_menu.add.range_slider("", Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_min_reproduction_energy_range)
 
         self._plant_settings_menu.add.label("Energy Maintenance Cost")
         self._plant_settings_menu.add.range_slider("", Plant._BASE_ENERGY_MAINTENANCE, (0, 100), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_base_energy_maintenance)
@@ -291,10 +299,6 @@ class Simulation():
         self._plant_settings_menu.add.range_slider("", Plant._NUTRITION_FACTOR, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_nutrition_factor)
         self._plant_settings_menu.add.label("Reproduction Chance")
         self._plant_settings_menu.add.range_slider("", Plant._REPRODUCTION_CHANCE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_reproduction_chance)
-        self._plant_settings_menu.add.label("Min Health % to reproduce")
-        self._plant_settings_menu.add.range_slider("", Plant._MIN_REPRODUCTION_HEALTH, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_min_reproduction_health)
-        self._plant_settings_menu.add.label("Min Energy % to reproduce")
-        self._plant_settings_menu.add.range_slider("", Plant._MIN_REPRODUCTION_ENERGY, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_min_reproduction_energy)
 
         self._plant_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
     #endregion
