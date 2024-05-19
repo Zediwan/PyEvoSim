@@ -305,7 +305,7 @@ class Simulation():
         self.paused = not value
 
     def change_tile_size(self, value):
-        # TODO think of a better way to update the references of the world
+        # TODO implement this method
         pass
 
     def clear_organisms(self):
