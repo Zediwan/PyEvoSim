@@ -32,10 +32,8 @@ class Simulation():
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
         #region surface
-        self._width = settings.screen.SCREEN_WIDTH
-        self._height = settings.screen.SCREEN_HEIGHT
         self._surface: pygame.Surface = pygame.display.set_mode(
-                (self._width, self._height),
+                (settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT),
                 pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA | pygame.FULLSCREEN
             )
         pygame.display.set_caption("Evolution Simulation")
@@ -47,9 +45,8 @@ class Simulation():
         #endregion
 
         #region simulation
-        rect = self._surface.get_rect()
-        rect.width *= .75
-        world_rect: pygame.Rect = rect
+        world_rect: pygame.Rect = self._surface.get_rect()
+        world_rect.width *= .75
         tile_size: int = world_rect.width // 100
         self.world: World = World(world_rect, tile_size)
         self.selected_org = None
