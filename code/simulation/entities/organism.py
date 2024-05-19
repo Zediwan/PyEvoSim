@@ -9,7 +9,6 @@ import pygame
 
 import settings.colors
 import settings.database
-import settings.entities
 import settings.screen
 import stats.stat_panel
 from dna.dna import DNA
@@ -17,6 +16,7 @@ from world.tile import Tile
 
 
 class Organism(ABC, pygame.sprite.Sprite):
+    #region class properties
     @property
     @abstractmethod
     def MAX_HEALTH(self) -> float:
@@ -64,11 +64,12 @@ class Organism(ABC, pygame.sprite.Sprite):
     @abstractmethod
     def MIN_ALPHA(self) -> float:
         pass
-
-    # Stats
+    #endregion
+    #region stats
     organisms_birthed: int = 0
     organisms_died: int = 0
     next_organism_id: int = 0
+    #endregion
 
     def __init__(
         self,
@@ -80,7 +81,7 @@ class Organism(ABC, pygame.sprite.Sprite):
     ):
         pygame.sprite.Sprite.__init__(self)
 
-        # Stats
+        #region stats
         self.stat_panel: stats.stat_panel.StatPanel | None = None
         self.animals_killed: int = 0
         self.plants_killed: int = 0
@@ -91,6 +92,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.tick_age: int = 0
         self.birth_time: int = pygame.time.get_ticks()
         self.death_time: int | None = None
+        #endregion
 
         self.rect: pygame.Rect = rect
         self.image: pygame.Surface = pygame.Surface(self.rect.size)
@@ -108,19 +110,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.tile: Tile = None
         self.enter_tile(tile)
 
-    def _set_attributes_from_dna(self):
-        if not self.dna:
-            raise ValueError("Trying to set attributes from DNA despite DNA being None")
-
-        self.color: pygame.Color = self.dna.color
-        self.image.fill(self.color)
-        self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
-
-        self.attack_power: float = self.dna.attack_power_gene.value
-        self.moisture_preference: float = self.dna.prefered_moisture_gene.value
-        self.height_preference: float = self.dna.prefered_height_gene.value
-
-    ########################## Properties #################################
+    #region properties
     @property
     def health(self) -> float:
         return self._health
@@ -140,14 +130,29 @@ class Organism(ABC, pygame.sprite.Sprite):
     def energy(self, value: float):
         if value < self.MIN_ENERGY:
             self._energy = self.MIN_ENERGY
-            self.health += value * settings.entities.ENERGY_TO_HEALTH_RATIO
+            self.health += value
         elif value > self.MAX_ENERGY:
             self._energy = self.MAX_ENERGY
-            self.health += (value - self.MAX_ENERGY) * settings.entities.ENERGY_TO_HEALTH_RATIO
+            self.health += value - self.MAX_ENERGY
         else:
             self._energy = value
+    #endregion
 
-    ########################## Update #################################
+    #region setup
+    def _set_attributes_from_dna(self):
+        if not self.dna:
+            raise ValueError("Trying to set attributes from DNA despite DNA being None")
+
+        self.color: pygame.Color = self.dna.color
+        self.image.fill(self.color)
+        self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
+
+        self.attack_power: float = self.dna.attack_power_gene.value
+        self.moisture_preference: float = self.dna.prefered_moisture_gene.value
+        self.height_preference: float = self.dna.prefered_height_gene.value
+    #endregion
+
+    #region main methods
     def update(self):
         """
         Updates the organism by performing various actions and behaviors.
@@ -179,7 +184,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self._post_update()
 
     def use_maintanance_energy(self):
-        self.energy -= settings.entities.ORGANISM_BASE_ENERGY_MAINTANCE
+        self.energy -= self.get_energy_maintenance()
 
     def handle_aging(self):
         """
@@ -211,7 +216,8 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.reproduce()
 
     def handle_drowning(self):
-        pass
+        if self.tile.has_water:
+            self.health -= 10 # TODO update drowning logic
 
     def think(self):
         pass
@@ -239,8 +245,9 @@ class Organism(ABC, pygame.sprite.Sprite):
         else:
             # TODO Test best place for this performance wise
             self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
+    #endregion
 
-    ########################## Tile #################################
+    #region tiles
     @abstractmethod
     def enter_tile(self, tile: Tile):
         self.rect.topleft = tile.rect.topleft
@@ -249,8 +256,9 @@ class Organism(ABC, pygame.sprite.Sprite):
     @abstractmethod
     def check_tile_assignment(self):
         pass
+    #endregion
 
-    ########################## Energy and Health #################################
+    #region energy and health
     def health_ratio(self) -> float:
         ratio = self.health / self.MAX_HEALTH
 
@@ -275,6 +283,12 @@ class Organism(ABC, pygame.sprite.Sprite):
         Organism.organisms_died += 1
         self.death_time = pygame.time.get_ticks()
 
+    @abstractmethod
+    def get_energy_maintenance(self) -> float:
+        pass
+    #endregion
+
+    #region attacking
     def attack(self, organism_to_attack: Organism):
         if not (
             self.tile.is_neighbor(organism_to_attack.tile)
@@ -288,26 +302,23 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @abstractmethod
     def get_attacked(self, attacking_organism: Organism):
-        if not (
-            self.tile.is_neighbor(attacking_organism.tile)
-            or self.tile == attacking_organism.tile
-        ):
-            raise ValueError(
-                "Organism attacking is not on a neighbor tile or same tile."
-            )
+        if not (self.tile.is_neighbor(attacking_organism.tile) or self.tile == attacking_organism.tile):
+            raise ValueError("Organism attacking is not on a neighbor tile or same tile.")
+        else:
+            damage = attacking_organism.attack_power
 
-        damage = attacking_organism.attack_power
+            if damage > 0:
+                self.health -= damage
+                attacking_organism.energy += damage * self.NUTRITION_FACTOR
+    #endregion
 
-        if damage > 0:
-            self.health -= damage
-            attacking_organism.energy += damage * self.NUTRITION_FACTOR
-
-    ########################## Reproduction #################################
+    #region reproduction
     @abstractmethod
     def reproduce(self):
         pass
 
     def can_reproduce(self) -> bool:
+        # TODO add a gene that defines these thresholds
         return (
             self.health_ratio() >= self.MIN_REPRODUCTION_HEALTH
             and self.energy_ratio() >= self.MIN_REPRODUCTION_ENERGY
@@ -317,14 +328,15 @@ class Organism(ABC, pygame.sprite.Sprite):
     def copy(self, tile: Tile) -> Organism:
         self.num_offspring += 1
         Organism.organisms_birthed += 1
-        pass
 
     def mutate(self):
         self.dna.mutate()
         self._set_attributes_from_dna()
+    #endregion
 
-    ########################## Stats #################################
+    #region stats
     def show_stats(self, screen: pygame.Surface, offset):
+        # TODO rework this with new gui
         stats_data = self.get_stats()
 
         if not self.stat_panel:
@@ -417,3 +429,4 @@ class Organism(ABC, pygame.sprite.Sprite):
                 writer.writerow(self.get_stats())
         except IOError as e:
             print(f"Error writing to CSV: {e}")
+    #endregion

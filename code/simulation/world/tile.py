@@ -8,7 +8,6 @@ import pygame
 import helper.direction
 import settings.colors
 import settings.font
-import settings.gui
 import settings.simulation
 
 
@@ -21,12 +20,10 @@ class Tile(pygame.sprite.Sprite):
         is_border: bool = False,
     ):
         pygame.sprite.Sprite.__init__(self)
-        # Tile
+
         self.rect: pygame.Rect = rect
         self.image: pygame.Surface = pygame.Surface(self.rect.size)
         self.neighbors: dict[helper.direction.Direction, Tile] = {}
-
-        # Height
         self._height: float = height
         self._moisture: float = moisture
 
@@ -35,7 +32,6 @@ class Tile(pygame.sprite.Sprite):
         self.has_water: bool
         self.set_height_moisture_dependent_attributes()
 
-        # Organisms
         self.animal: pygame.sprite.GroupSingle = pygame.sprite.GroupSingle()
         self.plant: pygame.sprite.GroupSingle = pygame.sprite.GroupSingle()
 
@@ -43,10 +39,11 @@ class Tile(pygame.sprite.Sprite):
         self.is_coast: bool = False
         self.steepest_decline_direction: helper.direction.Direction | None = None
 
-        # Stats
+        #region stats
         self.times_visted: int = 0
+        #endregion
 
-    ########################## Properties #################################
+    #region properties
     @property
     def moisture(self) -> float:
         return self._moisture
@@ -74,8 +71,9 @@ class Tile(pygame.sprite.Sprite):
         else:
             self._height = value
         self.set_height_moisture_dependent_attributes()
+    #endregion
 
-    ########################## Initialisation #################################
+    #region setup
     def set_height_moisture_dependent_attributes(self):
         """
         Set the color and plant growth potential attributes of a Tile object based on its height and moisture levels.
@@ -179,20 +177,21 @@ class Tile(pygame.sprite.Sprite):
                 f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
             )
         self.image.fill(self.color)
+    #endregion
 
-    ########################## Main methods #################################
+    #region main methods
     def update(self):
         self.set_height_moisture_dependent_attributes()
 
     def draw(self, screen: pygame.Surface):
         screen.blit(self.image, self.rect)
 
-        if settings.gui.draw_height_level:
+        # TODO reneable
+        if False:
             self.draw_stat(self.height * 9, screen)
+    #endregion
 
-    ########################## Tile Organism influence #################################
-
-    ########################## Drawing #################################
+    #region drawing
     def draw_stat(self, stat: float, screen: pygame.Surface):
         if self.has_animal():
             col = self.animal.sprite.color
@@ -206,8 +205,9 @@ class Tile(pygame.sprite.Sprite):
         )
         text_rect: pygame.Rect = text.get_rect(center = self.rect.center)
         screen.blit(text, text_rect)
+    #endregion
 
-    ########################## Tile Property Handling #################################
+    #region organisms
     def add_animal(self, animal):
         if self.has_animal():
             raise ValueError("Trying to add an animal despite tile already holding one")
@@ -236,7 +236,9 @@ class Tile(pygame.sprite.Sprite):
 
     def has_plant(self) -> bool:
         return self.plant
+    #endregion
 
+    #region tiles
     def add_neighbor(self, direction: helper.direction.Direction, tile: Tile):
         self.neighbors[direction] = tile
         self.is_coast = tile.has_water and self.has_water
@@ -278,3 +280,4 @@ class Tile(pygame.sprite.Sprite):
         if not self.neighbors.values():
             return False
         return tile in self.neighbors.values()
+    #endregion

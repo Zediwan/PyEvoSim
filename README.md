@@ -19,9 +19,13 @@ Below, you'll find information on how to set up and run the simulation, as well 
 
 ## Usage
 
+This project can be used to try out different simulation conditions and settings which can be analysed later on. 
+
 ### Simulation
 
-To run the simulation you need to run the [main.py](code/simulation/main.py) file.
+To run the simulation you need to run the [main.py](code/simulation/main.py) file. When an organism dies in the simulation it is logged to a database with all the relevant information.
+
+Note: the database can be inspected without running the simulation as it uses a database from an older run.
 
 #### World generation
 
@@ -43,16 +47,29 @@ When pressing `SPACE` the user can pause the simulation and run it again by pres
 
 With the `ESCAPE` button the user can acces the [simulation settings](assets/images/Screenshot_Simulation_settings.png). (This is work in progress and has no use case for now, except from returning to the main menu)
 
+By pressing with the mouse on a tile without and organism a new animal can be spawned.
 
-### Database interaction
+### Database
+To access, filter and query the database, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
 
-Provide instructions and examples for use. Include screenshots as needed.
+To sort data in ascending/descending order in a column, right-click on the column and choose `Sort by "column name"` followed by an arrow.
 
-To add a screenshot, create an `assets/images` folder in your repository and upload your screenshot to it. Then, using the relative filepath, add it to your README using the following syntax:
+You can also apply a function (e.g. calculate the mean of a column with numerical data) by right-clicking on a column and choosing `Apply function`.
+A little window pops up and you can choose between various functions, choose if the column will be updated by the values or a column will be created with a given name.
 
-    ```md
-    ![alt text](assets/images/screenshot.png)
-    ```
+To filter data to your liking, click on a row, right-click and choose `Filter Rows`.
+
+![panels_filter](assets/images/Screenshot_Panels_filter.png)
+
+Either you can use String Queries or by clicking on the green plus symbol, you can define a custom filter where you can specify the column, the condition and the comparison value:
+
+![example_filter](assets/images/Screenshot_Example_filter.png)
+
+It is also possible to add more filters by clickinig on the green plus symbol.
+
+To apply filters, check the box `show filtered only` and click on the key symbol.
+
+To delete filters, click on the red cross symbol.
 
 ## Contributing
 

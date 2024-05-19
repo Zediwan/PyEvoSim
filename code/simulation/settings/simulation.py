@@ -2,8 +2,20 @@ import pygame
 
 organisms = pygame.sprite.Group()
 
-GAME_SPEED_CHANGE: int = 1
-MAX_FPS_LIMIT: int = 300
+def reset_organisms():
+    organisms.empty()
+
+def reset_stats():
+    from entities.organism import Organism
+    from entities.animal import Animal
+    from entities.plant import Plant
+    Organism.organisms_birthed = 0
+    Organism.organisms_died = 0
+    Organism.next_organism_id = 0
+    Animal.animals_birthed = 0
+    Animal.animals_died = 0
+    Plant.plants_birthed = 0
+    Plant.plants_died = 0
 
 spawn_plants_anywhere: bool = True
 spawn_plants_at_border: bool = False
