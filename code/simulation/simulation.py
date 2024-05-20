@@ -343,6 +343,8 @@ class Simulation():
             )
 
     def run_loop(self) -> None:
+        # TODO add setting to disable drawing completely to improve speed
+        # TODO improve fps displaying
         #drawing = False
         while True:
             # mouse_pos = pygame.mouse.get_pos()
