@@ -23,31 +23,7 @@ This project can be used to try out different simulation conditions and settings
 
 ### Simulation
 
-To run the simulation you need to run the [main.py](code/simulation/main.py) file. When an organism dies in the simulation it is logged to a database with all the relevant information.
-
-Note: the database can be inspected without running the simulation as it uses a database from an older run.
-
-#### World generation
-
-Then you get the [starting menu](assets/images/Screenshot_Starting_Menu.png). From here you can press `GENERATE WORLD` to get to the [world generator](assets/images/Screenshot_Generate_World_empty.png).
-
-Now by pressing `GENERATE WORLD` you can repeatedly [generate new worlds](assets/images/Screenshot_Generate_World_filled.png) until you find one you like.
-
-With the mouse you can hover over the world and when [pressing the mouse button you can lower the height level of the tiles](assets/images/Screenshot_Generate_World_world_editing.png), eventually creating rivers and lakes.
-
-Additionally by pressing `p` you can spawn plants and by pressing `a` you can spawn animals, see [here](assets/images/Screenshot_Generate_World_plants_and_animals.png) (note if the world has not been populated by the user when the simulation is started, animals and plants are spawned automatically)
-
-#### Simulating
-
-When pressing `START` the simulation begins to run.
-
-Now when clicking on an animal or a tile with a plant the [stats of said organism are displayed](assets/images/Screenshot_Simulation_stat_example.png).
-
-When pressing `SPACE` the user can pause the simulation and run it again by pressing `SPACE` again.
-
-With the `ESCAPE` button the user can acces the [simulation settings](assets/images/Screenshot_Simulation_settings.png). (This is work in progress and has no use case for now, except from returning to the main menu)
-
-By pressing with the mouse on a tile without and organism a new animal can be spawned.
+To run the simulation you need to run the [main.py](code/simulation/main.py) file.
 
 ### Database
 To access, filter and query the database, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
