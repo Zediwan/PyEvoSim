@@ -12,11 +12,13 @@ from entities.animal import Animal
 from entities.plant import Plant
 from helper.direction import Direction
 from world.tile import Tile
-import noise
-import math
+import pygame_menu
 
 
 class World(pygame.sprite.Sprite):
+    loading_screen_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
+    loading_screen_theme.title = False
+
     def __init__(self, rect: pygame.Rect, tile_size: int):
         pygame.sprite.Sprite.__init__(self)
         self.age: int = 0
@@ -25,12 +27,16 @@ class World(pygame.sprite.Sprite):
         self.image: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         self.organism_surface: pygame.Surface = self.image.copy()
         self.ground_surface: pygame.Surface = self.image.copy()
+        self.generating = False
+        self.progress = 0
+        self.progress_bar = None
 
         self.tile_size = tile_size
         self.cols = self.rect.width // tile_size
         self.rows = self.rect.height // tile_size
 
         self._setup_noise_functions()
+        self._setup_progress_bar()
 
         #region tiles
         self.tiles = pygame.sprite.Group()
@@ -70,12 +76,16 @@ class World(pygame.sprite.Sprite):
         Returns:
             None
         """
-        self.image.blit(self.ground_surface, self.rect)
+        if self.generating:
+            if self.progress_bar:
+                self.menu.draw(self.image)
+        else:
+            self.image.blit(self.ground_surface, self.rect)
 
-        # Clear previous drawings on the organism surface
-        self.organism_surface.fill((0, 0, 0, 0))
-        settings.simulation.organisms.draw(self.organism_surface)
-        self.image.blit(self.organism_surface, self.rect)
+            # Clear previous drawings on the organism surface
+            self.organism_surface.fill((0, 0, 0, 0))
+            settings.simulation.organisms.draw(self.organism_surface)
+            self.image.blit(self.organism_surface, self.rect)
 
         screen.blit(self.image, self.rect)
 
@@ -294,13 +304,30 @@ class World(pygame.sprite.Sprite):
     #endregion
 
     def randomise_freqs(self):
-        for function in self.height_functions:
-            function.randomise()
+        self.generating = True
+        self.progress = 0
 
-        for function in self.moisture_functions:
+        functions = []
+        functions.extend(self.height_functions)
+        functions.extend(self.moisture_functions)
+
+        for function in functions:
             function.randomise()
+            self.progress += 100 / len(functions)
+            self.progress_bar.set_value(self.progress)
+            self.menu.draw(pygame.display.get_surface())
+            pygame.display.flip()
+
         self.reload()
+        self.generating = False
+        self.progress = 0
+        self.progress_bar.set_value(self.progress)
+
     #endregion
+
+    def _setup_progress_bar(self) -> None:
+        self.menu = pygame_menu.Menu("", width=self.rect.width, height=self.rect.height, theme=self.loading_screen_theme, position=(self.rect.left,self.rect.top,False))
+        self.progress_bar = self.menu.add.progress_bar("Generating World")
 
     def copy(self) -> World:
         """
