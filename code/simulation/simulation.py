@@ -261,38 +261,43 @@ class Simulation():
 
     def _setup_world_settings_menu(self) -> None:
         #TODO update these so changes to the sliders can be instantly seen on the world
-        for setting in self.world.settings:
-            setting.add_controller_to_menu(self._world_settings_menu)
+        self.world.scale.add_controller_to_menu(self._world_settings_menu)
+        self._world_settings_menu.add.label("Height")
+        for function in self.world.height_functions:
+            function.add_function_controller_to_menu(self._world_settings_menu)
+        self._world_settings_menu.add.label("Moisture")
+        for function in self.world.moisture_functions:
+            function.add_function_controller_to_menu(self._world_settings_menu)
         #self._world_settings_menu.add.range_slider("Fx1", self.world.freq_x1, (0,10), increment=1, onchange=self.world.set_freq_x1)
-        self._world_settings_menu.add.range_slider("Scale1", self.world.scale_1, (0,1), increment=.1, onchange=self.world.set_scale_1)
-        self._world_settings_menu.add.range_slider("offsx1", self.world.offset_x1, (0,20), increment=1, onchange=self.world.set_offset_x1)
-        self._world_settings_menu.add.range_slider("offsy1", self.world.offset_y1, (0,20), increment=1, onchange=self.world.set_offset_y1)
-        self._world_settings_menu.add.range_slider("Fx2", self.world.freq_x2, (0,10), increment=1, onchange=self.world.set_freq_x2)
-        self._world_settings_menu.add.range_slider("Fy2", self.world.freq_y2, (0,10), increment=1, onchange=self.world.set_freq_y2)
-        self._world_settings_menu.add.range_slider("Scale2", self.world.scale_2, (0,1), increment=.1, onchange=self.world.set_scale_2)
-        self._world_settings_menu.add.range_slider("offsx2", self.world.offset_x2, (0,20), increment=1, onchange=self.world.set_offset_x2)
-        self._world_settings_menu.add.range_slider("offsy2", self.world.offset_y2, (0,20), increment=1, onchange=self.world.set_offset_y2)
-        self._world_settings_menu.add.range_slider("Fx3", self.world.freq_x3, (0,10), increment=1, onchange=self.world.set_freq_x3)
-        self._world_settings_menu.add.range_slider("Fy3", self.world.freq_y3, (0,10), increment=1, onchange=self.world.set_freq_y3)
-        self._world_settings_menu.add.range_slider("Scale3", self.world.scale_3, (0,1), increment=.1, onchange=self.world.set_scale_3)
-        self._world_settings_menu.add.range_slider("offsx3", self.world.offset_x3, (0,20), increment=1, onchange=self.world.set_offset_x3)
-        self._world_settings_menu.add.range_slider("offsy3", self.world.offset_y3, (0,20), increment=1, onchange=self.world.set_offset_y3)
-        self._world_settings_menu.add.range_slider("hpow", self.world.height_power, (1, 4), increment=1, onchange=self.world.set_height_power)
-        self._world_settings_menu.add.range_slider("hfudge", self.world.height_fudge_factor, (.5, 1.5), increment=.1, onchange=self.world.set_fudge_factor)
+        # self._world_settings_menu.add.range_slider("Scale1", self.world.scale_1, (0,1), increment=.1, onchange=self.world.set_scale_1)
+        # self._world_settings_menu.add.range_slider("offsx1", self.world.offset_x1, (0,20), increment=1, onchange=self.world.set_offset_x1)
+        # self._world_settings_menu.add.range_slider("offsy1", self.world.offset_y1, (0,20), increment=1, onchange=self.world.set_offset_y1)
+        # self._world_settings_menu.add.range_slider("Fx2", self.world.freq_x2, (0,10), increment=1, onchange=self.world.set_freq_x2)
+        # self._world_settings_menu.add.range_slider("Fy2", self.world.freq_y2, (0,10), increment=1, onchange=self.world.set_freq_y2)
+        # self._world_settings_menu.add.range_slider("Scale2", self.world.scale_2, (0,1), increment=.1, onchange=self.world.set_scale_2)
+        # self._world_settings_menu.add.range_slider("offsx2", self.world.offset_x2, (0,20), increment=1, onchange=self.world.set_offset_x2)
+        # self._world_settings_menu.add.range_slider("offsy2", self.world.offset_y2, (0,20), increment=1, onchange=self.world.set_offset_y2)
+        # self._world_settings_menu.add.range_slider("Fx3", self.world.freq_x3, (0,10), increment=1, onchange=self.world.set_freq_x3)
+        # self._world_settings_menu.add.range_slider("Fy3", self.world.freq_y3, (0,10), increment=1, onchange=self.world.set_freq_y3)
+        # self._world_settings_menu.add.range_slider("Scale3", self.world.scale_3, (0,1), increment=.1, onchange=self.world.set_scale_3)
+        # self._world_settings_menu.add.range_slider("offsx3", self.world.offset_x3, (0,20), increment=1, onchange=self.world.set_offset_x3)
+        # self._world_settings_menu.add.range_slider("offsy3", self.world.offset_y3, (0,20), increment=1, onchange=self.world.set_offset_y3)
+        # self._world_settings_menu.add.range_slider("hpow", self.world.height_power, (1, 4), increment=1, onchange=self.world.set_height_power)
+        # self._world_settings_menu.add.range_slider("hfudge", self.world.height_fudge_factor, (.5, 1.5), increment=.1, onchange=self.world.set_fudge_factor)
 
-        self._world_settings_menu.add.range_slider("hfx", self.world.height_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_x)
-        self._world_settings_menu.add.range_slider("hfy", self.world.height_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_y)
-        self._world_settings_menu.add.range_slider("mfx", self.world.moisture_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_x)
-        self._world_settings_menu.add.range_slider("mfy", self.world.moisture_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_y)
+        # self._world_settings_menu.add.range_slider("hfx", self.world.height_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_x)
+        # self._world_settings_menu.add.range_slider("hfy", self.world.height_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_y)
+        # self._world_settings_menu.add.range_slider("mfx", self.world.moisture_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_x)
+        # self._world_settings_menu.add.range_slider("mfy", self.world.moisture_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_y)
 
-        self._world_settings_menu.add.range_slider("moisture", self.world.moisture, (0, 1), increment=.01, onchange=self.world.set_moisture, rangeslider_id="moisture")
-        self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.set_alternating_moisture) # TODO add method to change moisture over time
-        self._world_settings_menu.add.range_slider("height", self.world.height, (0, 1), increment=.01, onchange=self.world.set_height)
+        # self._world_settings_menu.add.range_slider("moisture", self.world.moisture, (0, 1), increment=.01, onchange=self.world.set_moisture, rangeslider_id="moisture")
+        # self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.set_alternating_moisture) # TODO add method to change moisture over time
+        # self._world_settings_menu.add.range_slider("height", self.world.height, (0, 1), increment=.01, onchange=self.world.set_height)
 
         # TODO add a randomise button
         self._world_settings_menu.add.button("Randomize", self.world.randomise_freqs) # TODO update this so when randomising a new world is loaded
         self._world_settings_menu.add.button("Reload", self.world.reload)
-        self._world_settings_menu.add.text_input("Tile size: ", self.world.tile_size, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.change_tile_size)
+        #self._world_settings_menu.add.text_input("Tile size: ", self.world.tile_size, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.change_tile_size)
 
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 

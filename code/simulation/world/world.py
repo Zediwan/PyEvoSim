@@ -7,6 +7,7 @@ import pygame
 import settings.database
 from settings.setting import Setting
 import settings.simulation
+from helper.noise_function import NoiseFunction
 from entities.animal import Animal
 from entities.plant import Plant
 from helper.direction import Direction
@@ -29,7 +30,7 @@ class World(pygame.sprite.Sprite):
         self.cols = self.rect.width // tile_size
         self.rows = self.rect.height // tile_size
 
-        self._setup_noise_settings()
+        self._setup_noise_functions()
 
         #region tiles
         self.tiles = pygame.sprite.Group()
@@ -91,9 +92,10 @@ class World(pygame.sprite.Sprite):
             None
         """
         # TODO rethink if noise method should be transfered to tiles
-        for tile in self.tiles.sprites():
-            tile.height = self.generate_height_values(tile.rect.x * self.height_freq_x, tile.rect.y * self.height_freq_y)
-            tile.moisture = self.generate_moisture_values(tile.rect.x * self.moisture_freq_x, tile.rect.y * self.moisture_freq_y)
+        tiles: list[Tile] = self.tiles.sprites()
+        for tile in tiles:
+            tile.height = self.generate_height_values(tile.rect.x, tile.rect.y)
+            tile.moisture = self.generate_moisture_values(tile.rect.x, tile.rect.y)
             tile.draw(self.ground_surface)
     #endregion
 
@@ -180,8 +182,8 @@ class World(pygame.sprite.Sprite):
 
         return Tile(
             pygame.Rect(x ,y ,self.tile_size, self.tile_size),
-            height = self.generate_height_values(x * self.height_freq_x, y * self.height_freq_y),
-            moisture = self.generate_moisture_values(x * self.moisture_freq_x, y * self.moisture_freq_y),
+            height = self.generate_height_values(x, y),
+            moisture = self.generate_moisture_values(x, y),
             is_border = self.is_border_tile(row=row, col=col),
         )
 
@@ -264,167 +266,39 @@ class World(pygame.sprite.Sprite):
     #endregion
 
     #region noise
-    def _setup_noise_settings(self):
-        self.settings: list[Setting] = []
-        self.freq_x1: Setting = Setting(1, name="freqency_1_x", min=0, max=10, type="onchange", post_update_method=self.reload)
-        self.settings.append(self.freq_x1)
-        self.freq_y1: Setting = Setting(1, name="freqency_1_y", min=0, max=10, type="onchange", post_update_method=self.reload)
-        self.settings.append(self.freq_y1)
-        self.freq_x2: float = 2
-        self.freq_y2: float = 2
-        self.freq_x3: float = 4
-        self.freq_y3: float = 4
-        self.scale_1: float = random.uniform(.66, 1)
-        self.scale_2: float = random.uniform(.33, .66)
-        self.scale_3: float = random.uniform(0, .33)
-        self.offset_x1: float = 0
-        self.offset_y1: float = 0
-        self.offset_x2: float = 4.7
-        self.offset_y2: float = 2.3
-        self.offset_x3: float = 19.1
-        self.offset_y3: float = 16.6
-        self.height_power: float = 2  # TODO make this a slider in the settings
-        self.height_fudge_factor: float = 1.2  # Should be a number near 1
-        self.height_freq_x: float = random.uniform(-0.01, 0.01)
-        self.height_freq_y: float = random.uniform(-0.01, 0.01)
-        self.moisture_freq_x: float = random.uniform(-0.01, 0.01)
-        self.moisture_freq_y: float = random.uniform(-0.01, 0.01)
-        self.moisture: float = 0.5
-        self.height: float = 0.5
+    def _setup_noise_functions(self):
+        self.scale: Setting = Setting(.001, self.reload, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
+
+        self.height_functions: list[NoiseFunction] = []
+        self.height_functions.append(NoiseFunction(
+            self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0,
+        ))
+        self.height_functions.append(NoiseFunction(
+            self.reload, factor_x=2, factor_y=2, offset_x=4.7, offset_y=2.3
+        ))
+        self.height_functions.append(NoiseFunction(
+            self.reload, factor_x=4, factor_y=4, offset_x=19.1, offset_y=16.2
+        ))
+        self.moisture_functions: list[NoiseFunction] = []
+        self.moisture_functions.append(NoiseFunction(
+            self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0
+        ))
 
     #region noise generators
     def generate_height_values(self, x: int, y: int) -> float:
-        noise1 = noise.snoise2((x * self.freq_x1._value) + self.offset_x1, (y * self.freq_y1._value) + self.offset_y1)
-        noise1 *= self.scale_1
-        noise2 = noise.snoise2((x * self.freq_x2) + self.offset_x2, (y * self.freq_y2) + self.offset_y2)
-        noise2 *= self.scale_2
-        noise3 = noise.snoise2((x * self.freq_x3) + self.offset_x3, (y * self.freq_y3) + self.offset_y3)
-        noise3 *= self.scale_3
-        height = noise1 + noise2 + noise3
-
-        # Normalize back in range -1 to 1
-        height /= self.scale_1 + self.scale_2 + self.scale_3
-
-        # Normalise to range 0 to 1
-        height += 1
-        height /= 2
-
-        if not(0 <= height <= 1):
-            raise ValueError(f"Height value not in range [0, 1] {height}")
-
-        height = math.pow(height * self.height_fudge_factor, self.height_power)
-        height = pygame.math.clamp(height, 0, 1)
-        height += (self.height*2)
-        height -= 1
-        height = pygame.math.clamp(height, 0, 1)
-
-        return height
+        return NoiseFunction.weigh(x * self.scale._value, y *  self.scale._value, self.height_functions, [1, .2, .1])
 
     def generate_moisture_values(self, x: int, y: int) -> float:
-        moisture = noise.snoise2(x, y)
+        return NoiseFunction.weigh(x * self.scale._value, y * self.scale._value, self.moisture_functions)
 
-        # Normalise to range 0 to 1
-        moisture += 1
-        moisture /= 2
-
-        moisture += (self.moisture*2)
-        moisture -= 1
-        moisture = pygame.math.clamp(moisture, 0, 1)
-
-        if not(0 <= moisture <= 1):
-            raise ValueError(f"Moisture value not in range [0, 1] {moisture}")
-        return moisture
-    #endregion
-    def set_freq_x2(self, value):
-        self.freq_x2 = value
-        self.reload()
-
-    def set_freq_y2(self, value):
-        self.freq_y2 = value
-        self.reload()
-
-    def set_freq_x3(self, value):
-        self.freq_x3 = value
-        self.reload()
-
-    def set_freq_y3(self, value):
-        self.freq_y3 = value
-        self.reload()
-
-    def set_scale_1(self, value):
-        self.scale_1 = value
-        self.reload()
-
-    def set_scale_2(self, value):
-        self.scale_2 = value
-        self.reload()
-
-    def set_scale_3(self, value):
-        self.scale_3 = value
-        self.reload()
-
-    def set_offset_x1(self, value):
-        self.offset_x1 = value
-        self.reload()
-
-    def set_offset_y1(self, value):
-        self.offset_y1 = value
-        self.reload()
-
-    def set_offset_x2(self, value):
-        self.offset_x2 = value
-        self.reload()
-
-    def set_offset_y2(self, value):
-        self.offset_y2 = value
-        self.reload()
-
-    def set_offset_x3(self, value):
-        self.offset_x3 = value
-        self.reload()
-
-    def set_offset_y3(self, value):
-        self.offset_y3 = value
-        self.reload()
-
-    def set_height_power(self, value):
-        self.height_power = value
-        self.reload()
-
-    def set_fudge_factor(self, value):
-        self.height_fudge_factor = value
-        self.reload()
-
-    def set_height_freq_x(self, value):
-        self.height_freq_x = value
-        self.reload()
-
-    def set_height_freq_y(self, value):
-        self.height_freq_y = value
-        self.reload()
-
-    def set_moisture_freq_x(self, value):
-        self.moisture_freq_x = value
-        self.reload()
-
-    def set_moisture_freq_y(self, value):
-        self.moisture_freq_y = value
-        self.reload()
-
-    def set_moisture(self, value):
-        self.moisture = value
-        self.reload()
-
-    def set_height(self, value):
-        self.height = value
-        self.reload()
     #endregion
 
     def randomise_freqs(self):
-        self.height_freq_x = random.uniform(-0.01, 0.01)
-        self.height_freq_y = random.uniform(-0.01, 0.01)
-        self.moisture_freq_x = random.uniform(-0.01, 0.01)
-        self.moisture_freq_y = random.uniform(-0.01, 0.01)
+        for function in self.height_functions:
+            function.randomise()
+
+        for function in self.moisture_functions:
+            function.randomise()
         self.reload()
     #endregion
 

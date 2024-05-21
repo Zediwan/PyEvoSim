@@ -1,13 +1,17 @@
 import pygame_menu
+import random
 
 class Setting():
-    def __init__(self, value: float, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", post_update_method = None) -> None:
+    def __init__(self, value: float, *args, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", **kwargs,) -> None:
         self._value = value
         self._name = name
         self._min = min
         self._max = max
         if self._max is not None and self._min is not None:
-            self.increment = (self._max-self._min)/100
+            if "increment" in kwargs:
+                self.increment = kwargs["increment"]
+            else:
+                self.increment = (self._max-self._min)/100
         
         self._onreturn = False
         self._onchange = False
@@ -18,7 +22,11 @@ class Setting():
         else:
             raise ValueError(f"{type} is not a valid type.")
         
-        self.post_update_method = post_update_method
+        self.post_update_methods: list = []
+        for arg in args:
+            if not callable(arg):
+                raise ValueError("args must be callable.")
+            self.post_update_methods.append(arg)
         
     def set_value(self, new_value: float):
         if self._max:
@@ -28,17 +36,27 @@ class Setting():
             if new_value <= self._min:
                 new_value = self._min
         self._value = new_value
-        if self.post_update_method is not None:
-            self.post_update_method()
+        if self.post_update_methods:
+            for method in self.post_update_methods:
+                method()
+
+    def randomise_value(self, type = "uniform"):
+        if type == "uniform":
+            self.set_value(random.uniform(self._min, self._max))
+        elif type == "gauss":
+            self.set_value(random.gauss((self._max+self._min)/2, (self._max+self._min)/4))
+        else:
+            raise ValueError("Type not defined")
+        self.widget.set_value(self._value)
             
     def add_controller_to_menu(self, menu: pygame_menu.Menu):
-        widget = None
+        self.widget = None
         if self._min is not None and self._max is not None:
-            widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
+            self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
         else:
-            widget = menu.add.text_input(self._name + ": ", input_type=pygame_menu.pygame_menu.locals.INPUT_INT)
+            self.widget = menu.add.text_input(self._name + ": ", input_type=pygame_menu.pygame_menu.locals.INPUT_INT)
 
         if self._onreturn:
-            widget.set_onreturn(self.set_value)
+            self.widget.set_onreturn(self.set_value)
         elif self._onchange:
-            widget.set_onchange(self.set_value)
+            self.widget.set_onchange(self.set_value)
