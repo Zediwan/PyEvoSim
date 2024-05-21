@@ -18,8 +18,9 @@ class World(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         self.rect: pygame.Rect = rect
-        self.organism_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
-        self.ground_surface: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        self.image: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        self.organism_surface: pygame.Surface = self.image.copy()
+        self.ground_surface: pygame.Surface = self.image.copy()
 
         self.tile_size = tile_size
         self.cols = self.rect.width // tile_size
@@ -64,11 +65,12 @@ class World(pygame.sprite.Sprite):
             tile.draw(self.ground_surface)
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.ground_surface, self.rect)
+        self.image.blit(self.ground_surface, self.rect)
         # Clear previous drawings on the organism surface
         self.organism_surface.fill((0, 0, 0, 0))
         settings.simulation.organisms.draw(self.organism_surface)
-        screen.blit(self.organism_surface, self.rect)
+        self.image.blit(self.organism_surface, self.rect)
+        screen.blit(self.image, self.rect)
     #endregion
 
     #region spawning
