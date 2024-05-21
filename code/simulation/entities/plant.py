@@ -258,6 +258,7 @@ class Plant(Organism):
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
+            settings.simulation.plants.add(offspring)
             # print("Plant offspring birthed!")
 
     def copy(self, tile: Tile):
