@@ -1,5 +1,6 @@
 import pygame_menu
 import random
+import pygame
 
 class Setting():
     def __init__(self, value: float, *args, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", **kwargs,) -> None:
@@ -29,10 +30,10 @@ class Setting():
             self.post_update_methods.append(arg)
         
     def set_value(self, new_value: float):
-        if self._max:
+        if self._max is not None:
             if new_value >= self._max:
                 new_value = self._max
-        if self._min:
+        if self._min is not None:
             if new_value <= self._min:
                 new_value = self._min
         self._value = new_value
