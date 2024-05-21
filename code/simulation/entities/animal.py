@@ -18,8 +18,6 @@ class Animal(Organism):
     _MAX_ENERGY: float = 100
     _NUTRITION_FACTOR: float = 1
     _REPRODUCTION_CHANCE: float = 0.01
-    _MIN_REPRODUCTION_HEALTH: float = 0.25
-    _MIN_REPRODUCTION_ENERGY: float = 0.6
     _MAX_ALPHA: float = 255
     _MIN_ALPHA: float = 150
     _MOVEMENT_ENERGY_COST: float = 2
@@ -31,6 +29,8 @@ class Animal(Organism):
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (0, 1)
     #endregion
     #region class setting setters
     @classmethod
@@ -54,14 +54,6 @@ class Animal(Organism):
         cls._REPRODUCTION_CHANCE = value
 
     @classmethod
-    def set_min_reproduction_health(cls, value: float):
-        cls._MIN_REPRODUCTION_HEALTH = value
-
-    @classmethod
-    def set_min_reproduction_energy(cls, value: float):
-        cls._MIN_REPRODUCTION_ENERGY = value
-
-    @classmethod
     def set_movement_energy_cost(cls, value: float):
         cls._MOVEMENT_ENERGY_COST = value
 
@@ -72,6 +64,14 @@ class Animal(Organism):
     @classmethod
     def set_starting_energy(cls, value: float):
         cls._STARTING_ENERGY = value
+
+    @classmethod
+    def set_starting_min_reproduction_health_range(cls, value: tuple[float, float]):
+        cls._STARTING_MIN_REPRODUCTION_HEALTH_RANGE = value
+
+    @classmethod
+    def set_starting_min_reproduction_energy_range(cls, value: tuple[float, float]):
+        cls._STARTING_MIN_REPRODUCTION_ENERGY_RANGE = value
 
     @classmethod
     def set_starting_attack_power_range(cls, value: tuple[float, float]):
@@ -105,14 +105,6 @@ class Animal(Organism):
     @property
     def REPRODUCTION_CHANCE(self) -> float:
         return Animal._REPRODUCTION_CHANCE
-
-    @property
-    def MIN_REPRODUCTION_HEALTH(self) -> float:
-        return Animal._MIN_REPRODUCTION_HEALTH
-
-    @property
-    def MIN_REPRODUCTION_ENERGY(self) -> float:
-        return Animal._MIN_REPRODUCTION_ENERGY
     
     @property
     def MAX_ALPHA(self) -> float:
@@ -151,6 +143,8 @@ class Animal(Organism):
                 random.uniform(Animal._STARTING_MOISTURE_PREFERENCE_RANGE[0], Animal._STARTING_MOISTURE_PREFERENCE_RANGE[1]),
                 random.uniform(Animal._STARTING_HEIGHT_PREFERENCE_RANGE[0], Animal._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Animal._STARTING_MUTATION_CHANCE_RANGE[0], Animal._STARTING_MUTATION_CHANCE_RANGE[1]),
+                random.uniform(Animal._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1]),
+                random.uniform(Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1])
             )
         #endregion
 
