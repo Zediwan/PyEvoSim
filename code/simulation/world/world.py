@@ -332,6 +332,16 @@ class World(pygame.sprite.Sprite):
     #region static methods
     @staticmethod
     def adjust_dimensions(rect: pygame.Rect, tile_size: int) -> pygame.Rect:
+        """
+        Adjust the dimensions of a rectangle to be multiples of a given tile size.
+
+        Parameters:
+            rect (pygame.Rect): The rectangle whose dimensions need to be adjusted.
+            tile_size (int): The size of the tiles to which the dimensions should be adjusted.
+
+        Returns:
+            pygame.Rect: A new rectangle with adjusted dimensions that are multiples of the tile size.
+        """
         rect.width = (rect.width // tile_size) * tile_size
         rect.height = (rect.height // tile_size) * tile_size
 
