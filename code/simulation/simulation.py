@@ -7,7 +7,7 @@ from entities.animal import Animal
 from entities.plant import Plant
 import settings.simulation
 from dna.dna import DNA
-import math
+from world.tile import Tile
 
 from world.world import World
 
@@ -57,16 +57,22 @@ class Simulation():
     #region themes
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
     runtime_theme = pygame_menu.Theme(
-            background_color = pygame_menu.pygame_menu.themes.TRANSPARENT_COLOR,
+            background_color = base_theme.background_color,
             widget_margin = (0, 15),
+        )
+    menubar_theme = pygame_menu.Theme(
+            background_color = base_theme.background_color,
+            title = False
         )
     #endregion
     #region colors
     TRANSPARENT_BLACK_COLOR = (0, 0, 0, 100)
+    FPS_FONT_COLOR = (0,0,0)
     #endregion
     #region fonts
     fps_font = pygame.font.Font(None, 100)
     #endregion
+    fps_alpha: float = 100
 
     def __init__(self) -> None:
         pygame.init()
@@ -75,7 +81,7 @@ class Simulation():
         #region surface
         self._surface: pygame.Surface = pygame.display.set_mode(
                 (settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT),
-                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA | pygame.FULLSCREEN
+                pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
             )
         pygame.display.set_caption("Evolution Simulation")
         #endregion
@@ -95,12 +101,17 @@ class Simulation():
         self.selected_org = None
         self.paused = True
         self.alternating_moisture = False
+        self.brush_rect: pygame.Rect = pygame.Rect(0 , 0, 20, 20)
+        self.tool = self.info_tool
         #endregion
 
         self._setup_menus()
 
     #region setup
     def _setup_menus(self) -> None:
+        """
+        Initialising all the menus used by the simulation and setting up their elements.
+        """
         #region menu initialisation
         # Regular menu
         self.starting_menu = pygame_menu.Menu("Starting Menu", self._surface.get_width(), self._surface.get_height(), theme=self.base_theme)
@@ -110,61 +121,73 @@ class Simulation():
         # Runtime Menu
         runtime_menu_width: float = self._surface.get_width()-self.world.rect.right
         runtime_menu_height: float = self._surface.get_height()
-        runtime_menu_position: float = self.world.rect.topright
+        runtime_menu_position = (self.world.rect.right, self.world.rect.top, False)
+
+        menu_bar_height: float = 50
+        self._running_menu_bar = pygame_menu.Menu(
+            width=self.world.rect.width * .2,
+            height=menu_bar_height,
+            position=(self.world.rect.left, self.world.rect.top, False),
+            theme=self.menubar_theme,
+            title="menubar",
+            keyboard_enabled=False,
+            columns=8,
+            rows=1
+        )
 
         self._running_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="Simulation",
         )
         self._world_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="World",
         )
         self._spawning_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="Spawning",
         )
         self._dna_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="DNA",
         )
         self._entity_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="Entity",
         )
         self._organism_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="Organism",
         )
         self._animal_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="Animal",
         )
         self._plant_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
-            position=(runtime_menu_position, False),
+            position=runtime_menu_position,
             theme=self.runtime_theme,
             title="Plant",
         )
@@ -176,6 +199,7 @@ class Simulation():
         self._setup_screen_options_menu()
         self._setup_database_options_menu()
         self._setup_running_settings_menu()
+        self._setup_running_menu_bar()
         self._setup_world_settings_menu()
         self._setup_spawning_settings_menu()
         self._setup_dna_settings_menu()
@@ -225,10 +249,15 @@ class Simulation():
         self._running_settings_menu.add.button("Entities", self._entity_settings_menu)
         self._running_settings_menu.add.button("DNA", self._dna_settings_menu)
 
-        self._running_settings_menu.add.toggle_switch("", (not self.paused), self.toggle_pause, state_text=("Paused", "Running"), toggleswitch_id="GameState")
+        self._running_settings_menu.add.toggle_switch("", (not self.paused), self.set_running, state_text=("Paused", "Running"), toggleswitch_id="GameState")
         self._running_settings_menu.add.button("Back", self.starting_menu.mainloop, self._surface)
 
-        self.brush_rect: pygame.Rect = pygame.Rect(0 , 0, 20, 20)
+    def _setup_running_menu_bar(self) -> None:
+        self._running_menu_bar.add.button("i", self.choose_info_tool)
+        self._running_menu_bar.add.button("A", self.choose_animal_spawning_tool)
+        self._running_menu_bar.add.button("P", self.choose_plant_spawning_tool)
+        self._running_menu_bar.add.button("KA", self.choose_animal_kill_tool)
+        self._running_menu_bar.add.button("KP", self.choose_plant_kill_tool)
 
     def _setup_world_settings_menu(self) -> None:
         #TODO update these so changes to the sliders can be instantly seen on the world
@@ -256,7 +285,7 @@ class Simulation():
         self._world_settings_menu.add.range_slider("mfy", self.world.moisture_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_y)
 
         self._world_settings_menu.add.range_slider("moisture", self.world.moisture, (0, 1), increment=.01, onchange=self.world.set_moisture, rangeslider_id="moisture")
-        self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.toggle_alternating_moisture) # TODO add method to change moisture over time
+        self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.set_alternating_moisture) # TODO add method to change moisture over time
         self._world_settings_menu.add.range_slider("height", self.world.height, (0, 1), increment=.01, onchange=self.world.set_height)
 
         # TODO add a randomise button
@@ -354,91 +383,193 @@ class Simulation():
     #endregion
 
     #region callback functions
-    def toggle_pause(self, value):
-        self.paused = not value
+    def set_running(self, is_running) -> None:
+        """
+        Sets the running state of the simulation.
 
-    def change_tile_size(self, value):
-        # TODO implement this method
-        pass
+        Parameters:
+            is_running (bool): The new running state of the simulation.
 
-    def clear_organisms(self):
+        Returns:
+            None
+        """
+        self.paused = not is_running
+
+    def change_tile_size(self, new_tile_size) -> None:
+        """
+        Change the tile size of the world in the simulation.
+
+        Args:
+            new_tile_size (int): The new size of the tiles in the world.
+
+        Returns:
+            None
+
+        Raises:
+            No specific exceptions are raised.
+        """
+        try:
+            # TODO implement resizing of tile sizes
+            pass
+        except:
+            # TODO implement feedback if value is not valid
+            pass
+
+    def clear_organisms(self) -> None:
+        """
+        Clears all organisms from the simulation.
+
+        Raises:
+            No specific exceptions are raised.
+
+        Returns:
+            None
+        """
         settings.simulation.reset_organisms()
 
-    def reset_stats(self):
+    def reset_stats(self) -> None:
+        """
+        Resets the statistics of the simulation.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         settings.simulation.reset_stats()
 
-    def toggle_alternating_moisture(self, enabled):
+    def set_alternating_moisture(self, enabled) -> None:
+        """
+        Sets the state of alternating moisture in the simulation.
+
+        Parameters:
+            enabled (bool): A boolean value indicating whether alternating moisture is enabled or not.
+
+        Returns:
+            None
+        """
         self.alternating_moisture = enabled
 
+    #region tools
+    def animal_spawning_tool(self):
+        return self.world.spawn_animal
+
+    def choose_animal_spawning_tool(self) -> None:
+        self.tool = self.animal_spawning_tool()
+
+    def plant_spawning_tool(self):
+        return self.world.spawn_plant
+
+    def choose_plant_spawning_tool(self) -> None:
+        self.tool = self.plant_spawning_tool()
+
+    def info_tool(self, tile: Tile) -> None:
+        if tile.has_animal():
+            self.selected_org = tile.animal.sprite
+        elif tile.has_plant():
+            self.selected_org = tile.plant.sprite
+        else:
+            self.selected_org = None
+
+    def choose_info_tool(self) -> None:
+        self.tool = self.info_tool
+
+    def animal_kill_tool(self, tile: Tile) -> None:
+        if tile.has_animal():
+            tile.animal.sprite.kill()
+
+    def choose_animal_kill_tool(self) -> None:
+        self.tool = self.animal_kill_tool
+
+    def plant_kill_tool(self, tile: Tile) -> None:
+        if tile.has_plant():
+            tile.plant.sprite.kill()
+
+    def choose_plant_kill_tool(self) -> None:
+        self.tool = self.plant_kill_tool
+
+    #endregion
     #endregion
 
     #region loops
-    def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True) -> None:
-        self._surface.fill(pygame_menu.pygame_menu.themes.THEME_GREEN.background_color)
+    def _update_gui(self, draw_menu=True, draw_grid=True, draw_fps = True, draw_world = True) -> None:
+        """
+        Updates the graphical user interface of the simulation.
+
+        Parameters:
+            draw_menu (bool): Whether to draw the menu on the GUI. Default is True.
+            draw_grid (bool): Whether to draw the grid on the GUI. Default is True.
+            draw_fps (bool): Whether to display the frames per second on the GUI. Default is True.
+
+        Returns:
+            None
+        """
+        if draw_world:
+            self.world.draw(self._surface)
+
         if draw_grid:
             # TODO implement grid drawing
             pass
 
-        self.world.draw(self._surface)
-        if draw_menu:
+        if draw_menu and self._running_settings_menu.is_enabled():
             self._running_settings_menu.draw(self._surface)
 
         if draw_fps:
-            fps_screen: pygame.Surface = self.fps_font.render(f"{int(self._clock.get_fps())}", True, pygame.Color("black"))
-            fps_screen.set_alpha(100)
+            fps_surface: pygame.Surface = self.fps_font.render(f"{int(self._clock.get_fps())}", True, self.FPS_FONT_COLOR)
+            fps_surface.set_alpha(self.fps_alpha)
             self._surface.blit(
-                fps_screen,
-                fps_screen.get_rect(bottomleft = self._surface.get_rect().bottomleft)
+                fps_surface,
+                fps_surface.get_rect(bottomleft = self._surface.get_rect().bottomleft)
             )
+
+        self._running_menu_bar.draw(self._surface)
 
     def run_loop(self) -> None:
         # TODO add setting to disable drawing completely to improve speed
         # TODO improve fps displaying
         #drawing = False
-        while True:
+        self.world.draw(self._surface)
+        self._update_gui()
+
+        simulating = True
+        while simulating:
             # mouse_pos = pygame.mouse.get_pos()
             # self.brush_rect.center = mouse_pos
 
             events = pygame.event.get()
 
-            self._running_settings_menu.update(events)
+            menubar_updated = self._running_menu_bar.update(events)
+            menu_updated = self._running_settings_menu.update(events)
 
             for event in events:
                 if event.type == pygame.QUIT:
                     self._quit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        self._running_settings_menu.get_widget("GameState").set_value(self.paused)
-                        self.paused = not self.paused
-                    if event.key == pygame.K_ESCAPE:
-                        self._running_settings_menu._back()
+                        self.toggle_pause()
+                        menu_updated = True
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
-                    tile = self.world.get_tile((pos[0], pos[1]))
-                    if tile:
-                        if tile.has_animal():
-                            self.selected_org = tile.animal.sprite
-                        elif tile.has_plant():
-                            self.selected_org = tile.plant.sprite
-                        else:
+                    if not(self._running_menu_bar.get_rect().collidepoint(pos)):
+                        tile = self.world.get_tile((pos[0], pos[1]))
+                        if not tile:
                             self.selected_org = None
-                            if not tile.has_water:
-                                self.world.spawn_animal(tile)
-                    else:
-                        self.selected_org = None
+                        else:
+                            self.tool(tile)
                     #drawing = True
                 # if event.type == pygame.MOUSEBUTTONUP:
                 #     drawing = False
 
             if not self.paused:
                 self.world.update()
-                if self.alternating_moisture:
-                    moist = self.world.moisture + math.cos(pygame.time.get_ticks()/100000)/10000
-                    self._world_settings_menu.get_widget("moisture").set_value(moist)
-                    self.world.set_moisture(moist)
+                # TODO reinplement the alternating moisture logic
+                # if self.alternating_moisture:
+                #     moist = self.world.moisture + math.cos(pygame.time.get_ticks()/100000)/10000
+                #     self._world_settings_menu.get_widget("moisture").set_value(moist)
+                #     self.world.set_moisture(moist)
 
-            self.world.draw(self._surface)
-            self._update_gui()
+            self._update_gui(draw_menu = menu_updated)
 
             # if self.world.rect.colliderect(self.brush_rect):
             #     # Draw cursor highlight
@@ -456,6 +587,10 @@ class Simulation():
             pygame.display.flip()
 
             self._clock.tick(self._fps)
+
+    def toggle_pause(self) -> None:
+        self._running_settings_menu.get_widget("GameState").set_value(self.paused)
+        self.paused = not self.paused
 
     def mainlopp(self) -> None:
         self.starting_menu.mainloop(self._surface)
