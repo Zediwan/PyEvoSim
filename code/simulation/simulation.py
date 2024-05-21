@@ -482,7 +482,8 @@ class Simulation():
     def animal_kill_tool(self, tiles: list[Tile]) -> None:
         for tile in tiles:
             if tile.has_animal():
-                tile.animal.sprite.kill()
+                tile.animal.sprite.health = 0
+                tile.animal.sprite.die()
 
     def choose_animal_kill_tool(self) -> None:
         self.tool = self.animal_kill_tool
@@ -490,7 +491,8 @@ class Simulation():
     def plant_kill_tool(self, tiles: list[Tile]) -> None:
         for tile in tiles:
             if tile.has_plant():
-                tile.plant.sprite.kill()
+                tile.plant.sprite.health = 0
+                tile.plant.sprite.die()
 
     def choose_plant_kill_tool(self) -> None:
         self.tool = self.plant_kill_tool
