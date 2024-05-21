@@ -2,22 +2,31 @@ from __future__ import annotations
 
 import math
 import noise
+from settings.setting import Setting
 
 
 class NoiseFunction():
-    def __init__(self, factor_x = 1, factor_y = 1, offset_x = 0, offset_y = 0, pow_x = 1, pow_y = 1) -> None:
-        self.factor_x = factor_x
-        self.factor_y = factor_y
-        self.offset_x = offset_x
-        self.offset_y = offset_y
-        self.pow_x = pow_x
-        self.pow_y = pow_y
+    # TODO add the option to display the function as it is written
+    FACTOR_MIN = 0
+    FACTOR_MAX = 10
+    OFFSET_MIN = -20
+    OFFSET_MAX = abs(OFFSET_MIN)
+    POW_MIN = 0
+    POW_MAX = 4
+
+    def __init__(self, factor_x = 1, factor_y = 1, offset_x = 0, offset_y = 0, pow_x = 1, pow_y = 1, post_update_method = None) -> None:
+        self.factor_x = Setting(factor_x, "Factor x", min = self.FACTOR_MIN, max=self.FACTOR_MAX, post_update_method=post_update_method)
+        self.factor_y = Setting(factor_y, "Factor y", min = self.FACTOR_MIN, max=self.FACTOR_MAX, post_update_method=post_update_method)
+        self.offset_x = Setting(offset_x, "Offset x", min = self.OFFSET_MIN, max=self.OFFSET_MAX, post_update_method=post_update_method)
+        self.offset_y = Setting(offset_y, "Offset y", min = self.OFFSET_MIN, max=self.OFFSET_MAX, post_update_method=post_update_method)
+        self.pow_x = Setting(pow_x, "Pow x", min = self.POW_MIN, max=self.POW_MAX, post_update_method=post_update_method)
+        self.pow_y = Setting(pow_y, "Pow y", min = self.POW_MIN, max=self.POW_MAX, post_update_method=post_update_method)
         
     def x(self, x: float) -> float:
-        return math.pow(x * self.factor_x, self.pow_x) + self.offset_x
+        return math.pow(x * self.factor_x._value, self.pow_x._value) + self.offset_x._value
     
     def y(self, y: float) -> float:
-        return math.pow(y * self.factor_y, self.pow_y) + self.offset_y
+        return math.pow(y * self.factor_y._value, self.pow_y._value) + self.offset_y._value
     
     def noise(self, x:float, y:float) -> float:
         value = NoiseFunction._normalise(noise.snoise2(self.x(x), self.y(y)))
