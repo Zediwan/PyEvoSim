@@ -43,17 +43,31 @@ class World(pygame.sprite.Sprite):
         #endregion
 
     #region main methods
-    def update(self):
+    def update(self) -> None:
+        """
+        Update the world state by incrementing the age and updating the organisms in the simulation.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self.age += 1
         settings.simulation.organisms.update()
 
-    def reload(self):
-        for tile in self.tiles.sprites():
-            tile.height = self.generate_height_values(tile.rect.x * self.height_freq_x, tile.rect.y * self.height_freq_y)
-            tile.moisture = self.generate_moisture_values(tile.rect.x * self.moisture_freq_x, tile.rect.y * self.moisture_freq_y)
-            tile.draw(self.ground_surface)
+    def draw(self, screen: pygame.Surface) -> None:
+        """
+        Draw the world on the screen.
 
-    def draw(self, screen: pygame.Surface):
+        This method first blits the ground surface onto the image of the world. Then, it clears any previous drawings on the organism surface by filling it with a transparent color. Next, it draws all the organisms from the simulation onto the organism surface. Finally, it blits the organism surface onto the image of the world and then blits the entire image onto the screen.
+
+        Parameters:
+            screen (pygame.Surface): The surface representing the screen where the world will be drawn.
+
+        Returns:
+            None
+        """
         self.image.blit(self.ground_surface, self.rect)
 
         # Clear previous drawings on the organism surface
@@ -62,24 +76,90 @@ class World(pygame.sprite.Sprite):
         self.image.blit(self.organism_surface, self.rect)
 
         screen.blit(self.image, self.rect)
+
+    def reload(self) -> None:
+        """
+        Reload the height and moisture values for all tiles in the world.
+
+        This method iterates over all tiles in the world and updates their height and moisture values based on the current noise settings of the world. It then redraws the updated tiles on the ground surface of the world.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        # TODO rethink if noise method should be transfered to tiles
+        for tile in self.tiles.sprites():
+            tile.height = self.generate_height_values(tile.rect.x * self.height_freq_x, tile.rect.y * self.height_freq_y)
+            tile.moisture = self.generate_moisture_values(tile.rect.x * self.moisture_freq_x, tile.rect.y * self.moisture_freq_y)
+            tile.draw(self.ground_surface)
     #endregion
 
     #region spawning
-    def spawn_animals(self, amount: float = 1):
+    def spawn_animals(self, amount: float = 1) -> None:
+        """
+        Spawn a specified amount of animals on unoccupied tiles in the world.
+
+        This method randomly selects 'amount' number of tiles from the world's tiles group and attempts to spawn an animal on each selected tile.
+        Animals will only be spawned on tiles that are not already occupied by another animal.
+
+        Parameters:
+            amount (float, optional): The number of animals to spawn. Defaults to 1.
+
+        Returns:
+            None
+        """
+        # TODO this should ignore tiles that are occupied and only try to spawn on unoccupied tiles
         for tile in random.choices(self.tiles.sprites(), k = amount):
             self.spawn_animal(tile)
 
-    def spawn_plants(self, amount: float = 1):
+    def spawn_plants(self, amount: float = 1) -> None:
+        """
+        Spawn a specified amount of plants on unoccupied tiles in the world.
+
+        This method randomly selects 'amount' number of tiles from the world's tiles group and attempts to spawn a plant on each selected tile.
+        Plants will only be spawned on tiles that are not already occupied by another plant or animal.
+
+        Parameters:
+            amount (float, optional): The number of plants to spawn. Defaults to 1.
+
+        Returns:
+            None
+        """
+        # TODO this should ignore tiles that are occupied and only try to spawn on unoccupied tiles
         for tile in random.choices(self.tiles.sprites(), k = amount):
             self.spawn_plant(tile)
 
-    def spawn_animal(self, tile: Tile):
-        if not(tile.has_water or tile.has_animal()):
-            settings.simulation.organisms.add(Animal(tile))
+    def spawn_animal(self, tile: Tile) -> None:
+        """
+        Spawn an animal on a specified tile if the tile is not occupied by water or another animal.
 
-    def spawn_plant(self, tile: Tile):
+        Parameters:
+            tile (Tile): The tile on which the animal will be spawned.
+
+        Returns:
+            None
+        """
+        if not(tile.has_water or tile.has_animal()):
+            animal = Animal(tile)
+            settings.simulation.organisms.add(animal)
+            settings.simulation.animals.add(animal)
+
+    def spawn_plant(self, tile: Tile) -> None:
+        """
+        Spawn a plant on a specified tile if the tile is not occupied by water or another plant.
+
+        Parameters:
+            tile (Tile): The tile on which the plant will be spawned.
+
+        Returns:
+            None
+        """
         if not(tile.has_water or tile.has_plant()):
-            settings.simulation.organisms.add(Plant(tile))
+            plant = Plant(tile)
+            settings.simulation.organisms.add(plant)
+            settings.simulation.plants.add(plant)
     #endregion
 
     #region tiles

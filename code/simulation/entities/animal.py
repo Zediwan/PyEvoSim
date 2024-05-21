@@ -276,6 +276,7 @@ class Animal(Organism):
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
+            settings.simulation.animals.add(offspring)
 
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)
