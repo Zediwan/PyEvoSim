@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import random
 
@@ -66,10 +68,12 @@ class World(pygame.sprite.Sprite):
 
     def draw(self, screen: pygame.Surface):
         self.image.blit(self.ground_surface, self.rect)
+
         # Clear previous drawings on the organism surface
         self.organism_surface.fill((0, 0, 0, 0))
         settings.simulation.organisms.draw(self.organism_surface)
         self.image.blit(self.organism_surface, self.rect)
+
         screen.blit(self.image, self.rect)
     #endregion
 
@@ -309,6 +313,9 @@ class World(pygame.sprite.Sprite):
         self.moisture_freq_y = random.uniform(-0.01, 0.01)
         self.reload()
     #endregion
+
+    def copy(self) -> World:
+        return World(self.rect.copy(), self.tile_size)
 
     #region static methods
     @staticmethod
