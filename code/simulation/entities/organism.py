@@ -47,16 +47,6 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @property
     @abstractmethod
-    def MIN_REPRODUCTION_HEALTH(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def MIN_REPRODUCTION_ENERGY(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
     def MAX_ALPHA(self) -> float:
         pass
 
@@ -150,6 +140,8 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
         self.height_preference: float = self.dna.prefered_height_gene.value
+        self.min_reproduction_health: float = self.dna.min_reproduction_health_gene.value
+        self.min_reproduction_energy: float = self.dna.min_reproduction_energy_gene.value
     #endregion
 
     #region main methods
@@ -320,8 +312,8 @@ class Organism(ABC, pygame.sprite.Sprite):
     def can_reproduce(self) -> bool:
         # TODO add a gene that defines these thresholds
         return (
-            self.health_ratio() >= self.MIN_REPRODUCTION_HEALTH
-            and self.energy_ratio() >= self.MIN_REPRODUCTION_ENERGY
+            self.health_ratio() >= self.min_reproduction_health
+            and self.energy_ratio() >= self.min_reproduction_energy
         )
 
     @abstractmethod
@@ -383,7 +375,9 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.color.b,
             self.moisture_preference,
             self.height_preference,
-            self.dna.mutation_chance_gene.value
+            self.dna.mutation_chance_gene.value,
+            self.dna.min_reproduction_health_gene.value,
+            self.dna.min_reproduction_energy_gene.value
         ]
 
     def get_headers(self) -> list[str]:
@@ -413,7 +407,9 @@ class Organism(ABC, pygame.sprite.Sprite):
             "Color blue value",
             "Moisture preference",
             "Height preference",
-            "Mutation chance"
+            "Mutation chance",
+            "Min Reproduction Health",
+            "Min Reproduction Energy"
         ]
 
     def save_to_csv(self):
