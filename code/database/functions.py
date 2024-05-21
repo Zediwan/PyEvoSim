@@ -13,25 +13,6 @@ def read_csv() :
     return db
 
 
-def querry_input() -> None:
-    """"Takes sql statement from user and returns the querried pandadf"""
-    user_querry = entry.get()
-    output = pysqldf(user_querry)
-    update_table(output)
-
-
-def new_query() -> None:
-    """"Allows user to make a new querry"""
-    entry.delete(0, tk.END)  #Clear entry widget
-    update_table(db)
-
-
-def update_table(dataframe) -> None:
-    """"Update the table with new data"""
-    table.model.df = dataframe
-    table.redraw()
-
-
 def pysqldf(query):
     """Wrapper function for sqldf"""
     return sqldf(query, globals())

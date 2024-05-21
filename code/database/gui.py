@@ -1,12 +1,30 @@
 """"This is the gui for filtering and querrying data from the organism_database"""
 import tkinter as tk
 from tkinter import ttk
+from tkinter import customtkinter
 from ttkthemes import ThemedTk
 import pandas as pd
 from pandasql import sqldf
 from pandastable import Table
 import functions as func
 
+def querry_input() -> None:
+    """"Takes sql statement from user and returns the querried pandadf"""
+    user_querry = entry.get()
+    output = pysqldf(user_querry)
+    update_table(output)
+
+
+def new_query() -> None:
+    """"Allows user to make a new querry"""
+    entry.delete(0, tk.END)  #Clear entry widget
+    update_table(db)
+
+
+def update_table(dataframe) -> None:
+    """"Update the table with new data"""
+    table.model.df = dataframe
+    table.redraw()
 
 def main(db=func.read_csv()) -> None:
     """"Main function for the GUI"""
@@ -24,11 +42,11 @@ def main(db=func.read_csv()) -> None:
     entry.pack(pady=10)
 
     #submit button
-    submit_button = ttk.Button(root, text="Submit", command=func.querry_input)
+    submit_button = ttk.Button(root, text="Submit", command=querry_input)
     submit_button.pack(pady=5)
 
     #"restart" button
-    new_query_button = ttk.Button(root, text="restart", command=func.new_query)
+    new_query_button = ttk.Button(root, text="restart", command=new_query)
     new_query_button.pack(pady=5)
 
     #initial table display
