@@ -12,6 +12,47 @@ import math
 from world.world import World
 
 class Simulation():
+    """
+    Class representing the simulation environment for an Evolution Simulation.
+
+    Attributes:
+        brush_outline (int): The width of the brush outline.
+        base_theme (pygame_menu.Theme): The base theme for the menus.
+        runtime_theme (pygame_menu.Theme): The theme for runtime elements.
+        TRANSPARENT_BLACK_COLOR (tuple): The color code for transparent black.
+        fps_font (pygame.font.Font): The font for displaying frames per second.
+
+    Methods:
+        __init__: Initializes the Simulation class.
+        _setup_menus: Sets up the menus for the simulation.
+        _setup_starting_menu: Sets up the starting menu.
+        _setup_options_menu: Sets up the options menu.
+        _setup_screen_options_menu: Sets up the screen options menu.
+        _setup_database_options_menu: Sets up the database options menu.
+        _setup_running_settings_menu: Sets up the running settings menu.
+        _setup_world_settings_menu: Sets up the world settings menu.
+        _setup_spawning_settings_menu: Sets up the spawning settings menu.
+        _setup_dna_settings_menu: Sets up the DNA settings menu.
+        _setup_entity_settings_menu: Sets up the entity settings menu.
+        _setup_organism_settings_menu: Sets up the organism settings menu.
+        _setup_animal_settings_menu: Sets up the animal settings menu.
+        _setup_plant_settings_menu: Sets up the plant settings menu.
+        toggle_pause: Toggles the pause state of the simulation.
+        change_tile_size: Changes the tile size of the world.
+        clear_organisms: Clears all organisms from the simulation.
+        reset_stats: Resets the statistics of the simulation.
+        toggle_alternating_moisture: Toggles the alternating moisture state.
+        _update_gui: Updates the graphical user interface of the simulation.
+        run_loop: Runs the main loop of the simulation.
+        mainlopp: Main loop function for the simulation.
+        _quit: Quits the simulation.
+
+    Raises:
+        No specific exceptions are raised.
+
+    Returns:
+        No specific return value.
+    """
     brush_outline = 2
     #region themes
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
@@ -45,10 +86,12 @@ class Simulation():
         #endregion
 
         #region simulation
+        # Setting the world size
         world_rect: pygame.Rect = self._surface.get_rect()
         world_rect.width *= .75
         tile_size: int = world_rect.width // 100
         self.world: World = World(world_rect, tile_size)
+        # Runtime variables
         self.selected_org = None
         self.paused = True
         self.alternating_moisture = False
@@ -59,63 +102,69 @@ class Simulation():
     #region setup
     def _setup_menus(self) -> None:
         #region menu initialisation
+        # Regular menu
         self.starting_menu = pygame_menu.Menu("Starting Menu", self._surface.get_width(), self._surface.get_height(), theme=self.base_theme)
         self.options_menu = pygame_menu.Menu("Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.screen_options = pygame_menu.Menu("Screen Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
         self.database_options = pygame_menu.Menu("Database Options", self._surface.get_width(), self._surface.get_height(), theme= self.base_theme)
+        # Runtime Menu
+        runtime_menu_width: float = self._surface.get_width()-self.world.rect.right
+        runtime_menu_height: float = self._surface.get_height()
+        runtime_menu_position: float = self.world.rect.topright
+
         self._running_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="Simulation",
         )
         self._world_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="World",
         )
         self._spawning_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="Spawning",
         )
         self._dna_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="DNA",
         )
         self._entity_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="Entity",
         )
         self._organism_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="Organism",
         )
         self._animal_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="Animal",
         )
         self._plant_settings_menu = pygame_menu.Menu(
-            width=self._surface.get_width()-self.world.rect.right,
-            height=self._surface.get_height(),
-            position=(self.world.rect.right, 0, False),
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=(runtime_menu_position, False),
             theme=self.runtime_theme,
             title="Plant",
         )
