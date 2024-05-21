@@ -94,7 +94,7 @@ class Simulation():
         #region simulation
         # Setting the world size
         world_rect: pygame.Rect = self._surface.get_rect()
-        world_rect.width *= .75
+        world_rect.width *= .6
         tile_size: int = world_rect.width // 100
         self.world: World = World(world_rect, tile_size)
         # Runtime variables
@@ -125,7 +125,7 @@ class Simulation():
 
         menu_bar_height: float = 50
         self._running_menu_bar = pygame_menu.Menu(
-            width=self.world.rect.width * .2,
+            width=self.world.rect.width * .5,
             height=menu_bar_height,
             position=(self.world.rect.left, self.world.rect.top, False),
             theme=self.menubar_theme,
@@ -261,8 +261,9 @@ class Simulation():
 
     def _setup_world_settings_menu(self) -> None:
         #TODO update these so changes to the sliders can be instantly seen on the world
-        self._world_settings_menu.add.range_slider("Fx1", self.world.freq_x1, (0,10), increment=1, onchange=self.world.set_freq_x1)
-        self._world_settings_menu.add.range_slider("Fy1", self.world.freq_y1, (0,10), increment=1, onchange=self.world.set_freq_y1)
+        for setting in self.world.settings:
+            setting.add_controller_to_menu(self._world_settings_menu)
+        #self._world_settings_menu.add.range_slider("Fx1", self.world.freq_x1, (0,10), increment=1, onchange=self.world.set_freq_x1)
         self._world_settings_menu.add.range_slider("Scale1", self.world.scale_1, (0,1), increment=.1, onchange=self.world.set_scale_1)
         self._world_settings_menu.add.range_slider("offsx1", self.world.offset_x1, (0,20), increment=1, onchange=self.world.set_offset_x1)
         self._world_settings_menu.add.range_slider("offsy1", self.world.offset_y1, (0,20), increment=1, onchange=self.world.set_offset_y1)
@@ -290,6 +291,7 @@ class Simulation():
 
         # TODO add a randomise button
         self._world_settings_menu.add.button("Randomize", self.world.randomise_freqs) # TODO update this so when randomising a new world is loaded
+        self._world_settings_menu.add.button("Reload", self.world.reload)
         self._world_settings_menu.add.text_input("Tile size: ", self.world.tile_size, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.change_tile_size)
 
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)

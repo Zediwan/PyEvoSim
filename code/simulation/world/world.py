@@ -5,6 +5,7 @@ import random
 import pygame
 
 import settings.database
+from settings.setting import Setting
 import settings.simulation
 from entities.animal import Animal
 from entities.plant import Plant
@@ -164,6 +165,16 @@ class World(pygame.sprite.Sprite):
 
     #region tiles
     def create_tile(self, row: int, col: int) -> Tile:
+        """
+        Create a new Tile object based on the given row and column coordinates.
+
+        Parameters:
+            row (int): The row index of the tile.
+            col (int): The column index of the tile.
+
+        Returns:
+            Tile: A new Tile object initialized with the specified position, height, moisture, and border status.
+        """
         x = col * self.tile_size
         y = row * self.tile_size
 
@@ -174,7 +185,18 @@ class World(pygame.sprite.Sprite):
             is_border = self.is_border_tile(row=row, col=col),
         )
 
-    def add_neighbors(self, tiles):
+    def add_neighbors(self, tiles) -> None:
+        """
+        Add neighbors to each tile in the world based on the grid of tiles provided.
+
+        For each tile in the grid, this method checks the neighboring tiles in the cardinal directions (north, east, south, west) and adds them as neighbors to the current tile. This allows each tile to have references to its adjacent tiles for interaction and calculations.
+
+        Parameters:
+            tiles (list[list[Tile]]): A 2D grid of Tile objects representing the world map.
+
+        Returns:
+            None
+        """
         for row in range(self.rows):
             for col in range(self.cols):
                 tile: Tile = tiles[row][col]
@@ -188,9 +210,32 @@ class World(pygame.sprite.Sprite):
                     tile.add_neighbor(Direction.WEST, tiles[row][col-1])
 
     def is_border_tile(self, row: int, col: int) -> bool:
+        """
+        Determine if a given tile at the specified row and column coordinates is a border tile.
+
+        A border tile is defined as a tile that is located at the edge of the world grid, meaning it is either in the first row, last row, first column, or last column of the grid.
+
+        Parameters:
+            row (int): The row index of the tile.
+            col (int): The column index of the tile.
+
+        Returns:
+            bool: True if the tile is a border tile, False otherwise.
+        """
         return row == 0 or col == 0 or row == self.rows - 1 or col == self.cols - 1
 
     def get_tiles(self, rect: pygame.Rect) -> list[Tile]:
+        """
+        Get a list of tiles that intersect with the given rectangle in the world.
+
+        This method takes a pygame Rect object representing a rectangle in global coordinates and transforms it into world coordinates by adjusting its position based on the world's position. It then creates a temporary sprite with the transformed rectangle and checks for collisions with the world's tiles. The method returns a list of Tile objects that intersect with the transformed rectangle.
+
+        Parameters:
+            rect (pygame.Rect): A pygame Rect object representing a rectangle in global coordinates.
+
+        Returns:
+            list[Tile]: A list of Tile objects that intersect with the given rectangle.
+        """
         # Transform rect global coordinates into world coordinates
         rect.x -= self.rect.left
         rect.y -= self.rect.top
@@ -200,6 +245,15 @@ class World(pygame.sprite.Sprite):
         return pygame.sprite.spritecollide(s, self.tiles, False)
 
     def get_tile(self, pos: tuple[int, int]) -> Tile:
+        """
+        Get the tile at the specified position in the world.
+
+        Parameters:
+            pos (tuple[int, int]): The position coordinates (x, y) of the tile in global coordinates.
+
+        Returns:
+            Tile: The Tile object at the specified position in the world.
+        """
         # Transform global coordinates into world coordinates
         x = pos[0] - self.rect.left
         y = pos[1] - self.rect.top
@@ -211,8 +265,11 @@ class World(pygame.sprite.Sprite):
 
     #region noise
     def _setup_noise_settings(self):
-        self.freq_x1: float = 1
-        self.freq_y1: float = 1
+        self.settings: list[Setting] = []
+        self.freq_x1: Setting = Setting(1, name="freqency_1_x", min=0, max=10, type="onchange", post_update_method=self.reload)
+        self.settings.append(self.freq_x1)
+        self.freq_y1: Setting = Setting(1, name="freqency_1_y", min=0, max=10, type="onchange", post_update_method=self.reload)
+        self.settings.append(self.freq_y1)
         self.freq_x2: float = 2
         self.freq_y2: float = 2
         self.freq_x3: float = 4
@@ -237,7 +294,7 @@ class World(pygame.sprite.Sprite):
 
     #region noise generators
     def generate_height_values(self, x: int, y: int) -> float:
-        noise1 = noise.snoise2((x * self.freq_x1) + self.offset_x1, (y * self.freq_y1) + self.offset_y1)
+        noise1 = noise.snoise2((x * self.freq_x1._value) + self.offset_x1, (y * self.freq_y1._value) + self.offset_y1)
         noise1 *= self.scale_1
         noise2 = noise.snoise2((x * self.freq_x2) + self.offset_x2, (y * self.freq_y2) + self.offset_y2)
         noise2 *= self.scale_2
@@ -278,16 +335,6 @@ class World(pygame.sprite.Sprite):
             raise ValueError(f"Moisture value not in range [0, 1] {moisture}")
         return moisture
     #endregion
-
-    #region noise setters
-    def set_freq_x1(self, value):
-        self.freq_x1 = value
-        self.reload()
-
-    def set_freq_y1(self, value):
-        self.freq_y1 = value
-        self.reload()
-
     def set_freq_x2(self, value):
         self.freq_x2 = value
         self.reload()
