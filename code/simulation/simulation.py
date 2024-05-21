@@ -578,7 +578,7 @@ class Simulation():
 
             self._update_gui(draw_menu = menu_updated)
 
-            if self.world.rect.colliderect(self.brush_rect):
+            if self.world.rect.contains(self.brush_rect):
                 # Draw cursor highlight
                 pygame.draw.rect(
                     self._surface,
