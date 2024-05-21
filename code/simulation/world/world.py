@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import datetime
 import random
 
 import pygame
@@ -36,7 +35,7 @@ class World(pygame.sprite.Sprite):
         #endregion
         #region tiles
         self.tiles = pygame.sprite.Group()
-        tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)] # Only used for add_neighbors
         for row in range(self.rows):
             for col in range(self.cols):
                 tile = self.create_tile(row, col)
@@ -45,8 +44,6 @@ class World(pygame.sprite.Sprite):
         self.add_neighbors(tiles_grid)
         self.tiles.draw(self.ground_surface)
         #endregion
-
-        settings.database.database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
     #region properties
     @property
