@@ -452,19 +452,23 @@ class Simulation():
         self.alternating_moisture = enabled
 
     #region tools
-    def animal_spawning_tool(self):
-        return self.world.spawn_animal
+    def animal_spawning_tool(self, tiles: list[Tile]):
+        for tile in tiles:
+            self.world.spawn_animal(tile)
 
     def choose_animal_spawning_tool(self) -> None:
-        self.tool = self.animal_spawning_tool()
+        self.tool = self.animal_spawning_tool
 
-    def plant_spawning_tool(self):
-        return self.world.spawn_plant
+    def plant_spawning_tool(self, tiles: list[Tile]):
+        for tile in tiles:
+            self.world.spawn_plant(tile)
 
     def choose_plant_spawning_tool(self) -> None:
-        self.tool = self.plant_spawning_tool()
+        self.tool = self.plant_spawning_tool
 
-    def info_tool(self, tile: Tile) -> None:
+    def info_tool(self, tiles: list[Tile]) -> None:
+        # TODO improve visual of info tool
+        tile = tiles.pop(1)
         if tile.has_animal():
             self.selected_org = tile.animal.sprite
         elif tile.has_plant():
@@ -475,16 +479,18 @@ class Simulation():
     def choose_info_tool(self) -> None:
         self.tool = self.info_tool
 
-    def animal_kill_tool(self, tile: Tile) -> None:
-        if tile.has_animal():
-            tile.animal.sprite.kill()
+    def animal_kill_tool(self, tiles: list[Tile]) -> None:
+        for tile in tiles:
+            if tile.has_animal():
+                tile.animal.sprite.kill()
 
     def choose_animal_kill_tool(self) -> None:
         self.tool = self.animal_kill_tool
 
-    def plant_kill_tool(self, tile: Tile) -> None:
-        if tile.has_plant():
-            tile.plant.sprite.kill()
+    def plant_kill_tool(self, tiles: list[Tile]) -> None:
+        for tile in tiles:
+            if tile.has_plant():
+                tile.plant.sprite.kill()
 
     def choose_plant_kill_tool(self) -> None:
         self.tool = self.plant_kill_tool
@@ -528,14 +534,14 @@ class Simulation():
     def run_loop(self) -> None:
         # TODO add setting to disable drawing completely to improve speed
         # TODO improve fps displaying
-        #drawing = False
+        drawing = False
         self.world.draw(self._surface)
         self._update_gui()
 
         simulating = True
         while simulating:
-            # mouse_pos = pygame.mouse.get_pos()
-            # self.brush_rect.center = mouse_pos
+            mouse_pos = pygame.mouse.get_pos()
+            self.brush_rect.center = mouse_pos
 
             events = pygame.event.get()
 
@@ -550,16 +556,10 @@ class Simulation():
                         self.toggle_pause()
                         menu_updated = True
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    pos = pygame.mouse.get_pos()
-                    if not(self._running_menu_bar.get_rect().collidepoint(pos)):
-                        tile = self.world.get_tile((pos[0], pos[1]))
-                        if not tile:
-                            self.selected_org = None
-                        else:
-                            self.tool(tile)
-                    #drawing = True
-                # if event.type == pygame.MOUSEBUTTONUP:
-                #     drawing = False
+                    if not(self._running_menu_bar.get_rect().collidepoint(mouse_pos)):
+                        drawing = True
+                if event.type == pygame.MOUSEBUTTONUP:
+                    drawing = False
 
             if not self.paused:
                 self.world.update()
@@ -569,16 +569,23 @@ class Simulation():
                 #     self._world_settings_menu.get_widget("moisture").set_value(moist)
                 #     self.world.set_moisture(moist)
 
+            if drawing:
+                tiles = self.world.get_tiles(self.brush_rect)
+                if not tiles:
+                    self.selected_org = None
+                else:
+                    self.tool(tiles)
+
             self._update_gui(draw_menu = menu_updated)
 
-            # if self.world.rect.colliderect(self.brush_rect):
-            #     # Draw cursor highlight
-            #     pygame.draw.rect(
-            #         self._surface,
-            #         pygame.Color("white"),
-            #         self.brush_rect,
-            #         width=self.brush_outline
-            #     )
+            if self.world.rect.colliderect(self.brush_rect):
+                # Draw cursor highlight
+                pygame.draw.rect(
+                    self._surface,
+                    pygame.Color("white"),
+                    self.brush_rect,
+                    width=self.brush_outline
+                )
 
             if self.selected_org:
                 # TODO change this so there is a new stat panel that is locked in place
