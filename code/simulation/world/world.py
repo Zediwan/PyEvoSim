@@ -17,6 +17,7 @@ import math
 class World(pygame.sprite.Sprite):
     def __init__(self, rect: pygame.Rect, tile_size: int):
         pygame.sprite.Sprite.__init__(self)
+        self.age: int = 0
 
         self.rect: pygame.Rect = rect
         self.image: pygame.Surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
@@ -29,10 +30,6 @@ class World(pygame.sprite.Sprite):
 
         self._setup_noise_settings()
 
-        #region time
-        self.starting_time_msec: int = pygame.time.get_ticks()
-        self.age_ticks: int = 0
-        #endregion
         #region tiles
         self.tiles = pygame.sprite.Group()
         tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)] # Only used for add_neighbors
@@ -45,16 +42,9 @@ class World(pygame.sprite.Sprite):
         self.tiles.draw(self.ground_surface)
         #endregion
 
-    #region properties
-    @property
-    def age_msec(self):
-        # TODO this should not count the time the world was paused
-        return pygame.time.get_ticks() - self.starting_time_msec
-    #endregion
-
     #region main methods
     def update(self):
-        self.age_ticks += 1
+        self.age += 1
         settings.simulation.organisms.update()
 
     def reload(self):
