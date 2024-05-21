@@ -315,6 +315,18 @@ class World(pygame.sprite.Sprite):
     #endregion
 
     def copy(self) -> World:
+        """
+        Create a copy of the World instance.
+
+        Note:
+            This does not create an exact copy right now as the noise values have random values that are defined in the initialisation.
+
+            This should only be used to create a copy world of the same dimension and tile size
+
+        Returns:
+            World: A new World instance with the same dimensions and tile size as the original.
+        """
+        # TODO not working properly yet as _setup_noise_settings initiates with random variables so not exact copy
         return World(self.rect.copy(), self.tile_size)
 
     #region static methods
