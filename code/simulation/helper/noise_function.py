@@ -76,40 +76,14 @@ class NoiseFunction():
     
     def add_function_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
         self.label = menu.add.label("Function")
-        row_height = self.label.get_height()+30
-        width = menu.get_width()
-        self.gui: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_v(width, 500)
-        self.gui._relax = True
-
-        width *= .95
-        row1: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(width, row_height)
-        row1._relax = True
-        row1.pack(self.label, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise)
-            row1.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
-        self.gui.pack(row1)
-
-        row2: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(width, row_height)
-        row2._relax = True
-        row2.pack(self.factor_x.add_controller_to_menu(menu), align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
-        row2.pack(self.factor_y.add_controller_to_menu(menu), align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
-        self.gui.pack(row2)
-
-        row3: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(width, row_height)
-        row3._relax = True
-        row3.pack(self.offset_x.add_controller_to_menu(menu), align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
-        row3.pack(self.offset_y.add_controller_to_menu(menu), align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
-        self.gui.pack(row3)
-
-        row4: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(width, row_height)
-        row4._relax = True
-        row4.pack(self.pow_x.add_controller_to_menu(menu), align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
-        row4.pack(self.pow_y.add_controller_to_menu(menu), align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
-        self.gui.pack(row4)
-
-        self.gui.pack(self.pow.add_controller_to_menu(menu))
-        self.gui.pack(self.fudge.add_controller_to_menu(menu))
+            height = max(self.label.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
+            frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame.pack(self.label, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
+            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
+        for setting in self.settings:
+            setting.add_controller_to_menu(menu)
 
     def randomise(self) -> None:
         for setting in self.settings:

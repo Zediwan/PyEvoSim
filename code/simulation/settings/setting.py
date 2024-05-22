@@ -81,53 +81,11 @@ class BoundedSetting(Setting):
         self.widget.set_value(self._value)
 
     def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
-        self.controller_frame = None
-
-        # Add a range slider controller widget
-        # self.label = pygame_menu.pygame_menu.widgets.Label(self._name)
-        # menu.add(self.label)
-        self.label_widget: pygame_menu.pygame_menu.widgets.Label = menu.add.label(self._name)
-        self.widget_controller: pygame_menu.pygame_menu.widgets.RangeSlider = menu.add.range_slider("", default=self._value, range_values=(self._min, self._max), increment=self.increment)
-
-        widget_height = 150
-        widget_width = self.label_widget.get_width() + self.widget_controller.get_width() + 20
-        widget_frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_v(widget_width, widget_height)
-
-        widget_frame.pack(self.label_widget, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
-        widget_frame.pack(self.widget_controller, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
-
-        if self._onreturn:
-            self.widget_controller.set_onreturn(self.set_value)
-        elif self._onchange:
-            self.widget_controller.set_onchange(self.set_value)
-
-        if randomiser:
-            randomiser_buttom: pygame_menu.pygame_menu.widgets.Button = menu.add.button("Randomise", self.randomise_value)
-            height = max(widget_frame.get_height(), randomiser_buttom.get_height()) + 10
-
-            frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(menu.get_width(inner=True), height)
-
-            frame.pack(widget_frame, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
-            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
-
-            return frame
+        self.widget = None
+        if self._min is not None and self._max is not None:
+            self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
         else:
-            return widget_frame
-
-class UnboundedSetting(Setting):
-    def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
-        super().__init__(*args, value=value, name=name, type=type)
-
-    def set_value(self, new_value: float) -> None:
-        self._value = new_value
-        self.post_update()
-
-    def randomise_value(self, type="uniform"):
-        # TODO think of the best way to randomise an unbounded value
-        pass
-
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
-        self.widget: pygame_menu.pygame_menu.widgets.TextInput = menu.add.text_input(self._name, default=self._value, input_type=pygame_menu.pygame_menu.locals.INPUT_INT) # TODO does input int make most sense here? why not use float?
+            self.widget = menu.add.text_input(self._name + ": ", input_type=pygame_menu.pygame_menu.locals.INPUT_INT)
 
         if self._onreturn:
             self.widget.set_onreturn(self.set_value)
@@ -135,14 +93,8 @@ class UnboundedSetting(Setting):
             self.widget.set_onchange(self.set_value)
 
         if randomiser:
-            randomiser_buttom: pygame_menu.pygame_menu.widgets.Button = menu.add.button("Randomise", self.randomise_value)
-            height = 100
-
-            frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(menu.get_width(inner=True), height)
-
+            randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
+            height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
+            frame = menu.add.frame_h(menu.get_width(inner=True), height)
             frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
-
-            return frame
-        else:
-            return self.widget
