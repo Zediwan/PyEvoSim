@@ -271,7 +271,7 @@ class Simulation():
         self.world.height_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
         self.world.moisture_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
         self.world.scale_setting.add_controller_to_menu(self._world_settings_menu)
-        self._world_settings_menu.add.button("Randomise", self.world.randomise_freqs)
+        self._world_settings_menu.add.button("Randomise Everything", self.world.randomise_freqs)
 
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 import noise
-from settings.setting import Setting
+from settings.setting import Setting, BoundedSetting
 import pygame_menu
 import pygame
 
@@ -20,14 +20,14 @@ class NoiseFunction():
 
 
     def __init__(self, *args, factor_x = 1, factor_y = 1, offset_x = 0, offset_y = 0, pow_x = 1, pow_y = 1, pow = 1, fudge = 1.2) -> None:
-        self.factor_x = Setting(factor_x, *args, name="Factor x", min = self.FACTOR_MIN, max=self.FACTOR_MAX, type="onchange")
-        self.factor_y = Setting(factor_y, *args, name="Factor y", min = self.FACTOR_MIN, max=self.FACTOR_MAX, type="onchange")
-        self.offset_x = Setting(offset_x, *args, name="Offset x", min = self.OFFSET_MIN, max=self.OFFSET_MAX, type="onchange")
-        self.offset_y = Setting(offset_y, *args, name="Offset y", min = self.OFFSET_MIN, max=self.OFFSET_MAX, type="onchange")
-        self.pow_x = Setting(pow_x, *args, name="Pow x", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
-        self.pow_y = Setting(pow_y, *args, name="Pow y", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
-        self.pow = Setting(pow, *args, name="Pow", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
-        self.fudge = Setting(fudge, *args, name="Fudge", min = self.FUDGE_MIN, max=self.FUDGE_MAX, type="onchange")
+        self.factor_x = BoundedSetting(*args, value=factor_x, name="Factor x", min = self.FACTOR_MIN, max=self.FACTOR_MAX, type="onchange")
+        self.factor_y = BoundedSetting(*args, value=factor_y, name="Factor y", min = self.FACTOR_MIN, max=self.FACTOR_MAX, type="onchange")
+        self.offset_x = BoundedSetting(*args, value=offset_x, name="Offset x", min = self.OFFSET_MIN, max=self.OFFSET_MAX, type="onchange")
+        self.offset_y = BoundedSetting(*args, value=offset_y, name="Offset y", min = self.OFFSET_MIN, max=self.OFFSET_MAX, type="onchange")
+        self.pow_x = BoundedSetting(*args, value=pow_x, name="Pow x", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
+        self.pow_y = BoundedSetting(*args, value=pow_y, name="Pow y", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
+        self.pow = BoundedSetting(*args, value=pow, name="Pow", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
+        self.fudge = BoundedSetting(*args, value=fudge, name="Fudge", min = self.FUDGE_MIN, max=self.FUDGE_MAX, type="onchange")
         
         self.settings: list[Setting] = []
         self.settings.append(self.factor_x)
@@ -79,7 +79,7 @@ class NoiseFunction():
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise)
             height = max(self.label.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
-            frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame = menu.add.frame_h(menu.get_width(inner=True)*.8, height)
             frame.pack(self.label, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
         for setting in self.settings:

@@ -81,11 +81,34 @@ class BoundedSetting(Setting):
         self.widget.set_value(self._value)
 
     def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
-        self.widget = None
-        if self._min is not None and self._max is not None:
-            self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
-        else:
-            self.widget = menu.add.text_input(self._name + ": ", input_type=pygame_menu.pygame_menu.locals.INPUT_INT)
+        self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
+
+        if self._onreturn:
+            self.widget.set_onreturn(self.set_value)
+        elif self._onchange:
+            self.widget.set_onchange(self.set_value)
+
+        if randomiser:
+            randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
+            height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
+            frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
+            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
+
+class UnboundedSetting(Setting):
+    def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
+        super().__init__(*args, value=value, name=name, type=type)
+
+    def set_value(self, new_value: float) -> None:
+        self._value = new_value
+        self.post_update()
+
+    def randomise_value(self, type="uniform"):
+        # TODO think of the best way to randomise an unbounded value
+        pass
+
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
+        self.widget: pygame_menu.pygame_menu.widgets.TextInput = menu.add.text_input(self._name, default=self._value, input_type=pygame_menu.pygame_menu.locals.INPUT_INT) # TODO does input int make most sense here? why not use float?
 
         if self._onreturn:
             self.widget.set_onreturn(self.set_value)
