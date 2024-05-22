@@ -277,29 +277,44 @@ class World(pygame.sprite.Sprite):
 
     #region noise
     def _setup_noise_functions(self):
-        self.scale: Setting = Setting(.001, self.reload, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
+        self.moisture_setting: Setting = Setting(1, self.reload, name="Moisture", min=0, max=2, type="onchange")
+        self.height_setting: Setting = Setting(1, self.reload, name="Height", min=0, max=2, type="onchange")
+        self.scale_setting: Setting = Setting(.001, self.reload, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
 
         self.height_functions: list[NoiseFunction] = []
+        self.height_functions_weights: list[float] = []
         self.height_functions.append(NoiseFunction(
             self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0,
         ))
+        self.height_functions_weights.append(1)
         self.height_functions.append(NoiseFunction(
             self.reload, factor_x=2, factor_y=2, offset_x=4.7, offset_y=2.3
         ))
+        self.height_functions_weights.append(.2)
         self.height_functions.append(NoiseFunction(
             self.reload, factor_x=4, factor_y=4, offset_x=19.1, offset_y=16.2
         ))
+        self.height_functions_weights.append(.1)
+
         self.moisture_functions: list[NoiseFunction] = []
+        self.moisture_functions_weights: list[float] = []
         self.moisture_functions.append(NoiseFunction(
             self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0
         ))
+        self.moisture_functions_weights.append(1)
 
     #region noise generators
     def generate_height_values(self, x: int, y: int) -> float:
-        return NoiseFunction.weigh(x * self.scale._value, y *  self.scale._value, self.height_functions, [1, .2, .1])
+        height = NoiseFunction.weigh(x * self.scale_setting._value, y *  self.scale_setting._value, self.height_functions, self.height_functions_weights)
+        height += (self.height_setting._value - self.height_setting._mid)
+        height = pygame.math.clamp(height, 0, 1)
+        return height
 
     def generate_moisture_values(self, x: int, y: int) -> float:
-        return NoiseFunction.weigh(x * self.scale._value, y * self.scale._value, self.moisture_functions)
+        moisture = NoiseFunction.weigh(x * self.scale_setting._value, y * self.scale_setting._value, self.moisture_functions, self.moisture_functions_weights)
+        moisture += (self.moisture_setting._value - self.moisture_setting._mid)
+        moisture = pygame.math.clamp(moisture, 0, 1)
+        return moisture
 
     #endregion
 

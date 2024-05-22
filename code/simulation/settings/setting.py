@@ -2,6 +2,7 @@ import pygame_menu
 import random
 
 class Setting():
+    # TODO think of amking value an optional argument and if _mid existst then setting value equal to it else it being 0
     def __init__(self, value: float, *args, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", **kwargs,) -> None:
         self._value = value
         self._name = name
