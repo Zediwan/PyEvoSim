@@ -53,11 +53,19 @@ class Setting():
         self.widget.set_value(self._value)
             
     def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
+        self.label = None
         self.widget = None
+        sub_frame = None
         if self._min is not None and self._max is not None:
-            self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
+            self.label = menu.add.label(self._name)
+            self.widget: pygame_menu.pygame_menu.widgets.RangeSlider = menu.add.range_slider("", default=self._value, range_values=(self._min, self._max), increment=self.increment)
+            self.widget._floating = True
+            sub_frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_v(max(self.label.get_width(), self.widget.get_width()), self.label.get_width() + self.widget.get_width())
+            sub_frame.set_margin(0,0)
+            sub_frame.pack(self.label, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
+            sub_frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
         else:
-            self.widget = menu.add.text_input(self._name + ": ", input_type=pygame_menu.pygame_menu.locals.INPUT_INT)
+            self.widget: pygame_menu.pygame_menu.widgets.Button = menu.add.text_input(self._name + ": ", input_type=pygame_menu.pygame_menu.locals.INPUT_INT)
 
         if self._onreturn:
             self.widget.set_onreturn(self.set_value)
@@ -67,6 +75,15 @@ class Setting():
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
             height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
-            frame = menu.add.frame_h(menu.get_width(inner=True), height)
-            frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
+            frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame.set_margin(0,0)
+            if sub_frame:
+                frame.pack(sub_frame)
+            else:
+                frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
+            return frame
+        elif sub_frame:
+            return sub_frame
+        else:
+            return self.widget
