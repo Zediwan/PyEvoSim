@@ -17,7 +17,7 @@ class Animal(Organism):
     _MAX_HEALTH: float = 100
     _MAX_ENERGY: float = 100
     _NUTRITION_FACTOR: float = 1
-    _REPRODUCTION_CHANCE: float = 0.01
+    _REPRODUCTION_CHANCE: float = 0.005
     _MAX_ALPHA: float = 255
     _MIN_ALPHA: float = 150
     _MOVEMENT_ENERGY_COST: float = 2
@@ -276,6 +276,7 @@ class Animal(Organism):
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
+            settings.simulation.animals.add(offspring)
 
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)
