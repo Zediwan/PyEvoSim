@@ -1,6 +1,5 @@
 import pygame_menu
 import random
-import pygame
 
 class Setting():
     def __init__(self, value: float, *args, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", **kwargs,) -> None:
@@ -8,11 +7,13 @@ class Setting():
         self._name = name
         self._min = min
         self._max = max
+        self._mid =  None
         if self._max is not None and self._min is not None:
             if "increment" in kwargs:
                 self.increment = kwargs["increment"]
             else:
                 self.increment = (self._max-self._min)/100
+            self._mid = (self._max-self._min) / 2
         
         self._onreturn = False
         self._onchange = False
@@ -45,7 +46,7 @@ class Setting():
         if type == "uniform":
             self.set_value(random.uniform(self._min, self._max))
         elif type == "gauss":
-            self.set_value(random.gauss((self._max+self._min)/2, (self._max+self._min)/4))
+            self.set_value(random.gauss(self._mid, self._mid/2))
         else:
             raise ValueError("Type not defined")
         self.widget.set_value(self._value)
