@@ -262,10 +262,10 @@ class Simulation():
     def _setup_world_settings_menu(self) -> None:
         self._world_settings_menu.add.label("Height")
         for function in self.world.height_functions:
-            function.add_function_controller_to_menu(self._world_settings_menu)
+            function.add_function_controller_to_menu(self._world_settings_menu, randomiser=True)
         self._world_settings_menu.add.label("Moisture")
         for function in self.world.moisture_functions:
-            function.add_function_controller_to_menu(self._world_settings_menu)
+            function.add_function_controller_to_menu(self._world_settings_menu, randomiser=True)
 
         # self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.set_alternating_moisture) # TODO add method to change moisture over time
         self.world.height_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)

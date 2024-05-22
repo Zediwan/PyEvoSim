@@ -67,8 +67,14 @@ class NoiseFunction():
             raise ValueError(f"noise value not in range [0, 1] {value}")
         return value
     
-    def add_function_controller_to_menu(self, menu: pygame_menu.Menu) -> None:
-        menu.add.label("Function")
+    def add_function_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
+        self.label = menu.add.label("Function")
+        if randomiser:
+            randomiser_buttom = menu.add.button("Randomise", self.randomise)
+            height = max(self.label.get_height(), randomiser_buttom.get_height()) + 10
+            frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame.pack(self.label, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
+            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
         for setting in self.settings:
             setting.add_controller_to_menu(menu)
 
