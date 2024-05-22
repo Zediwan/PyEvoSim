@@ -71,7 +71,7 @@ class NoiseFunction():
         self.label = menu.add.label("Function")
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise)
-            height = max(self.label.get_height(), randomiser_buttom.get_height()) + 10
+            height = max(self.label.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
             frame = menu.add.frame_h(menu.get_width(inner=True), height)
             frame.pack(self.label, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
