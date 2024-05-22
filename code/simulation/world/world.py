@@ -5,7 +5,7 @@ import random
 import pygame
 
 import settings.database
-from settings.setting import Setting
+from settings.setting import Setting, BoundedSetting, UnboundedSetting
 import settings.simulation
 from helper.noise_function import NoiseFunction
 from entities.animal import Animal
@@ -277,9 +277,9 @@ class World(pygame.sprite.Sprite):
 
     #region noise
     def _setup_noise_functions(self):
-        self.moisture_setting: Setting = Setting(1, self.reload, name="Moisture", min=0, max=2, type="onchange")
-        self.height_setting: Setting = Setting(1, self.reload, name="Height", min=0, max=2, type="onchange")
-        self.scale_setting: Setting = Setting(.001, self.reload, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
+        self.moisture_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Moisture", min=0, max=2, type="onchange")
+        self.height_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Height", min=0, max=2, type="onchange")
+        self.scale_setting: BoundedSetting = BoundedSetting(self.reload, value=.001, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
 
         self.height_functions: list[NoiseFunction] = []
         self.height_functions_weights: list[float] = []
@@ -322,7 +322,7 @@ class World(pygame.sprite.Sprite):
         self.generating = True
         self.progress = 0
 
-        functions = []
+        functions: list[NoiseFunction] = []
         functions.extend(self.height_functions)
         functions.extend(self.moisture_functions)
 

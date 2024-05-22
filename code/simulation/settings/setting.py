@@ -1,21 +1,17 @@
 import pygame_menu
 import random
+from abc import ABC, abstractmethod
 
-class Setting():
-    # TODO think of amking value an optional argument and if _mid existst then setting value equal to it else it being 0
-    def __init__(self, value: float, *args, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", **kwargs,) -> None:
+class Setting(ABC):
+    # TODO think of making value an optional argument and if _mid existst then setting value equal to it else it being 0
+    def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
         self._value = value
         self._name = name
-        self._min = min
-        self._max = max
-        self._mid =  None
-        if self._max is not None and self._min is not None:
-            if "increment" in kwargs:
-                self.increment = kwargs["increment"]
-            else:
-                self.increment = (self._max-self._min)/100
-            self._mid = (self._max-self._min) / 2
         
+        self.widget_controller = None
+        self.controller_frame = None
+
+        # Set update type
         self._onreturn = False
         self._onchange = False
         if type == "onreturn":
@@ -25,23 +21,55 @@ class Setting():
         else:
             raise ValueError(f"{type} is not a valid type.")
         
+        # Add post update methods
         self.post_update_methods: list = []
         for arg in args:
             if not callable(arg):
                 raise ValueError("args must be callable.")
             self.post_update_methods.append(arg)
-        
-    def set_value(self, new_value: float):
-        if self._max is not None:
-            if new_value >= self._max:
-                new_value = self._max
-        if self._min is not None:
-            if new_value <= self._min:
-                new_value = self._min
-        self._value = new_value
+
+    def post_update(self) -> None:
         if self.post_update_methods:
             for method in self.post_update_methods:
                 method()
+
+    @abstractmethod
+    def set_value(self, new_value: float):
+        pass
+
+    @abstractmethod
+    def randomise_value(self, type = "uniform"):
+        pass
+
+    @abstractmethod
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
+        pass
+
+class BoundedSetting(Setting):
+    def __init__(self, *args, value: float = None, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", increment = None) -> None:
+        self._min = min
+        self._max = max
+        self._mid = (self._max-self._min) / 2
+
+        if value is None:
+            value = self._mid
+
+        super().__init__(*args, value=value, name=name, type=type)
+        self.label_widget: pygame_menu.pygame_menu.widgets.Label = None
+
+        if increment is not None:
+            self.increment = increment
+        else:
+            self.increment = (self._max-self._min)/100
+
+    def set_value(self, new_value: float) -> None:
+        if new_value >= self._max:
+            new_value = self._max
+        elif new_value <= self._min:
+            new_value = self._min
+
+        self._value = new_value
+        self.post_update()
 
     def randomise_value(self, type = "uniform"):
         if type == "uniform":
@@ -51,21 +79,55 @@ class Setting():
         else:
             raise ValueError("Type not defined")
         self.widget.set_value(self._value)
-            
+
     def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
-        self.label = None
-        self.widget = None
-        sub_frame = None
-        if self._min is not None and self._max is not None:
-            self.label = menu.add.label(self._name)
-            self.widget: pygame_menu.pygame_menu.widgets.RangeSlider = menu.add.range_slider("", default=self._value, range_values=(self._min, self._max), increment=self.increment)
-            self.widget._floating = True
-            sub_frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_v(max(self.label.get_width(), self.widget.get_width()), self.label.get_width() + self.widget.get_width())
-            sub_frame.set_margin(0,0)
-            sub_frame.pack(self.label, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
-            sub_frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
+        self.controller_frame = None
+
+        # Add a range slider controller widget
+        # self.label = pygame_menu.pygame_menu.widgets.Label(self._name)
+        # menu.add(self.label)
+        self.label_widget: pygame_menu.pygame_menu.widgets.Label = menu.add.label(self._name)
+        self.widget_controller: pygame_menu.pygame_menu.widgets.RangeSlider = menu.add.range_slider("", default=self._value, range_values=(self._min, self._max), increment=self.increment)
+
+        widget_height = 150
+        widget_width = self.label_widget.get_width() + self.widget_controller.get_width() + 20
+        widget_frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_v(widget_width, widget_height)
+
+        widget_frame.pack(self.label_widget, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
+        widget_frame.pack(self.widget_controller, align=pygame_menu.pygame_menu.locals.ALIGN_CENTER)
+
+        if self._onreturn:
+            self.widget_controller.set_onreturn(self.set_value)
+        elif self._onchange:
+            self.widget_controller.set_onchange(self.set_value)
+
+        if randomiser:
+            randomiser_buttom: pygame_menu.pygame_menu.widgets.Button = menu.add.button("Randomise", self.randomise_value)
+            height = max(widget_frame.get_height(), randomiser_buttom.get_height()) + 10
+
+            frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(menu.get_width(inner=True), height)
+
+            frame.pack(widget_frame, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
+            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
+
+            return frame
         else:
-            self.widget: pygame_menu.pygame_menu.widgets.Button = menu.add.text_input(self._name + ": ", input_type=pygame_menu.pygame_menu.locals.INPUT_INT)
+            return widget_frame
+
+class UnboundedSetting(Setting):
+    def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
+        super().__init__(*args, value=value, name=name, type=type)
+
+    def set_value(self, new_value: float) -> None:
+        self._value = new_value
+        self.post_update()
+
+    def randomise_value(self, type="uniform"):
+        # TODO think of the best way to randomise an unbounded value
+        pass
+
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
+        self.widget: pygame_menu.pygame_menu.widgets.TextInput = menu.add.text_input(self._name, default=self._value, input_type=pygame_menu.pygame_menu.locals.INPUT_INT) # TODO does input int make most sense here? why not use float?
 
         if self._onreturn:
             self.widget.set_onreturn(self.set_value)
@@ -73,17 +135,14 @@ class Setting():
             self.widget.set_onchange(self.set_value)
 
         if randomiser:
-            randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
-            height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
+            randomiser_buttom: pygame_menu.pygame_menu.widgets.Button = menu.add.button("Randomise", self.randomise_value)
+            height = 100
+
             frame: pygame_menu.pygame_menu.widgets.Frame = menu.add.frame_h(menu.get_width(inner=True), height)
-            frame.set_margin(0,0)
-            if sub_frame:
-                frame.pack(sub_frame)
-            else:
-                frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
+
+            frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
+
             return frame
-        elif sub_frame:
-            return sub_frame
         else:
             return self.widget
