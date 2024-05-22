@@ -52,7 +52,7 @@ class Setting():
             raise ValueError("Type not defined")
         self.widget.set_value(self._value)
             
-    def add_controller_to_menu(self, menu: pygame_menu.Menu):
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
         self.widget = None
         if self._min is not None and self._max is not None:
             self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
@@ -63,3 +63,10 @@ class Setting():
             self.widget.set_onreturn(self.set_value)
         elif self._onchange:
             self.widget.set_onchange(self.set_value)
+
+        if randomiser:
+            randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
+            height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10
+            frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
+            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
