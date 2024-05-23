@@ -192,9 +192,14 @@ class NoiseFunction():
         if not functions:
             raise ValueError("The list of functions cannot be empty.")
 
+        if not weights:
+            weights = []
+        while len(weights) < len(functions):
+            weights.append(1)
+
         total_noise = 0
         weight_sum = 0
-        for function, weight in zip(functions, weights or [1]*len(functions)):
+        for function, weight in zip(functions, weights):
             total_noise += function.noise(x, y) * weight
             weight_sum += weight
         value = total_noise / weight_sum
