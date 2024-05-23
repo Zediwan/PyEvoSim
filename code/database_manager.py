@@ -22,7 +22,7 @@ class DatabaseManager():
         except IOError as e:
             print(f"Error writing to CSV: {e}")
     
-    def save(self, data: list):
+    def add_data(self, data: list):
         try:
             with open(self.csv_pathname, mode="a", newline="") as file:
                 writer = csv.writer(file)
