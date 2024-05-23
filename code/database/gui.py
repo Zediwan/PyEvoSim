@@ -1,9 +1,7 @@
 """"This is the gui for filtering and querrying data from the organism_database"""
 import tkinter as tk
 from tkinter import ttk
-import customtkinter as ctk
 from ttkthemes import ThemedTk
-import pandas as pd
 from pandasql import sqldf
 from pandastable import Table
 import functions as func
