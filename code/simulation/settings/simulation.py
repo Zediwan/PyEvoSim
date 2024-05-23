@@ -1,5 +1,8 @@
 import pygame
 
+
+# TODO think of a way to have these variables in the world class
+
 organisms = pygame.sprite.Group()
 animals = pygame.sprite.Group()
 plants = pygame.sprite.Group()
