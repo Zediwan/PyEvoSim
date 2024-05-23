@@ -5,7 +5,7 @@ import csv
 
 class DatabaseManager():
     folder_pathname: str = "data/"
-    filename_start: str = "database"
+    filename_start: str = "database_"
     filename_end: str = ".csv"
     
     def __init__(self, headers: list[str], name = "") -> None:
