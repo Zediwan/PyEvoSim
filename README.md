@@ -26,7 +26,7 @@ This project can be used to try out different simulation conditions and settings
 To run the simulation you need to run the [main.py](code/simulation/main.py) file.
 
 ### Database
-To access, filter and query the database, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
+To access, filter and query the database, you need to run the [gui.py](code/database/gui.py) file.
 
 To sort data in ascending/descending order in a column, right-click on the column and choose `Sort by "column name"` followed by an arrow.
 
