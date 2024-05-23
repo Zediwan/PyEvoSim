@@ -1,13 +1,15 @@
 import unittest
-from code.database_manager import DatabaseManager
+import os
+import csv
+import time
+from code.database import Database
 
 
-class DatabaseManagerTest(unittest.TestCase):
+class DatabaseTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.dbm: DatabaseManager = None
+        self.dbm: Database = None
 
     def tearDown(self):
-        import os
         if self.dbm:
             os.remove(self.dbm.csv_pathname)
         
@@ -15,12 +17,10 @@ class DatabaseManagerTest(unittest.TestCase):
         """
         This test checks if the csv is created properly
         """
-        import os
-        
         headers: list = []
         headers.append("h1"),
         headers.append("h2")
-        self.dbm = DatabaseManager(headers)
+        self.dbm = Database(headers)
         
         self.assertTrue(os.path.isfile(self.dbm.csv_pathname), "CSV was not created")
         
@@ -31,9 +31,8 @@ class DatabaseManagerTest(unittest.TestCase):
         headers: list = []
         headers.append("h1"),
         headers.append("h2")
-        self.dbm = DatabaseManager(headers)
+        self.dbm = Database(headers)
         
-        import csv
         # Open the CSV file
         with open(self.dbm.csv_pathname, 'r') as file:
             # Create a CSV reader object
@@ -50,14 +49,13 @@ class DatabaseManagerTest(unittest.TestCase):
         """
         header1 = "h1"
         header2 = "h2"
-        self.dbm = DatabaseManager([header1, header2])
+        self.dbm = Database([header1, header2])
 
         data: dict[str, ] = {}
         data[header1] = 1
         data[header2] = 2
         expected_data: list = [str(value) for value in data.values()]        
 
-        import csv
         # Step 1: Add the element to the CSV
         self.dbm.add_data(data)
 
@@ -75,7 +73,7 @@ class DatabaseManagerTest(unittest.TestCase):
         """
         header1 = "h1"
         header2 = "h2"
-        self.dbm = DatabaseManager([header1, header2])
+        self.dbm = Database([header1, header2])
 
         data_a: dict[str, ] = {}
         data_a[header1] = 1
@@ -87,7 +85,6 @@ class DatabaseManagerTest(unittest.TestCase):
         data_b[header2] = 4
         expected_data_b: list = [str(value) for value in data_b.values()] 
 
-        import csv
         # Step 1: Add the element to the CSV
         self.dbm.add_data(data_a)
         self.dbm.add_data(data_b)
@@ -107,7 +104,7 @@ class DatabaseManagerTest(unittest.TestCase):
         """
         header1 = "h1"
         header2 = "h2"
-        self.dbm = DatabaseManager([header1, header2])
+        self.dbm = Database([header1, header2])
 
         data_a: dict[str, ] = {}
         data_a[header1] = 1
@@ -119,7 +116,6 @@ class DatabaseManagerTest(unittest.TestCase):
         data_b[header2] = 4
         expected_data_b: list = [str(value) for value in data_b.values()] 
 
-        import csv
         # Step 1: Add the element to the CSV
         self.dbm.add_data(data_a)
         self.dbm.add_data(data_b)
@@ -133,3 +129,19 @@ class DatabaseManagerTest(unittest.TestCase):
         self.assertIn(expected_data_a, contents, "The first element was not added to the CSV file")
         self.assertIn(expected_data_b, contents, "The second element was not added to the CSV file")
         
+    def test_get_newest_database_pathname(self):
+        """
+        This test checks if the newest database is correctly selected.
+        """
+        header1 = "h1"
+        header2 = "h2"
+        self.dbm = Database([header1, header2])
+        time.sleep(1) # Wait a second to ensure the names are different
+        newer_dbm = Database([header1, header2])
+        result = Database.get_newest_database_pathname()
+        
+        self.assertEqual(result, newer_dbm.csv_pathname, "The returned newest dbm is not the actual newest dbm.")
+        self.assertNotEqual(result, self.dbm.csv_pathname, "The returned newest dbm is not the actual newest dbm.")
+        
+        if self.dbm:
+            os.remove(newer_dbm.csv_pathname)

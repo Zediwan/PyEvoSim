@@ -3,7 +3,7 @@ import datetime
 import os
 import csv
 
-class DatabaseManager():
+class Database():
     folder_pathname: str = "data/"
     filename_start: str = "database_"
     filename_end: str = ".csv"
@@ -11,10 +11,13 @@ class DatabaseManager():
     def __init__(self, headers: list[str], name = "") -> None:
         self.creation_date: datetime.date = datetime.datetime.now()
         self.name: str = name + self.creation_date.strftime("%Y%m%d%H%M%S")
-        self.csv_pathname: str = DatabaseManager.folder_pathname + DatabaseManager.filename_start + self.name + DatabaseManager.filename_end
+        self.csv_pathname: str = Database.folder_pathname + Database.filename_start + self.name + Database.filename_end
 
         self.metadata: dict[str] = {}
         self.headers = headers
+        
+        if os.path.isfile(self.csv_pathname):
+            raise ValueError("There is already a database with the same name.")
 
         try:
             with open(self.csv_pathname, mode="a", newline="") as file:
@@ -33,6 +36,19 @@ class DatabaseManager():
             print(f"Error writing to CSV: {e}")
 
     @classmethod
-    def get_newest_database(cls) -> DatabaseManager:
-        pass
+    def get_newest_database_pathname(cls) -> str:
+        newest_file = None
+        newest_date = datetime.datetime.min
+
+        for file in os.listdir(cls.folder_pathname):
+            if file.startswith(cls.filename_start) and file.endswith(cls.filename_end):
+                creation_date_str = file[len(cls.filename_start):-len(cls.filename_end)]
+                creation_date = datetime.datetime.strptime(creation_date_str, "%Y%m%d%H%M%S")
+                if creation_date > newest_date:
+                    newest_date = creation_date
+                    newest_file = file
+        if newest_file:
+            return Database.folder_pathname + newest_file
+        else:
+            return None
     
