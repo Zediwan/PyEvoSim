@@ -303,7 +303,6 @@ class World(pygame.sprite.Sprite):
         ))
         self.moisture_functions_weights.append(1)
 
-    #region noise generators
     def generate_height_values(self, x: int, y: int) -> float:
         height = NoiseFunction.weigh(x * self.scale_setting._value, y *  self.scale_setting._value, self.height_functions, self.height_functions_weights)
         height += (self.height_setting._value - self.height_setting._mid)
@@ -315,8 +314,6 @@ class World(pygame.sprite.Sprite):
         moisture += (self.moisture_setting._value - self.moisture_setting._mid)
         moisture = pygame.math.clamp(moisture, 0, 1)
         return moisture
-
-    #endregion
 
     def randomise_freqs(self):
         self.generating = True
@@ -340,9 +337,11 @@ class World(pygame.sprite.Sprite):
 
     #endregion
 
+    #region gui
     def _setup_progress_bar(self) -> None:
         self.menu = pygame_menu.Menu("", width=self.rect.width, height=self.rect.height, theme=self.loading_screen_theme, position=(self.rect.left,self.rect.top,False))
         self.progress_bar = self.menu.add.progress_bar("Generating World")
+    #endregion
 
     def copy(self) -> World:
         """
