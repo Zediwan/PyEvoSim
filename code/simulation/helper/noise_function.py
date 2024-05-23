@@ -18,7 +18,7 @@ class NoiseFunction():
     FUDGE_MIN = 0.5
     FUDGE_MAX = 1.5
     FUNCTION_ID = 0
-
+    DEFAULT_WEIGHT = 1
 
     def __init__(self, *args, factor_x = 1, factor_y = 1, offset_x = 0, offset_y = 0, pow_x = 1, pow_y = 1, pow = 1, fudge = 1.2) -> None:
         self.id = NoiseFunction.FUNCTION_ID
@@ -195,7 +195,7 @@ class NoiseFunction():
         if not weights:
             weights = []
         while len(weights) < len(functions):
-            weights.append(1)
+            weights.append(cls.DEFAULT_WEIGHT)
 
         total_noise = 0
         weight_sum = 0
