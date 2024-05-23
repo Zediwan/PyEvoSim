@@ -59,9 +59,9 @@ class Tile(pygame.sprite.Sprite):
         add_neighbor(self, direction: helper.direction.Direction, tile: Tile) -> None:
             Add a neighboring tile in a specific direction.
         get_possible_directions(self) -> list[helper.direction.Direction]:
-            Get a shuffled list of directions representing neighboring tiles.
+            Get a list of directions representing neighboring tiles.
         get_neighboring_tiles(self) -> list[Tile]:
-            Get a shuffled list of neighboring tiles.
+            Get a list of neighboring tiles.
         get_neighbor_tile(self, direction: helper.direction.Direction) -> Tile | None:
             Get the neighboring tile in a specified direction.
         get_random_neigbor(self, needs_plant=False, needs_no_plant=False, needs_animal=False, needs_no_animal=False, needs_water=False, needs_no_water=False) -> Tile | None:
@@ -409,27 +409,21 @@ class Tile(pygame.sprite.Sprite):
 
     def get_possible_directions(self) -> list[helper.direction.Direction]:
         """
-        Return a shuffled list of directions representing neighboring Tiles relative to the current Tile object.
+        Return a list of directions representing neighboring Tiles relative to the current Tile object.
 
         Returns:
-            list[helper.direction.Direction]: A shuffled list of directions representing neighboring Tiles.
+            list[helper.direction.Direction]: A list of directions representing neighboring Tiles.
         """
-        # TODO write a test that cheks that the self keys are not shuffled
-        dirs = list(self.neighbors.keys())
-        random.shuffle(dirs)
-        return dirs
+        return list(self.neighbors.keys())
 
     def get_neighboring_tiles(self) -> list[Tile]:
         """
-        Return a shuffled list of neighboring Tile objects relative to the current Tile object.
+        Return a list of neighboring Tile objects relative to the current Tile object.
 
         Returns:
-            list[Tile]: A shuffled list of neighboring Tile objects.
+            list[Tile]: A list of neighboring Tile objects.
         """
-        # TODO write a test that cheks that the self values are not shuffled
-        ns = list(self.neighbors.values())
-        random.shuffle(ns)
-        return ns
+        return list(self.neighbors.values())
 
     def get_neighbor_tile(self, direction: helper.direction.Direction) -> Tile | None:
         """
