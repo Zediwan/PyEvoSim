@@ -269,10 +269,10 @@ class Simulation():
 
     def _setup_world_settings_menu(self) -> None:
         # self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.set_alternating_moisture) # TODO add method to change moisture over time
+        self._world_settings_menu.add.button("Functions", self._function_settings_menu)
         self.world.height_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
         self.world.moisture_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
         self.world.scale_setting.add_controller_to_menu(self._world_settings_menu)
-        self._world_settings_menu.add.button("Functions", self._function_settings_menu)
         self._world_settings_menu.add.button("Randomise Everything", self.world.randomise_freqs)
 
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
