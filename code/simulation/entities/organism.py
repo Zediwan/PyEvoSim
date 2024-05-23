@@ -283,7 +283,7 @@ class Organism(ABC, pygame.sprite.Sprite):
     #region attacking
     def attack(self, organism_to_attack: Organism):
         if not (
-            self.tile.is_neighbor(organism_to_attack.tile)
+            self.tile.is_neighboring_tile(organism_to_attack.tile)
             or self.tile == organism_to_attack.tile
         ):
             raise ValueError(
@@ -294,7 +294,7 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @abstractmethod
     def get_attacked(self, attacking_organism: Organism):
-        if not (self.tile.is_neighbor(attacking_organism.tile) or self.tile == attacking_organism.tile):
+        if not (self.tile.is_neighboring_tile(attacking_organism.tile) or self.tile == attacking_organism.tile):
             raise ValueError("Organism attacking is not on a neighbor tile or same tile.")
         else:
             damage = attacking_organism.attack_power
