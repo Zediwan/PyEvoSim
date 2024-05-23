@@ -3,6 +3,24 @@ import random
 from abc import ABC, abstractmethod
 
 class Setting(ABC):
+    """
+    An abstract base class representing a setting.
+
+    Attributes:
+        _value (float): The value of the setting.
+        _name (str): The name of the setting.
+        widget_controller: Controller for the widget.
+        controller_frame: Frame for the controller.
+        _onreturn (bool): Flag indicating if the setting updates on return.
+        _onchange (bool): Flag indicating if the setting updates on change.
+        post_update_methods (list): List of methods to call after updating the setting.
+
+    Methods:
+        post_update(self) -> None: Calls all post update methods.
+        set_value(self, new_value: float) -> None: Abstract method to set the value of the setting.
+        randomise_value(self, type: str = "uniform") -> None: Abstract method to randomize the value of the setting.
+        add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser: bool = False) -> None: Abstract method to add the setting controller to a menu.
+    """
     # TODO think of making value an optional argument and if _mid existst then setting value equal to it else it being 0
     def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
         self._value = value
@@ -29,20 +47,57 @@ class Setting(ABC):
             self.post_update_methods.append(arg)
 
     def post_update(self) -> None:
+        """
+        Calls all post update methods.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         if self.post_update_methods:
             for method in self.post_update_methods:
                 method()
 
     @abstractmethod
-    def set_value(self, new_value: float):
+    def set_value(self, new_value: float) -> None:
+        """
+        Set the value of the setting to the specified new value.
+
+        Parameters:
+            new_value (float): The new value to set for the setting.
+
+        Returns:
+            None
+        """
         pass
 
     @abstractmethod
-    def randomise_value(self, type = "uniform"):
+    def randomise_value(self, type = "uniform") -> None:
+        """
+        Randomize the value of the setting based on the specified type.
+
+        Parameters:
+            type (str): The type of randomization to apply. Default is "uniform".
+
+        Returns:
+            None
+        """
         pass
 
     @abstractmethod
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> pygame_menu.pygame_menu.widgets.Widget:
+        """
+        Add the setting controller to a menu.
+
+        Parameters:
+            menu (pygame_menu.Menu): The menu to add the setting controller to.
+            randomiser (bool): Flag indicating whether to include a randomizer button. Default is False.
+
+        Returns:
+            pygame_menu.pygame_menu.widgets.Widget: The widget representing the setting controller.
+        """
         pass
 
 class BoundedSetting(Setting):
