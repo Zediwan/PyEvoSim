@@ -4,7 +4,7 @@ from code.simulation.helper.noise_function import NoiseFunction
 
 
 class TestWeigh(unittest.TestCase):
-    def test_weighted_average_with_default_weights(self):
+    def test_weigh_without_weights(self):
         """
         Tests if NoiseFunction.weigh works correctly if no weights are given
         """
@@ -20,7 +20,7 @@ class TestWeigh(unittest.TestCase):
 
         self.assertEqual(expected_result, result, "Function noise output does not match.")
 
-    def test_weighted_average_with_custom_weights(self):
+    def test_weigh_with_custom_weights(self):
         """
         Tests if NoiseFunction.weigh works correctly if custom weights for each function are given.
         """
@@ -40,7 +40,7 @@ class TestWeigh(unittest.TestCase):
 
         self.assertEqual(expected_result, result, "Function noise output does not match.")
 
-    def test_weighted_average_with_insufficient_weights(self):
+    def test_weigh_with_insufficient_weights(self):
         """
         Tests if NoiseFunction.weigh works correctly if fewer weights than functions are given
         """
@@ -59,3 +59,14 @@ class TestWeigh(unittest.TestCase):
         result = NoiseFunction.weigh(x, y, [function1, function2], [weigth_f1])
 
         self.assertEqual(expected_result, result, "Function noise output does not match.")
+
+    def test_weigh_without_functions(self):
+        """
+        Tests if NoiseFunction.weigh raises an error correctly if list of functions given is empty
+        """
+        x = 1
+        y = 1
+        try:
+            NoiseFunction.weigh(x, y, [])
+        except ValueError:
+            pass
