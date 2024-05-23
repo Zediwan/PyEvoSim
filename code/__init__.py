@@ -1,1 +1,1 @@
-__all__ = ["simulation", "database"]
+__all__ = ["simulation", "database", "database_manager"]
