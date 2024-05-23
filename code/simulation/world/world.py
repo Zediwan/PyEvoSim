@@ -105,6 +105,8 @@ class World(pygame.sprite.Sprite):
         self.tiles.draw(self.ground_surface)
         #endregion
 
+        self.randomise_freqs()
+
     #region main methods
     def update(self) -> None:
         """
