@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-import noise
+import opensimplex
 from .setting import Setting, BoundedSetting
 import pygame_menu
 import pygame
@@ -141,7 +141,7 @@ class NoiseFunction():
         ValueError: If the noise value is not within the range [0, 1].
         """
         _x, _y = self.function(x, y)
-        _noise = noise.snoise2(_x, _y)
+        _noise = opensimplex.noise2(_x, _y)
         _noise = NoiseFunction._normalise(_noise)
         _noise *= self.fudge._value
         try:
@@ -209,7 +209,7 @@ class NoiseFunction():
         """
         Normalize the input value to the range [0, 1] using a linear transformation.
 
-        This should only be used together with noise.snoise2(x, y) as this method returns values between -1 and 1 and we only want values between 0 and 1
+        This should only be used together with opensimplex.snoise2(x, y) as this method returns values between -1 and 1 and we only want values between 0 and 1
 
         Parameters:
         value: The input value to be normalized.
