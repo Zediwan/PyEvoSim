@@ -60,6 +60,18 @@ class TestWeigh(unittest.TestCase):
 
         self.assertEqual(expected_result, result, "Function noise output does not match.")
 
+    def test_weigh_with_single_function(self):
+        """
+        Tests if NoiseFunction.weigh works correctly if one function
+        """
+        function1 = NoiseFunction(factor_x=2, factor_y=3, offset_x=1, offset_y=2, pow_x=1, pow_y=2, pow=1.5, fudge=1.2)
+        x = 1
+        y = 1
+        result_f1 = function1.noise(x, y)
+        result = NoiseFunction.weigh(x, y, [function1])
+
+        self.assertEqual(result_f1, result, "Function noise output does not match.")
+
     def test_weigh_without_functions(self):
         """
         Tests if NoiseFunction.weigh raises an error correctly if list of functions given is empty
