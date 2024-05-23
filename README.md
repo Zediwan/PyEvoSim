@@ -25,6 +25,36 @@ This project can be used to try out different simulation conditions and settings
 
 To run the simulation you need to run the [main.py](code/simulation/main.py) file.
 
+From there currently the `Database` button is currently not implemented as we are working on merging the two parts of the project into one GUI. However by pressing `Simulation` the user gets into the world where he can toggle `paused` to enable the simulation running (also works with `spacebar`.
+
+In the `Options` menu the user can toggle wheter he wants to save the organisms, animals, plants to the database. (Note that `Create database` needs to be toggled for `Save "Animals / Plants" to database` to work). The `Screen` menu is not yet implemented and acts as a placeholder.
+
+In the topright is the toolbar wich has the following features:
+- `i` show information about an organism when pressing on the tile
+- `A` spawning animals
+- `P` spawning plants
+- `KA` killing animals
+- `KP` killing plants
+
+The user can find many more settings and options by traversing the menu on the right side.
+
+-`World` for editing the world defining functions and randomising their values.
+  - `Height` for scaling the general height of the world.
+  - `Moisture` for scaling the general moisture of the world.
+  - `Scale` for zooming in and out of the world (Note: does not change the animal / plant size).
+  - `Randomise Everything` to randomise all function values.
+
+-`Spawning` for spawning entities without the mouse
+  - `Num. Animals: ` enter a number of animals that should be spawned and press enter.
+  - `Num. PLants: ` enter a number of plants that should be spawned and press enter.
+
+The following submenus are currently under construction and not completely properly structured but feel free to check them out and play around.
+
+
+-`Entities`
+
+-`DNA`
+
 ### Database
 To access, filter and query the database, you need to run the [gui.py](code/database/gui.py) file.
 
