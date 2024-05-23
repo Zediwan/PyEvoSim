@@ -23,6 +23,18 @@ class Setting(ABC):
     """
     # TODO think of making value an optional argument and if _mid existst then setting value equal to it else it being 0
     def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
+        """
+        Initialize a Setting object with the given parameters.
+
+        Parameters:
+            *args: Variable length argument list.
+            value (float): The initial value of the setting. Default is 0.
+            name (str): The name of the setting. Default is "None".
+            type (str): The type of setting update ('onreturn' or 'onchange'). Default is "onreturn".
+
+        Returns:
+            None
+        """
         self._value = value
         self._name = name
         
@@ -87,7 +99,7 @@ class Setting(ABC):
         pass
 
     @abstractmethod
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> pygame_menu.pygame_menu.widgets.Widget:
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
         """
         Add the setting controller to a menu.
 
@@ -96,12 +108,45 @@ class Setting(ABC):
             randomiser (bool): Flag indicating whether to include a randomizer button. Default is False.
 
         Returns:
-            pygame_menu.pygame_menu.widgets.Widget: The widget representing the setting controller.
+            None
         """
         pass
 
 class BoundedSetting(Setting):
+    """
+    An extension of the Setting class representing a bounded setting.
+
+    Attributes:
+        _min (float): The minimum value of the setting.
+        _max (float): The maximum value of the setting.
+        _mid (float): The middle value between the minimum and maximum values.
+        label_widget: The label widget associated with the setting.
+        increment (float): The increment value for the setting.
+
+    Methods:
+        set_value(self, new_value: float) -> None: Set the value of the setting within the bounds.
+        randomise_value(self, type: str = "uniform") -> None: Randomize the value of the setting based on the specified type.
+        add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser: bool = False) -> None: Add the setting controller to a menu.
+
+    Inherits from:
+        Setting
+    """
     def __init__(self, *args, value: float = None, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", increment = None) -> None:
+        """
+        Initialize a BoundedSetting object with the given parameters.
+
+        Parameters:
+            *args: Variable length argument list.
+            value (float): The initial value of the setting. If None, it will be set to the middle value between min and max.
+            name (str): The name of the setting.
+            min (float): The minimum value of the setting.
+            max (float): The maximum value of the setting.
+            type (str): The type of setting update ('onreturn' or 'onchange').
+            increment: The increment value for the setting. If None, it will be set to (max - min) / 100.
+
+        Returns:
+            None
+        """
         self._min = min
         self._max = max
         self._mid = (self._max-self._min) / 2
@@ -118,6 +163,15 @@ class BoundedSetting(Setting):
             self.increment = (self._max-self._min)/100
 
     def set_value(self, new_value: float) -> None:
+        """
+        Set the value of the setting to the specified new value.
+
+        Parameters:
+            new_value (float): The new value to set for the setting.
+
+        Returns:
+            None
+        """
         if new_value >= self._max:
             new_value = self._max
         elif new_value <= self._min:
@@ -126,7 +180,17 @@ class BoundedSetting(Setting):
         self._value = new_value
         self.post_update()
 
-    def randomise_value(self, type = "uniform"):
+    def randomise_value(self, type = "uniform") -> None:
+        """
+        Randomize the value of the setting based on the specified type.
+
+        Parameters:
+            type (str): The type of randomization to apply. Default is "uniform".
+            Valid options for now are "uniform" and "gauss" if type is not valid then an ValueError is thrown
+
+        Returns:
+            None
+        """
         if type == "uniform":
             self.set_value(random.uniform(self._min, self._max))
         elif type == "gauss":
@@ -135,7 +199,17 @@ class BoundedSetting(Setting):
             raise ValueError("Type not defined")
         self.widget.set_value(self._value)
 
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
+        """
+        Add the setting controller to a menu.
+
+        Parameters:
+            menu (pygame_menu.Menu): The menu to add the setting controller to.
+            randomiser (bool): Flag indicating whether to include a randomizer button. Default is False.
+
+        Returns:
+            None.
+        """
         self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
 
         if self._onreturn:
@@ -151,18 +225,80 @@ class BoundedSetting(Setting):
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
 
 class UnboundedSetting(Setting):
+    """
+    An extension of the Setting class representing an unbounded setting.
+
+    Attributes:
+        Inherits all attributes from the Setting class.
+
+    Methods:
+        set_value(self, new_value: float) -> None: Sets the value of the unbounded setting to the specified new value.
+        randomise_value(self, type: str = "uniform") -> None: Abstract method to randomize the value of the unbounded setting.
+        add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser: bool = False) -> None: Adds the unbounded setting controller to a menu.
+
+    Raises:
+        NotImplementedError: If the randomise_value method is not implemented in the subclass.
+    """
     def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
         super().__init__(*args, value=value, name=name, type=type)
 
     def set_value(self, new_value: float) -> None:
+        """
+        Set the value of the unbounded setting to the specified new value.
+
+        Parameters:
+            new_value (float): The new value to set for the unbounded setting.
+
+        Returns:
+            None
+        """
         self._value = new_value
         self.post_update()
 
-    def randomise_value(self, type="uniform"):
-        # TODO think of the best way to randomise an unbounded value
-        pass
+    def randomise_value(self, type="uniform") -> None:
+        """
+        Randomize the value of the unbounded setting based on the specified type.
 
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False):
+        Uniform randomisation:
+            min = 0
+
+            max = (value + 1) * 2
+
+        Gauss randomisation:
+            mu = value
+
+            sigma = 1
+
+        Parameters:
+            type (str): The type of randomization to apply. Default is "uniform".
+            Valid options for now are "uniform" and "gauss" if type is not valid then an ValueError is thrown
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the specified type is not valid.
+        """
+        # TODO think of the best way to randomise an unbounded value
+        if type == "uniform":
+            self.set_value(random.uniform(0, (self._value + 1) * 2))
+        elif type == "gauss":
+            self.set_value(random.gauss(self._value))
+        else:
+            raise ValueError("Type not defined")
+        self.widget.set_value(self._value)
+
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
+        """
+        Add the unbounded setting controller to a menu.
+
+        Parameters:
+            menu (pygame_menu.Menu): The menu to add the unbounded setting controller to.
+            randomiser (bool): Flag indicating whether to include a randomizer button. Default is False.
+
+        Returns:
+            None
+        """
         self.widget: pygame_menu.pygame_menu.widgets.TextInput = menu.add.text_input(self._name, default=self._value, input_type=pygame_menu.pygame_menu.locals.INPUT_INT) # TODO does input int make most sense here? why not use float?
 
         if self._onreturn:
