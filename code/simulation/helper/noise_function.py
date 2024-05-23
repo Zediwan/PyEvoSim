@@ -181,7 +181,7 @@ class NoiseFunction():
         x (float): The x-coordinate value.
         y (float): The y-coordinate value.
         functions (list[NoiseFunction]): A list of NoiseFunction instances to calculate noise values from.
-        weights (list[float], optional): A list of weights corresponding to each NoiseFunction instance. If not provided, defaults to equal weights for all functions.
+        weights (list[float], optional): A list of weights corresponding to each NoiseFunction instance. If not provided, defaults to "NoiseFunction.DEFAULT_WEIGHT" for all functions missing weights.
 
         Returns:
         float: The weighted average noise value at the specified coordinates, normalized to the range [0, 1].
