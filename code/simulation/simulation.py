@@ -540,6 +540,15 @@ class Simulation():
         self._running_menu_bar.draw(self._surface)
 
     def run_loop(self) -> None:
+        """
+        Runs the main loop of the simulation, handling user input, updating the world, and displaying the graphical user interface.
+
+        Raises:
+            No specific exceptions are raised.
+
+        Returns:
+            No specific return value.
+        """
         # TODO add setting to disable drawing completely to improve speed
         # TODO improve fps displaying
         drawing = False
@@ -599,6 +608,19 @@ class Simulation():
             self._clock.tick(self._fps)
 
     def toggle_pause(self) -> None:
+        """
+        Toggles the pause state of the simulation.
+
+        This method updates the pause state of the simulation by toggling it between paused and running states.
+        It retrieves the 'GameState' widget from the running settings menu and sets its value to the current pause state.
+        Then, it toggles the pause state by negating the current value of 'paused' attribute.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self._running_settings_menu.get_widget("GameState").set_value(self.paused)
         self.paused = not self.paused
 
