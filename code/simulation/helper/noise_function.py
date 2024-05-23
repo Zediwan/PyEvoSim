@@ -94,7 +94,7 @@ class NoiseFunction():
             self.menu.add.button("Randomise", self.randomise)
 
         for setting in self.settings:
-            setting.add_controller_to_menu(self.menu)
+            setting.add_controller_to_menu(self.menu, randomiser=True)
 
         self.menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
         return self.menu
