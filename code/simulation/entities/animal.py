@@ -176,9 +176,9 @@ class Animal(Organism):
             destination = None
         else:
             best_growth = 0
-            destination = self.tile.get_random_neigbor(no_animal=True)
+            destination = self.tile.get_random_neigbor(needs_no_animal=True)
 
-        ns = self.tile.get_neighbors()
+        ns = self.tile.get_neighboring_tiles()
         for n in ns:
             if n.has_animal():
                 continue
@@ -263,7 +263,7 @@ class Animal(Organism):
 
     #region reproduction
     def reproduce(self):
-        options = self.tile.get_random_neigbor(no_animal=True, no_water=True)
+        options = self.tile.get_random_neigbor(needs_no_animal=True, needs_no_water=True)
         if options:
             # TODO create a gene that defines the amount of energy given to the child
             # TODO add a gene that defines how long an animal is pregnant

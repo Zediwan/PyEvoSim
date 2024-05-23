@@ -13,45 +13,47 @@ from world.world import World
 
 class Simulation():
     """
-    Class representing the simulation environment for an Evolution Simulation.
+    Class representing a simulation environment for an evolution simulation.
 
     Attributes:
         brush_outline (int): The width of the brush outline.
         base_theme (pygame_menu.Theme): The base theme for the menus.
-        runtime_theme (pygame_menu.Theme): The theme for runtime elements.
+        runtime_theme (pygame_menu.Theme): The theme for the runtime menu.
+        menubar_theme (pygame_menu.Theme): The theme for the menu bar.
         TRANSPARENT_BLACK_COLOR (tuple): The color code for transparent black.
-        fps_font (pygame.font.Font): The font for displaying frames per second.
+        FPS_FONT_COLOR (tuple): The color code for the FPS font.
+        fps_font (pygame.font.Font): The font for displaying FPS.
+        fps_alpha (float): The alpha value for FPS display.
+        world (World): The world object for the simulation.
+        selected_org (Organism): The currently selected organism.
+        paused (bool): Flag indicating if the simulation is paused.
+        alternating_moisture (bool): Flag indicating if moisture is alternating.
+        brush_rect (pygame.Rect): The rectangle representing the brush.
+        tool (function): The current tool function for interaction.
 
     Methods:
-        __init__: Initializes the Simulation class.
-        _setup_menus: Sets up the menus for the simulation.
-        _setup_starting_menu: Sets up the starting menu.
-        _setup_options_menu: Sets up the options menu.
-        _setup_screen_options_menu: Sets up the screen options menu.
-        _setup_database_options_menu: Sets up the database options menu.
-        _setup_running_settings_menu: Sets up the running settings menu.
-        _setup_world_settings_menu: Sets up the world settings menu.
-        _setup_spawning_settings_menu: Sets up the spawning settings menu.
-        _setup_dna_settings_menu: Sets up the DNA settings menu.
-        _setup_entity_settings_menu: Sets up the entity settings menu.
-        _setup_organism_settings_menu: Sets up the organism settings menu.
-        _setup_animal_settings_menu: Sets up the animal settings menu.
-        _setup_plant_settings_menu: Sets up the plant settings menu.
-        toggle_pause: Toggles the pause state of the simulation.
-        change_tile_size: Changes the tile size of the world.
-        clear_organisms: Clears all organisms from the simulation.
-        reset_stats: Resets the statistics of the simulation.
-        toggle_alternating_moisture: Toggles the alternating moisture state.
+        __init__: Initializes the simulation environment.
+        _setup_menus: Sets up all the menus used in the simulation.
         _update_gui: Updates the graphical user interface of the simulation.
         run_loop: Runs the main loop of the simulation.
-        mainlopp: Main loop function for the simulation.
+        toggle_pause: Toggles the pause state of the simulation.
+        mainloop: Runs the starting menu loop.
         _quit: Quits the simulation.
 
-    Raises:
-        No specific exceptions are raised.
-
-    Returns:
-        No specific return value.
+    Callbacks:
+        set_running: Sets the running state of the simulation.
+        clear_organisms: Clears all organisms from the simulation.
+        reset_stats: Resets the statistics of the simulation.
+        animal_spawning_tool: Tool for spawning animals.
+        choose_animal_spawning_tool: Chooses the animal spawning tool.
+        plant_spawning_tool: Tool for spawning plants.
+        choose_plant_spawning_tool: Chooses the plant spawning tool.
+        info_tool: Tool for displaying information about tiles.
+        choose_info_tool: Chooses the info tool.
+        animal_kill_tool: Tool for killing animals.
+        choose_animal_kill_tool: Chooses the animal kill tool.
+        plant_kill_tool: Tool for killing plants.
+        choose_plant_kill_tool: Chooses the plant kill tool.
     """
     brush_outline = 2
     #region themes
@@ -75,6 +77,15 @@ class Simulation():
     fps_alpha: float = 100
 
     def __init__(self) -> None:
+        """
+        Initializes the Simulation environment.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         pygame.init()
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
@@ -413,14 +424,32 @@ class Simulation():
         settings.simulation.reset_stats()
 
     #region tools
-    def animal_spawning_tool(self, tiles: list[Tile]):
+    def animal_spawning_tool(self, tiles: list[Tile]) -> None:
+        """
+        Animal spawning tool method for the Simulation class.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects where animals will be spawned.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             self.world.spawn_animal(tile)
 
     def choose_animal_spawning_tool(self) -> None:
         self.tool = self.animal_spawning_tool
 
-    def plant_spawning_tool(self, tiles: list[Tile]):
+    def plant_spawning_tool(self, tiles: list[Tile]) -> None:
+        """
+        Plant spawning tool method for the Simulation class.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects where plants will be spawned.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             self.world.spawn_plant(tile)
 
@@ -428,6 +457,15 @@ class Simulation():
         self.tool = self.plant_spawning_tool
 
     def info_tool(self, tiles: list[Tile]) -> None:
+        """
+        Displays information about the first tile in tiles.
+
+        Args:
+            tiles (list[Tile]): A list of tiles to extract the organism information from.
+
+        Returns:
+            None
+        """
         # TODO improve visual of info tool
         tile = tiles.pop(1)
         if tile.has_animal():
@@ -441,6 +479,15 @@ class Simulation():
         self.tool = self.info_tool
 
     def animal_kill_tool(self, tiles: list[Tile]) -> None:
+        """
+        Kills animals on the specified list of tiles by setting their health to 0 and calling the die method on their sprite.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects representing the tiles where animals should be killed.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             if tile.has_animal():
                 tile.animal.sprite.health = 0
@@ -450,6 +497,15 @@ class Simulation():
         self.tool = self.animal_kill_tool
 
     def plant_kill_tool(self, tiles: list[Tile]) -> None:
+        """
+        Kills the plants on the specified list of tiles by setting their health to 0 and calling the die method on their sprite.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects on which plants will be killed.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             if tile.has_plant():
                 tile.plant.sprite.health = 0
@@ -495,6 +551,15 @@ class Simulation():
         self._running_menu_bar.draw(self._surface)
 
     def run_loop(self) -> None:
+        """
+        Runs the main loop of the simulation, handling user input, updating the world, and displaying the graphical user interface.
+
+        Raises:
+            No specific exceptions are raised.
+
+        Returns:
+            No specific return value.
+        """
         # TODO add setting to disable drawing completely to improve speed
         # TODO improve fps displaying
         drawing = False
@@ -554,6 +619,19 @@ class Simulation():
             self._clock.tick(self._fps)
 
     def toggle_pause(self) -> None:
+        """
+        Toggles the pause state of the simulation.
+
+        This method updates the pause state of the simulation by toggling it between paused and running states.
+        It retrieves the 'GameState' widget from the running settings menu and sets its value to the current pause state.
+        Then, it toggles the pause state by negating the current value of 'paused' attribute.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self._running_settings_menu.get_widget("GameState").set_value(self.paused)
         self.paused = not self.paused
 
