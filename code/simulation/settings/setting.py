@@ -91,7 +91,7 @@ class BoundedSetting(Setting):
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
             height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
-            frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame = menu.add.frame_h(menu.get_width(inner=True) * 0.8, height)
             frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
 
@@ -118,6 +118,6 @@ class UnboundedSetting(Setting):
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
             height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
-            frame = menu.add.frame_h(menu.get_width(inner=True), height)
+            frame = menu.add.frame_h(menu.get_width(inner=True) * 0.8, height)
             frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
             frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
