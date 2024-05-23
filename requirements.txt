@@ -6,3 +6,7 @@ pandasql
 pandastable
 customtkinter
 tkinter
+pandas 
+glob2
+matplotlib
+
