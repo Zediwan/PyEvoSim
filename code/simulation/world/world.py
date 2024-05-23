@@ -5,7 +5,7 @@ import random
 import pygame
 
 import settings.database
-from settings.setting import Setting
+from settings.setting import Setting, BoundedSetting, UnboundedSetting
 import settings.simulation
 from helper.noise_function import NoiseFunction
 from entities.animal import Animal
@@ -277,9 +277,9 @@ class World(pygame.sprite.Sprite):
 
     #region noise
     def _setup_noise_functions(self):
-        self.moisture_setting: Setting = Setting(1, self.reload, name="Moisture", min=0, max=2, type="onchange")
-        self.height_setting: Setting = Setting(1, self.reload, name="Height", min=0, max=2, type="onchange")
-        self.scale_setting: Setting = Setting(.001, self.reload, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
+        self.moisture_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Moisture", min=0, max=2, type="onchange")
+        self.height_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Height", min=0, max=2, type="onchange")
+        self.scale_setting: BoundedSetting = BoundedSetting(self.reload, value=.001, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
 
         self.height_functions: list[NoiseFunction] = []
         self.height_functions_weights: list[float] = []
@@ -303,7 +303,6 @@ class World(pygame.sprite.Sprite):
         ))
         self.moisture_functions_weights.append(1)
 
-    #region noise generators
     def generate_height_values(self, x: int, y: int) -> float:
         height = NoiseFunction.weigh(x * self.scale_setting._value, y *  self.scale_setting._value, self.height_functions, self.height_functions_weights)
         height += (self.height_setting._value - self.height_setting._mid)
@@ -316,13 +315,11 @@ class World(pygame.sprite.Sprite):
         moisture = pygame.math.clamp(moisture, 0, 1)
         return moisture
 
-    #endregion
-
     def randomise_freqs(self):
         self.generating = True
         self.progress = 0
 
-        functions = []
+        functions: list[NoiseFunction] = []
         functions.extend(self.height_functions)
         functions.extend(self.moisture_functions)
 
@@ -340,9 +337,11 @@ class World(pygame.sprite.Sprite):
 
     #endregion
 
+    #region gui
     def _setup_progress_bar(self) -> None:
         self.menu = pygame_menu.Menu("", width=self.rect.width, height=self.rect.height, theme=self.loading_screen_theme, position=(self.rect.left,self.rect.top,False))
         self.progress_bar = self.menu.add.progress_bar("Generating World")
+    #endregion
 
     def copy(self) -> World:
         """

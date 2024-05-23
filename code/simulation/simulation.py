@@ -149,6 +149,13 @@ class Simulation():
             theme=self.runtime_theme,
             title="World",
         )
+        self._function_settings_menu = pygame_menu.Menu(
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=runtime_menu_position,
+            theme=self.runtime_theme,
+            title="Functions",
+        )
         self._spawning_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
@@ -201,6 +208,7 @@ class Simulation():
         self._setup_running_settings_menu()
         self._setup_running_menu_bar()
         self._setup_world_settings_menu()
+        self._setup_function_settings_menu()
         self._setup_spawning_settings_menu()
         self._setup_dna_settings_menu()
         self._setup_entity_settings_menu()
@@ -260,20 +268,24 @@ class Simulation():
         self._running_menu_bar.add.button("KP", self.choose_plant_kill_tool)
 
     def _setup_world_settings_menu(self) -> None:
-        self._world_settings_menu.add.label("Height")
-        for function in self.world.height_functions:
-            function.add_function_controller_to_menu(self._world_settings_menu, randomiser=True)
-        self._world_settings_menu.add.label("Moisture")
-        for function in self.world.moisture_functions:
-            function.add_function_controller_to_menu(self._world_settings_menu, randomiser=True)
-
         # self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.set_alternating_moisture) # TODO add method to change moisture over time
+        self._world_settings_menu.add.button("Functions", self._function_settings_menu)
         self.world.height_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
         self.world.moisture_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
         self.world.scale_setting.add_controller_to_menu(self._world_settings_menu)
-        self._world_settings_menu.add.button("Randomise", self.world.randomise_freqs)
+        self._world_settings_menu.add.button("Randomise Everything", self.world.randomise_freqs)
 
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_function_settings_menu(self) -> None:
+        self._function_settings_menu.add.label("------Height------")
+        for function in self.world.height_functions:
+            function.add_submenu(self._function_settings_menu, add_randomiser=True)
+        self._function_settings_menu.add.label("------Moisture------")
+        for function in self.world.moisture_functions:
+            function.add_submenu(self._function_settings_menu, add_randomiser=True)
+
+        self._function_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_spawning_settings_menu(self) -> None:
         self._spawning_settings_menu.add.text_input("Num. Animals: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.world.spawn_animals)
