@@ -1,10 +1,12 @@
 import pygame
 
 import helper.formatter
-import settings.colors
 
 
 class StatPanel(pygame.sprite.Sprite):
+    STAT_PANEL_BACKGROUND_COLOR: pygame.Color = pygame.Color("black")
+    STAT_PANEL_FONT_COLOR: pygame.Color = pygame.Color("white")
+
     offset: tuple[int, int] = (20, 20)
     alpha: int = 200
     pygame.font.init()
@@ -42,19 +44,19 @@ class StatPanel(pygame.sprite.Sprite):
         self.surface.set_alpha(self.alpha)
 
     def draw(self, screen: pygame.Surface):
-        self.surface.fill(settings.colors.STAT_PANEL_BACKGROUND_COLOR)
+        self.surface.fill(StatPanel.STAT_PANEL_BACKGROUND_COLOR)
 
         y = self.border_size
         for idx, header in enumerate(self.headers):
             name_surface = self.font.render(
-                header, True, settings.colors.STAT_PANEL_FONT_COLOR
+                header, True, StatPanel.STAT_PANEL_FONT_COLOR
             )
             self.surface.blit(name_surface, (self.border_size, y))
 
             value_surface = self.font.render(
                 helper.formatter.format_number(self.stats[idx]),
                 True,
-                settings.colors.STAT_PANEL_FONT_COLOR,
+                StatPanel.STAT_PANEL_FONT_COLOR,
             )
             self.surface.blit(
                 value_surface, (self.name_column_width + self.offset_between_cols, y)

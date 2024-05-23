@@ -3,7 +3,6 @@ from __future__ import annotations
 import random
 import pygame
 
-import settings.colors
 import settings.database
 import settings.screen
 import settings.simulation

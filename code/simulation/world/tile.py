@@ -5,7 +5,6 @@ import random
 import pygame
 
 import helper.direction
-import settings.colors
 import settings.font
 import settings.simulation
 
@@ -58,6 +57,23 @@ class Tile(pygame.sprite.Sprite):
         is_neighboring_tile(tile: Tile) -> bool:
             Check if a given tile is a neighbor of the current tile.
     """
+    #region colors
+    WATER_COLOR: pygame.Color = pygame.Color(26, 136, 157)
+    SAND_COLOR: pygame.Color = pygame.Color(228, 232, 202)
+    SCORCHED_COLOR: pygame.Color = pygame.Color(153, 153, 153)
+    BARE_COLOR: pygame.Color = pygame.Color(187, 187, 187)
+    TUNDRA_COLOR: pygame.Color = pygame.Color(221, 221, 187)
+    SNOW_COLOR: pygame.Color = pygame.Color(248, 248, 248)
+    TEMPERATE_DESERT_COLOR: pygame.Color = pygame.Color(228, 232, 202)
+    SHRUBLAND_COLOR: pygame.Color = pygame.Color(195, 204, 187)
+    TAIGA_COLOR: pygame.Color = pygame.Color(203, 212, 187)
+    GRASSLAND_COLOR: pygame.Color = pygame.Color(196, 212, 170)
+    TEMPERATE_DECIDUOUS_FOREST_COLOR: pygame.Color = pygame.Color(180, 200, 169)
+    TEMPERATE_RAIN_FOREST_COLOR: pygame.Color = pygame.Color(163, 196, 168)
+    SUBTROPICAL_DESERT_COLOR: pygame.Color = pygame.Color(233, 220, 198)
+    TROPICAL_SEASONAL_FOREST_COLOR: pygame.Color = pygame.Color(169, 204, 163)
+    TROPICAL_RAIN_FOREST_COLOR: pygame.Color = pygame.Color(156, 187, 169)
+    #endregion
     def __init__(
         self,
         rect: pygame.Rect,
@@ -165,90 +181,90 @@ class Tile(pygame.sprite.Sprite):
         if self.height <= settings.simulation.WATER_HEIGHT_LEVEL:
             # Waterlogged, no growth
             self.plant_growth_potential = settings.simulation.WATER_PLANT_GROWTH
-            self.color = settings.colors.WATER_COLOR
+            self.color = Tile.WATER_COLOR
             self.has_water = True
         elif self.height <= settings.simulation.BEACH_HEIGHT_LEVEL: # TODO update this so not every tile close to water is sand but it depends on moisture
             # Sandy areas have limited growth
             self.plant_growth_potential = settings.simulation.BEACH_PLANT_GROWTH
-            self.color = settings.colors.SAND_COLOR
+            self.color = Tile.SAND_COLOR
         elif self.height <= settings.simulation.TROPICAL_HEIGHT_LEVEL:
             if self.moisture < 0.16:
                 # Subtropical desert, low growth
                 self.plant_growth_potential = (
                     settings.simulation.SUBTROPICAL_DESERT_PLANT_GROWTH
                 )
-                self.color = settings.colors.SUBTROPICAL_DESERT_COLOR
+                self.color = Tile.SUBTROPICAL_DESERT_COLOR
             elif self.moisture < 0.33:
                 # Grassland, favorable
                 self.plant_growth_potential = settings.simulation.GRASSLAND_PLANT_GROWTH
-                self.color = settings.colors.GRASSLAND_COLOR
+                self.color = Tile.GRASSLAND_COLOR
             elif self.moisture < 0.66:
                 # Tropical seasonal forest, favorable
                 self.plant_growth_potential = (
                     settings.simulation.TROPICAL_SEASON_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TROPICAL_SEASONAL_FOREST_COLOR
+                self.color = Tile.TROPICAL_SEASONAL_FOREST_COLOR
             else:
                 # Tropical rain forest, very favorable
                 self.plant_growth_potential = (
                     settings.simulation.TROPICAL_RAIN_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TROPICAL_RAIN_FOREST_COLOR
+                self.color = Tile.TROPICAL_RAIN_FOREST_COLOR
         elif self.height <= settings.simulation.TEMPERATE_HEIGHT_LEVEL:
             if self.moisture < 0.16:
                 # Temperate desert, low growth
                 self.plant_growth_potential = (
                     settings.simulation.TEMPERATE_DESERT_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_DESERT_COLOR
+                self.color = Tile.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.50:
                 # Grassland, favorable
                 self.plant_growth_potential = settings.simulation.GRASSLAND_PLANT_GROWTH
-                self.color = settings.colors.GRASSLAND_COLOR
+                self.color = Tile.GRASSLAND_COLOR
             elif self.moisture < 0.83:
                 # Temperate deciduous forest, very favorable
                 self.plant_growth_potential = (
                     settings.simulation.TEMPERATER_DECIDOUS_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_DECIDUOUS_FOREST_COLOR
+                self.color = Tile.TEMPERATE_DECIDUOUS_FOREST_COLOR
             else:
                 # Temperate rain forest, optimal
                 self.plant_growth_potential = (
                     settings.simulation.TEMPERATE_RAIN_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_RAIN_FOREST_COLOR
+                self.color = Tile.TEMPERATE_RAIN_FOREST_COLOR
         elif self.height <= settings.simulation.TRANSITION_HEIGHT_LEVEL:
             if self.moisture < 0.33:
                 # Temperate desert, low growth
                 self.plant_growth_potential = (
                     settings.simulation.TEMPERATE_DESERT_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_DESERT_COLOR
+                self.color = Tile.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.66:
                 # Shrubland, moderate growth
                 self.plant_growth_potential = settings.simulation.SHRUBLAND_PLANT_GROWTH
-                self.color = settings.colors.SHRUBLAND_COLOR
+                self.color = Tile.SHRUBLAND_COLOR
             else:
                 # Taiga, favorable
                 self.plant_growth_potential = settings.simulation.TAIGA_PLANT_GROWTH
-                self.color = settings.colors.TAIGA_COLOR
+                self.color = Tile.TAIGA_COLOR
         elif self.height <= settings.simulation.MOUNTAIN_HEIGHT_LEVEL:
             if self.moisture < 0.1:
                 # Scorched, minimal growth
                 self.plant_growth_potential = settings.simulation.SCORCHED_PLANT_GROWTH
-                self.color = settings.colors.SCORCHED_COLOR
+                self.color = Tile.SCORCHED_COLOR
             elif self.moisture < 0.2:
                 # Bare, low growth
                 self.plant_growth_potential = settings.simulation.BARE_PLANT_GROWTH
-                self.color = settings.colors.BARE_COLOR
+                self.color = Tile.BARE_COLOR
             elif self.moisture < 0.5:
                 # Tundra, moderate growth
                 self.plant_growth_potential = settings.simulation.TUNDRA_PLANT_GROWTH
-                self.color = settings.colors.TUNDRA_COLOR
+                self.color = Tile.TUNDRA_COLOR
             else:
                 # Snow, slightly favorable
                 self.plant_growth_potential = settings.simulation.SNOW_PLANT_GROWTH
-                self.color = settings.colors.SNOW_COLOR
+                self.color = Tile.SNOW_COLOR
 
         if self.color is None:
             raise ValueError(
