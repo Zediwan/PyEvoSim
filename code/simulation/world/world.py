@@ -5,21 +5,76 @@ import random
 import pygame
 
 import settings.database
-from settings.setting import Setting
+from helper.setting import Setting, BoundedSetting, UnboundedSetting
 import settings.simulation
 from helper.noise_function import NoiseFunction
 from entities.animal import Animal
 from entities.plant import Plant
 from helper.direction import Direction
-from world.tile import Tile
+from .tile import Tile
 import pygame_menu
 
 
 class World(pygame.sprite.Sprite):
-    loading_screen_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
-    loading_screen_theme.title = False
+    """
+    Class representing the world in the simulation.
 
-    def __init__(self, rect: pygame.Rect, tile_size: int):
+    Attributes:
+        loading_screen_theme: The theme for the loading screen.
+        age: The age of the world.
+        rect: The rectangle representing the world.
+        image: The surface for the world.
+        organism_surface: The surface for organisms.
+        ground_surface: The surface for the ground.
+        generating: Flag indicating if the world is generating.
+        progress: The progress of the world generation.
+        progress_bar: The progress bar for the generation.
+        tile_size: The size of the tiles in the world.
+        cols: The number of columns in the world.
+        rows: The number of rows in the world.
+        tiles: The group of tiles in the world.
+
+    Methods:
+        update(): Update the world state.
+        draw(screen): Draw the world on the screen.
+        reload(): Reload height and moisture values for tiles.
+        spawn_animals(amount): Spawn animals on unoccupied tiles.
+        spawn_plants(amount): Spawn plants on unoccupied tiles.
+        spawn_animal(tile): Spawn an animal on a tile.
+        spawn_plant(tile): Spawn a plant on a tile.
+        create_tile(row, col): Create a new tile.
+        add_neighbors(tiles): Add neighbors to tiles.
+        is_border_tile(row, col): Check if a tile is a border tile.
+        get_tiles(rect): Get tiles intersecting with a rectangle.
+        get_tile(pos): Get the tile at a position.
+        _setup_noise_functions(): Set up noise functions.
+        generate_height_values(x, y): Generate height values.
+        generate_moisture_values(x, y): Generate moisture values.
+        randomise_freqs(): Randomize frequency values.
+        _setup_progress_bar(): Set up the progress bar.
+        copy(): Create a copy of the world.
+        adjust_dimensions(rect, tile_size): Adjust dimensions to tile size.
+
+    Static Methods:
+        adjust_dimensions(rect, tile_size): Adjust dimensions of a rectangle.
+
+    Inherits from:
+        pygame.sprite.Sprite
+    """
+    loading_screen_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
+    loading_screen_theme.title = False # Loading screen does not need a title
+
+    def __init__(self, rect: pygame.Rect, tile_size: int) -> None:
+        """
+        Initialize the World object with the given rectangle and tile size.
+
+        Parameters:
+            rect (pygame.Rect): The rectangle representing the world.
+            tile_size (int): The size of the tiles in the world.
+
+        Returns:
+            None
+        """
         pygame.sprite.Sprite.__init__(self)
         self.age: int = 0
 
@@ -50,6 +105,8 @@ class World(pygame.sprite.Sprite):
         self.tiles.draw(self.ground_surface)
         #endregion
 
+        self.randomise_freqs()
+
     #region main methods
     def update(self) -> None:
         """
@@ -66,12 +123,13 @@ class World(pygame.sprite.Sprite):
 
     def draw(self, screen: pygame.Surface) -> None:
         """
-        Draw the world on the screen.
+        Draw the world on the screen surface.
 
-        This method first blits the ground surface onto the image of the world. Then, it clears any previous drawings on the organism surface by filling it with a transparent color. Next, it draws all the organisms from the simulation onto the organism surface. Finally, it blits the organism surface onto the image of the world and then blits the entire image onto the screen.
+        If the world is currently generating, it will display the loading screen with the progress bar.
+        Otherwise, it will draw the ground surface (tiles) and then draw the organisms on top of it.
 
         Parameters:
-            screen (pygame.Surface): The surface representing the screen where the world will be drawn.
+            screen (pygame.Surface): The surface on which to draw the world.
 
         Returns:
             None
@@ -80,10 +138,11 @@ class World(pygame.sprite.Sprite):
             if self.progress_bar:
                 self.menu.draw(self.image)
         else:
+            # Draw the ground / tiles
             self.image.blit(self.ground_surface, self.rect)
 
-            # Clear previous drawings on the organism surface
-            self.organism_surface.fill((0, 0, 0, 0))
+            # Draw the organisms
+            self.organism_surface.fill((0, 0, 0, 0)) # Clear previous drawings on the organism surface
             settings.simulation.organisms.draw(self.organism_surface)
             self.image.blit(self.organism_surface, self.rect)
 
@@ -93,7 +152,7 @@ class World(pygame.sprite.Sprite):
         """
         Reload the height and moisture values for all tiles in the world.
 
-        This method iterates over all tiles in the world and updates their height and moisture values based on the current noise settings of the world. It then redraws the updated tiles on the ground surface of the world.
+        This method iterates over all tiles in the world, updates their height and moisture values based on the current noise functions and settings, and redraws the tiles on the ground surface.
 
         Parameters:
             None
@@ -276,38 +335,103 @@ class World(pygame.sprite.Sprite):
     #endregion
 
     #region noise
-    def _setup_noise_functions(self):
-        self.scale: Setting = Setting(.001, self.reload, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
+    def _setup_noise_functions(self) -> None:
+        """
+        Set up the noise functions for generating height and moisture values.
+
+        This method initializes the settings for moisture, height, and scale using BoundedSetting objects.
+        It creates lists to store NoiseFunction objects for height and moisture calculations, along with their corresponding weights.
+        The NoiseFunction objects are configured with specific parameters for generating noise values based on factors, offsets, and weights.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        # TODO allow to manually add functions
+        self.moisture_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Moisture", min=0, max=2, type="onchange")
+        self.height_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Height", min=0, max=2, type="onchange")
+        self.scale_setting: BoundedSetting = BoundedSetting(self.reload, value=.001, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
 
         self.height_functions: list[NoiseFunction] = []
+        self.height_functions_weights: list[float] = []
         self.height_functions.append(NoiseFunction(
             self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0,
         ))
+        self.height_functions_weights.append(1)
         self.height_functions.append(NoiseFunction(
             self.reload, factor_x=2, factor_y=2, offset_x=4.7, offset_y=2.3
         ))
+        self.height_functions_weights.append(.2)
         self.height_functions.append(NoiseFunction(
             self.reload, factor_x=4, factor_y=4, offset_x=19.1, offset_y=16.2
         ))
+        self.height_functions_weights.append(.1)
+
         self.moisture_functions: list[NoiseFunction] = []
+        self.moisture_functions_weights: list[float] = []
         self.moisture_functions.append(NoiseFunction(
             self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0
         ))
+        self.moisture_functions_weights.append(1)
 
-    #region noise generators
     def generate_height_values(self, x: int, y: int) -> float:
-        return NoiseFunction.weigh(x * self.scale._value, y *  self.scale._value, self.height_functions, [1, .2, .1])
+        """
+        Generate the height value for a specific position in the world based on noise functions and settings.
+
+        Parameters:
+            x (int): The x-coordinate of the position for which to generate the height value.
+            y (int): The y-coordinate of the position for which to generate the height value.
+
+        Returns:
+            float: The generated height value for the specified position, clamped between 0 and 1.
+        """
+        height = NoiseFunction.weigh(x * self.scale_setting._value, y *  self.scale_setting._value, self.height_functions, self.height_functions_weights)
+        height += (self.height_setting._value - self.height_setting._mid)
+        height = pygame.math.clamp(height, 0, 1)
+        return height
 
     def generate_moisture_values(self, x: int, y: int) -> float:
-        return NoiseFunction.weigh(x * self.scale._value, y * self.scale._value, self.moisture_functions)
+        """
+        Generate moisture value for a specific position in the world.
 
-    #endregion
+        Calculates the moisture value at the given (x, y) position by applying noise functions with corresponding weights.
+        Adjusts the moisture value based on the current moisture setting and clamps it between 0 and 1.
 
-    def randomise_freqs(self):
+        Parameters:
+            x (int): The x-coordinate of the position.
+            y (int): The y-coordinate of the position.
+
+        Returns:
+            float: The calculated moisture value at the specified position.
+        """
+        moisture = NoiseFunction.weigh(x * self.scale_setting._value, y * self.scale_setting._value, self.moisture_functions, self.moisture_functions_weights)
+        moisture += (self.moisture_setting._value - self.moisture_setting._mid)
+        moisture = pygame.math.clamp(moisture, 0, 1)
+        return moisture
+
+    def randomise_freqs(self) -> None:
+        """
+        Randomize the frequency values for height and moisture noise functions.
+
+        This method initiates the randomization process by setting the generating flag to True and resetting the progress to 0. It then combines the height and moisture noise functions into a single list for iteration.
+        For each noise function, it calls the randomize method to generate new frequency values, updates the progress bar based on the number of functions, and refreshes the display to show the progress.
+        After randomizing all functions, it triggers a reload to update the height and moisture values for all tiles, sets generating back to False, resets the progress to 0, and updates the progress bar accordingly.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        if self.progress_bar is None:
+            raise ValueError("Progress Bar has not been initiated.")
+
         self.generating = True
         self.progress = 0
 
-        functions = []
+        functions: list[NoiseFunction] = []
         functions.extend(self.height_functions)
         functions.extend(self.moisture_functions)
 
@@ -325,9 +449,24 @@ class World(pygame.sprite.Sprite):
 
     #endregion
 
+    #region gui
     def _setup_progress_bar(self) -> None:
+        """
+        Set up the progress bar for the world generation.
+
+        This method initializes a pygame_menu Menu object with a progress bar widget to display the progress of world generation.
+        The progress bar is added to the menu with the label "Generating World" and is styled using the loading_screen_theme.
+        The menu is positioned at the top-left corner of the world's rectangle with the same dimensions as the world.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self.menu = pygame_menu.Menu("", width=self.rect.width, height=self.rect.height, theme=self.loading_screen_theme, position=(self.rect.left,self.rect.top,False))
-        self.progress_bar = self.menu.add.progress_bar("Generating World")
+        self.progress_bar: pygame_menu.pygame_menu.widgets.ProgressBar = self.menu.add.progress_bar("Generating World")
+    #endregion
 
     def copy(self) -> World:
         """

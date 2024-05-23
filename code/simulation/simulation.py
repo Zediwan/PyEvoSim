@@ -13,45 +13,47 @@ from world.world import World
 
 class Simulation():
     """
-    Class representing the simulation environment for an Evolution Simulation.
+    Class representing a simulation environment for an evolution simulation.
 
     Attributes:
         brush_outline (int): The width of the brush outline.
         base_theme (pygame_menu.Theme): The base theme for the menus.
-        runtime_theme (pygame_menu.Theme): The theme for runtime elements.
+        runtime_theme (pygame_menu.Theme): The theme for the runtime menu.
+        menubar_theme (pygame_menu.Theme): The theme for the menu bar.
         TRANSPARENT_BLACK_COLOR (tuple): The color code for transparent black.
-        fps_font (pygame.font.Font): The font for displaying frames per second.
+        FPS_FONT_COLOR (tuple): The color code for the FPS font.
+        fps_font (pygame.font.Font): The font for displaying FPS.
+        fps_alpha (float): The alpha value for FPS display.
+        world (World): The world object for the simulation.
+        selected_org (Organism): The currently selected organism.
+        paused (bool): Flag indicating if the simulation is paused.
+        alternating_moisture (bool): Flag indicating if moisture is alternating.
+        brush_rect (pygame.Rect): The rectangle representing the brush.
+        tool (function): The current tool function for interaction.
 
     Methods:
-        __init__: Initializes the Simulation class.
-        _setup_menus: Sets up the menus for the simulation.
-        _setup_starting_menu: Sets up the starting menu.
-        _setup_options_menu: Sets up the options menu.
-        _setup_screen_options_menu: Sets up the screen options menu.
-        _setup_database_options_menu: Sets up the database options menu.
-        _setup_running_settings_menu: Sets up the running settings menu.
-        _setup_world_settings_menu: Sets up the world settings menu.
-        _setup_spawning_settings_menu: Sets up the spawning settings menu.
-        _setup_dna_settings_menu: Sets up the DNA settings menu.
-        _setup_entity_settings_menu: Sets up the entity settings menu.
-        _setup_organism_settings_menu: Sets up the organism settings menu.
-        _setup_animal_settings_menu: Sets up the animal settings menu.
-        _setup_plant_settings_menu: Sets up the plant settings menu.
-        toggle_pause: Toggles the pause state of the simulation.
-        change_tile_size: Changes the tile size of the world.
-        clear_organisms: Clears all organisms from the simulation.
-        reset_stats: Resets the statistics of the simulation.
-        toggle_alternating_moisture: Toggles the alternating moisture state.
+        __init__: Initializes the simulation environment.
+        _setup_menus: Sets up all the menus used in the simulation.
         _update_gui: Updates the graphical user interface of the simulation.
         run_loop: Runs the main loop of the simulation.
-        mainlopp: Main loop function for the simulation.
+        toggle_pause: Toggles the pause state of the simulation.
+        mainloop: Runs the starting menu loop.
         _quit: Quits the simulation.
 
-    Raises:
-        No specific exceptions are raised.
-
-    Returns:
-        No specific return value.
+    Callbacks:
+        set_running: Sets the running state of the simulation.
+        clear_organisms: Clears all organisms from the simulation.
+        reset_stats: Resets the statistics of the simulation.
+        animal_spawning_tool: Tool for spawning animals.
+        choose_animal_spawning_tool: Chooses the animal spawning tool.
+        plant_spawning_tool: Tool for spawning plants.
+        choose_plant_spawning_tool: Chooses the plant spawning tool.
+        info_tool: Tool for displaying information about tiles.
+        choose_info_tool: Chooses the info tool.
+        animal_kill_tool: Tool for killing animals.
+        choose_animal_kill_tool: Chooses the animal kill tool.
+        plant_kill_tool: Tool for killing plants.
+        choose_plant_kill_tool: Chooses the plant kill tool.
     """
     brush_outline = 2
     #region themes
@@ -75,6 +77,15 @@ class Simulation():
     fps_alpha: float = 100
 
     def __init__(self) -> None:
+        """
+        Initializes the Simulation environment.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         pygame.init()
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
 
@@ -149,6 +160,13 @@ class Simulation():
             theme=self.runtime_theme,
             title="World",
         )
+        self._function_settings_menu = pygame_menu.Menu(
+            width=runtime_menu_width,
+            height=runtime_menu_height,
+            position=runtime_menu_position,
+            theme=self.runtime_theme,
+            title="Functions",
+        )
         self._spawning_settings_menu = pygame_menu.Menu(
             width=runtime_menu_width,
             height=runtime_menu_height,
@@ -201,6 +219,7 @@ class Simulation():
         self._setup_running_settings_menu()
         self._setup_running_menu_bar()
         self._setup_world_settings_menu()
+        self._setup_function_settings_menu()
         self._setup_spawning_settings_menu()
         self._setup_dna_settings_menu()
         self._setup_entity_settings_menu()
@@ -260,46 +279,24 @@ class Simulation():
         self._running_menu_bar.add.button("KP", self.choose_plant_kill_tool)
 
     def _setup_world_settings_menu(self) -> None:
-        #TODO update these so changes to the sliders can be instantly seen on the world
-        self.world.scale.add_controller_to_menu(self._world_settings_menu)
-        self._world_settings_menu.add.label("Height")
-        for function in self.world.height_functions:
-            function.add_function_controller_to_menu(self._world_settings_menu)
-        self._world_settings_menu.add.label("Moisture")
-        for function in self.world.moisture_functions:
-            function.add_function_controller_to_menu(self._world_settings_menu)
-        #self._world_settings_menu.add.range_slider("Fx1", self.world.freq_x1, (0,10), increment=1, onchange=self.world.set_freq_x1)
-        # self._world_settings_menu.add.range_slider("Scale1", self.world.scale_1, (0,1), increment=.1, onchange=self.world.set_scale_1)
-        # self._world_settings_menu.add.range_slider("offsx1", self.world.offset_x1, (0,20), increment=1, onchange=self.world.set_offset_x1)
-        # self._world_settings_menu.add.range_slider("offsy1", self.world.offset_y1, (0,20), increment=1, onchange=self.world.set_offset_y1)
-        # self._world_settings_menu.add.range_slider("Fx2", self.world.freq_x2, (0,10), increment=1, onchange=self.world.set_freq_x2)
-        # self._world_settings_menu.add.range_slider("Fy2", self.world.freq_y2, (0,10), increment=1, onchange=self.world.set_freq_y2)
-        # self._world_settings_menu.add.range_slider("Scale2", self.world.scale_2, (0,1), increment=.1, onchange=self.world.set_scale_2)
-        # self._world_settings_menu.add.range_slider("offsx2", self.world.offset_x2, (0,20), increment=1, onchange=self.world.set_offset_x2)
-        # self._world_settings_menu.add.range_slider("offsy2", self.world.offset_y2, (0,20), increment=1, onchange=self.world.set_offset_y2)
-        # self._world_settings_menu.add.range_slider("Fx3", self.world.freq_x3, (0,10), increment=1, onchange=self.world.set_freq_x3)
-        # self._world_settings_menu.add.range_slider("Fy3", self.world.freq_y3, (0,10), increment=1, onchange=self.world.set_freq_y3)
-        # self._world_settings_menu.add.range_slider("Scale3", self.world.scale_3, (0,1), increment=.1, onchange=self.world.set_scale_3)
-        # self._world_settings_menu.add.range_slider("offsx3", self.world.offset_x3, (0,20), increment=1, onchange=self.world.set_offset_x3)
-        # self._world_settings_menu.add.range_slider("offsy3", self.world.offset_y3, (0,20), increment=1, onchange=self.world.set_offset_y3)
-        # self._world_settings_menu.add.range_slider("hpow", self.world.height_power, (1, 4), increment=1, onchange=self.world.set_height_power)
-        # self._world_settings_menu.add.range_slider("hfudge", self.world.height_fudge_factor, (.5, 1.5), increment=.1, onchange=self.world.set_fudge_factor)
-
-        # self._world_settings_menu.add.range_slider("hfx", self.world.height_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_x)
-        # self._world_settings_menu.add.range_slider("hfy", self.world.height_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_height_freq_y)
-        # self._world_settings_menu.add.range_slider("mfx", self.world.moisture_freq_x, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_x)
-        # self._world_settings_menu.add.range_slider("mfy", self.world.moisture_freq_y, (-.01, .01), increment=.0001, onchange=self.world.set_moisture_freq_y)
-
-        # self._world_settings_menu.add.range_slider("moisture", self.world.moisture, (0, 1), increment=.01, onchange=self.world.set_moisture, rangeslider_id="moisture")
         # self._world_settings_menu.add.toggle_switch("Enable moisture changing", self.alternating_moisture, onchange=self.set_alternating_moisture) # TODO add method to change moisture over time
-        # self._world_settings_menu.add.range_slider("height", self.world.height, (0, 1), increment=.01, onchange=self.world.set_height)
-
-        # TODO add a randomise button
-        self._world_settings_menu.add.button("Randomize", self.world.randomise_freqs) # TODO update this so when randomising a new world is loaded
-        self._world_settings_menu.add.button("Reload", self.world.reload)
-        #self._world_settings_menu.add.text_input("Tile size: ", self.world.tile_size, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.change_tile_size)
+        self._world_settings_menu.add.button("Functions", self._function_settings_menu)
+        self.world.height_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
+        self.world.moisture_setting.add_controller_to_menu(self._world_settings_menu, randomiser=True)
+        self.world.scale_setting.add_controller_to_menu(self._world_settings_menu)
+        self._world_settings_menu.add.button("Randomise Everything", self.world.randomise_freqs)
 
         self._world_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
+
+    def _setup_function_settings_menu(self) -> None:
+        self._function_settings_menu.add.label("------Height------")
+        for function in self.world.height_functions:
+            function.add_submenu(self._function_settings_menu, add_randomiser=True)
+        self._function_settings_menu.add.label("------Moisture------")
+        for function in self.world.moisture_functions:
+            function.add_submenu(self._function_settings_menu, add_randomiser=True)
+
+        self._function_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_spawning_settings_menu(self) -> None:
         self._spawning_settings_menu.add.text_input("Num. Animals: ", 0, input_type=pygame_menu.pygame_menu.locals.INPUT_INT, onreturn=self.world.spawn_animals)
@@ -402,26 +399,6 @@ class Simulation():
         """
         self.paused = not is_running
 
-    def change_tile_size(self, new_tile_size) -> None:
-        """
-        Change the tile size of the world in the simulation.
-
-        Args:
-            new_tile_size (int): The new size of the tiles in the world.
-
-        Returns:
-            None
-
-        Raises:
-            No specific exceptions are raised.
-        """
-        try:
-            # TODO implement resizing of tile sizes
-            pass
-        except:
-            # TODO implement feedback if value is not valid
-            pass
-
     def clear_organisms(self) -> None:
         """
         Clears all organisms from the simulation.
@@ -446,27 +423,33 @@ class Simulation():
         """
         settings.simulation.reset_stats()
 
-    def set_alternating_moisture(self, enabled) -> None:
+    #region tools
+    def animal_spawning_tool(self, tiles: list[Tile]) -> None:
         """
-        Sets the state of alternating moisture in the simulation.
+        Animal spawning tool method for the Simulation class.
 
         Parameters:
-            enabled (bool): A boolean value indicating whether alternating moisture is enabled or not.
+            tiles (list[Tile]): A list of Tile objects where animals will be spawned.
 
         Returns:
             None
         """
-        self.alternating_moisture = enabled
-
-    #region tools
-    def animal_spawning_tool(self, tiles: list[Tile]):
         for tile in tiles:
             self.world.spawn_animal(tile)
 
     def choose_animal_spawning_tool(self) -> None:
         self.tool = self.animal_spawning_tool
 
-    def plant_spawning_tool(self, tiles: list[Tile]):
+    def plant_spawning_tool(self, tiles: list[Tile]) -> None:
+        """
+        Plant spawning tool method for the Simulation class.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects where plants will be spawned.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             self.world.spawn_plant(tile)
 
@@ -474,6 +457,15 @@ class Simulation():
         self.tool = self.plant_spawning_tool
 
     def info_tool(self, tiles: list[Tile]) -> None:
+        """
+        Displays information about the first tile in tiles.
+
+        Args:
+            tiles (list[Tile]): A list of tiles to extract the organism information from.
+
+        Returns:
+            None
+        """
         # TODO improve visual of info tool
         tile = tiles.pop(1)
         if tile.has_animal():
@@ -487,6 +479,15 @@ class Simulation():
         self.tool = self.info_tool
 
     def animal_kill_tool(self, tiles: list[Tile]) -> None:
+        """
+        Kills animals on the specified list of tiles by setting their health to 0 and calling the die method on their sprite.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects representing the tiles where animals should be killed.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             if tile.has_animal():
                 tile.animal.sprite.health = 0
@@ -496,6 +497,15 @@ class Simulation():
         self.tool = self.animal_kill_tool
 
     def plant_kill_tool(self, tiles: list[Tile]) -> None:
+        """
+        Kills the plants on the specified list of tiles by setting their health to 0 and calling the die method on their sprite.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects on which plants will be killed.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             if tile.has_plant():
                 tile.plant.sprite.health = 0
@@ -541,6 +551,15 @@ class Simulation():
         self._running_menu_bar.draw(self._surface)
 
     def run_loop(self) -> None:
+        """
+        Runs the main loop of the simulation, handling user input, updating the world, and displaying the graphical user interface.
+
+        Raises:
+            No specific exceptions are raised.
+
+        Returns:
+            No specific return value.
+        """
         # TODO add setting to disable drawing completely to improve speed
         # TODO improve fps displaying
         drawing = False
@@ -572,11 +591,6 @@ class Simulation():
 
             if not self.paused:
                 self.world.update()
-                # TODO reinplement the alternating moisture logic
-                # if self.alternating_moisture:
-                #     moist = self.world.moisture + math.cos(pygame.time.get_ticks()/100000)/10000
-                #     self._world_settings_menu.get_widget("moisture").set_value(moist)
-                #     self.world.set_moisture(moist)
 
             if drawing:
                 tiles = self.world.get_tiles(self.brush_rect)
@@ -605,6 +619,19 @@ class Simulation():
             self._clock.tick(self._fps)
 
     def toggle_pause(self) -> None:
+        """
+        Toggles the pause state of the simulation.
+
+        This method updates the pause state of the simulation by toggling it between paused and running states.
+        It retrieves the 'GameState' widget from the running settings menu and sets its value to the current pause state.
+        Then, it toggles the pause state by negating the current value of 'paused' attribute.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self._running_settings_menu.get_widget("GameState").set_value(self.paused)
         self.paused = not self.paused
 

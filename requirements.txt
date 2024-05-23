@@ -1,4 +1,6 @@
-noise
+opensimplex
 pygame
 pygame-menu
 ttkthemes
+pandasql
+pandastable

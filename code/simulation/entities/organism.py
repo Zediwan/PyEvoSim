@@ -68,11 +68,11 @@ class Organism(ABC, pygame.sprite.Sprite):
         health: float,
         energy: float,
         dna: DNA,
-    ):
+    ) -> None:
         pygame.sprite.Sprite.__init__(self)
 
         #region stats
-        self.stat_panel: stats.stat_panel.StatPanel | None = None
+        self.stat_panel: stats.stat_panel.StatPanel = None
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
@@ -80,8 +80,8 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.tiles_visited: int = 0
         self.num_offspring: int = 0
         self.tick_age: int = 0
-        self.birth_time: int = pygame.time.get_ticks()
-        self.death_time: int | None = None
+        self.birth_time: int = pygame.time.get_ticks() # TODO update this so it works with tick age, needs world tick age at initialisation
+        self.death_time: int | None = None # TODO update this to work with tick age
         #endregion
 
         self.rect: pygame.Rect = rect
@@ -283,7 +283,7 @@ class Organism(ABC, pygame.sprite.Sprite):
     #region attacking
     def attack(self, organism_to_attack: Organism):
         if not (
-            self.tile.is_neighbor(organism_to_attack.tile)
+            self.tile.is_neighboring_tile(organism_to_attack.tile)
             or self.tile == organism_to_attack.tile
         ):
             raise ValueError(
@@ -294,7 +294,7 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @abstractmethod
     def get_attacked(self, attacking_organism: Organism):
-        if not (self.tile.is_neighbor(attacking_organism.tile) or self.tile == attacking_organism.tile):
+        if not (self.tile.is_neighboring_tile(attacking_organism.tile) or self.tile == attacking_organism.tile):
             raise ValueError("Organism attacking is not on a neighbor tile or same tile.")
         else:
             damage = attacking_organism.attack_power
