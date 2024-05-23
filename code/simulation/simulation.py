@@ -413,14 +413,32 @@ class Simulation():
         settings.simulation.reset_stats()
 
     #region tools
-    def animal_spawning_tool(self, tiles: list[Tile]):
+    def animal_spawning_tool(self, tiles: list[Tile]) -> None:
+        """
+        Animal spawning tool method for the Simulation class.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects where animals will be spawned.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             self.world.spawn_animal(tile)
 
     def choose_animal_spawning_tool(self) -> None:
         self.tool = self.animal_spawning_tool
 
-    def plant_spawning_tool(self, tiles: list[Tile]):
+    def plant_spawning_tool(self, tiles: list[Tile]) -> None:
+        """
+        Plant spawning tool method for the Simulation class.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects where plants will be spawned.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             self.world.spawn_plant(tile)
 
@@ -428,6 +446,15 @@ class Simulation():
         self.tool = self.plant_spawning_tool
 
     def info_tool(self, tiles: list[Tile]) -> None:
+        """
+        Displays information about the first tile in tiles.
+
+        Args:
+            tiles (list[Tile]): A list of tiles to extract the organism information from.
+
+        Returns:
+            None
+        """
         # TODO improve visual of info tool
         tile = tiles.pop(1)
         if tile.has_animal():
@@ -441,6 +468,15 @@ class Simulation():
         self.tool = self.info_tool
 
     def animal_kill_tool(self, tiles: list[Tile]) -> None:
+        """
+        Kills animals on the specified list of tiles by setting their health to 0 and calling the die method on their sprite.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects representing the tiles where animals should be killed.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             if tile.has_animal():
                 tile.animal.sprite.health = 0
@@ -450,6 +486,15 @@ class Simulation():
         self.tool = self.animal_kill_tool
 
     def plant_kill_tool(self, tiles: list[Tile]) -> None:
+        """
+        Kills the plants on the specified list of tiles by setting their health to 0 and calling the die method on their sprite.
+
+        Parameters:
+            tiles (list[Tile]): A list of Tile objects on which plants will be killed.
+
+        Returns:
+            None
+        """
         for tile in tiles:
             if tile.has_plant():
                 tile.plant.sprite.health = 0
