@@ -58,6 +58,32 @@ def new_query(entry_widget, df) -> None:
 
 
 
+
+
+def main_menu(root_view,dataframe):
+    # Clear the window
+    for widget in root_view.winfo_children():
+        widget.destroy()
+
+    # Create a label for the title
+    title_label = ctk.CTkLabel(master=root_view, text="Evolution Simulator", font=("Arial", 36))
+    title_label.pack(pady=20)
+
+    # Create a frame for the buttons
+    button_frame = ctk.CTkFrame(master=root_view)
+    button_frame.pack(expand=True)
+
+    # Create the "Table" button
+    table_button = ctk.CTkButton(master=button_frame, text="Table", command=lambda: table_view(root_view, dataframe), width=250, height=100, font=('Arial', 20))
+    table_button.pack(side='top', padx=10, pady=(10, 10))
+
+    # Create two more buttons
+    button2 = ctk.CTkButton(master=button_frame, text="Dashboard", command=lambda: dashboard(root_view,dataframe), width=250, height=100, font=('Arial', 20))
+    button2.pack(side='top', padx=10, pady=(10, 10))
+
+    button3 = ctk.CTkButton(master=button_frame, text="Exit", command=lambda: exit(), fg_color="red", width=250, height=100, font=('Arial', 20))
+    button3.pack(side='top', padx=10, pady=(10, 10))
+
 def dashboard(root_view, dataframe):
     # Clear the window
     for widget in root_view.winfo_children():
@@ -96,31 +122,6 @@ def dashboard(root_view, dataframe):
     canvas3.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
 
 
-def main_menu(root_view,dataframe):
-    # Clear the window
-    for widget in root_view.winfo_children():
-        widget.destroy()
-
-    # Create a label for the title
-    title_label = ctk.CTkLabel(master=root_view, text="Evolution Simulator", font=("Arial", 36))
-    title_label.pack(pady=20)
-
-    # Create a frame for the buttons
-    button_frame = ctk.CTkFrame(master=root_view)
-    button_frame.pack(expand=True)
-
-    # Create the "Table" button
-    table_button = ctk.CTkButton(master=button_frame, text="Table", command=lambda: table_view(root_view, dataframe), width=250, height=100, font=('Arial', 20))
-    table_button.pack(side='top', padx=10, pady=(10, 10))
-
-    # Create two more buttons
-    button2 = ctk.CTkButton(master=button_frame, text="Dashboard", command=lambda: dashboard(root_view,dataframe), width=250, height=100, font=('Arial', 20))
-    button2.pack(side='top', padx=10, pady=(10, 10))
-
-    button3 = ctk.CTkButton(master=button_frame, text="Exit", command=lambda: exit(), fg_color="red", width=250, height=100, font=('Arial', 20))
-    button3.pack(side='top', padx=10, pady=(10, 10))
-
-
 def table_view(root_view, dataframe):
     for widget in root_view.winfo_children():
         widget.destroy()
@@ -132,11 +133,11 @@ def table_view(root_view, dataframe):
     top_button_frame.grid(row=1, column=0, padx=(5, 5), pady=(5, 5))  # Keep row as 0
 
     # Create a submit button in the button frame
-    dashboard_button = ctk.CTkButton(master=top_button_frame, text="Dashboard", command=lambda: dashboard(),font=("Arial",12))
+    dashboard_button = ctk.CTkButton(master=top_button_frame, text="Dashboard", command=lambda: dashboard(root_view,dataframe),font=("Arial",12))
     dashboard_button.pack(side='top', padx=(5, 5), pady=(10, 10))
 
     # Create a table button in the button frame
-    table_button = ctk.CTkButton(master=top_button_frame, text="Table", command=lambda: dashboard(root_view,  dataframe),font=("Arial",12))
+    table_button = ctk.CTkButton(master=top_button_frame, text="Table", command=lambda: table_view(root_view,  dataframe),font=("Arial",12))
     table_button.pack(side='top', padx=(5, 5), pady=(5, 5))
 
     button3 = ctk.CTkButton(master=top_button_frame, text="Exit", command=lambda: exit(), fg_color="red", font=('Arial', 12))
@@ -183,4 +184,3 @@ ctk.set_appearance_mode("dark")
 main_menu(root,db)
 
 root.mainloop()
-
