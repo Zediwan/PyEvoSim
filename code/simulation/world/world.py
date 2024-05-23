@@ -5,13 +5,13 @@ import random
 import pygame
 
 import settings.database
-from settings.setting import Setting, BoundedSetting, UnboundedSetting
+from helper.setting import Setting, BoundedSetting, UnboundedSetting
 import settings.simulation
 from helper.noise_function import NoiseFunction
 from entities.animal import Animal
 from entities.plant import Plant
 from helper.direction import Direction
-from world.tile import Tile
+from .tile import Tile
 import pygame_menu
 
 
