@@ -43,3 +43,24 @@ class DatabaseManagerTest(unittest.TestCase):
             header = next(csv_reader)
             
             self.assertEqual(header, headers, "Headers are not equal")
+            
+    def test_add_data(self):
+        """"
+        This test checks if new data is added properly
+        """
+        headers: list = ["h1", "h2"]
+        data: list = [1, 2]
+        expected_data: list = [str(value) for value in data]
+        self.dbm = DatabaseManager(headers)
+        
+        import csv
+        # Step 1: Add the element to the CSV
+        self.dbm.add_data(data)
+
+        # Step 2: Reopen the CSV file and read the contents
+        with open(self.dbm.csv_pathname, 'r') as file:
+            csv_reader = csv.reader(file)
+            contents = list(csv_reader)
+
+        # Step 3: Check if the test data is in the contents
+        self.assertIn(expected_data, contents, "The element was not added to the CSV file")
