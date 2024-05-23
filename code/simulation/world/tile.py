@@ -9,50 +9,64 @@ import helper.direction
 
 class Tile(pygame.sprite.Sprite):
     """
-    Class representing a tile in the simulation.
+    Class representing a tile in a game world.
 
     Attributes:
-        rect (pygame.Rect): The rectangle representing the tile.
-        height (float): The height level of the tile, ranging from 0 to 1.
-        moisture (float): The moisture level of the tile, ranging from 0 to 1.
-        is_border (bool): Flag indicating if the tile is a border tile.
-
-    Properties:
-        moisture (float): Get or set the moisture level of the tile.
-        height (float): Get or set the height level of the tile.
+        WATER_COLOR: pygame.Color - Color representing water tiles.
+        SAND_COLOR: pygame.Color - Color representing sand tiles.
+        SCORCHED_COLOR: pygame.Color - Color representing scorched tiles.
+        BARE_COLOR: pygame.Color - Color representing bare tiles.
+        TUNDRA_COLOR: pygame.Color - Color representing tundra tiles.
+        SNOW_COLOR: pygame.Color - Color representing snow tiles.
+        TEMPERATE_DESERT_COLOR: pygame.Color - Color representing temperate desert tiles.
+        SHRUBLAND_COLOR: pygame.Color - Color representing shrubland tiles.
+        TAIGA_COLOR: pygame.Color - Color representing taiga tiles.
+        GRASSLAND_COLOR: pygame.Color - Color representing grassland tiles.
+        TEMPERATE_DECIDUOUS_FOREST_COLOR: pygame.Color - Color representing temperate deciduous forest tiles.
+        TEMPERATE_RAIN_FOREST_COLOR: pygame.Color - Color representing temperate rain forest tiles.
+        SUBTROPICAL_DESERT_COLOR: pygame.Color - Color representing subtropical desert tiles.
+        TROPICAL_SEASONAL_FOREST_COLOR: pygame.Color - Color representing tropical seasonal forest tiles.
+        TROPICAL_RAIN_FOREST_COLOR: pygame.Color - Color representing tropical rain forest tiles.
+        WATER_HEIGHT_LEVEL: float - Height level for water tiles.
+        BEACH_HEIGHT_LEVEL: float - Height level for beach tiles.
+        TROPICAL_HEIGHT_LEVEL: float - Height level for tropical tiles.
+        TEMPERATE_HEIGHT_LEVEL: float - Height level for temperate tiles.
+        TRANSITION_HEIGHT_LEVEL: float - Height level for transition tiles.
+        MOUNTAIN_HEIGHT_LEVEL: float - Height level for mountain tiles.
+        NO_GROWTH: float - No growth value.
+        MINIMAL_GROWTH: float - Minimal growth value.
+        LIMITED_GROWTH: float - Limited growth value.
+        LOW_GROWTH: float - Low growth value.
+        MODERATE_GROWTH: float - Moderate growth value.
+        SLIGHTLY_FAVORABLE_GROWTH: float - Slightly favorable growth value.
+        FAVORABLE_GROWTH: float - Favorable growth value.
+        VERY_FAVORABLE_GROWTH: float - Very favorable growth value.
+        OPTIMAL_GROWTH: float - Optimal growth value.
 
     Methods:
-        draw(screen: pygame.Surface) -> None:
+        __init__(self, rect: pygame.Rect, height: float = 0, moisture: float = 0, is_border: bool = False) -> None:
+            Initialize a Tile object.
+        draw(self, screen: pygame.Surface) -> None:
             Draw the tile on the screen.
-
-        add_animal(animal) -> None:
+        add_animal(self, animal) -> None:
             Add an animal to the tile.
-
-        add_plant(plant) -> None:
+        add_plant(self, plant) -> None:
             Add a plant to the tile.
-
-        has_animal() -> bool:
+        has_animal(self) -> bool:
             Check if the tile has an animal.
-
-        has_plant() -> bool:
+        has_plant(self) -> bool:
             Check if the tile has a plant.
-
-        add_neighbor(direction: helper.direction.Direction, tile: Tile) -> None:
+        add_neighbor(self, direction: helper.direction.Direction, tile: Tile) -> None:
             Add a neighboring tile in a specific direction.
-
-        get_possible_directions() -> list[helper.direction.Direction]:
-            Get a shuffled list of directions to neighboring tiles.
-
-        get_neighboring_tiles() -> list[Tile]:
+        get_possible_directions(self) -> list[helper.direction.Direction]:
+            Get a shuffled list of directions representing neighboring tiles.
+        get_neighboring_tiles(self) -> list[Tile]:
             Get a shuffled list of neighboring tiles.
-
-        get_neighbor_tile(direction: helper.direction.Direction) -> Tile | None:
+        get_neighbor_tile(self, direction: helper.direction.Direction) -> Tile | None:
             Get the neighboring tile in a specified direction.
-
-        get_random_neigbor(needs_plant=False, needs_no_plant=False, needs_animal=False, needs_no_animal=False, needs_water=False, needs_no_water=False) -> Tile | None:
+        get_random_neigbor(self, needs_plant=False, needs_no_plant=False, needs_animal=False, needs_no_animal=False, needs_water=False, needs_no_water=False) -> Tile | None:
             Get a random neighboring tile based on specified criteria.
-
-        is_neighboring_tile(tile: Tile) -> bool:
+        is_neighboring_tile(self, tile: Tile) -> bool:
             Check if a given tile is a neighbor of the current tile.
     """
     #region colors
