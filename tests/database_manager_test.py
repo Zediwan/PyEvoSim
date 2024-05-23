@@ -48,11 +48,14 @@ class DatabaseManagerTest(unittest.TestCase):
         """"
         This test checks if new data is added properly
         """
-        headers: list = ["h1", "h2"]
-        self.dbm = DatabaseManager(headers)
+        header1 = "h1"
+        header2 = "h2"
+        self.dbm = DatabaseManager([header1, header2])
 
-        data: list = [1, 2]
-        expected_data: list = [str(value) for value in data]        
+        data: dict[str, ] = {}
+        data[header1] = 1
+        data[header2] = 2
+        expected_data: list = [str(value) for value in data.values()]        
 
         import csv
         # Step 1: Add the element to the CSV
@@ -70,18 +73,24 @@ class DatabaseManagerTest(unittest.TestCase):
         """"
         This test checks if multiple new data is added properly
         """
-        headers: list = ["h1", "h2"]
-        self.dbm = DatabaseManager(headers)
+        header1 = "h1"
+        header2 = "h2"
+        self.dbm = DatabaseManager([header1, header2])
 
-        data1: list = [1, 2]
-        expected_data1: list = [str(value) for value in data1]
-        data2: list = [3, 4]
-        expected_data2: list = [str(value) for value in data2]
+        data_a: dict[str, ] = {}
+        data_a[header1] = 1
+        data_a[header2] = 2
+        expected_data_a: list = [str(value) for value in data_a.values()]
+        
+        data_b: dict[str, ] = {}
+        data_b[header1] = 3
+        data_b[header2] = 4
+        expected_data_b: list = [str(value) for value in data_b.values()] 
 
         import csv
         # Step 1: Add the element to the CSV
-        self.dbm.add_data(data1)
-        self.dbm.add_data(data2)
+        self.dbm.add_data(data_a)
+        self.dbm.add_data(data_b)
 
         # Step 2: Reopen the CSV file and read the contents
         with open(self.dbm.csv_pathname, 'r') as file:
@@ -89,5 +98,38 @@ class DatabaseManagerTest(unittest.TestCase):
             contents = list(csv_reader)
 
         # Step 3: Check if the test data is in the contents
-        self.assertIn(expected_data1, contents, "The first element was not added to the CSV file")
-        self.assertIn(expected_data2, contents, "The second element was not added to the CSV file")
+        self.assertIn(expected_data_a, contents, "The first element was not added to the CSV file")
+        self.assertIn(expected_data_b, contents, "The second element was not added to the CSV file")
+        
+    def test_add_data_insufficient(self):
+        """"
+        This test checks if insufficient amount of data is handled properly
+        """
+        header1 = "h1"
+        header2 = "h2"
+        self.dbm = DatabaseManager([header1, header2])
+
+        data_a: dict[str, ] = {}
+        data_a[header1] = 1
+        expected_data_a: list = [str(value) for value in data_a.values()]
+        expected_data_a.append("")
+        
+        data_b: dict[str, ] = {}
+        data_b[header1] = 3
+        data_b[header2] = 4
+        expected_data_b: list = [str(value) for value in data_b.values()] 
+
+        import csv
+        # Step 1: Add the element to the CSV
+        self.dbm.add_data(data_a)
+        self.dbm.add_data(data_b)
+
+        # Step 2: Reopen the CSV file and read the contents
+        with open(self.dbm.csv_pathname, 'r') as file:
+            csv_reader = csv.reader(file)
+            contents = list(csv_reader)
+
+        # Step 3: Check if the test data is in the contents
+        self.assertIn(expected_data_a, contents, "The first element was not added to the CSV file")
+        self.assertIn(expected_data_b, contents, "The second element was not added to the CSV file")
+        
