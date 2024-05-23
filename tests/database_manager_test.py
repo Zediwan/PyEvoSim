@@ -13,5 +13,7 @@ class DatabaseManagerTest(unittest.TestCase):
         headers.append("h1"),
         headers.append("h2")
         dbm = DatabaseManager(headers)
+        path = dbm.csv_pathname
         
-        self.assertTrue(os.path.isfile(dbm.csv_pathname), "CSV was not created")
+        self.assertTrue(os.path.isfile(path), "CSV was not created")
+        os.remove(path)
