@@ -3,18 +3,25 @@ import csv
 import json
 import datetime
 
+path_last_json_created: str = ""
+
 def create_database_json(csv_headers: list[str], json_filename: str, metadata_dict: dict[str,] = None) -> None:
     """
-    Creates a new JSON file to serve as a database with initial CSV headers and optional metadata.
+    Create a JSON file from CSV headers and metadata.
 
-    Parameters:
-    - csv_headers (list[str]): A list of strings representing the headers for the CSV data.
-    - json_filename (str): The path to the JSON file where the database will be created.
-    - metadata_dict (dict[str,], optional): A dictionary containing metadata to be included in the database. Defaults to None.
+    Args:
+        csv_headers (list[str]): List of headers for the CSV data.
+        json_filename (str): Name of the JSON file to be created.
+        metadata_dict (dict[str,]): Dictionary containing metadata information. Defaults to None.
+
+    Raises:
+        ValueError: If headers are not provided for the CSV data.
 
     Returns:
-    - None
+        None
     """
+    global path_last_json_created
+
     # Ensure headers are provided for the CSV
     if not csv_headers:
         raise ValueError("Headers must be provided for the CSV data.")
@@ -38,6 +45,8 @@ def create_database_json(csv_headers: list[str], json_filename: str, metadata_di
     with open(json_filename, 'w') as json_file:
         json.dump(json_dict, json_file, indent=4)
 
+    path_last_json_created = json_filename
+
 def add_data(new_data_dict: dict[str,], json_filename:str) -> None:
     """
     Adds new data to the existing CSV data in a JSON file.
@@ -47,7 +56,7 @@ def add_data(new_data_dict: dict[str,], json_filename:str) -> None:
     - json_filename (str): The path to the JSON file where the new data will be added.
 
     Returns:
-    - None
+    - Nonereturn {header[i]: [row[i] for row in data] for i in range(len(header))}
     """
     # Load existing JSON file
     with open(json_filename, 'r') as json_file:
@@ -55,12 +64,9 @@ def add_data(new_data_dict: dict[str,], json_filename:str) -> None:
 
     # Extract existing CSV data from JSON
     csv_data = json_dict.get("csv_data", "")
-    
-    # Replace None values with empty strings in new data
-    new_data_dict = {key: [value if value is not None else "" for value in values] for key, values in new_data_dict.items()}
 
     # Update CSV data with new data
-    csv_data += "\n" + "\n".join([",".join(map(str, values)) for values in zip(*new_data_dict.values())])  # Add data rows
+    csv_data += "\n" + ",".join(str(value) for value in new_data_dict.values())
 
     # Update JSON dictionary with updated CSV data
     json_dict["csv_data"] = csv_data

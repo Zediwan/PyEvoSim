@@ -1,6 +1,6 @@
 import unittest
 import os
-from code.database import create_database_json, add_data, add_metadata, get_metadata_dict, get_csv_data_dict, save_csv
+from code.simulation.helper.database import create_database_json, add_data, add_metadata, get_metadata_dict, get_csv_data_dict, save_csv
 
 class TestDatabase(unittest.TestCase):
     def setUp(self):
@@ -32,57 +32,30 @@ class TestCreateDatabaseJson(TestDatabase):
 class TestAddData(TestDatabase):
     def test_add_data_single_entry(self):
         new_data = {
-            self.header1: ["David"],
-            self.header2: [40],
-            self.header3: ["Chicago"]
+            self.header1: "David",
+            self.header2: 40,
+            self.header3: "Chicago"
         }
         add_data(new_data_dict=new_data, json_filename=self.json_file)
         updated_data = get_csv_data_dict(self.json_file)
         self.assertEqual(len(updated_data["name"]), 1)
 
-    def test_add_data_multiple(self):
-        new_data = {
-            self.header1: ["David", "Eve"],
-            self.header2: [40, 45],
-            self.header3: ["Chicago", "Miami"]
-        }
-        add_data(new_data_dict=new_data, json_filename=self.json_file)
-        updated_data = get_csv_data_dict(json_filename=self.json_file)
-        self.assertEqual(len(updated_data["name"]), 2)
-
     def test_add_data_single_entry_sequentially_with_missing_value(self):
-        initial_data = {
-            self.header1: ["Alice"],
-            self.header2: [25],
-            self.header3: [None]  # Missing value
+        initial_data1 = {
+            self.header1: "Alice",
+            self.header2: 25,
+            self.header3: None  # Missing value
         }
 
-        new_data = {
-            self.header1: ["Bob"],
-            self.header2: [30],
-            self.header3: ["New York"]
-        }
-
-        # Add initial data
-        add_data(new_data_dict=initial_data, json_filename=self.json_file)
-        # Add new data with missing values
-        add_data(new_data_dict=new_data, json_filename=self.json_file)
-
-        # Retrieve updated data
-        updated_data = get_csv_data_dict(json_filename=self.json_file)
-
-        # Check if missing values are handled correctly for one entry
-        self.assertEqual(len(updated_data[self.header3]), 2)  # Check if missing value is added as an empty string for one entry
-
-    def test_add_data_multiple_with_missing_values(self):
-        initial_data = {
-            self.header1: ["Alice", "Bob"],
-            self.header2: [25, 30],
-            self.header3: [None, "New York"]  # Missing value
+        initial_data2 = {
+            self.header1: "Bob",
+            self.header2: 30,
+            self.header3: "New York"
         }
 
         # Add initial data
-        add_data(new_data_dict=initial_data, json_filename=self.json_file)
+        add_data(new_data_dict=initial_data1, json_filename=self.json_file)
+        add_data(new_data_dict=initial_data2, json_filename=self.json_file)
 
         # Retrieve updated data
         updated_data = get_csv_data_dict(json_filename=self.json_file)
@@ -144,15 +117,15 @@ class TestGetMetadataDict(TestDatabase):
 class TestGetCSVDataDict(TestDatabase):
     def test_get_csv_data_dict(self):
         initial_data1 = {
-            self.header1: ["Alice"],
-            self.header2: [25],
-            self.header3: [None]  # Missing value
+            self.header1: "Alice",
+            self.header2: 25,
+            self.header3: None  # Missing value
         }
 
         initial_data2 = {
-            self.header1: ["Bob"],
-            self.header2: [30],
-            self.header3: ["New York"]
+            self.header1: "Bob",
+            self.header2: 30,
+            self.header3: "New York"
         }
 
         # Add initial data
@@ -165,15 +138,15 @@ class TestGetCSVDataDict(TestDatabase):
 class TestSaveCSV(TestDatabase):
     def test_save_csv(self):
         initial_data1 = {
-            self.header1: ["Alice"],
-            self.header2: [25],
-            self.header3: [None]  # Missing value
+            self.header1: "Alice",
+            self.header2: 25,
+            self.header3: None  # Missing value
         }
 
         initial_data2 = {
-            self.header1: ["Bob"],
-            self.header2: [30],
-            self.header3: ["New York"]
+            self.header1: "Bob",
+            self.header2: 30,
+            self.header3: "New York"
         }
 
         # Add initial data
