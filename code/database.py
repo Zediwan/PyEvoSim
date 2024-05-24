@@ -1,6 +1,7 @@
 from __future__ import annotations
 import csv
 import json
+import datetime
 
 def create_database_json(csv_headers: list[str], json_filename: str, metadata_dict: dict[str,] = None) -> None:
     """
@@ -23,6 +24,9 @@ def create_database_json(csv_headers: list[str], json_filename: str, metadata_di
 
     if metadata_dict is None:
         metadata_dict = {}
+
+    dt = datetime.datetime.now()
+    metadata_dict["date"] = dt.strftime("%Y%m%d")
 
     # Create JSON dictionary with metadata and CSV data (headers only)
     json_dict = {

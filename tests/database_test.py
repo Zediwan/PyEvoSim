@@ -10,11 +10,8 @@ class TestDatabase(unittest.TestCase):
         self.headers = [self.header1, self.header2, self.header3]
         self.metadata_author_key = "author"
         self.metadata_author_value = "Jeremy Moser"
-        self.metadata_date_key = "data"
-        self.metadata_data_value = "2022-12-26"
         metadata = {
             self.metadata_author_key: self.metadata_author_value,
-            self.metadata_date_key: self.metadata_data_value
         }
         self.json_file = "tests/test_data.json"
         create_database_json(csv_headers=self.headers, json_filename=self.json_file, metadata_dict=metadata)
@@ -104,7 +101,6 @@ class TestAddMetadata(TestDatabase):
         self.assertEqual(updated_metadata["version"], "1.0")
         self.assertEqual(updated_metadata["description"], "Test data")
         self.assertEqual(updated_metadata[self.metadata_author_key], self.metadata_author_value)
-        self.assertEqual(updated_metadata[self.metadata_date_key], self.metadata_data_value)
 
     
     def test_add_metadata_upate_metadata(self):
@@ -122,7 +118,6 @@ class TestAddMetadata(TestDatabase):
         # Check if the old metadata is updated correctly
         self.assertEqual(updated_metadata[self.metadata_author_key], new_metadata_author)
         self.assertNotEqual(updated_metadata[self.metadata_author_key], self.metadata_author_value)
-        self.assertEqual(updated_metadata[self.metadata_date_key], self.metadata_data_value)
         
     def test_add_metadata_new_metadata(self):
         new_metadata_key = "birthday"
@@ -139,14 +134,12 @@ class TestAddMetadata(TestDatabase):
 
         # Check if the new metadata is added
         self.assertEqual(updated_metadata[self.metadata_author_key], self.metadata_author_value)
-        self.assertEqual(updated_metadata[self.metadata_date_key], self.metadata_data_value)
         self.assertEqual(updated_metadata[new_metadata_key], new_metadata_value)
 
 class TestGetMetadataDict(TestDatabase):
     def test_get_metadata_dict(self):
         metadata = get_metadata_dict(json_filename=self.json_file)
         self.assertEqual(metadata[self.metadata_author_key], self.metadata_author_value)
-        self.assertEqual(metadata[self.metadata_date_key], self.metadata_data_value)
 
 class TestGetCSVDataDict(TestDatabase):
     def test_get_csv_data_dict(self):
