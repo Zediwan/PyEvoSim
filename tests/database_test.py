@@ -1,6 +1,6 @@
 import unittest
 import os
-from code.database import create_database, add_data, add_metadata, get_metadata, get_data, save_csv
+from code.database import create_database_json, add_data, add_metadata, get_metadata_dict, get_csv_data_dict, save_csv
 
 class TestDatabase(unittest.TestCase):
     def setUp(self):
@@ -17,7 +17,7 @@ class TestDatabase(unittest.TestCase):
             self.metadata_date_key: self.metadata_data_value
         }
         self.json_file = "tests/test_data.json"
-        create_database(headers=self.headers, json_filename=self.json_file, metadata_dict=metadata)
+        create_database_json(csv_headers=self.headers, json_filename=self.json_file, metadata_dict=metadata)
 
     def tearDown(self):
         os.remove(self.json_file)
@@ -28,8 +28,8 @@ class TestDatabase(unittest.TestCase):
 
         pass
 
-class TestCreateDatabase(TestDatabase):
-    def test_create_database(self):
+class TestCreateDatabaseJson(TestDatabase):
+    def test_create_database_json(self):
         self.assertTrue(os.path.exists(self.json_file))
 
 class TestAddData(TestDatabase):
@@ -40,7 +40,7 @@ class TestAddData(TestDatabase):
             self.header3: ["Chicago"]
         }
         add_data(new_data_dict=new_data, json_filename=self.json_file)
-        updated_data = get_data(self.json_file)
+        updated_data = get_csv_data_dict(self.json_file)
         self.assertEqual(len(updated_data["name"]), 1)
 
     def test_add_data_multiple(self):
@@ -50,7 +50,7 @@ class TestAddData(TestDatabase):
             self.header3: ["Chicago", "Miami"]
         }
         add_data(new_data_dict=new_data, json_filename=self.json_file)
-        updated_data = get_data(json_filename=self.json_file)
+        updated_data = get_csv_data_dict(json_filename=self.json_file)
         self.assertEqual(len(updated_data["name"]), 2)
 
     def test_add_data_single_entry_sequentially_with_missing_value(self):
@@ -72,7 +72,7 @@ class TestAddData(TestDatabase):
         add_data(new_data_dict=new_data, json_filename=self.json_file)
 
         # Retrieve updated data
-        updated_data = get_data(json_filename=self.json_file)
+        updated_data = get_csv_data_dict(json_filename=self.json_file)
 
         # Check if missing values are handled correctly for one entry
         self.assertEqual(len(updated_data[self.header3]), 2)  # Check if missing value is added as an empty string for one entry
@@ -88,7 +88,7 @@ class TestAddData(TestDatabase):
         add_data(new_data_dict=initial_data, json_filename=self.json_file)
 
         # Retrieve updated data
-        updated_data = get_data(json_filename=self.json_file)
+        updated_data = get_csv_data_dict(json_filename=self.json_file)
 
         # Check if missing values are handled correctly for one entry
         self.assertEqual(len(updated_data[self.header3]), 2)  # Check if missing value is added as an empty string for one entry
@@ -100,7 +100,7 @@ class TestAddMetadata(TestDatabase):
             "description": "Test data"
         }
         add_metadata(new_metadata_dict=new_metadata, json_filename=self.json_file)
-        updated_metadata = get_metadata(json_filename=self.json_file)
+        updated_metadata = get_metadata_dict(json_filename=self.json_file)
         self.assertEqual(updated_metadata["version"], "1.0")
         self.assertEqual(updated_metadata["description"], "Test data")
         self.assertEqual(updated_metadata[self.metadata_author_key], self.metadata_author_value)
@@ -117,7 +117,7 @@ class TestAddMetadata(TestDatabase):
         add_metadata(new_metadata, self.json_file)
 
         # Retrieve updated metadata
-        updated_metadata = get_metadata(self.json_file)
+        updated_metadata = get_metadata_dict(self.json_file)
 
         # Check if the old metadata is updated correctly
         self.assertEqual(updated_metadata[self.metadata_author_key], new_metadata_author)
@@ -135,21 +135,21 @@ class TestAddMetadata(TestDatabase):
         add_metadata(new_metadata, self.json_file)
 
         # Retrieve updated metadata
-        updated_metadata = get_metadata(self.json_file)
+        updated_metadata = get_metadata_dict(self.json_file)
 
         # Check if the new metadata is added
         self.assertEqual(updated_metadata[self.metadata_author_key], self.metadata_author_value)
         self.assertEqual(updated_metadata[self.metadata_date_key], self.metadata_data_value)
         self.assertEqual(updated_metadata[new_metadata_key], new_metadata_value)
 
-class TestGetMetadata(TestDatabase):
-    def test_get_metadata(self):
-        metadata = get_metadata(json_filename=self.json_file)
+class TestGetMetadataDict(TestDatabase):
+    def test_get_metadata_dict(self):
+        metadata = get_metadata_dict(json_filename=self.json_file)
         self.assertEqual(metadata[self.metadata_author_key], self.metadata_author_value)
         self.assertEqual(metadata[self.metadata_date_key], self.metadata_data_value)
 
-class TestGetData(TestDatabase):
-    def test_get_data(self):
+class TestGetCSVDataDict(TestDatabase):
+    def test_get_csv_data_dict(self):
         initial_data1 = {
             self.header1: ["Alice"],
             self.header2: [25],
@@ -166,7 +166,7 @@ class TestGetData(TestDatabase):
         add_data(new_data_dict=initial_data1, json_filename=self.json_file)
         add_data(new_data_dict=initial_data2, json_filename=self.json_file)
         
-        data = get_data(json_filename=self.json_file)
+        data = get_csv_data_dict(json_filename=self.json_file)
         self.assertEqual(len(data["name"]), 2)
 
 class TestSaveCSV(TestDatabase):
