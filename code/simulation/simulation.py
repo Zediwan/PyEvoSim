@@ -2,6 +2,7 @@ import pygame
 import pygame_menu
 
 import settings.database
+import helper.database as database
 import settings.screen
 from entities.animal import Animal
 from entities.plant import Plant
@@ -88,6 +89,7 @@ class Simulation():
         """
         pygame.init()
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN])
+        pygame.register_quit(self.convert_database) # When closed convert the latest database data to a csv
 
         #region surface
         self._surface: pygame.Surface = pygame.display.set_mode(
@@ -638,6 +640,9 @@ class Simulation():
     def mainlopp(self) -> None:
         self.starting_menu.mainloop(self._surface)
     #endregion
+
+    def convert_database(self) -> None:
+        database.save_csv(database.path_last_json_created, "data/test.csv")
 
     def _quit(self) -> None:
         pygame.quit()

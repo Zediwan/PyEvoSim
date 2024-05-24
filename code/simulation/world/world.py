@@ -4,7 +4,6 @@ import random
 
 import pygame
 
-import settings.database
 from helper.setting import Setting, BoundedSetting, UnboundedSetting
 import settings.simulation
 from helper.noise_function import NoiseFunction

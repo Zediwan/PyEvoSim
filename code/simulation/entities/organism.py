@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-import csv
-import os
 import random
 from abc import ABC, abstractmethod
 
 import pygame
-
-import settings.database
-import settings.screen
+import os
+import helper.database as database
 import stats.stat_panel
 from dna.dna import DNA
 from world.tile import Tile
@@ -345,85 +342,73 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.stat_panel.update(self.rect.move(offset[0], offset[1]), stats_data)
         self.stat_panel.draw(screen)
 
-    def get_stats(self) -> list:
-        return [
-            self.__class__.__name__,
-            self.id,
-            self.birth_time,
-            self.death_time,
-            (
-                self.death_time - self.birth_time
-                if self.death_time
-                else pygame.time.get_ticks() - self.birth_time
-            ),
-            self.tick_age,
-            round(self.health, 2),
-            round(self.MAX_HEALTH, 2),
-            round(self.health_ratio(), 2),
-            round(self.energy, 2),
-            round(self.MAX_ENERGY, 2),
-            round(self.energy_ratio(), 2),
-            round(self.total_energy_gained, 2),
-            self.tiles_visited,
-            round(self.attack_power, 2),
-            self.organisms_attacked,
-            self.animals_killed,
-            self.plants_killed,
-            self.parent.id if self.parent else None,
-            self.num_offspring,
-            self.color.r,
-            self.color.g,
-            self.color.b,
-            self.moisture_preference,
-            self.height_preference,
-            self.dna.mutation_chance_gene.value,
-            self.dna.min_reproduction_health_gene.value,
-            self.dna.min_reproduction_energy_gene.value
-        ]
+    def get_stats(self) -> dict[str,]:
+        return {
+            "Type": self.__class__.__name__,
+            "ID": self.id,
+            "Birth time (milsec)": self.birth_time,
+            "Death time (milsec)": self.death_time,
+            "Time lived (milsec)": (self.death_time - self.birth_time if self.death_time else pygame.time.get_ticks() - self.birth_time),
+            "Updates / Frames lived": self.tick_age,
+            "Health": round(self.health, 2),
+            "Max health": round(self.MAX_HEALTH, 2),
+            "Health ratio": round(self.health_ratio(), 2),
+            "Energy": round(self.energy, 2),
+            "Max energy": round(self.MAX_ENERGY, 2),
+            "Energy ratio": round(self.energy_ratio(), 2),
+            "Total Energy gained": round(self.total_energy_gained, 2),
+            "Tiles traveled": self.tiles_visited,
+            "Attack power": round(self.attack_power, 2),
+            "Organisms attacked": self.organisms_attacked,
+            "Animals killed": self.animals_killed,
+            "Plants killed": self.plants_killed,
+            "Parent Id": self.parent.id if self.parent else None,
+            "Number of Offsprings": self.num_offspring,
+            "Color red value": self.color.r,
+            "Color green value": self.color.g,
+            "Color blue value": self.color.b,
+            "Moisture preference": self.moisture_preference,
+            "Height preference": self.height_preference,
+            "Mutation chance": self.dna.mutation_chance_gene.value,
+            "Min Reproduction Health": self.dna.min_reproduction_health_gene.value,
+            "Min Reproduction Energy": self.dna.min_reproduction_energy_gene.value
+        }
 
     def get_headers(self) -> list[str]:
-        return [
-            "Type",
-            "ID",
-            "Birth time (milsec)",
-            "Death time (milsec)",
-            "Time lived (milsec)",
-            "Updates / Frames lived",
-            "Health",
-            "Max health",
-            "Health ratio",
-            "Energy",
-            "Max energy",
-            "Energy ratio",
-            "Total Energy gained",
-            "Tiles traveled",
-            "Attack power",
-            "Organisms attacked",
-            "Animals killed",
-            "Plants killed",
-            "Parent Id",
-            "Number of Offsprings",
-            "Color red value",
-            "Color green value",
-            "Color blue value",
-            "Moisture preference",
-            "Height preference",
-            "Mutation chance",
-            "Min Reproduction Health",
-            "Min Reproduction Energy"
-        ]
+        return list(self.get_stats().keys())
+        # return [
+        #     "Type",
+        #     "ID",
+        #     "Birth time (milsec)",
+        #     "Death time (milsec)",
+        #     "Time lived (milsec)",
+        #     "Updates / Frames lived",
+        #     "Health",
+        #     "Max health",
+        #     "Health ratio",
+        #     "Energy",
+        #     "Max energy",
+        #     "Energy ratio",
+        #     "Total Energy gained",
+        #     "Tiles traveled",
+        #     "Attack power",
+        #     "Organisms attacked",
+        #     "Animals killed",
+        #     "Plants killed",
+        #     "Parent Id",
+        #     "Number of Offsprings",
+        #     "Color red value",
+        #     "Color green value",
+        #     "Color blue value",
+        #     "Moisture preference",
+        #     "Height preference",
+        #     "Mutation chance",
+        #     "Min Reproduction Health",
+        #     "Min Reproduction Energy"
+        # ]
 
-    def save_to_csv(self):
-        file_exists = os.path.isfile(settings.database.database_csv_filename)
-
-        try:
-            with open(
-                settings.database.database_csv_filename, mode="a", newline=""
-            ) as file:
-                writer = csv.writer(file)
-                if not file_exists:
-                    writer.writerow(self.get_headers())
-                writer.writerow(self.get_stats())
-        except IOError as e:
-            print(f"Error writing to CSV: {e}")
+    def log_to_database(self):
+        if not os.path.isfile(database.path_last_json_created):
+            database.create_database_json(csv_headers=self.get_headers(), json_filename="data/test.json")
+        database.add_data(new_data_dict=self.get_stats(), json_filename=database.path_last_json_created)
     #endregion

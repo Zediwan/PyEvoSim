@@ -241,7 +241,7 @@ class Animal(Organism):
         Animal.animals_died += 1
 
         if settings.database.save_csv and settings.database.save_animals_csv:
-            self.save_to_csv()
+            self.log_to_database()
 
         self.kill()
 

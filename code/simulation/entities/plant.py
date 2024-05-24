@@ -224,9 +224,8 @@ class Plant(Organism):
         super().die()
         Plant.plants_died += 1
 
-        if settings.database.save_csv:
-            if settings.database.save_plants_csv:
-                self.save_to_csv()
+        if settings.database.save_csv and settings.database.save_plants_csv:
+            self.log_to_database()
 
         self.kill()
 
