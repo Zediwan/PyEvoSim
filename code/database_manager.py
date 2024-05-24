@@ -3,7 +3,7 @@ import datetime
 import os
 import csv
 
-class Database():
+class DatabaseManager():
     folder_pathname: str = "data/"
     filename_start: str = "database_"
     filename_end: str = ".csv"
@@ -11,7 +11,7 @@ class Database():
     def __init__(self, headers: list[str], name = "") -> None:
         self.creation_date: datetime.date = datetime.datetime.now()
         self.name: str = name + self.creation_date.strftime("%Y%m%d%H%M%S")
-        self.csv_pathname: str = Database.folder_pathname + Database.filename_start + self.name + Database.filename_end
+        self.csv_pathname: str = DatabaseManager.folder_pathname + DatabaseManager.filename_start + self.name + DatabaseManager.filename_end
 
         self.metadata: dict[str] = {}
         self.headers = headers
@@ -48,7 +48,7 @@ class Database():
                     newest_date = creation_date
                     newest_file = file
         if newest_file:
-            return Database.folder_pathname + newest_file
+            return DatabaseManager.folder_pathname + newest_file
         else:
             return None
     
