@@ -17,7 +17,6 @@ class Animal(Organism):
     _MAX_HEALTH: float = 100
     _MAX_ENERGY: float = 100
     _NUTRITION_FACTOR: float = 1
-    _REPRODUCTION_CHANCE: float = 0.005
     _MAX_ALPHA: float = 255
     _MIN_ALPHA: float = 150
     _MOVEMENT_ENERGY_COST: float = 2
@@ -31,6 +30,7 @@ class Animal(Organism):
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_REPRODUCTION_CHANCE_RANGE: tuple[float, float] = (0, 1)
     #endregion
     #region class setting setters
     @classmethod
@@ -48,10 +48,6 @@ class Animal(Organism):
     @classmethod
     def set_nutrition_factor(cls, value: float):
         cls._NUTRITION_FACTOR = value
-
-    @classmethod
-    def set_reproduction_chance(cls, value: float):
-        cls._REPRODUCTION_CHANCE = value
 
     @classmethod
     def set_movement_energy_cost(cls, value: float):
@@ -88,6 +84,10 @@ class Animal(Organism):
     @classmethod
     def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_MUTATION_CHANCE_RANGE = value
+
+    @classmethod
+    def set_starting_reproduction_chance_range(cls, value: tuple[float, float]):
+        cls._STARTING_REPRODUCTION_CHANCE_RANGE = value
     #endregion
     #region class properties
     @property
@@ -101,10 +101,6 @@ class Animal(Organism):
     @property
     def NUTRITION_FACTOR(self) -> float:
         return Animal._NUTRITION_FACTOR
-
-    @property
-    def REPRODUCTION_CHANCE(self) -> float:
-        return Animal._REPRODUCTION_CHANCE
     
     @property
     def MAX_ALPHA(self) -> float:
@@ -144,7 +140,8 @@ class Animal(Organism):
                 random.uniform(Animal._STARTING_HEIGHT_PREFERENCE_RANGE[0], Animal._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Animal._STARTING_MUTATION_CHANCE_RANGE[0], Animal._STARTING_MUTATION_CHANCE_RANGE[1]),
                 random.uniform(Animal._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1]),
-                random.uniform(Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1])
+                random.uniform(Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1]),
+                random.uniform(Animal._STARTING_REPRODUCTION_CHANCE_RANGE[0], Animal._STARTING_REPRODUCTION_CHANCE_RANGE[1])
             )
         #endregion
 

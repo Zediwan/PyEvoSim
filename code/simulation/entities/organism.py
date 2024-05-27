@@ -42,11 +42,6 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @property
     @abstractmethod
-    def REPRODUCTION_CHANCE(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
     def MAX_ALPHA(self) -> float:
         pass
 
@@ -142,6 +137,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.height_preference: float = self.dna.prefered_height_gene.value
         self.min_reproduction_health: float = self.dna.min_reproduction_health_gene.value
         self.min_reproduction_energy: float = self.dna.min_reproduction_energy_gene.value
+        self.reproduction_chance: float = self.dna.reproduction_chance_gene.value
     #endregion
 
     #region main methods
@@ -204,7 +200,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         Returns:
             None
         """
-        if self.can_reproduce() and random.random() <= self.REPRODUCTION_CHANCE:
+        if self.can_reproduce() and random.random() <= self.reproduction_chance:
             self.reproduce()
 
     def handle_drowning(self):
@@ -377,7 +373,8 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.height_preference,
             self.dna.mutation_chance_gene.value,
             self.dna.min_reproduction_health_gene.value,
-            self.dna.min_reproduction_energy_gene.value
+            self.dna.min_reproduction_energy_gene.value,
+            self.dna.reproduction_chance_gene.value
         ]
 
     def get_headers(self) -> list[str]:
@@ -409,7 +406,8 @@ class Organism(ABC, pygame.sprite.Sprite):
             "Height preference",
             "Mutation chance",
             "Min Reproduction Health",
-            "Min Reproduction Energy"
+            "Min Reproduction Energy",
+            "Reproduction Chance"
         ]
 
     def save_to_csv(self):
