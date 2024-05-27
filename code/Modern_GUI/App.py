@@ -3,7 +3,6 @@ import customtkinter as ctk
 import pandas as pd
 from pandasql import sqldf
 from pandastable import Table
-import glob2 as glob
 from pandasql import sqldf
 from pandastable import Table
 import glob
