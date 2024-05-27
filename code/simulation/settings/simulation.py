@@ -1,9 +1,13 @@
 import pygame
 
 organisms = pygame.sprite.Group()
+animals = pygame.sprite.Group()
+plants = pygame.sprite.Group()
 
 def reset_organisms():
     organisms.empty()
+    animals.empty()
+    plants.empty()
 
 def reset_stats():
     from entities.organism import Organism

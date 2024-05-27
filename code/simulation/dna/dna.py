@@ -3,7 +3,7 @@ from __future__ import annotations
 import pygame
 
 import random
-from dna.gene import Gene
+from .gene import Gene
 
 
 class DNA:

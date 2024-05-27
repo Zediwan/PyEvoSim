@@ -8,7 +8,7 @@ import settings.database
 import settings.screen
 import settings.simulation
 from dna.dna import DNA
-from entities.organism import Organism
+from .organism import Organism
 from world.tile import Tile
 
 
@@ -245,7 +245,7 @@ class Plant(Organism):
 
     #region reproduction
     def reproduce(self):
-        option = self.tile.get_random_neigbor(no_plant=True, no_water=True)
+        option = self.tile.get_random_neigbor(needs_no_plant=True, needs_no_water=True)
         if option:
             ENERGY_TO_CHILD = max(
                 Plant._REPRODUCTION_ENERGY_COST_FACTOR * self.MAX_ENERGY,
@@ -258,6 +258,7 @@ class Plant(Organism):
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
             offspring.mutate()
             settings.simulation.organisms.add(offspring)
+            settings.simulation.plants.add(offspring)
             # print("Plant offspring birthed!")
 
     def copy(self, tile: Tile):

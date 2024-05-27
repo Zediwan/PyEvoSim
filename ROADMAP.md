@@ -89,8 +89,8 @@ This roadmap outlines the planned features and milestones for the Evolution Simu
 - [ ] Conduct thorough testing and debugging.
 
 ## Milestones for the lecture Programming for Data Science
-- [ ] Choose a project + Project management [April 25]
-- [ ] Milestone 1: Organism Database + GitHub [May 2]
-- [ ] Milestone 2: Organism Database interaction + Classes + Refactoring [May 16]
+- [x] Choose a project + Project management [April 25]
+- [x] Milestone 1: Organism Database + GitHub [May 2]
+- [x] Milestone 2: Organism Database interaction + Classes + Refactoring [May 16]
 - [ ] Milestone 3: Visualization and Genetic Analysis + Unittests + Issues [May 23]
 - [ ] Virtual environment + In-person Presentation [May 30]

@@ -1,4 +1,12 @@
-noise==1.2.2
-pygame==2.5.2
-pygame-menu==4.4.3
-ttkthemes==3.2.2
+opensimplex
+pygame
+pygame-menu
+ttkthemes
+pandasql
+pandastable
+customtkinter
+tkinter
+pandas 
+glob2
+matplotlib
+

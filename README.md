@@ -23,34 +23,40 @@ This project can be used to try out different simulation conditions and settings
 
 ### Simulation
 
-To run the simulation you need to run the [main.py](code/simulation/main.py) file. When an organism dies in the simulation it is logged to a database with all the relevant information.
+To run the simulation you need to run the [main.py](code/simulation/main.py) file.
 
-Note: the database can be inspected without running the simulation as it uses a database from an older run.
+From there currently the `Database` button is currently not implemented as we are working on merging the two parts of the project into one GUI. However by pressing `Simulation` the user gets into the world where he can toggle `paused` to enable the simulation running (also works with `spacebar`.
 
-#### World generation
+In the `Options` menu the user can toggle wheter he wants to save the organisms, animals, plants to the database. (Note that `Create database` needs to be toggled for `Save "Animals / Plants" to database` to work). The `Screen` menu is not yet implemented and acts as a placeholder.
 
-Then you get the [starting menu](assets/images/Screenshot_Starting_Menu.png). From here you can press `GENERATE WORLD` to get to the [world generator](assets/images/Screenshot_Generate_World_empty.png).
+In the topright is the toolbar wich has the following features:
+- `i` show information about an organism when pressing on the tile
+- `A` spawning animals
+- `P` spawning plants
+- `KA` killing animals
+- `KP` killing plants
 
-Now by pressing `GENERATE WORLD` you can repeatedly [generate new worlds](assets/images/Screenshot_Generate_World_filled.png) until you find one you like.
+The user can find many more settings and options by traversing the menu on the right side.
 
-With the mouse you can hover over the world and when [pressing the mouse button you can lower the height level of the tiles](assets/images/Screenshot_Generate_World_world_editing.png), eventually creating rivers and lakes.
+-`World` for editing the world defining functions and randomising their values.
+  - `Height` for scaling the general height of the world.
+  - `Moisture` for scaling the general moisture of the world.
+  - `Scale` for zooming in and out of the world (Note: does not change the animal / plant size).
+  - `Randomise Everything` to randomise all function values.
 
-Additionally by pressing `p` you can spawn plants and by pressing `a` you can spawn animals, see [here](assets/images/Screenshot_Generate_World_plants_and_animals.png) (note if the world has not been populated by the user when the simulation is started, animals and plants are spawned automatically)
+-`Spawning` for spawning entities without the mouse
+  - `Num. Animals: ` enter a number of animals that should be spawned and press enter.
+  - `Num. PLants: ` enter a number of plants that should be spawned and press enter.
 
-#### Simulating
+The following submenus are currently under construction and not completely properly structured but feel free to check them out and play around.
 
-When pressing `START` the simulation begins to run.
 
-Now when clicking on an animal or a tile with a plant the [stats of said organism are displayed](assets/images/Screenshot_Simulation_stat_example.png).
+-`Entities`
 
-When pressing `SPACE` the user can pause the simulation and run it again by pressing `SPACE` again.
-
-With the `ESCAPE` button the user can acces the [simulation settings](assets/images/Screenshot_Simulation_settings.png). (This is work in progress and has no use case for now, except from returning to the main menu)
-
-By pressing with the mouse on a tile without and organism a new animal can be spawned.
+-`DNA`
 
 ### Database
-To access, filter and query the database, you need to run the [GUI_main.py](code/database/GUI_main.py) file.
+To access, filter and query the database, you need to run the [gui.py](code/database/gui.py) file.
 
 To sort data in ascending/descending order in a column, right-click on the column and choose `Sort by "column name"` followed by an arrow.
 
@@ -88,7 +94,7 @@ This project was initiated by Jeremy Moser.
 
 Later on it was worked on as a project for a lecture Programmig for Data Science by Jeremy Moser, Andrin Müller, Dimoth Pathiniwasam and Milos Kecman.
 
-Inspirations for the project were other projects like [the Bibites](https://www.youtube.com/@TheBibitesDigitalLife), [Coding Train](https://github.com/CodingTrain), [Sebastian Lague](https://github.com/SebLague) and many more.
+Inspirations for the project were other projects like [the Bibites](https://www.youtube.com/@TheBibitesDigitalLife), [Coding Train](https://github.com/CodingTrain), [Sebastian Lague](https://github.com/SebLague), [LifeEngine](https://github.com/MaxRobinsonTheGreat/LifeEngine) and many more.
 
 ## License
 
