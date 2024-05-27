@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 from abc import ABC, abstractmethod
 
+import datetime
 import pygame
 import os
 import helper.database as database
@@ -409,6 +410,7 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     def log_to_database(self):
         if not os.path.isfile(database.path_last_json_created):
-            database.create_database_json(csv_headers=self.get_headers(), json_filename="data/test.json")
+            name = datetime.datetime.now().strftime("%Y%m%d%H%M")
+            database.create_database_json(csv_headers=self.get_headers(), json_filename=f"data/database_{name}.json")
         database.add_data(new_data_dict=self.get_stats(), json_filename=database.path_last_json_created)
     #endregion

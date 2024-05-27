@@ -1,6 +1,6 @@
 import pygame
 import pygame_menu
-
+import datetime
 import settings.database
 import helper.database as database
 import settings.screen
@@ -642,7 +642,17 @@ class Simulation():
     #endregion
 
     def convert_database(self) -> None:
-        database.save_csv(database.path_last_json_created, "data/test.csv")
+        """
+        Converts the latest database data to a CSV file.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        name = datetime.datetime.now().strftime("%Y%m%d%H%M")
+        database.save_csv(database.path_last_json_created, f"data/database_{name}.json")
 
     def _quit(self) -> None:
         pygame.quit()
