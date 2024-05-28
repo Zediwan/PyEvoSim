@@ -66,7 +66,7 @@ class DNA:
     attack_power_mutation_range: float = 2
     
     defense_min: float = 0
-    defense_max: float = attack_power_max
+    defense_max: float = attack_power_max / 2
     defense_muation_range: float = 2
 
     color_mutation_range: float = 12

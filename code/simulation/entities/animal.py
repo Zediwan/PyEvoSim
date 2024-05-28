@@ -25,6 +25,7 @@ class Animal(Organism):
     _STARTING_HEALTH: float = _MAX_HEALTH
     _STARTING_ENERGY: float = _MAX_ENERGY
     _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (8, 16)
+    _STARTING_DEFENSE_RANGE: tuple[float, float] = _STARTING_ATTACK_POWER_RANGE
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
@@ -73,6 +74,10 @@ class Animal(Organism):
     @classmethod
     def set_starting_attack_power_range(cls, value: tuple[float, float]):
         cls._STARTING_ATTACK_POWER_RANGE = value
+    
+    @classmethod
+    def set_starting_defense_range(cls, value: tuple[float, float]):
+        cls._STARTING_DEFENSE_RANGE = value
 
     @classmethod
     def set_starting_moisture_preference_range(cls, value: tuple[float, float]):
@@ -148,6 +153,7 @@ class Animal(Organism):
                 random.uniform(Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1]),
                 random.uniform(Animal._STARTING_REPRODUCTION_CHANCE_RANGE[0], Animal._STARTING_REPRODUCTION_CHANCE_RANGE[1]),
                 random.uniform(Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0], Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1]),
+                random.uniform(Animal._STARTING_DEFENSE_RANGE[0], Animal._STARTING_DEFENSE_RANGE[1]),
             )
         #endregion
 
