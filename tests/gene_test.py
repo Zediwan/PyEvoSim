@@ -2,7 +2,6 @@ from code.simulation.dna.gene import Gene
 import random
 import threading
 import unittest
-import pytest
 
 class TestGene(unittest.TestCase):
     def setUp(self) -> None:
