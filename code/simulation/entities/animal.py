@@ -185,12 +185,13 @@ class Animal(Organism):
             destination = None
         else:
             best_growth = 0
-            destination = self.tile.get_random_neigbor(needs_no_animal=True)
+            destination = self.tile.get_random_neigbor()
 
         ns = self.tile.get_neighboring_tiles()
         for n in ns:
             if n.has_animal():
-                continue
+                if random.random() <= 0.75:
+                    continue
             if not n.has_plant():
                 continue
             if n.plant.sprite.health > best_growth:
@@ -207,6 +208,11 @@ class Animal(Organism):
 
         """
         super().handle_attack()
+        if self.desired_tile_movement:
+            if self.desired_tile_movement is not self.tile:
+                if self.desired_tile_movement.has_animal():
+                    self.attack(self.desired_tile_movement.animal.sprite)
+        
         if self.tile.has_plant() and self.wants_to_eat():
             self.attack(self.tile.plant.sprite)
 
@@ -219,8 +225,11 @@ class Animal(Organism):
         """
         super().handle_movement()
         if self.desired_tile_movement:
-            self.enter_tile(self.desired_tile_movement)
-            self.energy -= Animal._MOVEMENT_ENERGY_COST
+            try:
+                self.enter_tile(self.desired_tile_movement)
+                self.energy -= Animal._MOVEMENT_ENERGY_COST
+            except:
+                pass
     #endregion
 
     #region tiles
