@@ -320,6 +320,8 @@ class Simulation():
         self._dna_settings_menu.add.range_slider("", DNA.min_reproduction_energy_mutation_range, (0, DNA.min_reproduction_energy_max), increment=.01, onchange=DNA.set_min_reproduction_energy_mutation_range)
         self._dna_settings_menu.add.label("Reproduction Chance Mutation Range")
         self._dna_settings_menu.add.range_slider("", DNA.reproduction_chance_mutation_range, (0, DNA.reproduction_chance_max), increment=.01, onchange=DNA.set_reproduction_chance_mutation_range)
+        self._dna_settings_menu.add.label("Energy to offspring ratio Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.energy_to_offspring_mutation_range, (0, DNA.energy_to_offspring_max), increment=.01, onchange=DNA.set_energy_to_offspring_mutation_range)
 
         self._dna_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
@@ -349,7 +351,8 @@ class Simulation():
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_min_reproduction_energy_range)
         self._animal_settings_menu.add.label("Spawning Reproduction Chance")
         self._animal_settings_menu.add.range_slider("", Animal._STARTING_REPRODUCTION_CHANCE_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_reproduction_chance_range)
-
+        self._animal_settings_menu.add.label("Spawning Energy to offspring ratio")
+        self._animal_settings_menu.add.range_slider("", Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_starting_energy_to_offspring_ratio_range)
 
         self._animal_settings_menu.add.label("Energy Maintenance Cost")
         self._animal_settings_menu.add.range_slider("", Animal._BASE_ENERGY_MAINTENANCE, (0, 100), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Animal.set_base_energy_maintenance)
@@ -377,6 +380,8 @@ class Simulation():
         self._plant_settings_menu.add.range_slider("", Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_min_reproduction_energy_range)
         self._plant_settings_menu.add.label("Spawning Reproduction Chance")
         self._plant_settings_menu.add.range_slider("", Plant._STARTING_REPRODUCTION_CHANCE_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_reproduction_chance_range)
+        self._plant_settings_menu.add.label("Spawning Energy to offspring ratio")
+        self._plant_settings_menu.add.range_slider("", Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE, (0, 1), increment=0.01, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_starting_energy_to_offspring_ratio_range)
 
         self._plant_settings_menu.add.label("Energy Maintenance Cost")
         self._plant_settings_menu.add.range_slider("", Plant._BASE_ENERGY_MAINTENANCE, (0, 100), increment=1, range_box_color=self.TRANSPARENT_BLACK_COLOR, onchange=Plant.set_base_energy_maintenance)
@@ -561,7 +566,7 @@ class Simulation():
             fps_surface: pygame.Surface = self.fps_font.render(f"{int(self._clock.get_fps())}", True, self.FPS_FONT_COLOR)
             fps_surface.set_alpha(self.fps_alpha)
             if not draw_world:
-                background_surface = fps_surface.copy()
+                background_surface = pygame.Surface(fps_surface.get_size())
                 background_surface.fill((255,255,255))
                 self._surface.blit(background_surface, background_surface.get_rect(bottomleft = self._surface.get_rect().bottomleft))
             self._surface.blit(
