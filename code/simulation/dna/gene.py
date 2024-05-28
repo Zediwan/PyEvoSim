@@ -158,4 +158,4 @@ class ColorGene(Gene):
         Returns:
             None
         """
-        super().__init__(0, 255, value, mutation_range)
+        super().__init__(1, 255, value, mutation_range)
