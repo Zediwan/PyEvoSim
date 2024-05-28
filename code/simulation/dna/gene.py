@@ -113,6 +113,16 @@ class PercentageGene(Gene):
                 Mutates the gene's value by adding a random float value within the mutation range to the current value.
     """
     def __init__(self, value: float | int, mutation_range: float = .01) -> None:
+        """
+        Initializes a new PercentageGene instance with the provided parameters.
+
+        Parameters:
+            value (float | int): The initial value of the PercentageGene instance.
+            mutation_range (float, optional): The range within which the gene's value can mutate. Defaults to 0.01.
+
+        Returns:
+            None
+        """
         super().__init__(1, 0, value, mutation_range)
         
 class ColorGene(Gene):
