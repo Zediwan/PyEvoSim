@@ -7,6 +7,7 @@ from entities.animal import Animal
 from entities.plant import Plant
 import settings.simulation
 from dna.dna import DNA
+from dna.gene import ColorComponentGene, PercentageGene, Gene
 from world.tile import Tile
 
 from world.world import World
@@ -309,7 +310,7 @@ class Simulation():
         self._dna_settings_menu.add.label("Attack Power Mutation Range")
         self._dna_settings_menu.add.range_slider("", DNA.attack_power_mutation_range, (0, DNA.attack_power_max), increment=1, onchange=DNA.set_attack_power_mutation_range)
         self._dna_settings_menu.add.label("Color Mutation Range")
-        self._dna_settings_menu.add.range_slider("", DNA.color_mutation_range, (0, DNA.color_max), increment=1, onchange=DNA.set_color_mutation_range)
+        self._dna_settings_menu.add.range_slider("", DNA.color_mutation_range, (0, ColorComponentGene.MAX), increment=1, onchange=DNA.set_color_mutation_range)
         self._dna_settings_menu.add.label("Prefered Moisture Mutation Range")
         self._dna_settings_menu.add.range_slider("", DNA.prefered_moisture_muation_range, (0, DNA.prefered_moisture_max), increment=.01, onchange=DNA.set_prefered_moisture_mutation_range)
         self._dna_settings_menu.add.label("Prefered Height Mutation Range")

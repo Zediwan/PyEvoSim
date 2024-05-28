@@ -145,21 +145,21 @@ class PercentageGene(Gene):
             raise ValueError(f"Percentage gene min {min_value} cannot be smaller than {PercentageGene.MIN}.")
         super().__init__(max_value=max_value, min_value=min_value, value=value, mutation_range=mutation_range)
         
-class ColorGene(Gene):
+class ColorComponentGene(Gene):
     """
-    Represents a gene for color values with a value that can mutate within a specified range.
+    Represents a gene for color component values with a value that can mutate within a specified range.
 
     Attributes:
-        MAX (int): The maximum value that the color gene can have (default is 255).
-        MIN (int): The minimum value that the color gene can have (default is 1).
-        BASE_MUTATION_RANGE (int): The base range within which the color gene's value can mutate (default is 1).
+        MAX (int): The maximum value that the color component gene can have (default is 255).
+        MIN (int): The minimum value that the color component gene can have (default is 1).
+        BASE_MUTATION_RANGE (int): The base range within which the color component gene's value can mutate (default is 1).
 
     Methods:
         __init__(value: float | int, max_value: float = MAX, min_value: float = MIN, mutation_range: float = BASE_MUTATION_RANGE) -> None:
-            Initializes a new ColorGene instance with the provided parameters.
+            Initializes a new ColorComponentGene instance with the provided parameters.
 
     Raises:
-        ValueError: If max_value exceeds ColorGene.MAX or if min_value is smaller than ColorGene.MIN.
+        ValueError: If max_value exceeds ColorComponentGene.MAX or if min_value is smaller than ColorComponentGene.MIN.
 
     Returns:
         None
@@ -169,23 +169,23 @@ class ColorGene(Gene):
     BASE_MUTATION_RANGE = 1
     def __init__(self, value: float | int, max_value: float = MAX, min_value: float = MIN, mutation_range: float = BASE_MUTATION_RANGE) -> None:
         """
-        Initialize a ColorGene object.
+        Initialize a ColorComponentGene object.
 
         Parameters:
         - value (float | int): The initial value for the gene.
-        - max_value (float): The maximum value allowed for the gene (default is ColorGene.MAX).
-        - min_value (float): The minimum value allowed for the gene (default is ColorGene.MIN).
-        - mutation_range (float): The range within which the gene can mutate (default is ColorGene.BASE_MUTATION_RANGE).
+        - max_value (float): The maximum value allowed for the gene (default is ColorComponentGene.MAX).
+        - min_value (float): The minimum value allowed for the gene (default is ColorComponentGene.MIN).
+        - mutation_range (float): The range within which the gene can mutate (default is ColorComponentGene.BASE_MUTATION_RANGE).
 
         Raises:
-        - ValueError: If max_value exceeds ColorGene.MAX or if min_value is smaller than ColorGene.MIN.
+        - ValueError: If max_value exceeds ColorComponentGene.MAX or if min_value is smaller than ColorComponentGene.MIN.
 
         Returns:
         - None
         """
-        if max_value > ColorGene.MAX:
-            raise ValueError(f"Color gene max {max_value} cannot exceed {ColorGene.MAX}.")
-        if min_value < ColorGene.MIN:
-            raise ValueError(f"Color gene min {min_value} cannot be smaller than {ColorGene.MIN}.")
+        if max_value > ColorComponentGene.MAX:
+            raise ValueError(f"Color gene max {max_value} cannot exceed {ColorComponentGene.MAX}.")
+        if min_value < ColorComponentGene.MIN:
+            raise ValueError(f"Color gene min {min_value} cannot be smaller than {ColorComponentGene.MIN}.")
 
         super().__init__(max_value=max_value, min_value=min_value, value=value, mutation_range=mutation_range)

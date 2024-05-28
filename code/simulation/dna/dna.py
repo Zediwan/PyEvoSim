@@ -3,7 +3,7 @@ from __future__ import annotations
 import pygame
 
 import random
-from .gene import Gene
+from .gene import Gene, ColorComponentGene, PercentageGene
 
 
 class DNA:
@@ -15,8 +15,6 @@ class DNA:
         attack_power_max (float): The maximum value for attack power gene.
         attack_power_mutation_range (float): The mutation range for attack power gene.
 
-        color_min (float): The minimum value for color gene.
-        color_max (float): The maximum value for color gene.
         color_mutation_range (float): The mutation range for color gene.
 
         prefered_moisture_min (float): The minimum value for preferred moisture gene.
@@ -74,9 +72,7 @@ class DNA:
     attack_power_max: float = 50
     attack_power_mutation_range: float = 2
 
-    color_min: float = 1
-    color_max: float = 255
-    color_mutation_range: float = 10
+    color_mutation_range: float = 12
 
     prefered_moisture_min: float = 0
     prefered_moisture_max: float = 1
@@ -238,99 +234,93 @@ class DNA:
         energy_to_offspring_ratio: float
     ) -> None:
         """
-        Initializes a new DNA instance with the provided parameters.
+        Initialize a new DNA instance with the provided genetic traits.
 
         Parameters:
-            color (pygame.Color): The color of the DNA instance.
-            attack_power (float): The attack power of the DNA instance.
-            prefered_moisture (float): The preferred moisture level of the DNA instance.
-            prefered_height (float): The preferred height of the DNA instance.
-            mutation_chance (float): The mutation chance of the DNA instance.
-            min_reproduction_health (float): The minimum reproduction health of the DNA instance.
-            min_reproduction_energy (float): The minimum reproduction energy of the DNA instance.
-            reproduction_chance (float): The reproduction chance of the DNA instance.
-            energy_to_offspring_ratio (float): The energy to offspring ratio of the DNA instance.
+            color (pygame.Color): The color of the organism.
+            attack_power (float): The attack power of the organism.
+            prefered_moisture (float): The preferred moisture level of the organism.
+            prefered_height (float): The preferred height of the organism.
+            mutation_chance (float): The chance of mutation for the organism.
+            min_reproduction_health (float): The minimum reproduction health of the organism.
+            min_reproduction_energy (float): The minimum reproduction energy of the organism.
+            reproduction_chance (float): The chance of reproduction for the organism.
+            energy_to_offspring_ratio (float): The energy passed to offspring by the organism.
 
         Returns:
             None
         """
         self.genes: list[Gene] = []
 
-        self.color_r_gene: Gene = Gene(
-            DNA.color_max,
-            DNA.color_min,
-            color.r,
-            DNA.color_mutation_range,
-        )
+        self.color_r_gene: ColorComponentGene = ColorComponentGene(
+            value=color.r, 
+            mutation_range=DNA.color_mutation_range
+            )
         self.genes.append(self.color_r_gene)
-        self.color_g_gene: Gene = Gene(
-            DNA.color_max,
-            DNA.color_min,
-            color.g,
-            DNA.color_mutation_range,
+        self.color_g_gene: ColorComponentGene = ColorComponentGene(
+            value=color.g,
+            mutation_range=DNA.color_mutation_range,
         )
         self.genes.append(self.color_g_gene)
-        self.color_b_gene: Gene = Gene(
-            DNA.color_max,
-            DNA.color_min,
-            color.b,
-            DNA.color_mutation_range,
+        self.color_b_gene: ColorComponentGene = ColorComponentGene(
+            value=color.b,
+            mutation_range=DNA.color_mutation_range,
         )
         self.genes.append(self.color_b_gene)
         self.attack_power_gene: Gene = Gene(
-            DNA.attack_power_max,
-            DNA.attack_power_min,
-            attack_power,
-            DNA.attack_power_mutation_range,
+            max_value=DNA.attack_power_max,
+            min_value=DNA.attack_power_min,
+            value=attack_power,
+            mutation_range=DNA.attack_power_mutation_range,
         )
         self.genes.append(self.attack_power_gene)
-        self.prefered_moisture_gene: Gene = Gene(
-            DNA.prefered_moisture_max,
-            DNA.prefered_moisture_min,
-            prefered_moisture,
-            DNA.prefered_moisture_muation_range,
+        self.prefered_moisture_gene: PercentageGene = PercentageGene(
+            max_value=DNA.prefered_moisture_max,
+            min_value=DNA.prefered_moisture_min,
+            value=prefered_moisture,
+            mutation_range=DNA.prefered_moisture_muation_range,
         )
         self.genes.append(self.prefered_moisture_gene)
-        self.prefered_height_gene: Gene = Gene(
-            DNA.prefered_height_max,
-            DNA.prefered_height_min,
-            prefered_height,
-            DNA.prefered_height_muation_range,
+        self.prefered_height_gene: PercentageGene = PercentageGene(
+            max_value=DNA.prefered_height_max,
+            min_value=DNA.prefered_height_min,
+            value=prefered_height,
+            mutation_range=DNA.prefered_height_muation_range,
         )
         self.genes.append(self.prefered_height_gene)
-        self.mutation_chance_gene: Gene = Gene(
-            DNA.mutation_chance_max,
-            DNA.mutation_chance_min,
-            muation_chance,
-            DNA.mutation_chance_mutation_range
+        self.mutation_chance_gene: PercentageGene = PercentageGene(
+            max_value=DNA.mutation_chance_max,
+            min_value=DNA.mutation_chance_min,
+            value=muation_chance,
+            mutation_range=DNA.mutation_chance_mutation_range
         )
         self.genes.append(self.mutation_chance_gene)
-        self.min_reproduction_health_gene: Gene = Gene(
-            DNA.min_reproduction_health_max,
-            DNA.min_reproduction_health_min,
-            min_reproduction_health,
-            DNA.min_reproduction_health_mutation_range
+        self.min_reproduction_health_gene: PercentageGene = PercentageGene(
+            max_value=DNA.min_reproduction_health_max,
+            min_value=DNA.min_reproduction_health_min,
+            value=min_reproduction_health,
+            mutation_range=DNA.min_reproduction_health_mutation_range
         )
         self.genes.append(self.min_reproduction_health_gene)
-        self.min_reproduction_energy_gene: Gene = Gene(
-            DNA.min_reproduction_energy_max,
-            DNA.min_reproduction_energy_min,
-            min_reproduction_energy,
-            DNA.min_reproduction_energy_mutation_range
+        self.min_reproduction_energy_gene: PercentageGene = PercentageGene(
+            max_value=DNA.min_reproduction_energy_max,
+            min_value=DNA.min_reproduction_energy_min,
+            value=min_reproduction_energy,
+            mutation_range=DNA.min_reproduction_energy_mutation_range
         )
         self.genes.append(self.min_reproduction_energy_gene)
-        self.reproduction_chance_gene: Gene = Gene(
-            DNA.reproduction_chance_max,
-            DNA.reproduction_chance_min,
-            reproduction_chance,
-            DNA.reproduction_chance_mutation_range
+        self.reproduction_chance_gene: PercentageGene = PercentageGene(
+            max_value=DNA.reproduction_chance_max,
+            min_value=DNA.reproduction_chance_min,
+            value=reproduction_chance,
+            mutation_range=DNA.reproduction_chance_mutation_range
         )
         self.genes.append(self.reproduction_chance_gene)
-        self.energy_to_offspring_ratio_gene: Gene = Gene(
-            DNA.energy_to_offspring_max,
-            DNA.energy_to_offspring_min,
-            energy_to_offspring_ratio,
-            DNA.energy_to_offspring_mutation_range
+        self.energy_to_offspring_ratio_gene: PercentageGene = PercentageGene(
+            max_value=DNA.energy_to_offspring_max,
+            min_value=DNA.energy_to_offspring_min,
+            value=energy_to_offspring_ratio,
+            mutation_range=DNA.energy_to_offspring_mutation_range
         )
         self.genes.append(self.energy_to_offspring_ratio_gene)
 
