@@ -3,7 +3,6 @@ import customtkinter as ctk
 import pandas as pd
 from pandasql import sqldf
 from pandastable import Table
-import glob2 as glob
 from pandasql import sqldf
 from pandastable import Table
 import glob
@@ -13,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 def read_csv():
-    csv = glob.glob("../database/*.csv")
+    csv = glob.glob("code/database/*.csv")
     csv = csv[0]
     db = pd.read_csv(csv, header=None,
                      names=["Type", "ID", "Birth_Time_ms", "Deathtime_Time_ms", "Time_lived", "Max_Health", "Updates", "Health_Ratio", "Energy", "Max_Energy", "Energy_Ratio", "Tiles_Travel",

@@ -3,7 +3,6 @@ from __future__ import annotations
 import random
 import pygame
 
-import settings.colors
 import settings.database
 import settings.screen
 import settings.simulation
@@ -37,6 +36,7 @@ class Plant(Organism):
     _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (.1, 1)
     _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (.1, 1)
     _STARTING_REPRODUCTION_CHANCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE: tuple[float, float] = (0, 1)
     #endregion
     #region class setting setters
     @classmethod
@@ -90,6 +90,10 @@ class Plant(Organism):
     @classmethod
     def set_starting_reproduction_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_REPRODUCTION_CHANCE_RANGE = value
+    
+    @classmethod
+    def set_starting_energy_to_offspring_ratio_range(cls, value: tuple[float, float]):
+        cls._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE = value
     #endregion
     #region class properties
     @property
@@ -136,7 +140,8 @@ class Plant(Organism):
                 random.uniform(Plant._STARTING_MUTATION_CHANCE_RANGE[0], Plant._STARTING_MUTATION_CHANCE_RANGE[1]),
                 random.uniform(Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1]),
                 random.uniform(Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1]),
-                random.uniform(Plant._STARTING_REPRODUCTION_CHANCE_RANGE[0], Plant._STARTING_REPRODUCTION_CHANCE_RANGE[1])
+                random.uniform(Plant._STARTING_REPRODUCTION_CHANCE_RANGE[0], Plant._STARTING_REPRODUCTION_CHANCE_RANGE[1]),
+                random.uniform(Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0], Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1]),
             )
         #endregion
 
@@ -244,16 +249,12 @@ class Plant(Organism):
     def reproduce(self):
         option = self.tile.get_random_neigbor(needs_no_plant=True, needs_no_water=True)
         if option:
-            ENERGY_TO_CHILD = max(
-                Plant._REPRODUCTION_ENERGY_COST_FACTOR * self.MAX_ENERGY,
-                self.energy * .8
-                )
+            ENERGY_TO_CHILD = self.MAX_ENERGY * self.energy_to_offspring_ratio
             self.energy -= ENERGY_TO_CHILD
             offspring = self.copy(option)
             offspring_energy_distribution = .5
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
-            offspring.mutate()
             settings.simulation.organisms.add(offspring)
             settings.simulation.plants.add(offspring)
             # print("Plant offspring birthed!")
@@ -262,5 +263,8 @@ class Plant(Organism):
         super().copy(tile)
         Plant.plants_birthed += 1
 
-        return Plant(tile, parent=self, dna=self.dna.copy())
+        copied_dna = self.dna.copy()
+        copied_dna.mutate()
+
+        return Plant(tile, parent=self, dna=copied_dna)
     #endregion

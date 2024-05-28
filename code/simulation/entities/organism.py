@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-import settings.colors
 import settings.database
 import settings.screen
 import stats.stat_panel
@@ -16,6 +15,8 @@ from world.tile import Tile
 
 
 class Organism(ABC, pygame.sprite.Sprite):
+    SELECTED_ORGANISM_COLOR: pygame.Color = pygame.Color("white")
+    SELECTED_ORGANISM_RECT_WIDTH: float = 1
     #region class properties
     @property
     @abstractmethod
@@ -90,9 +91,18 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         self.parent: Organism
         self.dna: DNA = dna
-        self._set_attributes_from_dna()
-
         self.tile: Tile = None
+
+        self.color: pygame.Color = None
+        self.attack_power: float = None
+        self.moisture_preference: float = None
+        self.height_preference: float = None
+        self.min_reproduction_health: float = None
+        self.min_reproduction_energy: float = None
+        self.reproduction_chance: float = None
+        self.energy_to_offspring_ratio: float = None
+
+        self._set_attributes_from_dna()
         self.enter_tile(tile)
 
     #region properties
@@ -138,6 +148,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.min_reproduction_health: float = self.dna.min_reproduction_health_gene.value
         self.min_reproduction_energy: float = self.dna.min_reproduction_energy_gene.value
         self.reproduction_chance: float = self.dna.reproduction_chance_gene.value
+        self.energy_to_offspring_ratio = self.dna.energy_to_offspring_ratio_gene.value
     #endregion
 
     #region main methods
@@ -316,10 +327,6 @@ class Organism(ABC, pygame.sprite.Sprite):
     def copy(self, tile: Tile) -> Organism:
         self.num_offspring += 1
         Organism.organisms_birthed += 1
-
-    def mutate(self):
-        self.dna.mutate()
-        self._set_attributes_from_dna()
     #endregion
 
     #region stats
@@ -332,9 +339,9 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         pygame.draw.rect(
             screen,
-            settings.colors.SELECTED_ORGANISM_COLOR,
+            Organism.SELECTED_ORGANISM_COLOR,
             self.rect.move(offset[0], offset[1]),
-            width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+            width=Organism.SELECTED_ORGANISM_RECT_WIDTH,
         )
 
         self.stat_panel.update(self.rect.move(offset[0], offset[1]), stats_data)
@@ -374,7 +381,8 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.dna.mutation_chance_gene.value,
             self.dna.min_reproduction_health_gene.value,
             self.dna.min_reproduction_energy_gene.value,
-            self.dna.reproduction_chance_gene.value
+            self.dna.reproduction_chance_gene.value,
+            self.dna.energy_to_offspring_ratio_gene.value
         ]
 
     def get_headers(self) -> list[str]:
@@ -407,7 +415,8 @@ class Organism(ABC, pygame.sprite.Sprite):
             "Mutation chance",
             "Min Reproduction Health",
             "Min Reproduction Energy",
-            "Reproduction Chance"
+            "Reproduction Chance",
+            "Energy to offspring ratio"
         ]
 
     def save_to_csv(self):

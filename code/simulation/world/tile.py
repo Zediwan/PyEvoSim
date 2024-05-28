@@ -5,59 +5,126 @@ import random
 import pygame
 
 import helper.direction
-import settings.colors
-import settings.font
-import settings.simulation
 
 
 class Tile(pygame.sprite.Sprite):
     """
-    Class representing a tile in the simulation.
+    Class representing a tile in a game world.
 
     Attributes:
-        rect (pygame.Rect): The rectangle representing the tile.
-        height (float): The height level of the tile, ranging from 0 to 1.
-        moisture (float): The moisture level of the tile, ranging from 0 to 1.
-        is_border (bool): Flag indicating if the tile is a border tile.
-
-    Properties:
-        moisture (float): Get or set the moisture level of the tile.
-        height (float): Get or set the height level of the tile.
+        WATER_COLOR: pygame.Color - Color representing water tiles.
+        SAND_COLOR: pygame.Color - Color representing sand tiles.
+        SCORCHED_COLOR: pygame.Color - Color representing scorched tiles.
+        BARE_COLOR: pygame.Color - Color representing bare tiles.
+        TUNDRA_COLOR: pygame.Color - Color representing tundra tiles.
+        SNOW_COLOR: pygame.Color - Color representing snow tiles.
+        TEMPERATE_DESERT_COLOR: pygame.Color - Color representing temperate desert tiles.
+        SHRUBLAND_COLOR: pygame.Color - Color representing shrubland tiles.
+        TAIGA_COLOR: pygame.Color - Color representing taiga tiles.
+        GRASSLAND_COLOR: pygame.Color - Color representing grassland tiles.
+        TEMPERATE_DECIDUOUS_FOREST_COLOR: pygame.Color - Color representing temperate deciduous forest tiles.
+        TEMPERATE_RAIN_FOREST_COLOR: pygame.Color - Color representing temperate rain forest tiles.
+        SUBTROPICAL_DESERT_COLOR: pygame.Color - Color representing subtropical desert tiles.
+        TROPICAL_SEASONAL_FOREST_COLOR: pygame.Color - Color representing tropical seasonal forest tiles.
+        TROPICAL_RAIN_FOREST_COLOR: pygame.Color - Color representing tropical rain forest tiles.
+        WATER_HEIGHT_LEVEL: float - Height level for water tiles.
+        BEACH_HEIGHT_LEVEL: float - Height level for beach tiles.
+        TROPICAL_HEIGHT_LEVEL: float - Height level for tropical tiles.
+        TEMPERATE_HEIGHT_LEVEL: float - Height level for temperate tiles.
+        TRANSITION_HEIGHT_LEVEL: float - Height level for transition tiles.
+        MOUNTAIN_HEIGHT_LEVEL: float - Height level for mountain tiles.
+        NO_GROWTH: float - No growth value.
+        MINIMAL_GROWTH: float - Minimal growth value.
+        LIMITED_GROWTH: float - Limited growth value.
+        LOW_GROWTH: float - Low growth value.
+        MODERATE_GROWTH: float - Moderate growth value.
+        SLIGHTLY_FAVORABLE_GROWTH: float - Slightly favorable growth value.
+        FAVORABLE_GROWTH: float - Favorable growth value.
+        VERY_FAVORABLE_GROWTH: float - Very favorable growth value.
+        OPTIMAL_GROWTH: float - Optimal growth value.
 
     Methods:
-        draw(screen: pygame.Surface) -> None:
+        __init__(self, rect: pygame.Rect, height: float = 0, moisture: float = 0, is_border: bool = False) -> None:
+            Initialize a Tile object.
+        draw(self, screen: pygame.Surface) -> None:
             Draw the tile on the screen.
-
-        add_animal(animal) -> None:
+        add_animal(self, animal) -> None:
             Add an animal to the tile.
-
-        add_plant(plant) -> None:
+        add_plant(self, plant) -> None:
             Add a plant to the tile.
-
-        has_animal() -> bool:
+        has_animal(self) -> bool:
             Check if the tile has an animal.
-
-        has_plant() -> bool:
+        has_plant(self) -> bool:
             Check if the tile has a plant.
-
-        add_neighbor(direction: helper.direction.Direction, tile: Tile) -> None:
+        add_neighbor(self, direction: helper.direction.Direction, tile: Tile) -> None:
             Add a neighboring tile in a specific direction.
-
-        get_possible_directions() -> list[helper.direction.Direction]:
-            Get a shuffled list of directions to neighboring tiles.
-
-        get_neighboring_tiles() -> list[Tile]:
-            Get a shuffled list of neighboring tiles.
-
-        get_neighbor_tile(direction: helper.direction.Direction) -> Tile | None:
+        get_possible_directions(self) -> list[helper.direction.Direction]:
+            Get a list of directions representing neighboring tiles.
+        get_neighboring_tiles(self) -> list[Tile]:
+            Get a list of neighboring tiles.
+        get_neighbor_tile(self, direction: helper.direction.Direction) -> Tile | None:
             Get the neighboring tile in a specified direction.
-
-        get_random_neigbor(needs_plant=False, needs_no_plant=False, needs_animal=False, needs_no_animal=False, needs_water=False, needs_no_water=False) -> Tile | None:
+        get_random_neigbor(self, needs_plant=False, needs_no_plant=False, needs_animal=False, needs_no_animal=False, needs_water=False, needs_no_water=False) -> Tile | None:
             Get a random neighboring tile based on specified criteria.
-
-        is_neighboring_tile(tile: Tile) -> bool:
+        is_neighboring_tile(self, tile: Tile) -> bool:
             Check if a given tile is a neighbor of the current tile.
     """
+    #region colors
+    WATER_COLOR: pygame.Color = pygame.Color(26, 136, 157)
+    SAND_COLOR: pygame.Color = pygame.Color(228, 232, 202)
+    SCORCHED_COLOR: pygame.Color = pygame.Color(153, 153, 153)
+    BARE_COLOR: pygame.Color = pygame.Color(187, 187, 187)
+    TUNDRA_COLOR: pygame.Color = pygame.Color(221, 221, 187)
+    SNOW_COLOR: pygame.Color = pygame.Color(248, 248, 248)
+    TEMPERATE_DESERT_COLOR: pygame.Color = pygame.Color(228, 232, 202)
+    SHRUBLAND_COLOR: pygame.Color = pygame.Color(195, 204, 187)
+    TAIGA_COLOR: pygame.Color = pygame.Color(203, 212, 187)
+    GRASSLAND_COLOR: pygame.Color = pygame.Color(196, 212, 170)
+    TEMPERATE_DECIDUOUS_FOREST_COLOR: pygame.Color = pygame.Color(180, 200, 169)
+    TEMPERATE_RAIN_FOREST_COLOR: pygame.Color = pygame.Color(163, 196, 168)
+    SUBTROPICAL_DESERT_COLOR: pygame.Color = pygame.Color(233, 220, 198)
+    TROPICAL_SEASONAL_FOREST_COLOR: pygame.Color = pygame.Color(169, 204, 163)
+    TROPICAL_RAIN_FOREST_COLOR: pygame.Color = pygame.Color(156, 187, 169)
+    #endregion
+    
+    #region height levels
+    WATER_HEIGHT_LEVEL: float = 0.1
+    BEACH_HEIGHT_LEVEL: float = 0.12
+    TROPICAL_HEIGHT_LEVEL: float = 0.3
+    TEMPERATE_HEIGHT_LEVEL: float = 0.6
+    TRANSITION_HEIGHT_LEVEL: float = 0.8
+    MOUNTAIN_HEIGHT_LEVEL: float = 1
+    #endregion
+    
+    #region growth values
+    NO_GROWTH: float = 0
+    MINIMAL_GROWTH: float = 0.3
+    LIMITED_GROWTH: float = 0.4
+    LOW_GROWTH: float = 0.5
+    MODERATE_GROWTH: float = 0.6
+    SLIGHTLY_FAVORABLE_GROWTH: float = 0.7
+    FAVORABLE_GROWTH: float = 0.8
+    VERY_FAVORABLE_GROWTH: float = 0.9
+    OPTIMAL_GROWTH: float = 1
+    #region biom growths
+    WATER_PLANT_GROWTH: float = NO_GROWTH
+    BEACH_PLANT_GROWTH: float = LIMITED_GROWTH
+    SCORCHED_PLANT_GROWTH: float = MINIMAL_GROWTH
+    BARE_PLANT_GROWTH: float = LOW_GROWTH
+    TUNDRA_PLANT_GROWTH: float = MODERATE_GROWTH
+    SNOW_PLANT_GROWTH: float = SLIGHTLY_FAVORABLE_GROWTH
+    TEMPERATE_DESERT_PLANT_GROWTH: float = LOW_GROWTH
+    SHRUBLAND_PLANT_GROWTH: float = MODERATE_GROWTH
+    TAIGA_PLANT_GROWTH: float = FAVORABLE_GROWTH
+    GRASSLAND_PLANT_GROWTH: float = FAVORABLE_GROWTH
+    TEMPERATER_DECIDOUS_FOREST_PLANT_GROWTH: float = VERY_FAVORABLE_GROWTH
+    TEMPERATE_RAIN_FOREST_PLANT_GROWTH: float = OPTIMAL_GROWTH
+    SUBTROPICAL_DESERT_PLANT_GROWTH: float = LOW_GROWTH
+    TROPICAL_SEASON_FOREST_PLANT_GROWTH: float = FAVORABLE_GROWTH
+    TROPICAL_RAIN_FOREST_PLANT_GROWTH: float = VERY_FAVORABLE_GROWTH
+    #endregion
+    #endregion
+
     def __init__(
         self,
         rect: pygame.Rect,
@@ -162,93 +229,93 @@ class Tile(pygame.sprite.Sprite):
         # TODO add all these as settings
         self.has_water = False
 
-        if self.height <= settings.simulation.WATER_HEIGHT_LEVEL:
+        if self.height <= Tile.WATER_HEIGHT_LEVEL:
             # Waterlogged, no growth
-            self.plant_growth_potential = settings.simulation.WATER_PLANT_GROWTH
-            self.color = settings.colors.WATER_COLOR
+            self.plant_growth_potential = Tile.WATER_PLANT_GROWTH
+            self.color = Tile.WATER_COLOR
             self.has_water = True
-        elif self.height <= settings.simulation.BEACH_HEIGHT_LEVEL: # TODO update this so not every tile close to water is sand but it depends on moisture
+        elif self.height <= Tile.BEACH_HEIGHT_LEVEL: # TODO update this so not every tile close to water is sand but it depends on moisture
             # Sandy areas have limited growth
-            self.plant_growth_potential = settings.simulation.BEACH_PLANT_GROWTH
-            self.color = settings.colors.SAND_COLOR
-        elif self.height <= settings.simulation.TROPICAL_HEIGHT_LEVEL:
+            self.plant_growth_potential = Tile.BEACH_PLANT_GROWTH
+            self.color = Tile.SAND_COLOR
+        elif self.height <= Tile.TROPICAL_HEIGHT_LEVEL:
             if self.moisture < 0.16:
                 # Subtropical desert, low growth
                 self.plant_growth_potential = (
-                    settings.simulation.SUBTROPICAL_DESERT_PLANT_GROWTH
+                    Tile.SUBTROPICAL_DESERT_PLANT_GROWTH
                 )
-                self.color = settings.colors.SUBTROPICAL_DESERT_COLOR
+                self.color = Tile.SUBTROPICAL_DESERT_COLOR
             elif self.moisture < 0.33:
                 # Grassland, favorable
-                self.plant_growth_potential = settings.simulation.GRASSLAND_PLANT_GROWTH
-                self.color = settings.colors.GRASSLAND_COLOR
+                self.plant_growth_potential = Tile.GRASSLAND_PLANT_GROWTH
+                self.color = Tile.GRASSLAND_COLOR
             elif self.moisture < 0.66:
                 # Tropical seasonal forest, favorable
                 self.plant_growth_potential = (
-                    settings.simulation.TROPICAL_SEASON_FOREST_PLANT_GROWTH
+                    Tile.TROPICAL_SEASON_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TROPICAL_SEASONAL_FOREST_COLOR
+                self.color = Tile.TROPICAL_SEASONAL_FOREST_COLOR
             else:
                 # Tropical rain forest, very favorable
                 self.plant_growth_potential = (
-                    settings.simulation.TROPICAL_RAIN_FOREST_PLANT_GROWTH
+                    Tile.TROPICAL_RAIN_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TROPICAL_RAIN_FOREST_COLOR
-        elif self.height <= settings.simulation.TEMPERATE_HEIGHT_LEVEL:
+                self.color = Tile.TROPICAL_RAIN_FOREST_COLOR
+        elif self.height <= Tile.TEMPERATE_HEIGHT_LEVEL:
             if self.moisture < 0.16:
                 # Temperate desert, low growth
                 self.plant_growth_potential = (
-                    settings.simulation.TEMPERATE_DESERT_PLANT_GROWTH
+                    Tile.TEMPERATE_DESERT_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_DESERT_COLOR
+                self.color = Tile.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.50:
                 # Grassland, favorable
-                self.plant_growth_potential = settings.simulation.GRASSLAND_PLANT_GROWTH
-                self.color = settings.colors.GRASSLAND_COLOR
+                self.plant_growth_potential = Tile.GRASSLAND_PLANT_GROWTH
+                self.color = Tile.GRASSLAND_COLOR
             elif self.moisture < 0.83:
                 # Temperate deciduous forest, very favorable
                 self.plant_growth_potential = (
-                    settings.simulation.TEMPERATER_DECIDOUS_FOREST_PLANT_GROWTH
+                    Tile.TEMPERATER_DECIDOUS_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_DECIDUOUS_FOREST_COLOR
+                self.color = Tile.TEMPERATE_DECIDUOUS_FOREST_COLOR
             else:
                 # Temperate rain forest, optimal
                 self.plant_growth_potential = (
-                    settings.simulation.TEMPERATE_RAIN_FOREST_PLANT_GROWTH
+                    Tile.TEMPERATE_RAIN_FOREST_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_RAIN_FOREST_COLOR
-        elif self.height <= settings.simulation.TRANSITION_HEIGHT_LEVEL:
+                self.color = Tile.TEMPERATE_RAIN_FOREST_COLOR
+        elif self.height <= Tile.TRANSITION_HEIGHT_LEVEL:
             if self.moisture < 0.33:
                 # Temperate desert, low growth
                 self.plant_growth_potential = (
-                    settings.simulation.TEMPERATE_DESERT_PLANT_GROWTH
+                    Tile.TEMPERATE_DESERT_PLANT_GROWTH
                 )
-                self.color = settings.colors.TEMPERATE_DESERT_COLOR
+                self.color = Tile.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.66:
                 # Shrubland, moderate growth
-                self.plant_growth_potential = settings.simulation.SHRUBLAND_PLANT_GROWTH
-                self.color = settings.colors.SHRUBLAND_COLOR
+                self.plant_growth_potential = Tile.SHRUBLAND_PLANT_GROWTH
+                self.color = Tile.SHRUBLAND_COLOR
             else:
                 # Taiga, favorable
-                self.plant_growth_potential = settings.simulation.TAIGA_PLANT_GROWTH
-                self.color = settings.colors.TAIGA_COLOR
-        elif self.height <= settings.simulation.MOUNTAIN_HEIGHT_LEVEL:
+                self.plant_growth_potential = Tile.TAIGA_PLANT_GROWTH
+                self.color = Tile.TAIGA_COLOR
+        elif self.height <= Tile.MOUNTAIN_HEIGHT_LEVEL:
             if self.moisture < 0.1:
                 # Scorched, minimal growth
-                self.plant_growth_potential = settings.simulation.SCORCHED_PLANT_GROWTH
-                self.color = settings.colors.SCORCHED_COLOR
+                self.plant_growth_potential = Tile.SCORCHED_PLANT_GROWTH
+                self.color = Tile.SCORCHED_COLOR
             elif self.moisture < 0.2:
                 # Bare, low growth
-                self.plant_growth_potential = settings.simulation.BARE_PLANT_GROWTH
-                self.color = settings.colors.BARE_COLOR
+                self.plant_growth_potential = Tile.BARE_PLANT_GROWTH
+                self.color = Tile.BARE_COLOR
             elif self.moisture < 0.5:
                 # Tundra, moderate growth
-                self.plant_growth_potential = settings.simulation.TUNDRA_PLANT_GROWTH
-                self.color = settings.colors.TUNDRA_COLOR
+                self.plant_growth_potential = Tile.TUNDRA_PLANT_GROWTH
+                self.color = Tile.TUNDRA_COLOR
             else:
                 # Snow, slightly favorable
-                self.plant_growth_potential = settings.simulation.SNOW_PLANT_GROWTH
-                self.color = settings.colors.SNOW_COLOR
+                self.plant_growth_potential = Tile.SNOW_PLANT_GROWTH
+                self.color = Tile.SNOW_COLOR
 
         if self.color is None:
             raise ValueError(
@@ -342,27 +409,21 @@ class Tile(pygame.sprite.Sprite):
 
     def get_possible_directions(self) -> list[helper.direction.Direction]:
         """
-        Return a shuffled list of directions representing neighboring Tiles relative to the current Tile object.
+        Return a list of directions representing neighboring Tiles relative to the current Tile object.
 
         Returns:
-            list[helper.direction.Direction]: A shuffled list of directions representing neighboring Tiles.
+            list[helper.direction.Direction]: A list of directions representing neighboring Tiles.
         """
-        # TODO write a test that cheks that the self keys are not shuffled
-        dirs = list(self.neighbors.keys())
-        random.shuffle(dirs)
-        return dirs
+        return list(self.neighbors.keys())
 
     def get_neighboring_tiles(self) -> list[Tile]:
         """
-        Return a shuffled list of neighboring Tile objects relative to the current Tile object.
+        Return a list of neighboring Tile objects relative to the current Tile object.
 
         Returns:
-            list[Tile]: A shuffled list of neighboring Tile objects.
+            list[Tile]: A list of neighboring Tile objects.
         """
-        # TODO write a test that cheks that the self values are not shuffled
-        ns = list(self.neighbors.values())
-        random.shuffle(ns)
-        return ns
+        return list(self.neighbors.values())
 
     def get_neighbor_tile(self, direction: helper.direction.Direction) -> Tile | None:
         """
