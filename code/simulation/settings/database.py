@@ -9,7 +9,7 @@ def update_save_csv(value: bool):
     global save_csv, database_csv_filename
     save_csv = value
     if save_csv:
-        database_csv_filename = f'databases/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+        database_csv_filename = f'data/organism_database_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
 def update_save_animals_csv(value: bool):
     global save_animals_csv
