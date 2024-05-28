@@ -88,3 +88,29 @@ class Gene:
             None
         """
         self.value += random.uniform(-self._mutation_range, self._mutation_range)
+
+
+class PercentageGene(Gene):
+    """
+    Represents a gene that stores a percentage value within the range of 0 to 1.
+
+    Attributes:
+        Inherited from Gene class:
+            _max_value (float): The maximum value that the gene can have (1 for PercentageGene).
+            _min_value (float): The minimum value that the gene can have (0 for PercentageGene).
+            value (float): The current value of the gene.
+            _mutation_range (float): The range within which the gene's value can mutate.
+
+    Methods:
+        Inherited from Gene class:
+            __init__(value: float | int, mutation_range: float = .01) -> None:
+                Initializes a new PercentageGene instance with the provided parameters.
+
+            copy() -> PercentageGene:
+                Creates a copy of the current PercentageGene instance.
+
+            mutate() -> None:
+                Mutates the gene's value by adding a random float value within the mutation range to the current value.
+    """
+    def __init__(self, value: float | int, mutation_range: float = .01) -> None:
+        super().__init__(1, 0, value, mutation_range)
