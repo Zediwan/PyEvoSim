@@ -1,9 +1,10 @@
+
 import unittest
 from code.simulation.helper.noise_function import NoiseFunction
 
 
-class NoiseFunctionTest(unittest.TestCase):
-    def weigh_without_weights_test(self):
+class TestWeigh(unittest.TestCase):
+    def test_weigh_without_weights(self):
         """
         Tests if NoiseFunction.weigh works correctly if no weights are given
         """
@@ -23,7 +24,7 @@ class NoiseFunctionTest(unittest.TestCase):
 
         self.assertEqual(expected_result, result, "Function noise output does not match.")
 
-    def weigh_with_custom_weights_test(self):
+    def test_weigh_with_custom_weights(self):
         """
         Tests if NoiseFunction.weigh works correctly if custom weights for each function are given.
         """
@@ -43,7 +44,7 @@ class NoiseFunctionTest(unittest.TestCase):
 
         self.assertEqual(expected_result, result, "Function noise output does not match.")
 
-    def weigh_with_insufficient_weights_test(self):
+    def test_weigh_with_insufficient_weights(self):
         """
         Tests if NoiseFunction.weigh works correctly if fewer weights than functions are given
         """
@@ -63,7 +64,7 @@ class NoiseFunctionTest(unittest.TestCase):
 
         self.assertEqual(expected_result, result, "Function noise output does not match.")
 
-    def weigh_with_single_function_test(self):
+    def test_weigh_with_single_function(self):
         """
         Tests if NoiseFunction.weigh works correctly if one function
         """
@@ -75,7 +76,7 @@ class NoiseFunctionTest(unittest.TestCase):
 
         self.assertEqual(result_f1, result, "Function noise output does not match.")
 
-    def weigh_without_functions_test(self):
+    def test_weigh_without_functions(self):
         """
         Tests if NoiseFunction.weigh raises an error correctly if list of functions given is empty
         """
