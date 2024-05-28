@@ -316,6 +316,8 @@ class Simulation():
         self._dna_settings_menu.add.range_slider("", DNA.min_reproduction_health_mutation_range, (0, DNA.min_reproduction_health_max), increment=.01, onchange=DNA.set_min_reproduction_health_mutation_range)
         self._dna_settings_menu.add.label("Min Reproduction Energy Mutation Range")
         self._dna_settings_menu.add.range_slider("", DNA.min_reproduction_energy_mutation_range, (0, DNA.min_reproduction_energy_max), increment=.01, onchange=DNA.set_min_reproduction_energy_mutation_range)
+        self._dna_settings_menu.add.label("Reproduction Chance Mutation Range")
+        self._dna_settings_menu.add.range_slider("", DNA.reproduction_chance_mutation_range, (0, DNA.reproduction_chance_max), increment=.01, onchange=DNA.set_reproduction_chance_mutation_range)
 
         self._dna_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
