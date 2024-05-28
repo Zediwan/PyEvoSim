@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import pygame_menu
 
 class Gene:
     """
@@ -139,6 +140,10 @@ class Gene:
                 raise ValueError(f"{self.MUTATION_TYPE} is invalid!")
 
         self.value += mutation
+
+    def subscribe_controller(self, menu: pygame_menu.Menu, name: str) -> None:
+        #TODO implement class to add a gene controller
+        pass
 
 class PercentageGene(Gene):
     """
