@@ -114,3 +114,38 @@ class PercentageGene(Gene):
     """
     def __init__(self, value: float | int, mutation_range: float = .01) -> None:
         super().__init__(1, 0, value, mutation_range)
+        
+class ColorGene(Gene):
+    """
+    Represents a gene specifically designed for handling color values within the range of 0 to 255.
+
+    Attributes:
+        Inherits all attributes from the Gene class:
+            _max_value (float): The maximum value that the gene can have.
+            _min_value (float): The minimum value that the gene can have.
+            value (float): The current value of the gene.
+            _mutation_range (float): The range within which the gene's value can mutate.
+
+    Methods:
+        Inherits all methods from the Gene class:
+            __init__(max_value: float, min_value: float, value: float | int, mutation_range: float = 1) -> None:
+                Initializes a new Gene instance with the provided parameters.
+
+            copy() -> Gene:
+                Creates a copy of the current Gene instance.
+
+            mutate() -> None:
+                Mutates the gene's value by adding a random float value within the mutation range to the current value.
+    """
+    def __init__(self, value: float | int, mutation_range: float = 1) -> None:
+        """
+        Initializes a new ColorGene instance with the provided parameters.
+
+        Parameters:
+            value (float | int): The initial value of the ColorGene instance.
+            mutation_range (float, optional): The range within which the gene's value can mutate. Defaults to 1.
+
+        Returns:
+            None
+        """
+        super().__init__(0, 255, value, mutation_range)
