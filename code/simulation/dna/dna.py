@@ -86,34 +86,106 @@ class DNA:
     #region class methods
     @classmethod
     def set_attack_power_mutation_range(cls, value):
+        """
+        Set the mutation range for attack power.
+
+        Parameters:
+            value: The new value for the mutation range for attack power.
+
+        Returns:
+            None
+        """
         cls.attack_power_mutation_range = value
 
     @classmethod
     def set_color_mutation_range(cls, value):
+        """
+        Set the mutation range for color.
+
+        Parameters:
+            value: The new value for the mutation range for color.
+
+        Returns:
+            None
+        """
         cls.color_mutation_range = value
 
     @classmethod
     def set_prefered_moisture_mutation_range(cls, value):
+        """
+        Set the mutation range for preferred moisture level.
+
+        Parameters:
+            value: The new value for the mutation range for preferred moisture level.
+
+        Returns:
+            None
+        """
         cls.prefered_moisture_muation_range = value
 
     @classmethod
     def set_prefered_height_mutation_range(cls, value):
+        """
+        Set the mutation range for preferred height.
+
+        Parameters:
+            value: The new value for the mutation range for preferred height.
+
+        Returns:
+            None
+        """
         cls.prefered_height_muation_range = value
 
     @classmethod
     def set_min_reproduction_health_mutation_range(cls, value):
+        """
+        Set the mutation range for minimum reproduction health.
+
+        Parameters:
+            value: The new value for the mutation range for minimum reproduction health.
+
+        Returns:
+            None
+        """
         cls.min_reproduction_health_mutation_range = value
 
     @classmethod
     def set_min_reproduction_energy_mutation_range(cls, value):
+        """
+        Set the mutation range for minimum reproduction energy.
+
+        Parameters:
+            value: The new value for the mutation range for minimum reproduction energy.
+
+        Returns:
+            None
+        """
         cls.min_reproduction_energy_mutation_range = value
 
     @classmethod
     def set_reproduction_chance_mutation_range(cls, value):
+        """
+        Set the mutation range for reproduction chance.
+
+        Parameters:
+            value: The new value for the mutation range for reproduction chance.
+
+        Returns:
+            None
+        """
         cls.reproduction_chance_mutation_range = value
     
     @classmethod
     def set_mutation_chance_mutation_range(cls, value):
+        """
+        Set the mutation range for mutation chance.
+
+        Parameters:
+            value: The new value for the mutation range for mutation chance.
+
+        Returns:
+            None
+        """
         cls.mutation_chance_mutation_range = value
     #endregion
 
