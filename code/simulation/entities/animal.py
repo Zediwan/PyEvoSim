@@ -271,7 +271,6 @@ class Animal(Organism):
             offspring_energy_distribution = .4
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
-            offspring.mutate()
             settings.simulation.organisms.add(offspring)
             settings.simulation.animals.add(offspring)
 
@@ -279,5 +278,8 @@ class Animal(Organism):
         super().copy(tile)
         Animal.animals_birthed += 1
 
-        return Animal(tile, parent=self, dna=self.dna.copy())
+        copied_dna = self.dna.copy()
+        copied_dna.mutate()
+
+        return Animal(tile, parent=self, dna=copied_dna)
     #endregion

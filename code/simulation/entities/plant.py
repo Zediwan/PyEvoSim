@@ -252,7 +252,6 @@ class Plant(Organism):
             offspring_energy_distribution = .5
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
-            offspring.mutate()
             settings.simulation.organisms.add(offspring)
             settings.simulation.plants.add(offspring)
             # print("Plant offspring birthed!")
@@ -261,5 +260,8 @@ class Plant(Organism):
         super().copy(tile)
         Plant.plants_birthed += 1
 
-        return Plant(tile, parent=self, dna=self.dna.copy())
+        copied_dna = self.dna.copy()
+        copied_dna.mutate()
+
+        return Plant(tile, parent=self, dna=copied_dna)
     #endregion

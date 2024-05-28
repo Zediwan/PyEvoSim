@@ -91,9 +91,17 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         self.parent: Organism
         self.dna: DNA = dna
-        self._set_attributes_from_dna()
-
         self.tile: Tile = None
+        
+        self.color: pygame.Color = None
+        self.attack_power: float = None
+        self.moisture_preference: float = None
+        self.height_preference: float = None
+        self.min_reproduction_health: float = None
+        self.min_reproduction_energy: float = None
+        self.reproduction_chance: float = None
+
+        self._set_attributes_from_dna()
         self.enter_tile(tile)
 
     #region properties
@@ -317,10 +325,6 @@ class Organism(ABC, pygame.sprite.Sprite):
     def copy(self, tile: Tile) -> Organism:
         self.num_offspring += 1
         Organism.organisms_birthed += 1
-
-    def mutate(self):
-        self.dna.mutate()
-        self._set_attributes_from_dna()
     #endregion
 
     #region stats
