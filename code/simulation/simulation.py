@@ -111,6 +111,7 @@ class Simulation():
         # Runtime variables
         self.selected_org = None
         self.paused = True
+        self.draw_world = True
         self.alternating_moisture = False
         self.brush_rect: pygame.Rect = pygame.Rect(0 , 0, 20, 20)
         self.tool = self.info_tool
@@ -269,6 +270,7 @@ class Simulation():
         self._running_settings_menu.add.button("DNA", self._dna_settings_menu)
 
         self._running_settings_menu.add.toggle_switch("", (not self.paused), self.set_running, state_text=("Paused", "Running"), toggleswitch_id="GameState")
+        self._running_settings_menu.add.toggle_switch("Draw World", self.draw_world, self.set_draw_world)
         self._running_settings_menu.add.button("Back", self.starting_menu.mainloop, self._surface)
 
     def _setup_running_menu_bar(self) -> None:
@@ -401,6 +403,18 @@ class Simulation():
             None
         """
         self.paused = not is_running
+
+    def set_draw_world(self, draw_world) -> None:
+        """
+        Sets the flag indicating whether to draw the world in the simulation.
+
+        Parameters:
+            draw_world (bool): Flag indicating whether to draw the world.
+
+        Returns:
+            None
+        """
+        self.draw_world = draw_world
 
     def clear_organisms(self) -> None:
         """
@@ -546,6 +560,10 @@ class Simulation():
         if draw_fps:
             fps_surface: pygame.Surface = self.fps_font.render(f"{int(self._clock.get_fps())}", True, self.FPS_FONT_COLOR)
             fps_surface.set_alpha(self.fps_alpha)
+            if not draw_world:
+                background_surface = fps_surface.copy()
+                background_surface.fill((255,255,255))
+                self._surface.blit(background_surface, background_surface.get_rect(bottomleft = self._surface.get_rect().bottomleft))
             self._surface.blit(
                 fps_surface,
                 fps_surface.get_rect(bottomleft = self._surface.get_rect().bottomleft)
@@ -602,9 +620,9 @@ class Simulation():
                 else:
                     self.tool(tiles)
 
-            self._update_gui(draw_menu = menu_updated)
+            self._update_gui(draw_menu = menu_updated, draw_world=self.draw_world)
 
-            if self.world.rect.contains(self.brush_rect):
+            if self.world.rect.contains(self.brush_rect) and self.draw_world:
                 # Draw cursor highlight
                 pygame.draw.rect(
                     self._surface,
