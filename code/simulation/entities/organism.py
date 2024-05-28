@@ -312,6 +312,8 @@ class Organism(ABC, pygame.sprite.Sprite):
             if damage > 0:
                 self.health -= damage
                 attacking_organism.energy += damage * self.NUTRITION_FACTOR
+            elif random.random() <= .1: # Counter Attack
+                self.attack(attacking_organism)
     #endregion
 
     #region reproduction
