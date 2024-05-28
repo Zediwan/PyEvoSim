@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-import settings.colors
 import settings.database
 import settings.screen
 import stats.stat_panel
@@ -16,6 +15,8 @@ from world.tile import Tile
 
 
 class Organism(ABC, pygame.sprite.Sprite):
+    SELECTED_ORGANISM_COLOR: pygame.Color = pygame.Color("white")
+    SELECTED_ORGANISM_RECT_WIDTH: float = 1
     #region class properties
     @property
     @abstractmethod
@@ -332,9 +333,9 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         pygame.draw.rect(
             screen,
-            settings.colors.SELECTED_ORGANISM_COLOR,
+            Organism.SELECTED_ORGANISM_COLOR,
             self.rect.move(offset[0], offset[1]),
-            width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+            width=Organism.SELECTED_ORGANISM_RECT_WIDTH,
         )
 
         self.stat_panel.update(self.rect.move(offset[0], offset[1]), stats_data)
