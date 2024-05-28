@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-import settings.colors
 import settings.database
 import settings.screen
 import stats.stat_panel
@@ -16,6 +15,8 @@ from world.tile import Tile
 
 
 class Organism(ABC, pygame.sprite.Sprite):
+    SELECTED_ORGANISM_COLOR: pygame.Color = pygame.Color("white")
+    SELECTED_ORGANISM_RECT_WIDTH: float = 1
     #region class properties
     @property
     @abstractmethod
@@ -42,11 +43,6 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @property
     @abstractmethod
-    def REPRODUCTION_CHANCE(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
     def MAX_ALPHA(self) -> float:
         pass
 
@@ -68,11 +64,11 @@ class Organism(ABC, pygame.sprite.Sprite):
         health: float,
         energy: float,
         dna: DNA,
-    ):
+    ) -> None:
         pygame.sprite.Sprite.__init__(self)
 
         #region stats
-        self.stat_panel: stats.stat_panel.StatPanel | None = None
+        self.stat_panel: stats.stat_panel.StatPanel = None
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
@@ -80,8 +76,8 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.tiles_visited: int = 0
         self.num_offspring: int = 0
         self.tick_age: int = 0
-        self.birth_time: int = pygame.time.get_ticks()
-        self.death_time: int | None = None
+        self.birth_time: int = pygame.time.get_ticks() # TODO update this so it works with tick age, needs world tick age at initialisation
+        self.death_time: int | None = None # TODO update this to work with tick age
         #endregion
 
         self.rect: pygame.Rect = rect
@@ -95,9 +91,18 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         self.parent: Organism
         self.dna: DNA = dna
-        self._set_attributes_from_dna()
-
         self.tile: Tile = None
+
+        self.color: pygame.Color = None
+        self.attack_power: float = None
+        self.moisture_preference: float = None
+        self.height_preference: float = None
+        self.min_reproduction_health: float = None
+        self.min_reproduction_energy: float = None
+        self.reproduction_chance: float = None
+        self.energy_to_offspring_ratio: float = None
+
+        self._set_attributes_from_dna()
         self.enter_tile(tile)
 
     #region properties
@@ -142,6 +147,8 @@ class Organism(ABC, pygame.sprite.Sprite):
         self.height_preference: float = self.dna.prefered_height_gene.value
         self.min_reproduction_health: float = self.dna.min_reproduction_health_gene.value
         self.min_reproduction_energy: float = self.dna.min_reproduction_energy_gene.value
+        self.reproduction_chance: float = self.dna.reproduction_chance_gene.value
+        self.energy_to_offspring_ratio = self.dna.energy_to_offspring_ratio_gene.value
     #endregion
 
     #region main methods
@@ -204,7 +211,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         Returns:
             None
         """
-        if self.can_reproduce() and random.random() <= self.REPRODUCTION_CHANCE:
+        if self.can_reproduce() and random.random() <= self.reproduction_chance:
             self.reproduce()
 
     def handle_drowning(self):
@@ -283,7 +290,7 @@ class Organism(ABC, pygame.sprite.Sprite):
     #region attacking
     def attack(self, organism_to_attack: Organism):
         if not (
-            self.tile.is_neighbor(organism_to_attack.tile)
+            self.tile.is_neighboring_tile(organism_to_attack.tile)
             or self.tile == organism_to_attack.tile
         ):
             raise ValueError(
@@ -294,7 +301,7 @@ class Organism(ABC, pygame.sprite.Sprite):
 
     @abstractmethod
     def get_attacked(self, attacking_organism: Organism):
-        if not (self.tile.is_neighbor(attacking_organism.tile) or self.tile == attacking_organism.tile):
+        if not (self.tile.is_neighboring_tile(attacking_organism.tile) or self.tile == attacking_organism.tile):
             raise ValueError("Organism attacking is not on a neighbor tile or same tile.")
         else:
             damage = attacking_organism.attack_power
@@ -320,10 +327,6 @@ class Organism(ABC, pygame.sprite.Sprite):
     def copy(self, tile: Tile) -> Organism:
         self.num_offspring += 1
         Organism.organisms_birthed += 1
-
-    def mutate(self):
-        self.dna.mutate()
-        self._set_attributes_from_dna()
     #endregion
 
     #region stats
@@ -336,9 +339,9 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         pygame.draw.rect(
             screen,
-            settings.colors.SELECTED_ORGANISM_COLOR,
+            Organism.SELECTED_ORGANISM_COLOR,
             self.rect.move(offset[0], offset[1]),
-            width=settings.colors.SELECTED_ORGANISM_RECT_WIDTH,
+            width=Organism.SELECTED_ORGANISM_RECT_WIDTH,
         )
 
         self.stat_panel.update(self.rect.move(offset[0], offset[1]), stats_data)
@@ -377,7 +380,9 @@ class Organism(ABC, pygame.sprite.Sprite):
             self.height_preference,
             self.dna.mutation_chance_gene.value,
             self.dna.min_reproduction_health_gene.value,
-            self.dna.min_reproduction_energy_gene.value
+            self.dna.min_reproduction_energy_gene.value,
+            self.dna.reproduction_chance_gene.value,
+            self.dna.energy_to_offspring_ratio_gene.value
         ]
 
     def get_headers(self) -> list[str]:
@@ -409,7 +414,9 @@ class Organism(ABC, pygame.sprite.Sprite):
             "Height preference",
             "Mutation chance",
             "Min Reproduction Health",
-            "Min Reproduction Energy"
+            "Min Reproduction Energy",
+            "Reproduction Chance",
+            "Energy to offspring ratio"
         ]
 
     def save_to_csv(self):
