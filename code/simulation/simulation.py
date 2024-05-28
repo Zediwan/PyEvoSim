@@ -307,6 +307,7 @@ class Simulation():
         self._spawning_settings_menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_dna_settings_menu(self) -> None:
+        self._dna_settings_menu.add.dropselect("Mutation distribution type", [("Gauss", "gauss"), ("Uniform", "uniform")], 0, onreturn=Gene.set_mutation_type)
         self._dna_settings_menu.add.label("Attack Power Mutation Range")
         self._dna_settings_menu.add.range_slider("", DNA.attack_power_mutation_range, (0, DNA.attack_power_max), increment=1, onchange=DNA.set_attack_power_mutation_range)
         self._dna_settings_menu.add.label("Color Mutation Range")

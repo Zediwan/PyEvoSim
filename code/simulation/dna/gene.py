@@ -4,35 +4,61 @@ import random
 
 class Gene:
     """
-    Represents a gene with a value that can mutate within a specified range.
+    Represents a generic gene with a value that can mutate within a specified range.
 
     Attributes:
-        _max_value (float): The maximum value that the gene can have.
-        _min_value (float): The minimum value that the gene can have.
-        _mutation_range (float): The range within which the gene's value can mutate.
+        MUTATION_TYPE (str): The type of mutation applied to the gene, either "gauss" for Gaussian distribution mutation or "uniform" for uniform distribution mutation.
 
     Methods:
+        set_mutation_type(type: str) -> None:
+            Set the mutation type for the Gene class.
+
         __init__(max_value: float, min_value: float, value: float | int, mutation_range: float) -> None:
-            Initializes a new Gene instance with the provided parameters.
+            Initialize a new Gene instance with the provided parameters.
 
         value() -> float:
-            Getter method for the current value of the gene.
+            Get the current value of the gene.
 
         value(value: float) -> None:
-            Setter method for updating the current value of the gene.
+            Set the current value of the gene.
 
         copy() -> Gene:
-            Creates a copy of the current Gene instance.
+            Create a copy of the current Gene instance.
 
         mutate() -> None:
-            Mutates the gene's value by adding a random float value within the mutation range to the current value.
+            Mutate the gene's value based on the specified mutation type.
 
     Raises:
-        ValueError: If max_value is less than min_value or if mutation_range is negative.
+        ValueError: If max_value is less than min_value, if mutation_range is negative, or if the mutation type is not recognized.
 
     Returns:
         None
     """
+    MUTATION_TYPE: str = "gauss"
+    
+    @classmethod
+    def set_mutation_type(cls, selected_item: str, type: str) -> None:
+        """
+        Set the mutation type for the Gene class.
+
+        Parameters:
+            - selected_item (str): The selected item for setting the mutation type. This parameter is not used within the method but is required for the match statement.
+            - type (str): The type of mutation to be set for the Gene class. Should be either "gauss" for Gaussian distribution mutation or "uniform" for uniform distribution mutation.
+
+        Raises:
+            - ValueError: If the provided mutation type is not recognized (neither "gauss" nor "uniform").
+
+        Returns:
+            - None
+        """
+        match type:
+            case "gauss":
+                cls.MUTATION_TYPE = type
+            case "uniform":
+                cls.MUTATION_TYPE = type
+            case _:
+                raise ValueError(f"{type} is invalid!")
+    
     def __init__(self, max_value: float, min_value: float, value: float | int, mutation_range: float) -> None:
         """
         Initialize a new Gene instance with the provided parameters.
@@ -91,7 +117,11 @@ class Gene:
 
     def mutate(self) -> None:
         """
-        Mutates the gene's value by adding a random float value within the mutation range to the current value.
+        Mutates the gene's value based on the specified mutation type.
+
+        If the mutation type is "gauss", a random float value within one-third of the mutation range is added to the current value using a Gaussian distribution.
+        If the mutation type is "uniform", a random float value within the mutation range is added to the current value uniformly.
+        Raises a ValueError if the mutation type is not recognized.
 
         Parameters:
             None
@@ -99,7 +129,16 @@ class Gene:
         Returns:
             None
         """
-        self.value += random.uniform(-self._mutation_range, self._mutation_range)
+        mutation = None
+        match self.MUTATION_TYPE:
+            case "gauss":
+                mutation = random.gauss(0, self._mutation_range/3) # TODO figure if it makes sense so that most values are in the mutation range
+            case "uniform":
+                mutation = random.uniform(-self._mutation_range, self._mutation_range)
+            case _:
+                raise ValueError(f"{self.MUTATION_TYPE} is invalid!")
+
+        self.value += mutation
 
 class PercentageGene(Gene):
     """
