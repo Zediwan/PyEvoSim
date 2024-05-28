@@ -190,7 +190,7 @@ class Animal(Organism):
         ns = self.tile.get_neighboring_tiles()
         for n in ns:
             if n.has_animal():
-                if random.random() <= 0.75:
+                if self.attack_power < n.animal.sprite.defense:
                     continue
             if not n.has_plant():
                 continue
