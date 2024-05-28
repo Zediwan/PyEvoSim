@@ -4,3 +4,8 @@ pygame-menu
 ttkthemes
 pandasql
 pandastable
+customtkinter
+tkinter
+pandas 
+glob2
+matplotlib
