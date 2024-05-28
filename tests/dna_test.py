@@ -8,7 +8,14 @@ class TestDNA(unittest.TestCase):
         pass
 
     def tearDown(self) -> None:
-        pass
+        DNA.set_color_mutation_range(10)
+        DNA.set_prefered_moisture_mutation_range(0.1)
+        DNA.set_prefered_height_mutation_range(0.1)
+        DNA.set_min_reproduction_health_mutation_range(0.01)
+        DNA.set_min_reproduction_energy_mutation_range(0.01)
+        DNA.set_reproduction_chance_mutation_range(0.01)
+        DNA.set_mutation_chance_mutation_range(0.01)
+        DNA.set_energy_to_offspring_mutation_range(0.01)
 
 class TestInit(TestDNA):
     def test_initialize_with_valid_parameters(self):
