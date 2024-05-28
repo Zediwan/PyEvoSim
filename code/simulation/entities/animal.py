@@ -17,7 +17,6 @@ class Animal(Organism):
     _MAX_HEALTH: float = 100
     _MAX_ENERGY: float = 100
     _NUTRITION_FACTOR: float = 1
-    _REPRODUCTION_CHANCE: float = 0.005
     _MAX_ALPHA: float = 255
     _MIN_ALPHA: float = 150
     _MOVEMENT_ENERGY_COST: float = 2
@@ -31,6 +30,8 @@ class Animal(Organism):
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_REPRODUCTION_CHANCE_RANGE: tuple[float, float] = (0, 1)
+    _STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE: tuple[float, float] = (0, 1)
     #endregion
     #region class setting setters
     @classmethod
@@ -48,10 +49,6 @@ class Animal(Organism):
     @classmethod
     def set_nutrition_factor(cls, value: float):
         cls._NUTRITION_FACTOR = value
-
-    @classmethod
-    def set_reproduction_chance(cls, value: float):
-        cls._REPRODUCTION_CHANCE = value
 
     @classmethod
     def set_movement_energy_cost(cls, value: float):
@@ -88,6 +85,14 @@ class Animal(Organism):
     @classmethod
     def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_MUTATION_CHANCE_RANGE = value
+
+    @classmethod
+    def set_starting_reproduction_chance_range(cls, value: tuple[float, float]):
+        cls._STARTING_REPRODUCTION_CHANCE_RANGE = value
+
+    @classmethod
+    def set_starting_energy_to_offspring_ratio_range(cls, value: tuple[float, float]):
+        cls._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE = value
     #endregion
     #region class properties
     @property
@@ -101,10 +106,6 @@ class Animal(Organism):
     @property
     def NUTRITION_FACTOR(self) -> float:
         return Animal._NUTRITION_FACTOR
-
-    @property
-    def REPRODUCTION_CHANCE(self) -> float:
-        return Animal._REPRODUCTION_CHANCE
     
     @property
     def MAX_ALPHA(self) -> float:
@@ -144,7 +145,9 @@ class Animal(Organism):
                 random.uniform(Animal._STARTING_HEIGHT_PREFERENCE_RANGE[0], Animal._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Animal._STARTING_MUTATION_CHANCE_RANGE[0], Animal._STARTING_MUTATION_CHANCE_RANGE[1]),
                 random.uniform(Animal._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1]),
-                random.uniform(Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1])
+                random.uniform(Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1]),
+                random.uniform(Animal._STARTING_REPRODUCTION_CHANCE_RANGE[0], Animal._STARTING_REPRODUCTION_CHANCE_RANGE[1]),
+                random.uniform(Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0], Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1]),
             )
         #endregion
 
@@ -176,9 +179,9 @@ class Animal(Organism):
             destination = None
         else:
             best_growth = 0
-            destination = self.tile.get_random_neigbor(no_animal=True)
+            destination = self.tile.get_random_neigbor(needs_no_animal=True)
 
-        ns = self.tile.get_neighbors()
+        ns = self.tile.get_neighboring_tiles()
         for n in ns:
             if n.has_animal():
                 continue
@@ -263,18 +266,16 @@ class Animal(Organism):
 
     #region reproduction
     def reproduce(self):
-        options = self.tile.get_random_neigbor(no_animal=True, no_water=True)
+        options = self.tile.get_random_neigbor(needs_no_animal=True, needs_no_water=True)
         if options:
-            # TODO create a gene that defines the amount of energy given to the child
             # TODO add a gene that defines how long an animal is pregnant
-            ENERGY_TO_CHILD = self.MAX_ENERGY / 2
+            ENERGY_TO_CHILD = self.MAX_ENERGY * self.energy_to_offspring_ratio
             self.energy -= ENERGY_TO_CHILD
             offspring = self.copy(options)
             # TODO add a gene that defines the energy distribution
             offspring_energy_distribution = .4
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
-            offspring.mutate()
             settings.simulation.organisms.add(offspring)
             settings.simulation.animals.add(offspring)
 
@@ -282,5 +283,8 @@ class Animal(Organism):
         super().copy(tile)
         Animal.animals_birthed += 1
 
-        return Animal(tile, parent=self, dna=self.dna.copy())
+        copied_dna = self.dna.copy()
+        copied_dna.mutate()
+
+        return Animal(tile, parent=self, dna=copied_dna)
     #endregion

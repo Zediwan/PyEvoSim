@@ -9,8 +9,7 @@ class Setting(ABC):
     Attributes:
         _value (float): The value of the setting.
         _name (str): The name of the setting.
-        widget_controller: Controller for the widget.
-        controller_frame: Frame for the controller.
+        widget: Controller for the widget.
         _onreturn (bool): Flag indicating if the setting updates on return.
         _onchange (bool): Flag indicating if the setting updates on change.
         post_update_methods (list): List of methods to call after updating the setting.
@@ -38,8 +37,7 @@ class Setting(ABC):
         self._value = value
         self._name = name
         
-        self.widget_controller = None
-        self.controller_frame = None
+        self.widget = None
 
         # Set update type
         self._onreturn = False
@@ -197,7 +195,8 @@ class BoundedSetting(Setting):
             self.set_value(random.gauss(self._mid, self._mid/2))
         else:
             raise ValueError("Type not defined")
-        self.widget.set_value(self._value)
+        if self.widget:
+            self.widget.set_value(self._value)
 
     def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
         """
@@ -286,7 +285,8 @@ class UnboundedSetting(Setting):
             self.set_value(random.gauss(self._value))
         else:
             raise ValueError("Type not defined")
-        self.widget.set_value(self._value)
+        if self.widget:
+            self.widget.set_value(self._value)
 
     def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
         """
