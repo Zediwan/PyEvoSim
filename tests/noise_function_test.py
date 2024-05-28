@@ -3,7 +3,7 @@ import unittest
 from code.simulation.helper.noise_function import NoiseFunction
 
 
-class TestNoiseFunction(unittest.TestCase):
+class TestWeigh(unittest.TestCase):
     def test_weigh_without_weights(self):
         """
         Tests if NoiseFunction.weigh works correctly if no weights are given
