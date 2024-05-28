@@ -18,7 +18,6 @@ class Plant(Organism):
     _MAX_HEALTH: float = 200
     _MAX_ENERGY: float = 100
     _NUTRITION_FACTOR: float = 0.8
-    _REPRODUCTION_CHANCE: float = 1
     _REPRODUCTION_ENERGY_COST_FACTOR: float = 0.5
     _OFFSPRING_HEALTH_FACTOR: float = 0
     _OFFSPRING_ENERGY_FACTOR: float = 0.5
@@ -37,6 +36,7 @@ class Plant(Organism):
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (.1, 1)
     _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (.1, 1)
+    _STARTING_REPRODUCTION_CHANCE_RANGE: tuple[float, float] = (0, 1)
     #endregion
     #region class setting setters
     @classmethod
@@ -54,10 +54,6 @@ class Plant(Organism):
     @classmethod
     def set_nutrition_factor(cls, value: float):
         cls._NUTRITION_FACTOR = value
-
-    @classmethod
-    def set_reproduction_chance(cls, value: float):
-        cls._REPRODUCTION_CHANCE = value
 
     @classmethod
     def set_starting_health(cls, value: float):
@@ -90,6 +86,10 @@ class Plant(Organism):
     @classmethod
     def set_starting_mutation_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_MUTATION_CHANCE_RANGE = value
+
+    @classmethod
+    def set_starting_reproduction_chance_range(cls, value: tuple[float, float]):
+        cls._STARTING_REPRODUCTION_CHANCE_RANGE = value
     #endregion
     #region class properties
     @property
@@ -103,10 +103,6 @@ class Plant(Organism):
     @property
     def NUTRITION_FACTOR(self) -> float:
         return Plant._NUTRITION_FACTOR
-
-    @property
-    def REPRODUCTION_CHANCE(self) -> float:
-        return Plant._REPRODUCTION_CHANCE
     
     @property
     def MAX_ALPHA(self) -> float:
@@ -139,7 +135,8 @@ class Plant(Organism):
                 random.uniform(Plant._STARTING_HEIGHT_PREFERENCE_RANGE[0], Plant._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
                 random.uniform(Plant._STARTING_MUTATION_CHANCE_RANGE[0], Plant._STARTING_MUTATION_CHANCE_RANGE[1]),
                 random.uniform(Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1]),
-                random.uniform(Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1])
+                random.uniform(Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1]),
+                random.uniform(Plant._STARTING_REPRODUCTION_CHANCE_RANGE[0], Plant._STARTING_REPRODUCTION_CHANCE_RANGE[1])
             )
         #endregion
 
