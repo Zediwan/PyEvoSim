@@ -4,14 +4,11 @@ import random
 
 import pygame
 
-import settings.database
-import settings.simulation
+from ..settings import database, simulation
+from ..terrain.tile import Tile
 
 from .organism import Organism
 from .properties.dna import DNA
-
-from terrain.tile import Tile
-
 
 class Animal(Organism):
     #region class settings
@@ -268,7 +265,7 @@ class Animal(Organism):
         if self.tile.has_plant():
             self.tile.plant.sprite.energy += self.health * 0.5
 
-        if settings.database.save_csv and settings.database.save_animals_csv:
+        if database.save_csv and database.save_animals_csv:
             self.save_to_csv()
 
         self.kill()
@@ -301,8 +298,8 @@ class Animal(Organism):
             offspring_energy_distribution = .4
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
-            settings.simulation.organisms.add(offspring)
-            settings.simulation.animals.add(offspring)
+            simulation.organisms.add(offspring)
+            simulation.animals.add(offspring)
 
     def copy(self, tile: Tile) -> Animal:
         super().copy(tile)

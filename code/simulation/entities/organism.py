@@ -7,14 +7,11 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-import settings.database
-import settings.screen
-
-from gui.stat_panel import StatPanel
+from ..settings import database, screen
+from ..gui.stat_panel import StatPanel
+from ..terrain.tile import Tile
 
 from .properties.dna import DNA
-
-from terrain.tile import Tile
 
 
 class Organism(ABC, pygame.sprite.Sprite):
@@ -430,11 +427,11 @@ class Organism(ABC, pygame.sprite.Sprite):
         ]
 
     def save_to_csv(self):
-        file_exists = os.path.isfile(settings.database.database_csv_filename)
+        file_exists = os.path.isfile(database.database_csv_filename)
 
         try:
             with open(
-                settings.database.database_csv_filename, mode="a", newline=""
+                database.database_csv_filename, mode="a", newline=""
             ) as file:
                 writer = csv.writer(file)
                 if not file_exists:

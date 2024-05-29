@@ -1,6 +1,6 @@
 import pygame
 
-import helper.formatter
+from ..helper import formatter
 
 
 class StatPanel(pygame.sprite.Sprite):
@@ -29,7 +29,7 @@ class StatPanel(pygame.sprite.Sprite):
             )
             self.total_text_height += self.font.size(header)[1]
         for value in stats:
-            v = helper.formatter.format_number(value)
+            v = formatter.format_number(value)
             self.value_column_with = max(self.value_column_with, self.font.size(v)[0])
 
         panel_width = (
@@ -54,7 +54,7 @@ class StatPanel(pygame.sprite.Sprite):
             self.surface.blit(name_surface, (self.border_size, y))
 
             value_surface = self.font.render(
-                helper.formatter.format_number(self.stats[idx]),
+                formatter.format_number(self.stats[idx]),
                 True,
                 StatPanel.STAT_PANEL_FONT_COLOR,
             )

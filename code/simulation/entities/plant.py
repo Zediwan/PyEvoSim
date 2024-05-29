@@ -3,14 +3,11 @@ from __future__ import annotations
 import random
 import pygame
 
-import settings.database
-import settings.screen
-import settings.simulation
+from ..settings import database, screen, simulation
+from ..terrain.tile import Tile
 
 from .organism import Organism
 from .properties.dna import DNA
-
-from terrain.tile import Tile
 
 
 class Plant(Organism):
@@ -235,8 +232,8 @@ class Plant(Organism):
         super().die()
         Plant.plants_died += 1
 
-        if settings.database.save_csv:
-            if settings.database.save_plants_csv:
+        if database.save_csv:
+            if database.save_plants_csv:
                 self.save_to_csv()
 
         self.kill()
@@ -263,8 +260,8 @@ class Plant(Organism):
             offspring_energy_distribution = .5
             offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
             offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
-            settings.simulation.organisms.add(offspring)
-            settings.simulation.plants.add(offspring)
+            simulation.organisms.add(offspring)
+            simulation.plants.add(offspring)
             # print("Plant offspring birthed!")
 
     def copy(self, tile: Tile):

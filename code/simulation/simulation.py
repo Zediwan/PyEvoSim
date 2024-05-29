@@ -1,17 +1,17 @@
 import pygame
 import pygame_menu
 
-import settings.database
-import settings.screen
-import settings.simulation
+from .settings import database
+from .settings import screen
+from .settings import simulation
 
-from entities.animal import Animal
-from entities.plant import Plant
-from entities.properties.dna import DNA
-from entities.properties.gene import ColorComponentGene, PercentageGene, Gene
+from .entities.animal import Animal
+from .entities.plant import Plant
+from .entities.properties.dna import DNA
+from .entities.properties.gene import ColorComponentGene, PercentageGene, Gene
 
-from terrain.tile import Tile
-from terrain.world import World
+from .terrain.tile import Tile
+from .terrain.world import World
 
 class Simulation():
     """
@@ -93,7 +93,7 @@ class Simulation():
 
         #region surface
         self._surface: pygame.Surface = pygame.display.set_mode(
-                (settings.screen.SCREEN_WIDTH, settings.screen.SCREEN_HEIGHT),
+                (screen.SCREEN_WIDTH, screen.SCREEN_HEIGHT),
                 pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SRCALPHA
             )
         pygame.display.set_caption("Evolution Simulation")
@@ -258,9 +258,9 @@ class Simulation():
         self.screen_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
     def _setup_database_options_menu(self) -> None:
-        self.database_options.add.toggle_switch("Create database", settings.database.save_csv, onchange=settings.database.update_save_csv)
-        self.database_options.add.toggle_switch("Save Animals to database", settings.database.save_animals_csv, onchange=settings.database.update_save_animals_csv)
-        self.database_options.add.toggle_switch("Save Plants to database", settings.database.save_plants_csv, onchange=settings.database.update_save_plants_csv)
+        self.database_options.add.toggle_switch("Create database", database.save_csv, onchange=database.update_save_csv)
+        self.database_options.add.toggle_switch("Save Animals to database", database.save_animals_csv, onchange=database.update_save_animals_csv)
+        self.database_options.add.toggle_switch("Save Plants to database", database.save_plants_csv, onchange=database.update_save_plants_csv)
         self.database_options.add.button("Back", pygame_menu.pygame_menu.events.BACK)
     #endregion
 
@@ -440,7 +440,7 @@ class Simulation():
         Returns:
             None
         """
-        settings.simulation.reset_organisms()
+        simulation.reset_organisms()
 
     def reset_stats(self) -> None:
         """
@@ -452,7 +452,7 @@ class Simulation():
         Returns:
             None
         """
-        settings.simulation.reset_stats()
+        simulation.reset_stats()
 
     #region tools
     def animal_spawning_tool(self, tiles: list[Tile]) -> None:

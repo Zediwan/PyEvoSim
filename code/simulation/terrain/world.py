@@ -3,16 +3,17 @@ from __future__ import annotations
 import random
 
 import pygame
+import pygame_menu
 
-import settings.database
-from helper.setting import Setting, BoundedSetting, UnboundedSetting
-import settings.simulation
-from helper.noise_function import NoiseFunction
-from entities.animal import Animal
-from entities.plant import Plant
+from ..settings import database, simulation
+from ..helper.setting import Setting, BoundedSetting, UnboundedSetting
+from ..helper.noise_function import NoiseFunction
+from ..entities.animal import Animal
+from ..entities.plant import Plant
+
 from .direction import Direction
 from .tile import Tile
-import pygame_menu
+
 
 
 class World(pygame.sprite.Sprite):
@@ -119,7 +120,7 @@ class World(pygame.sprite.Sprite):
             None
         """
         self.age += 1
-        settings.simulation.organisms.update()
+        simulation.organisms.update()
 
     def draw(self, screen: pygame.Surface) -> None:
         """
@@ -143,7 +144,7 @@ class World(pygame.sprite.Sprite):
 
             # Draw the organisms
             self.organism_surface.fill((0, 0, 0, 0)) # Clear previous drawings on the organism surface
-            settings.simulation.organisms.draw(self.organism_surface)
+            simulation.organisms.draw(self.organism_surface)
             self.image.blit(self.organism_surface, self.rect)
 
         screen.blit(self.image, self.rect)
@@ -215,8 +216,8 @@ class World(pygame.sprite.Sprite):
         """
         if not(tile.has_water or tile.has_animal()):
             animal = Animal(tile)
-            settings.simulation.organisms.add(animal)
-            settings.simulation.animals.add(animal)
+            simulation.organisms.add(animal)
+            simulation.animals.add(animal)
 
     def spawn_plant(self, tile: Tile) -> None:
         """
@@ -230,8 +231,8 @@ class World(pygame.sprite.Sprite):
         """
         if not(tile.has_water or tile.has_plant()):
             plant = Plant(tile)
-            settings.simulation.organisms.add(plant)
-            settings.simulation.plants.add(plant)
+            simulation.organisms.add(plant)
+            simulation.plants.add(plant)
     #endregion
 
     #region tiles
