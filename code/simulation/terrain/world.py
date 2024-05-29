@@ -10,7 +10,7 @@ import settings.simulation
 from helper.noise_function import NoiseFunction
 from entities.animal import Animal
 from entities.plant import Plant
-from helper.direction import Direction
+from .direction import Direction
 from .tile import Tile
 import pygame_menu
 

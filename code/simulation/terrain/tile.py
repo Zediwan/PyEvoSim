@@ -4,7 +4,7 @@ import random
 
 import pygame
 
-import helper.direction
+from .direction import Direction
 
 
 class Tile(pygame.sprite.Sprite):
@@ -56,13 +56,13 @@ class Tile(pygame.sprite.Sprite):
             Check if the tile has an animal.
         has_plant(self) -> bool:
             Check if the tile has a plant.
-        add_neighbor(self, direction: helper.direction.Direction, tile: Tile) -> None:
+        add_neighbor(self, direction: Direction, tile: Tile) -> None:
             Add a neighboring tile in a specific direction.
-        get_possible_directions(self) -> list[helper.direction.Direction]:
+        get_possible_directions(self) -> list[Direction]:
             Get a list of directions representing neighboring tiles.
         get_neighboring_tiles(self) -> list[Tile]:
             Get a list of neighboring tiles.
-        get_neighbor_tile(self, direction: helper.direction.Direction) -> Tile | None:
+        get_neighbor_tile(self, direction: Direction) -> Tile | None:
             Get the neighboring tile in a specified direction.
         get_random_neigbor(self, needs_plant=False, needs_no_plant=False, needs_animal=False, needs_no_animal=False, needs_water=False, needs_no_water=False) -> Tile | None:
             Get a random neighboring tile based on specified criteria.
@@ -148,7 +148,7 @@ class Tile(pygame.sprite.Sprite):
 
         self.rect: pygame.Rect = rect
         self.image: pygame.Surface = pygame.Surface(self.rect.size)
-        self.neighbors: dict[helper.direction.Direction, Tile] = {}
+        self.neighbors: dict[Direction, Tile] = {}
         self._height: float = height
         self._moisture: float = moisture
 
@@ -393,7 +393,7 @@ class Tile(pygame.sprite.Sprite):
     #endregion
 
     #region tiles
-    def add_neighbor(self, direction: helper.direction.Direction, tile: Tile) -> None:
+    def add_neighbor(self, direction: Direction, tile: Tile) -> None:
         """
         Add a neighboring Tile to the current Tile object in a specific direction.
 
@@ -407,7 +407,7 @@ class Tile(pygame.sprite.Sprite):
         self.neighbors[direction] = tile
         self.is_coast = self.is_coast or (tile.has_water and self.has_water) # TODO improve this so it is in relation to distance to water
 
-    def get_possible_directions(self) -> list[helper.direction.Direction]:
+    def get_possible_directions(self) -> list[Direction]:
         """
         Return a list of directions representing neighboring Tiles relative to the current Tile object.
 
@@ -425,7 +425,7 @@ class Tile(pygame.sprite.Sprite):
         """
         return list(self.neighbors.values())
 
-    def get_neighbor_tile(self, direction: helper.direction.Direction) -> Tile | None:
+    def get_neighbor_tile(self, direction: Direction) -> Tile | None:
         """
         Return the neighboring Tile object in the specified direction.
 

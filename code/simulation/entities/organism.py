@@ -9,9 +9,12 @@ import pygame
 
 import settings.database
 import settings.screen
+
 from gui.stat_panel import StatPanel
+
 from .properties.dna import DNA
-from world.tile import Tile
+
+from terrain.tile import Tile
 
 
 class Organism(ABC, pygame.sprite.Sprite):

@@ -6,9 +6,11 @@ import pygame
 import settings.database
 import settings.screen
 import settings.simulation
-from .properties.dna import DNA
+
 from .organism import Organism
-from world.tile import Tile
+from .properties.dna import DNA
+
+from terrain.tile import Tile
 
 
 class Plant(Organism):

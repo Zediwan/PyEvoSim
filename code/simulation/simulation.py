@@ -3,14 +3,15 @@ import pygame_menu
 
 import settings.database
 import settings.screen
+import settings.simulation
+
 from entities.animal import Animal
 from entities.plant import Plant
-import settings.simulation
 from entities.properties.dna import DNA
 from entities.properties.gene import ColorComponentGene, PercentageGene, Gene
-from world.tile import Tile
 
-from world.world import World
+from terrain.tile import Tile
+from terrain.world import World
 
 class Simulation():
     """
