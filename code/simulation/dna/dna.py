@@ -368,5 +368,5 @@ class DNA:
             None
         """
         for gene in self.genes:
-            if self.mutation_chance_gene.value <= random.random():
+            if self.mutation_chance_gene.value >= random.random():
                 gene.mutate()
