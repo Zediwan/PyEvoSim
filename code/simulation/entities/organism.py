@@ -71,7 +71,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         #region stats
-        self.stat_panel: gui.stat_panel.StatPanel = None
+        self.stat_panel: StatPanel = None
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
