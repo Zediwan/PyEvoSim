@@ -8,69 +8,66 @@ from .gene import Gene, ColorComponentGene, PercentageGene
 
 class DNA:
     """
-    Represents a DNA configuration for an organism with various genetic traits.
+    Class representing a DNA configuration for an organism.
 
     Attributes:
-        attack_power_min (float): The minimum value for attack power gene.
-        attack_power_max (float): The maximum value for attack power gene.
-        attack_power_mutation_range (float): The mutation range for attack power gene.
-
-        color_mutation_range (float): The mutation range for color gene.
-
-        prefered_moisture_min (float): The minimum value for preferred moisture gene.
-        prefered_moisture_max (float): The maximum value for preferred moisture gene.
-        prefered_moisture_mutation_range (float): The mutation range for preferred moisture gene.
-
-        prefered_height_min (float): The minimum value for preferred height gene.
-        prefered_height_max (float): The maximum value for preferred height gene.
-        prefered_height_mutation_range (float): The mutation range for preferred height gene.
-
-        min_reproduction_health_min (float): The minimum value for minimum reproduction health gene.
-        min_reproduction_health_max (float): The maximum value for minimum reproduction health gene.
-        min_reproduction_health_mutation_range (float): The mutation range for minimum reproduction health gene.
-
-        min_reproduction_energy_min (float): The minimum value for minimum reproduction energy gene.
-        min_reproduction_energy_max (float): The maximum value for minimum reproduction energy gene.
-        min_reproduction_energy_mutation_range (float): The mutation range for minimum reproduction energy gene.
-
-        reproduction_chance_min (float): The minimum value for reproduction chance gene.
-        reproduction_chance_max (float): The maximum value for reproduction chance gene.
-        reproduction_chance_mutation_range (float): The mutation range for reproduction chance gene.
-
-        mutation_chance_min (float): The minimum value for mutation chance gene.
-        mutation_chance_max (float): The maximum value for mutation chance gene.
-        mutation_chance_mutation_range (float): The mutation range for mutation chance gene.
-
-        energy_to_offspring_min (float): The minimum value for energy to offspring gene.
-        energy_to_offspring_max (float): The maximum value for energy to offspring gene.
-        energy_to_offspring_mutation_range (float): The mutation range for energy to offspring gene.
+        attack_power_min (float): The minimum value for attack power.
+        attack_power_max (float): The maximum value for attack power.
+        attack_power_mutation_range (float): The range within which attack power can mutate.
+        defense_min (float): The minimum value for defense.
+        defense_max (float): The maximum value for defense.
+        defense_muation_range (float): The range within which defense can mutate.
+        color_mutation_range (float): The range within which color can mutate.
+        prefered_moisture_min (float): The minimum value for preferred moisture level.
+        prefered_moisture_max (float): The maximum value for preferred moisture level.
+        prefered_moisture_muation_range (float): The range within which preferred moisture level can mutate.
+        prefered_height_min (float): The minimum value for preferred height.
+        prefered_height_max (float): The maximum value for preferred height.
+        prefered_height_muation_range (float): The range within which preferred height can mutate.
+        min_reproduction_health_min (float): The minimum value for minimum reproduction health.
+        min_reproduction_health_max (float): The maximum value for minimum reproduction health.
+        min_reproduction_health_mutation_range (float): The range within which minimum reproduction health can mutate.
+        min_reproduction_energy_min (float): The minimum value for minimum reproduction energy.
+        min_reproduction_energy_max (float): The maximum value for minimum reproduction energy.
+        min_reproduction_energy_mutation_range (float): The range within which minimum reproduction energy can mutate.
+        reproduction_chance_min (float): The minimum value for reproduction chance.
+        reproduction_chance_max (float): The maximum value for reproduction chance.
+        reproduction_chance_mutation_range (float): The range within which reproduction chance can mutate.
+        mutation_chance_min (float): The minimum value for mutation chance.
+        mutation_chance_max (float): The maximum value for mutation chance.
+        mutation_chance_mutation_range (float): The range within which mutation chance can mutate.
+        energy_to_offspring_min (float): The minimum value for energy to offspring ratio.
+        energy_to_offspring_max (float): The maximum value for energy to offspring ratio.
+        energy_to_offspring_mutation_range (float): The range within which energy to offspring ratio can mutate.
 
     Methods:
-        set_attack_power_mutation_range(value): Set the mutation range for attack power gene.
-        set_color_mutation_range(value): Set the mutation range for color gene.
-        set_prefered_moisture_mutation_range(value): Set the mutation range for preferred moisture gene.
-        set_prefered_height_mutation_range(value): Set the mutation range for preferred height gene.
-        set_min_reproduction_health_mutation_range(value): Set the mutation range for minimum reproduction health gene.
-        set_min_reproduction_energy_mutation_range(value): Set the mutation range for minimum reproduction energy gene.
-        set_reproduction_chance_mutation_range(value): Set the mutation range for reproduction chance gene.
-        set_mutation_chance_mutation_range(value): Set the mutation range for mutation chance gene.
-        set_energy_to_offspring_mutation_range(value): Set the mutation range for energy to offspring gene.
+        set_attack_power_mutation_range(value): Set the mutation range for attack power.
+        set_defense_mutation_range(value): Set the mutation range for defense.
+        set_color_mutation_range(value): Set the mutation range for color.
+        set_prefered_moisture_mutation_range(value): Set the mutation range for preferred moisture level.
+        set_prefered_height_mutation_range(value): Set the mutation range for preferred height.
+        set_min_reproduction_health_mutation_range(value): Set the mutation range for minimum reproduction health.
+        set_min_reproduction_energy_mutation_range(value): Set the mutation range for minimum reproduction energy.
+        set_reproduction_chance_mutation_range(value): Set the mutation range for reproduction chance.
+        set_mutation_chance_mutation_range(value): Set the mutation range for mutation chance.
+        set_energy_to_offspring_mutation_range(value): Set the mutation range for energy to offspring ratio.
 
-        __init__(color: pygame.Color, attack_power: float, prefered_moisture: float, prefered_height: float, mutation_chance: float, min_reproduction_health: float, min_reproduction_energy: float, reproduction_chance: float, energy_to_offspring_ratio: float): Initializes a new DNA instance with the provided parameters.
+        __init__(color, attack_power, prefered_moisture, prefered_height, mutation_chance, min_reproduction_health, min_reproduction_energy, reproduction_chance, energy_to_offspring_ratio, defense): Initialize a new DNA instance with the provided parameters.
 
         color(): Return the color represented by the RGB values stored in the genes of the DNA instance.
 
         copy(): Return a new DNA instance that is a copy of the current DNA instance.
 
-        mutate(): Mutates each gene in the DNA instance based on the mutation chance.
-
-    Returns:
-        None
+        mutate(): Mutate each gene in the DNA instance based on the mutation chance.
     """
     #region Gene settings
     attack_power_min: float = 0
     attack_power_max: float = 50
     attack_power_mutation_range: float = 2
+    
+    defense_min: float = 0
+    defense_max: float = attack_power_max / 2
+    defense_muation_range: float = 2
 
     color_mutation_range: float = 12
 
@@ -115,6 +112,19 @@ class DNA:
             None
         """
         cls.attack_power_mutation_range = value
+    
+    @classmethod
+    def set_defense_mutation_range(cls, value):
+        """
+        Set the mutation range for defense.
+
+        Parameters:
+            value: The new value for the mutation range for defense.
+
+        Returns:
+            None
+        """
+        cls.defense_muation_range = value
 
     @classmethod
     def set_color_mutation_range(cls, value):
@@ -231,21 +241,23 @@ class DNA:
         min_reproduction_health: float,
         min_reproduction_energy: float,
         reproduction_chance: float,
-        energy_to_offspring_ratio: float
+        energy_to_offspring_ratio: float,
+        defense: float
     ) -> None:
         """
-        Initialize a new DNA instance with the provided genetic traits.
+        Initializes a new DNA instance with the provided parameters.
 
         Parameters:
             color (pygame.Color): The color of the organism.
             attack_power (float): The attack power of the organism.
             prefered_moisture (float): The preferred moisture level of the organism.
             prefered_height (float): The preferred height of the organism.
-            mutation_chance (float): The chance of mutation for the organism.
+            mutation_chance (float): The mutation chance of the organism.
             min_reproduction_health (float): The minimum reproduction health of the organism.
             min_reproduction_energy (float): The minimum reproduction energy of the organism.
-            reproduction_chance (float): The chance of reproduction for the organism.
-            energy_to_offspring_ratio (float): The energy passed to offspring by the organism.
+            reproduction_chance (float): The reproduction chance of the organism.
+            energy_to_offspring_ratio (float): The energy to offspring ratio of the organism.
+            defense (float): The defense of the organism.
 
         Returns:
             None
@@ -274,6 +286,13 @@ class DNA:
             mutation_range=DNA.attack_power_mutation_range,
         )
         self.genes.append(self.attack_power_gene)
+        self.defense_gene: Gene = Gene(
+            max_value=DNA.defense_max,
+            min_value=DNA.defense_min,
+            value=defense,
+            mutation_range=DNA.defense_muation_range,
+        )
+        self.genes.append(self.defense_gene)
         self.prefered_moisture_gene: PercentageGene = PercentageGene(
             max_value=DNA.prefered_moisture_max,
             min_value=DNA.prefered_moisture_min,
@@ -354,7 +373,8 @@ class DNA:
             self.min_reproduction_health_gene.value,
             self.min_reproduction_energy_gene.value,
             self.reproduction_chance_gene.value,
-            self.energy_to_offspring_ratio_gene.value
+            self.energy_to_offspring_ratio_gene.value,
+            self.defense_gene.value
         )
 
     def mutate(self) -> None:

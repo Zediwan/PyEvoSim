@@ -25,6 +25,7 @@ class Animal(Organism):
     _STARTING_HEALTH: float = _MAX_HEALTH
     _STARTING_ENERGY: float = _MAX_ENERGY
     _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (8, 16)
+    _STARTING_DEFENSE_RANGE: tuple[float, float] = _STARTING_ATTACK_POWER_RANGE
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
@@ -73,6 +74,10 @@ class Animal(Organism):
     @classmethod
     def set_starting_attack_power_range(cls, value: tuple[float, float]):
         cls._STARTING_ATTACK_POWER_RANGE = value
+    
+    @classmethod
+    def set_starting_defense_range(cls, value: tuple[float, float]):
+        cls._STARTING_DEFENSE_RANGE = value
 
     @classmethod
     def set_starting_moisture_preference_range(cls, value: tuple[float, float]):
@@ -148,6 +153,7 @@ class Animal(Organism):
                 random.uniform(Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Animal._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1]),
                 random.uniform(Animal._STARTING_REPRODUCTION_CHANCE_RANGE[0], Animal._STARTING_REPRODUCTION_CHANCE_RANGE[1]),
                 random.uniform(Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0], Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1]),
+                random.uniform(Animal._STARTING_DEFENSE_RANGE[0], Animal._STARTING_DEFENSE_RANGE[1]),
             )
         #endregion
 
@@ -163,28 +169,30 @@ class Animal(Organism):
 
     #region main methods
     def think(self):
+        """
+        Handles the decision-making process for the animal.
+
+        The animal evaluates its surroundings to determine the best course of action. 
+        If the current tile has a plant, it checks the health of the plant and sets it as the best growth. 
+        If there is no plant on the current tile, it selects a random neighboring tile as the initial destination.
+        The animal then iterates through all neighboring tiles to find the tile with the highest plant health. 
+        If a neighboring tile has a higher plant health than the current best growth, it updates the best growth and sets that tile as the destination for movement.
+
+        The final selected destination tile is stored in the `desired_tile_movement` attribute for further processing.
+        """
         super().think()
-        """
-        Handles the decision-making process of the animal.
-
-        If the animal's current tile has a plant, the animal will determine the best neighboring tile with the highest plant growth and set it as the desired tile movement. If there is no plant on the current tile, the animal will randomly select a neighboring tile without any animals and set it as the desired tile movement.
-
-        The animal evaluates the neighboring tiles by checking if they have a plant and comparing the health of the plants on those tiles. The animal will choose the tile with the highest plant health as the destination.
-
-        The desired tile movement is stored in the `desired_tile_movement` attribute of the animal.
-
-        """
         if self.tile.has_plant():
             best_growth = self.tile.plant.sprite.health
             destination = None
         else:
             best_growth = 0
-            destination = self.tile.get_random_neigbor(needs_no_animal=True)
+            destination = self.tile.get_random_neigbor()
 
         ns = self.tile.get_neighboring_tiles()
         for n in ns:
             if n.has_animal():
-                continue
+                if self.attack_power < n.animal.sprite.defense:
+                    continue
             if not n.has_plant():
                 continue
             if n.plant.sprite.health > best_growth:
@@ -197,24 +205,36 @@ class Animal(Organism):
         """
         Handles the attack behavior of the animal.
 
-        If the animal's current tile has a plant and the animal wants to eat (determined by the `wants_to_eat()` method), the animal will attack the plant by calling the `attack()` method.
+        If the animal has a desired tile movement, it will check if the destination tile is different from the current tile and if it has an animal. If so, the animal will attack the animal on the destination tile.
+
+        Additionally, if the current tile has a plant and the animal wants to eat (based on energy and health ratios), the animal will attack the plant.
 
         """
         super().handle_attack()
+        if self.desired_tile_movement:
+            if self.desired_tile_movement is not self.tile:
+                if self.desired_tile_movement.has_animal():
+                    self.attack(self.desired_tile_movement.animal.sprite)
+        
         if self.tile.has_plant() and self.wants_to_eat():
             self.attack(self.tile.plant.sprite)
 
     def handle_movement(self):
         """
-        Handles the movement of the animal.
+        Handles the movement behavior of the animal.
 
-        If the animal has a desired tile movement (stored in the `desired_tile_movement` attribute), the animal will enter that tile by calling the `enter_tile()` method.
+        If the animal has a desired tile movement, it attempts to enter that tile by calling the 'enter_tile' method with the desired tile as a parameter. 
+        After successfully entering the new tile, the energy of the animal is reduced by the movement energy cost defined in the class settings.
 
+        Exceptions are caught and ignored if any error occurs during the movement process.
         """
         super().handle_movement()
         if self.desired_tile_movement:
-            self.enter_tile(self.desired_tile_movement)
-            self.energy -= Animal._MOVEMENT_ENERGY_COST
+            try:
+                self.enter_tile(self.desired_tile_movement)
+                self.energy -= Animal._MOVEMENT_ENERGY_COST
+            except:
+                pass
     #endregion
 
     #region tiles
@@ -242,6 +262,9 @@ class Animal(Organism):
     def die(self):
         super().die()
         Animal.animals_died += 1
+        
+        if self.tile.has_plant():
+            self.tile.plant.sprite.energy += self.health * 0.5
 
         if settings.database.save_csv and settings.database.save_animals_csv:
             self.save_to_csv()
