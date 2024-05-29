@@ -1,4 +1,4 @@
-from code.simulation.dna.gene import Gene
+from src.simulation.entities.properties.gene import Gene
 import random
 import threading
 import unittest

@@ -1,4 +1,4 @@
-from code.simulation.dna.dna import DNA
+from src.simulation.entities.properties.dna import DNA
 import pygame
 import unittest
 from unittest.mock import patch
