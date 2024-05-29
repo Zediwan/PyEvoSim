@@ -6,8 +6,8 @@ import settings.screen
 from entities.animal import Animal
 from entities.plant import Plant
 import settings.simulation
-from dna.dna import DNA
-from dna.gene import ColorComponentGene, PercentageGene, Gene
+from entities.properties.dna import DNA
+from entities.properties.gene import ColorComponentGene, PercentageGene, Gene
 from world.tile import Tile
 
 from world.world import World

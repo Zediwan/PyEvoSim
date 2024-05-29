@@ -6,7 +6,7 @@ import pygame
 
 import settings.database
 import settings.simulation
-from dna.dna import DNA
+from .properties.dna import DNA
 from .organism import Organism
 from world.tile import Tile
 

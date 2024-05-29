@@ -9,8 +9,8 @@ import pygame
 
 import settings.database
 import settings.screen
-import stats.stat_panel
-from dna.dna import DNA
+from gui.stat_panel import StatPanel
+from .properties.dna import DNA
 from world.tile import Tile
 
 
@@ -68,7 +68,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         #region stats
-        self.stat_panel: stats.stat_panel.StatPanel = None
+        self.stat_panel: gui.stat_panel.StatPanel = None
         self.animals_killed: int = 0
         self.plants_killed: int = 0
         self.organisms_attacked: int = 0
@@ -340,7 +340,7 @@ class Organism(ABC, pygame.sprite.Sprite):
         stats_data = self.get_stats()
 
         if not self.stat_panel:
-            self.stat_panel = stats.stat_panel.StatPanel(self.get_headers(), stats_data)
+            self.stat_panel = StatPanel(self.get_headers(), stats_data)
 
         pygame.draw.rect(
             screen,
