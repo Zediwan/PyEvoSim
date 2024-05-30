@@ -103,7 +103,7 @@ class Simulation():
 
         #region time
         self._clock = pygame.time.Clock()
-        self._fps = 320
+        self._fps = 0
         #endregion
 
         #region simulation
@@ -600,7 +600,6 @@ class Simulation():
         # TODO add setting to disable drawing completely to improve speed
         # TODO improve fps displaying
         drawing = False
-        self.world.draw(self._surface)
         self._update_gui()
 
         simulating = True
