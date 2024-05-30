@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from ..settings import database, screen
+from ..settings import database
 from ..gui.stat_panel import StatPanel
 from ..terrain.tile import Tile
 
@@ -141,8 +141,7 @@ class Organism(ABC, pygame.sprite.Sprite):
 
         self.color: pygame.Color = self.dna.color
         self.image.fill(self.color)
-        self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
-
+        
         self.attack_power: float = self.dna.attack_power_gene.value
         self.moisture_preference: float = self.dna.prefered_moisture_gene.value
         self.height_preference: float = self.dna.prefered_height_gene.value
@@ -243,9 +242,6 @@ class Organism(ABC, pygame.sprite.Sprite):
         """
         if not self.is_alive():
             self.die()
-        else:
-            # TODO Test best place for this performance wise
-            self.image.set_alpha(pygame.math.lerp(self.MIN_ALPHA, self.MAX_ALPHA, self.health_ratio()))
     #endregion
 
     #region tiles

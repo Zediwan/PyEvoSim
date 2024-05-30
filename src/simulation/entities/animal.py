@@ -136,11 +136,12 @@ class Animal(Organism):
         rect: pygame.Rect = None,
         parent: Animal = None,
         dna: DNA = None,
+        health: float = None,
+        energy: float = None,
     ):
         #region defaults
         if not rect:
             rect = tile.rect.copy()
-
         if not dna:
             dna = DNA(
                 Animal.BASE_ANIMAL_COLOR(),
@@ -154,13 +155,17 @@ class Animal(Organism):
                 random.uniform(Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0], Animal._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1]),
                 random.uniform(Animal._STARTING_DEFENSE_RANGE[0], Animal._STARTING_DEFENSE_RANGE[1]),
             )
+        if health is None:
+            health = Animal._STARTING_HEALTH
+        if energy is None:
+            energy = Animal._STARTING_ENERGY
         #endregion
 
         super().__init__(
             tile,
             rect,
-            Animal._STARTING_HEALTH,
-            Animal._STARTING_ENERGY,
+            health,
+            energy,
             dna,
         )
 
@@ -292,21 +297,18 @@ class Animal(Organism):
         if options:
             # TODO add a gene that defines how long an animal is pregnant
             ENERGY_TO_CHILD = self.MAX_ENERGY * self.energy_to_offspring_ratio
+            offspring_energy_distribution = .4 # TODO add a gene that defines the energy distribution
             self.energy -= ENERGY_TO_CHILD
-            offspring = self.copy(options)
-            # TODO add a gene that defines the energy distribution
-            offspring_energy_distribution = .4
-            offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
-            offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
+            offspring = self.copy(options, health=ENERGY_TO_CHILD * offspring_energy_distribution, energy=ENERGY_TO_CHILD * (1-offspring_energy_distribution))
             simulation.organisms.add(offspring)
             simulation.animals.add(offspring)
 
-    def copy(self, tile: Tile) -> Animal:
+    def copy(self, tile: Tile, health: float = None, energy: float = None) -> Animal:
         super().copy(tile)
         Animal.animals_birthed += 1
 
         copied_dna = self.dna.copy()
         copied_dna.mutate()
 
-        return Animal(tile, parent=self, dna=copied_dna)
+        return Animal(tile, parent=self, dna=copied_dna, health=health, energy=energy)
     #endregion

@@ -23,7 +23,7 @@ class Plant(Organism):
     _COAST_ENERGY_MULTIPLIER: float = 3
     _BASE_COLOR: pygame.Color = pygame.Color(76, 141, 29)
     _MAX_ALPHA: float = 100
-    _MIN_ALPHA: float = 20
+    _MIN_ALPHA: float = 0
     #endregion
     #region starting values
     _STARTING_HEALTH: float = _MAX_HEALTH
@@ -131,6 +131,8 @@ class Plant(Organism):
         rect: pygame.Rect | None = None,
         parent: Plant = None,
         dna: DNA = None,
+        health: float = None,
+        energy: float = None,
     ):
         #region defaults
         if not rect:
@@ -148,13 +150,17 @@ class Plant(Organism):
                 random.uniform(Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0], Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1]),
                 random.uniform(Plant._STARTING_DEFENSE_RANGE[0], Plant._STARTING_DEFENSE_RANGE[1]),
             )
+        if health is None:
+            health = Plant._STARTING_HEALTH
+        if energy is None:
+            energy = Plant._STARTING_ENERGY
         #endregion
 
         super().__init__(
             tile,
             rect,
-            Plant._STARTING_HEALTH,
-            Plant._STARTING_ENERGY,
+            health,
+            energy,
             dna,
         )
 
@@ -255,21 +261,18 @@ class Plant(Organism):
         option = self.tile.get_random_neigbor(needs_no_plant=True, needs_no_water=True)
         if option:
             ENERGY_TO_CHILD = self.MAX_ENERGY * self.energy_to_offspring_ratio
+            offspring_energy_distribution = .4 # TODO add a gene that defines the energy distribution
             self.energy -= ENERGY_TO_CHILD
-            offspring = self.copy(option)
-            offspring_energy_distribution = .5
-            offspring.energy = ENERGY_TO_CHILD * offspring_energy_distribution
-            offspring.health = ENERGY_TO_CHILD * (1-offspring_energy_distribution)
+            offspring = self.copy(option, health=ENERGY_TO_CHILD * offspring_energy_distribution, energy=ENERGY_TO_CHILD * (1-offspring_energy_distribution))
             simulation.organisms.add(offspring)
             simulation.plants.add(offspring)
-            # print("Plant offspring birthed!")
 
-    def copy(self, tile: Tile):
+    def copy(self, tile: Tile, health: float = None, energy: float = None):
         super().copy(tile)
         Plant.plants_birthed += 1
 
         copied_dna = self.dna.copy()
         copied_dna.mutate()
 
-        return Plant(tile, parent=self, dna=copied_dna)
+        return Plant(tile, parent=self, dna=copied_dna, health=health, energy=energy)
     #endregion
