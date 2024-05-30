@@ -8,6 +8,7 @@ from .entities.properties.gene import ColorComponentGene, Gene
 from .settings import database, screen, simulation
 from .terrain.tile import Tile
 from .terrain.world import World
+from .data_analyser import Data_Analyser
 
 
 class Simulation:
@@ -54,7 +55,6 @@ class Simulation:
         plant_kill_tool: Tool for killing plants.
         choose_plant_kill_tool: Chooses the plant kill tool.
     """
-
     brush_outline = 2
     # region themes
     base_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
@@ -117,6 +117,7 @@ class Simulation:
         self.brush_rect: pygame.Rect = pygame.Rect(0, 0, 20, 20)
         self.tool = self.info_tool
         # endregion
+        self.data_analyser = Data_Analyser(pygame.display.get_surface().get_width(), pygame.display.get_surface().get_height())
 
         self._setup_menus()
 
@@ -253,9 +254,7 @@ class Simulation:
     # region main menus
     def _setup_starting_menu(self) -> None:
         self.starting_menu.add.button("Simulation", self.run_loop)
-        self.starting_menu.add.button(
-            "Data Analysis"
-        )  # TODO add fuction call to data analysis module
+        self.starting_menu.add.button("Data Analysis", self.data_analyser.starting_menu)
         self.starting_menu.add.button("Options", self.options_menu)
         self.starting_menu.add.button("Quit", quit)
 
