@@ -10,7 +10,6 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
-
 def read_csv():
     csv = glob.glob("code/database/*.csv")
     csv = csv[0]
@@ -27,36 +26,29 @@ def pysqldf(query):
     return sqldf(query, globals())
 
 
-def update_table(dataframe) -> None:
+def update_table(dataframe, table) -> None:
     """"Update the table with new data"""
     table.model.df = dataframe
     table.redraw()
 
 
-def querry_input(entry_widget):
-    # Get the SQL query from the entry widget
+def querry_input(entry_widget, error_label, table):
     user_query = entry_widget.get()
-
-    # Execute the SQL query on the dataframe
     try:
         result = sqldf(user_query, globals())
     except Exception as e:
-        print(f"An error occurred: {e}")
+        error_message = f"An error occurred: {e}"
+        print(error_message)
+        error_label.configure(text=error_message)  # Update the error label with the error message
         return
-
-    # Update the table with the result
-    update_table(result)
+    update_table(result, table)
 
 
-def new_query(entry_widget, df) -> None:
+def new_query(entry_widget, df, error_label) -> None:
     """"Allows user to make a new querry"""
+    error_label.configure(text = "")
     entry_widget.delete(0, ctk.END)  #Clear entry widget
     update_table(df)
-
-
-
-
-
 
 
 def main_menu(root_view,dataframe):
@@ -112,6 +104,7 @@ def dashboard(root_view, dataframe):
     canvas1.draw()
     canvas1.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
 
+
     canvas2 = FigureCanvasTkAgg(fig2, master=root_view)
     canvas2.draw()
     canvas2.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
@@ -151,6 +144,7 @@ def table_view(root_view, dataframe):
     entry_label = ctk.CTkLabel(master=bottom_frame, text="SQL Queries:")
     entry_label.pack()
 
+
     table = Table(parent=table_frame, dataframe=dataframe, width='900', height='700', showtoolbar=False, showstatusbar=False)
     table.Theme = "dark"
 
@@ -161,12 +155,15 @@ def table_view(root_view, dataframe):
     buttons_frame = ctk.CTkFrame(master=bottom_frame)
     buttons_frame.pack(anchor='center')
 
+    error_label = ctk.CTkLabel(master=bottom_frame, text="", fg_color="red")
+    error_label.pack(padx=(5, 5), pady=(5, 5))
+
     # Create a submit button in the button frame
-    submit_button = ctk.CTkButton(master=buttons_frame, text="Submit", command=lambda: querry_input(entry),font=("Arial",14))
+    submit_button = ctk.CTkButton(master=buttons_frame, text="Submit", command=lambda: querry_input(entry, error_label, table),font=("Arial",14))
     submit_button.pack(side='left', padx=(5, 5), pady=(5, 5))
 
     # Create a restart button next to the submit button in the button frame
-    restart_button = ctk.CTkButton(master=buttons_frame, text="Restart", command=lambda: new_query(entry, dataframe),font=("Arial",14))
+    restart_button = ctk.CTkButton(master=buttons_frame, text="Restart", command=lambda: new_query(entry, dataframe, error_label),font=("Arial",14))
     restart_button.pack(side='left', padx=(5, 5), pady=(5, 5))
 
     table.show()
@@ -175,7 +172,7 @@ def table_view(root_view, dataframe):
 db = read_csv()
 
 root = ctk.CTk()
-root.geometry('1000x900')
+root.geometry('1200x900')
 root.title("Evolution Simulation")
 
 ctk.set_appearance_mode("dark")
