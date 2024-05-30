@@ -10,13 +10,13 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
+def get_newest_csv():
+    csvs = glob.glob("data/organism_database_*.csv")
+    newest_csv = max(csvs)
+    return newest_csv
 
 def read_csv():
-    csv = glob.glob("src/database/*.csv")
-    csv = csv[0]
-    db = pd.read_csv(csv, header=None,
-                     names=["Type", "ID", "Birth_Time_ms", "Deathtime_Time_ms", "Time_lived", "Max_Health", "Updates", "Health_Ratio", "Energy", "Max_Energy", "Energy_Ratio", "Tiles_Travel",
-                            "Attack_Power", "Organism_Attacked", "Animals_Kill", "Plants_Killed", "Number_Offspring", "R", "G", "B"])
+    db = pd.read_csv(get_newest_csv())
     db.drop(axis='rows',  index=0, inplace=True)
     assert db is not None
     return db
