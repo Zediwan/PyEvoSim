@@ -1,11 +1,4 @@
 opensimplex
 pygame
 pygame-menu
-ttkthemes
-pandasql
-pandastable
-customtkinter
-tkinter
-pandas 
-glob2
-matplotlib
+neat-python
