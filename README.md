@@ -94,7 +94,7 @@ This project was initiated by Jeremy Moser.
 
 Later on it was worked on as a project for a lecture Programmig for Data Science by Jeremy Moser, Andrin Müller, Dimoth Pathiniwasam and Milos Kecman.
 
-Inspirations for the project were other projects like [the Bibites](https://www.youtube.com/@TheBibitesDigitalLife), [Coding Train](https://github.com/CodingTrain), [Sebastian Lague](https://github.com/SebLague), [LifeEngine](https://github.com/MaxRobinsonTheGreat/LifeEngine) and many more.
+Inspirations for the project were other projects like [the Bibites](https://www.youtube.com/@TheBibitesDigitalLife), [Coding Train](https://github.com/CodingTrain), [Sebastian Lague](https://github.com/SebLague), [LifeEngine](https://github.com/MaxRobinsonTheGreat/LifeEngine), [Neural MMO](https://github.com/openai/neural-mmo?tab=readme-ov-file) and many more.
 
 ## License
 
