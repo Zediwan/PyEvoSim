@@ -117,7 +117,7 @@ class Simulation:
         self.brush_rect: pygame.Rect = pygame.Rect(0, 0, 20, 20)
         self.tool = self.info_tool
         # endregion
-        self.data_analyser = Data_Analyser(pygame.display.get_surface().get_width(), pygame.display.get_surface().get_height())
+        #self.data_analyser = Data_Analyser(pygame.display.get_surface().get_width(), pygame.display.get_surface().get_height())
 
         self._setup_menus()
 
@@ -254,7 +254,7 @@ class Simulation:
     # region main menus
     def _setup_starting_menu(self) -> None:
         self.starting_menu.add.button("Simulation", self.run_loop)
-        self.starting_menu.add.button("Data Analysis", self.data_analyser.starting_menu)
+        #self.starting_menu.add.button("Data Analysis", self.data_analyser.starting_menu)
         self.starting_menu.add.button("Options", self.options_menu)
         self.starting_menu.add.button("Quit", quit)
 
