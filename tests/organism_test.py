@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from src.simulation.entities.organism import Organism
+from src.entities.organism import Organism
 
 
 class TestOrganism(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestOrganism(unittest.TestCase):
 
 
 class TestInit(TestOrganism):
-    @patch("src.simulation.terrain.tile.Tile")
+    @patch("src.terrain.tile.Tile")
     def test_initialize_with_valid_parameters(self, mock_tile):
         pass
 

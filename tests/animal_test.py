@@ -3,13 +3,13 @@ from unittest.mock import patch
 
 import pygame
 
-from ..src.simulation.entities.animal import Animal
+from ..src.entities.animal import Animal
 
 
 # TODO test what happens if rect of animal is bigger than tile rect
 class TestAnimal(unittest.TestCase):
     @patch(
-        "src.simulation.terrain.tile.Tile", "src.simulation.entities.properties.dna.DNA"
+        "src.terrain.tile.Tile", "src.entities.properties.dna.DNA"
     )
     def setUp(self, mock_tile, mock_dna) -> None:
         self.base_rect = pygame.Rect(0, 0, 1, 1)

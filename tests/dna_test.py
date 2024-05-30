@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pygame
 
-from src.simulation.entities.properties.dna import DNA
+from src.entities.properties.dna import DNA
 
 
 class TestDNA(unittest.TestCase):
