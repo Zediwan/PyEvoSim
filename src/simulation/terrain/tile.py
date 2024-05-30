@@ -69,7 +69,8 @@ class Tile(pygame.sprite.Sprite):
         is_neighboring_tile(self, tile: Tile) -> bool:
             Check if a given tile is a neighbor of the current tile.
     """
-    #region colors
+
+    # region colors
     WATER_COLOR: pygame.Color = pygame.Color(26, 136, 157)
     SAND_COLOR: pygame.Color = pygame.Color(228, 232, 202)
     SCORCHED_COLOR: pygame.Color = pygame.Color(153, 153, 153)
@@ -85,18 +86,18 @@ class Tile(pygame.sprite.Sprite):
     SUBTROPICAL_DESERT_COLOR: pygame.Color = pygame.Color(233, 220, 198)
     TROPICAL_SEASONAL_FOREST_COLOR: pygame.Color = pygame.Color(169, 204, 163)
     TROPICAL_RAIN_FOREST_COLOR: pygame.Color = pygame.Color(156, 187, 169)
-    #endregion
-    
-    #region height levels
+    # endregion
+
+    # region height levels
     WATER_HEIGHT_LEVEL: float = 0.1
     BEACH_HEIGHT_LEVEL: float = 0.12
     TROPICAL_HEIGHT_LEVEL: float = 0.3
     TEMPERATE_HEIGHT_LEVEL: float = 0.6
     TRANSITION_HEIGHT_LEVEL: float = 0.8
     MOUNTAIN_HEIGHT_LEVEL: float = 1
-    #endregion
-    
-    #region growth values
+    # endregion
+
+    # region growth values
     NO_GROWTH: float = 0
     MINIMAL_GROWTH: float = 0.3
     LIMITED_GROWTH: float = 0.4
@@ -106,7 +107,7 @@ class Tile(pygame.sprite.Sprite):
     FAVORABLE_GROWTH: float = 0.8
     VERY_FAVORABLE_GROWTH: float = 0.9
     OPTIMAL_GROWTH: float = 1
-    #region biom growths
+    # region biom growths
     WATER_PLANT_GROWTH: float = NO_GROWTH
     BEACH_PLANT_GROWTH: float = LIMITED_GROWTH
     SCORCHED_PLANT_GROWTH: float = MINIMAL_GROWTH
@@ -122,8 +123,8 @@ class Tile(pygame.sprite.Sprite):
     SUBTROPICAL_DESERT_PLANT_GROWTH: float = LOW_GROWTH
     TROPICAL_SEASON_FOREST_PLANT_GROWTH: float = FAVORABLE_GROWTH
     TROPICAL_RAIN_FOREST_PLANT_GROWTH: float = VERY_FAVORABLE_GROWTH
-    #endregion
-    #endregion
+    # endregion
+    # endregion
 
     def __init__(
         self,
@@ -163,11 +164,11 @@ class Tile(pygame.sprite.Sprite):
         self.is_border: bool = is_border
         self.is_coast: bool = False
 
-        #region stats
+        # region stats
         self.times_visted: int = 0
-        #endregion
+        # endregion
 
-    #region properties
+    # region properties
     @property
     def moisture(self) -> float:
         return self._moisture
@@ -219,9 +220,10 @@ class Tile(pygame.sprite.Sprite):
         else:
             self._height = value
         self._set_height_moisture_dependent_attributes()
-    #endregion
 
-    #region setup
+    # endregion
+
+    # region setup
     def _set_height_moisture_dependent_attributes(self) -> None:
         """
         Set the color and plant growth potential attributes of a Tile object based on its height and moisture levels.
@@ -234,16 +236,16 @@ class Tile(pygame.sprite.Sprite):
             self.plant_growth_potential = Tile.WATER_PLANT_GROWTH
             self.color = Tile.WATER_COLOR
             self.has_water = True
-        elif self.height <= Tile.BEACH_HEIGHT_LEVEL: # TODO update this so not every tile close to water is sand but it depends on moisture
+        elif (
+            self.height <= Tile.BEACH_HEIGHT_LEVEL
+        ):  # TODO update this so not every tile close to water is sand but it depends on moisture
             # Sandy areas have limited growth
             self.plant_growth_potential = Tile.BEACH_PLANT_GROWTH
             self.color = Tile.SAND_COLOR
         elif self.height <= Tile.TROPICAL_HEIGHT_LEVEL:
             if self.moisture < 0.16:
                 # Subtropical desert, low growth
-                self.plant_growth_potential = (
-                    Tile.SUBTROPICAL_DESERT_PLANT_GROWTH
-                )
+                self.plant_growth_potential = Tile.SUBTROPICAL_DESERT_PLANT_GROWTH
                 self.color = Tile.SUBTROPICAL_DESERT_COLOR
             elif self.moisture < 0.33:
                 # Grassland, favorable
@@ -251,22 +253,16 @@ class Tile(pygame.sprite.Sprite):
                 self.color = Tile.GRASSLAND_COLOR
             elif self.moisture < 0.66:
                 # Tropical seasonal forest, favorable
-                self.plant_growth_potential = (
-                    Tile.TROPICAL_SEASON_FOREST_PLANT_GROWTH
-                )
+                self.plant_growth_potential = Tile.TROPICAL_SEASON_FOREST_PLANT_GROWTH
                 self.color = Tile.TROPICAL_SEASONAL_FOREST_COLOR
             else:
                 # Tropical rain forest, very favorable
-                self.plant_growth_potential = (
-                    Tile.TROPICAL_RAIN_FOREST_PLANT_GROWTH
-                )
+                self.plant_growth_potential = Tile.TROPICAL_RAIN_FOREST_PLANT_GROWTH
                 self.color = Tile.TROPICAL_RAIN_FOREST_COLOR
         elif self.height <= Tile.TEMPERATE_HEIGHT_LEVEL:
             if self.moisture < 0.16:
                 # Temperate desert, low growth
-                self.plant_growth_potential = (
-                    Tile.TEMPERATE_DESERT_PLANT_GROWTH
-                )
+                self.plant_growth_potential = Tile.TEMPERATE_DESERT_PLANT_GROWTH
                 self.color = Tile.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.50:
                 # Grassland, favorable
@@ -280,16 +276,12 @@ class Tile(pygame.sprite.Sprite):
                 self.color = Tile.TEMPERATE_DECIDUOUS_FOREST_COLOR
             else:
                 # Temperate rain forest, optimal
-                self.plant_growth_potential = (
-                    Tile.TEMPERATE_RAIN_FOREST_PLANT_GROWTH
-                )
+                self.plant_growth_potential = Tile.TEMPERATE_RAIN_FOREST_PLANT_GROWTH
                 self.color = Tile.TEMPERATE_RAIN_FOREST_COLOR
         elif self.height <= Tile.TRANSITION_HEIGHT_LEVEL:
             if self.moisture < 0.33:
                 # Temperate desert, low growth
-                self.plant_growth_potential = (
-                    Tile.TEMPERATE_DESERT_PLANT_GROWTH
-                )
+                self.plant_growth_potential = Tile.TEMPERATE_DESERT_PLANT_GROWTH
                 self.color = Tile.TEMPERATE_DESERT_COLOR
             elif self.moisture < 0.66:
                 # Shrubland, moderate growth
@@ -326,14 +318,16 @@ class Tile(pygame.sprite.Sprite):
                 f"Plant growth has not been set. moisture={self.moisture} height={self.height}"
             )
         self.image.fill(self.color)
-    #endregion
 
-    #region main methods
+    # endregion
+
+    # region main methods
     def draw(self, screen: pygame.Surface) -> None:
         screen.blit(self.image, self.rect)
-    #endregion
 
-    #region organisms
+    # endregion
+
+    # region organisms
     def add_animal(self, animal) -> None:
         """
         Add an animal to the Tile object.
@@ -390,9 +384,10 @@ class Tile(pygame.sprite.Sprite):
 
     def has_plant(self) -> bool:
         return self.plant
-    #endregion
 
-    #region tiles
+    # endregion
+
+    # region tiles
     def add_neighbor(self, direction: Direction, tile: Tile) -> None:
         """
         Add a neighboring Tile to the current Tile object in a specific direction.
@@ -405,7 +400,9 @@ class Tile(pygame.sprite.Sprite):
         - None
         """
         self.neighbors[direction] = tile
-        self.is_coast = self.is_coast or (tile.has_water and self.has_water) # TODO improve this so it is in relation to distance to water
+        self.is_coast = self.is_coast or (
+            tile.has_water and self.has_water
+        )  # TODO improve this so it is in relation to distance to water
 
     def get_possible_directions(self) -> list[Direction]:
         """
@@ -438,7 +435,13 @@ class Tile(pygame.sprite.Sprite):
         return self.neighbors.get(direction, None)
 
     def get_random_neigbor(
-        self, needs_plant=False, needs_no_plant=False, needs_animal=False, needs_no_animal=False, needs_water=False, needs_no_water=False
+        self,
+        needs_plant=False,
+        needs_no_plant=False,
+        needs_animal=False,
+        needs_no_animal=False,
+        needs_water=False,
+        needs_no_water=False,
     ) -> Tile | None:
         """
         Return a random neighboring Tile object based on specified criteria.
@@ -459,11 +462,17 @@ class Tile(pygame.sprite.Sprite):
 
         """
         if needs_plant and needs_no_plant:
-            raise ValueError(f"Conflicting needs needs_plant={needs_plant} and needs_no_plant={needs_no_plant}")
+            raise ValueError(
+                f"Conflicting needs needs_plant={needs_plant} and needs_no_plant={needs_no_plant}"
+            )
         if needs_animal and needs_no_animal:
-            raise ValueError(f"Conflicting needs needs_animal={needs_animal} and needs_no_animal={needs_no_animal}")
+            raise ValueError(
+                f"Conflicting needs needs_animal={needs_animal} and needs_no_animal={needs_no_animal}"
+            )
         if needs_water and needs_no_water:
-            raise ValueError(f"Conflicting needs needs_water={needs_water} and needs_no_water={needs_no_water}")
+            raise ValueError(
+                f"Conflicting needs needs_water={needs_water} and needs_no_water={needs_no_water}"
+            )
 
         options = []
         for tile in self.neighbors.values():
@@ -483,7 +492,7 @@ class Tile(pygame.sprite.Sprite):
 
         try:
             return random.choice(options)
-        except IndexError: # If no choices
+        except IndexError:  # If no choices
             return None
 
     def is_neighboring_tile(self, tile: Tile) -> bool:
@@ -497,4 +506,5 @@ class Tile(pygame.sprite.Sprite):
         - bool: True if the provided Tile object is a neighbor of the current Tile object, False otherwise.
         """
         return tile in self.neighbors.values()
-    #endregion
+
+    # endregion

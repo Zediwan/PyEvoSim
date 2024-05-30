@@ -1,1 +1,1 @@
-__all__ = ['direction', 'formatter', "noise_function", "setting"]
+__all__ = ["direction", "formatter", "noise_function", "setting"]

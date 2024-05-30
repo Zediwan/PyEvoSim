@@ -5,15 +5,13 @@ import random
 import pygame
 import pygame_menu
 
-from ..settings import database, simulation
-from ..helper.setting import Setting, BoundedSetting, UnboundedSetting
-from ..helper.noise_function import NoiseFunction
 from ..entities.animal import Animal
 from ..entities.plant import Plant
-
+from ..helper.noise_function import NoiseFunction
+from ..helper.setting import BoundedSetting
+from ..settings import simulation
 from .direction import Direction
 from .tile import Tile
-
 
 
 class World(pygame.sprite.Sprite):
@@ -62,8 +60,9 @@ class World(pygame.sprite.Sprite):
     Inherits from:
         pygame.sprite.Sprite
     """
+
     loading_screen_theme = pygame_menu.pygame_menu.themes.THEME_GREEN.copy()
-    loading_screen_theme.title = False # Loading screen does not need a title
+    loading_screen_theme.title = False  # Loading screen does not need a title
 
     def __init__(self, rect: pygame.Rect, tile_size: int) -> None:
         """
@@ -94,9 +93,11 @@ class World(pygame.sprite.Sprite):
         self._setup_noise_functions()
         self._setup_progress_bar()
 
-        #region tiles
+        # region tiles
         self.tiles = pygame.sprite.Group()
-        tiles_grid = [[None for _ in range(self.cols)] for _ in range(self.rows)] # Only used for add_neighbors
+        tiles_grid = [
+            [None for _ in range(self.cols)] for _ in range(self.rows)
+        ]  # Only used for add_neighbors
         for row in range(self.rows):
             for col in range(self.cols):
                 tile = self.create_tile(row, col)
@@ -104,11 +105,11 @@ class World(pygame.sprite.Sprite):
                 self.tiles.add(tile)
         self.add_neighbors(tiles_grid)
         self.tiles.draw(self.ground_surface)
-        #endregion
+        # endregion
 
         self.randomise_freqs()
 
-    #region main methods
+    # region main methods
     def update(self) -> None:
         """
         Update the world state by incrementing the age and updating the organisms in the simulation.
@@ -139,11 +140,13 @@ class World(pygame.sprite.Sprite):
             if self.progress_bar:
                 self.menu.draw(self.image)
         else:
-            # Draw the ground / tiles
+            # Draw the ground / tiles
             self.image.blit(self.ground_surface, self.rect)
 
             # Draw the organisms
-            self.organism_surface.fill((0, 0, 0, 0)) # Clear previous drawings on the organism surface
+            self.organism_surface.fill(
+                (0, 0, 0, 0)
+            )  # Clear previous drawings on the organism surface
             simulation.organisms.draw(self.organism_surface)
             self.image.blit(self.organism_surface, self.rect)
 
@@ -167,9 +170,10 @@ class World(pygame.sprite.Sprite):
             tile.height = self.generate_height_values(tile.rect.x, tile.rect.y)
             tile.moisture = self.generate_moisture_values(tile.rect.x, tile.rect.y)
             tile.draw(self.ground_surface)
-    #endregion
 
-    #region spawning
+    # endregion
+
+    # region spawning
     def spawn_animals(self, amount: float = 1) -> None:
         """
         Spawn a specified amount of animals on unoccupied tiles in the world.
@@ -184,7 +188,7 @@ class World(pygame.sprite.Sprite):
             None
         """
         # TODO this should ignore tiles that are occupied and only try to spawn on unoccupied tiles
-        for tile in random.choices(self.tiles.sprites(), k = amount):
+        for tile in random.choices(self.tiles.sprites(), k=amount):
             self.spawn_animal(tile)
 
     def spawn_plants(self, amount: float = 1) -> None:
@@ -201,7 +205,7 @@ class World(pygame.sprite.Sprite):
             None
         """
         # TODO this should ignore tiles that are occupied and only try to spawn on unoccupied tiles
-        for tile in random.choices(self.tiles.sprites(), k = amount):
+        for tile in random.choices(self.tiles.sprites(), k=amount):
             self.spawn_plant(tile)
 
     def spawn_animal(self, tile: Tile) -> None:
@@ -214,7 +218,7 @@ class World(pygame.sprite.Sprite):
         Returns:
             None
         """
-        if not(tile.has_water or tile.has_animal()):
+        if not (tile.has_water or tile.has_animal()):
             animal = Animal(tile)
             simulation.organisms.add(animal)
             simulation.animals.add(animal)
@@ -229,13 +233,14 @@ class World(pygame.sprite.Sprite):
         Returns:
             None
         """
-        if not(tile.has_water or tile.has_plant()):
+        if not (tile.has_water or tile.has_plant()):
             plant = Plant(tile)
             simulation.organisms.add(plant)
             simulation.plants.add(plant)
-    #endregion
 
-    #region tiles
+    # endregion
+
+    # region tiles
     def create_tile(self, row: int, col: int) -> Tile:
         """
         Create a new Tile object based on the given row and column coordinates.
@@ -251,10 +256,10 @@ class World(pygame.sprite.Sprite):
         y = row * self.tile_size
 
         return Tile(
-            pygame.Rect(x ,y ,self.tile_size, self.tile_size),
-            height = self.generate_height_values(x, y),
-            moisture = self.generate_moisture_values(x, y),
-            is_border = self.is_border_tile(row=row, col=col),
+            pygame.Rect(x, y, self.tile_size, self.tile_size),
+            height=self.generate_height_values(x, y),
+            moisture=self.generate_moisture_values(x, y),
+            is_border=self.is_border_tile(row=row, col=col),
         )
 
     def add_neighbors(self, tiles) -> None:
@@ -273,13 +278,13 @@ class World(pygame.sprite.Sprite):
             for col in range(self.cols):
                 tile: Tile = tiles[row][col]
                 if row > 0:
-                    tile.add_neighbor(Direction.NORTH, tiles[row-1][col])
+                    tile.add_neighbor(Direction.NORTH, tiles[row - 1][col])
                 if col < self.cols - 1:
-                    tile.add_neighbor(Direction.EAST, tiles[row][col+1])
+                    tile.add_neighbor(Direction.EAST, tiles[row][col + 1])
                 if row < self.rows - 1:
-                    tile.add_neighbor(Direction.SOUTH, tiles[row+1][col])
+                    tile.add_neighbor(Direction.SOUTH, tiles[row + 1][col])
                 if col > 0:
-                    tile.add_neighbor(Direction.WEST, tiles[row][col-1])
+                    tile.add_neighbor(Direction.WEST, tiles[row][col - 1])
 
     def is_border_tile(self, row: int, col: int) -> bool:
         """
@@ -329,13 +334,14 @@ class World(pygame.sprite.Sprite):
         # Transform global coordinates into world coordinates
         x = pos[0] - self.rect.left
         y = pos[1] - self.rect.top
-        
+
         s = pygame.sprite.Sprite()
         s.rect = pygame.Rect(x, y, 1, 1)
         return pygame.sprite.spritecollideany(s, self.tiles)
-    #endregion
 
-    #region noise
+    # endregion
+
+    # region noise
     def _setup_noise_functions(self) -> None:
         """
         Set up the noise functions for generating height and moisture values.
@@ -351,30 +357,52 @@ class World(pygame.sprite.Sprite):
             None
         """
         # TODO allow to manually add functions
-        self.moisture_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Moisture", min=0, max=2, type="onchange")
-        self.height_setting: BoundedSetting = BoundedSetting(self.reload, value=1, name="Height", min=0, max=2, type="onchange")
-        self.scale_setting: BoundedSetting = BoundedSetting(self.reload, value=.001, name="Scale", min = 0, max=0.01, type="onchange", increment=.0001)
+        self.moisture_setting: BoundedSetting = BoundedSetting(
+            self.reload, value=1, name="Moisture", min=0, max=2, type="onchange"
+        )
+        self.height_setting: BoundedSetting = BoundedSetting(
+            self.reload, value=1, name="Height", min=0, max=2, type="onchange"
+        )
+        self.scale_setting: BoundedSetting = BoundedSetting(
+            self.reload,
+            value=0.001,
+            name="Scale",
+            min=0,
+            max=0.01,
+            type="onchange",
+            increment=0.0001,
+        )
 
         self.height_functions: list[NoiseFunction] = []
         self.height_functions_weights: list[float] = []
-        self.height_functions.append(NoiseFunction(
-            self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0,
-        ))
+        self.height_functions.append(
+            NoiseFunction(
+                self.reload,
+                factor_x=1,
+                factor_y=1,
+                offset_x=0,
+                offset_y=0,
+            )
+        )
         self.height_functions_weights.append(1)
-        self.height_functions.append(NoiseFunction(
-            self.reload, factor_x=2, factor_y=2, offset_x=4.7, offset_y=2.3
-        ))
-        self.height_functions_weights.append(.2)
-        self.height_functions.append(NoiseFunction(
-            self.reload, factor_x=4, factor_y=4, offset_x=19.1, offset_y=16.2
-        ))
-        self.height_functions_weights.append(.1)
+        self.height_functions.append(
+            NoiseFunction(
+                self.reload, factor_x=2, factor_y=2, offset_x=4.7, offset_y=2.3
+            )
+        )
+        self.height_functions_weights.append(0.2)
+        self.height_functions.append(
+            NoiseFunction(
+                self.reload, factor_x=4, factor_y=4, offset_x=19.1, offset_y=16.2
+            )
+        )
+        self.height_functions_weights.append(0.1)
 
         self.moisture_functions: list[NoiseFunction] = []
         self.moisture_functions_weights: list[float] = []
-        self.moisture_functions.append(NoiseFunction(
-            self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0
-        ))
+        self.moisture_functions.append(
+            NoiseFunction(self.reload, factor_x=1, factor_y=1, offset_x=0, offset_y=0)
+        )
         self.moisture_functions_weights.append(1)
 
     def generate_height_values(self, x: int, y: int) -> float:
@@ -388,8 +416,13 @@ class World(pygame.sprite.Sprite):
         Returns:
             float: The generated height value for the specified position, clamped between 0 and 1.
         """
-        height = NoiseFunction.weigh(x * self.scale_setting._value, y *  self.scale_setting._value, self.height_functions, self.height_functions_weights)
-        height += (self.height_setting._value - self.height_setting._mid)
+        height = NoiseFunction.weigh(
+            x * self.scale_setting._value,
+            y * self.scale_setting._value,
+            self.height_functions,
+            self.height_functions_weights,
+        )
+        height += self.height_setting._value - self.height_setting._mid
         height = pygame.math.clamp(height, 0, 1)
         return height
 
@@ -407,8 +440,13 @@ class World(pygame.sprite.Sprite):
         Returns:
             float: The calculated moisture value at the specified position.
         """
-        moisture = NoiseFunction.weigh(x * self.scale_setting._value, y * self.scale_setting._value, self.moisture_functions, self.moisture_functions_weights)
-        moisture += (self.moisture_setting._value - self.moisture_setting._mid)
+        moisture = NoiseFunction.weigh(
+            x * self.scale_setting._value,
+            y * self.scale_setting._value,
+            self.moisture_functions,
+            self.moisture_functions_weights,
+        )
+        moisture += self.moisture_setting._value - self.moisture_setting._mid
         moisture = pygame.math.clamp(moisture, 0, 1)
         return moisture
 
@@ -448,9 +486,9 @@ class World(pygame.sprite.Sprite):
         self.progress = 0
         self.progress_bar.set_value(self.progress)
 
-    #endregion
+    # endregion
 
-    #region gui
+    # region gui
     def _setup_progress_bar(self) -> None:
         """
         Set up the progress bar for the world generation.
@@ -465,9 +503,18 @@ class World(pygame.sprite.Sprite):
         Returns:
             None
         """
-        self.menu = pygame_menu.Menu("", width=self.rect.width, height=self.rect.height, theme=self.loading_screen_theme, position=(self.rect.left,self.rect.top,False))
-        self.progress_bar: pygame_menu.pygame_menu.widgets.ProgressBar = self.menu.add.progress_bar("Generating World")
-    #endregion
+        self.menu = pygame_menu.Menu(
+            "",
+            width=self.rect.width,
+            height=self.rect.height,
+            theme=self.loading_screen_theme,
+            position=(self.rect.left, self.rect.top, False),
+        )
+        self.progress_bar: pygame_menu.pygame_menu.widgets.ProgressBar = (
+            self.menu.add.progress_bar("Generating World")
+        )
+
+    # endregion
 
     def copy(self) -> World:
         """
@@ -484,7 +531,7 @@ class World(pygame.sprite.Sprite):
         # TODO not working properly yet as _setup_noise_settings initiates with random variables so not exact copy
         return World(self.rect.copy(), self.tile_size)
 
-    #region static methods
+    # region static methods
     @staticmethod
     def adjust_dimensions(rect: pygame.Rect, tile_size: int) -> pygame.Rect:
         """
@@ -501,4 +548,5 @@ class World(pygame.sprite.Sprite):
         rect.height = (rect.height // tile_size) * tile_size
 
         return rect
-    #endregion
+
+    # endregion

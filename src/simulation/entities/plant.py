@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import random
+
 import pygame
 
-from ..settings import database, screen, simulation
+from ..settings import database, simulation
 from ..terrain.tile import Tile
-
 from .organism import Organism
 from .properties.dna import DNA
 
 
 class Plant(Organism):
-    #region class settings
+    # region class settings
     _BASE_ENERGY_MAINTENANCE: float = 1
     _MAX_HEALTH: float = 200
     _MAX_ENERGY: float = 100
@@ -24,8 +24,8 @@ class Plant(Organism):
     _BASE_COLOR: pygame.Color = pygame.Color(76, 141, 29)
     _MAX_ALPHA: float = 100
     _MIN_ALPHA: float = 0
-    #endregion
-    #region starting values
+    # endregion
+    # region starting values
     _STARTING_HEALTH: float = _MAX_HEALTH
     _STARTING_ENERGY: float = _MAX_ENERGY
     _STARTING_ATTACK_POWER_RANGE: tuple[float, float] = (0, 1)
@@ -33,12 +33,13 @@ class Plant(Organism):
     _STARTING_MOISTURE_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_HEIGHT_PREFERENCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_MUTATION_CHANCE_RANGE: tuple[float, float] = (0, 1)
-    _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (.1, 1)
-    _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (.1, 1)
+    _STARTING_MIN_REPRODUCTION_HEALTH_RANGE: tuple[float, float] = (0.1, 1)
+    _STARTING_MIN_REPRODUCTION_ENERGY_RANGE: tuple[float, float] = (0.1, 1)
     _STARTING_REPRODUCTION_CHANCE_RANGE: tuple[float, float] = (0, 1)
     _STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE: tuple[float, float] = (0, 1)
-    #endregion
-    #region class setting setters
+
+    # endregion
+    # region class setting setters
     @classmethod
     def set_base_energy_maintenance(cls, value: float):
         cls._BASE_ENERGY_MAINTENANCE = value
@@ -74,7 +75,7 @@ class Plant(Organism):
     @classmethod
     def set_starting_attack_power_range(cls, value: tuple[float, float]):
         cls._STARTING_ATTACK_POWER_RANGE = value
-    
+
     @classmethod
     def set_starting_defense_range(cls, value: tuple[float, float]):
         cls._STARTING_DEFENSE_RANGE = value
@@ -94,12 +95,13 @@ class Plant(Organism):
     @classmethod
     def set_starting_reproduction_chance_range(cls, value: tuple[float, float]):
         cls._STARTING_REPRODUCTION_CHANCE_RANGE = value
-    
+
     @classmethod
     def set_starting_energy_to_offspring_ratio_range(cls, value: tuple[float, float]):
         cls._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE = value
-    #endregion
-    #region class properties
+
+    # endregion
+    # region class properties
     @property
     def MAX_HEALTH(self) -> float:
         return Plant._MAX_HEALTH
@@ -111,19 +113,20 @@ class Plant(Organism):
     @property
     def NUTRITION_FACTOR(self) -> float:
         return Plant._NUTRITION_FACTOR
-    
+
     @property
     def MAX_ALPHA(self) -> float:
         return Plant._MAX_ALPHA
-    
+
     @property
     def MIN_ALPHA(self) -> float:
         return Plant._MIN_ALPHA
-    #endregion
-    #region stats
+
+    # endregion
+    # region stats
     plants_birthed: int = 0
     plants_died: int = 0
-    #endregion
+    # endregion
 
     def __init__(
         self,
@@ -134,27 +137,53 @@ class Plant(Organism):
         health: float = None,
         energy: float = None,
     ):
-        #region defaults
+        # region defaults
         if not rect:
             rect = tile.rect.copy()
         if not dna:
             dna = DNA(
                 Plant._BASE_COLOR,
-                random.uniform(Plant._STARTING_ATTACK_POWER_RANGE[0], Plant._STARTING_ATTACK_POWER_RANGE[1]),
-                random.uniform(Plant._STARTING_MOISTURE_PREFERENCE_RANGE[0], Plant._STARTING_MOISTURE_PREFERENCE_RANGE[1]),
-                random.uniform(Plant._STARTING_HEIGHT_PREFERENCE_RANGE[0], Plant._STARTING_HEIGHT_PREFERENCE_RANGE[1]),
-                random.uniform(Plant._STARTING_MUTATION_CHANCE_RANGE[0], Plant._STARTING_MUTATION_CHANCE_RANGE[1]),
-                random.uniform(Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1]),
-                random.uniform(Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0], Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1]),
-                random.uniform(Plant._STARTING_REPRODUCTION_CHANCE_RANGE[0], Plant._STARTING_REPRODUCTION_CHANCE_RANGE[1]),
-                random.uniform(Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0], Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1]),
-                random.uniform(Plant._STARTING_DEFENSE_RANGE[0], Plant._STARTING_DEFENSE_RANGE[1]),
+                random.uniform(
+                    Plant._STARTING_ATTACK_POWER_RANGE[0],
+                    Plant._STARTING_ATTACK_POWER_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_MOISTURE_PREFERENCE_RANGE[0],
+                    Plant._STARTING_MOISTURE_PREFERENCE_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_HEIGHT_PREFERENCE_RANGE[0],
+                    Plant._STARTING_HEIGHT_PREFERENCE_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_MUTATION_CHANCE_RANGE[0],
+                    Plant._STARTING_MUTATION_CHANCE_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[0],
+                    Plant._STARTING_MIN_REPRODUCTION_HEALTH_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[0],
+                    Plant._STARTING_MIN_REPRODUCTION_ENERGY_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_REPRODUCTION_CHANCE_RANGE[0],
+                    Plant._STARTING_REPRODUCTION_CHANCE_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[0],
+                    Plant._STARTING_ENERGY_TO_OFFSPRING_RATIO_RANGE[1],
+                ),
+                random.uniform(
+                    Plant._STARTING_DEFENSE_RANGE[0], Plant._STARTING_DEFENSE_RANGE[1]
+                ),
             )
         if health is None:
             health = Plant._STARTING_HEALTH
         if energy is None:
             energy = Plant._STARTING_ENERGY
-        #endregion
+        # endregion
 
         super().__init__(
             tile,
@@ -166,7 +195,7 @@ class Plant(Organism):
 
         self.parent: Plant | None = parent
 
-    #region main methods
+    # region main methods
     def update(self):
         super().update()
         self.photosynthesise()
@@ -212,9 +241,10 @@ class Plant(Organism):
         )
 
         self.energy += adjusted_energy_gain
-    #endregion
 
-    #region tile
+    # endregion
+
+    # region tile
     def enter_tile(self, tile: Tile):
         super().enter_tile(tile)
 
@@ -231,9 +261,10 @@ class Plant(Organism):
             raise ValueError("Plant does not have a tile!")
         if not self.tile.plant.has(self):
             raise ValueError("Plant-Tile assignment not equal.")
-    #endregion
 
-    #region health and energy
+    # endregion
+
+    # region health and energy
     def die(self):
         super().die()
         Plant.plants_died += 1
@@ -247,23 +278,31 @@ class Plant(Organism):
     def get_energy_maintenance(self) -> float:
         # TODO update this so it is different for different plants
         return Plant._BASE_ENERGY_MAINTENANCE
-    #endregion
 
-    #region attacking
+    # endregion
+
+    # region attacking
     def get_attacked(self, attacking_organism: Organism):
         super().get_attacked(attacking_organism)
         if not self.is_alive():
             attacking_organism.plants_killed += 1
-    #endregion
 
-    #region reproduction
+    # endregion
+
+    # region reproduction
     def reproduce(self):
         option = self.tile.get_random_neigbor(needs_no_plant=True, needs_no_water=True)
         if option:
             ENERGY_TO_CHILD = self.MAX_ENERGY * self.energy_to_offspring_ratio
-            offspring_energy_distribution = .4 # TODO add a gene that defines the energy distribution
+            offspring_energy_distribution = (
+                0.4  # TODO add a gene that defines the energy distribution
+            )
             self.energy -= ENERGY_TO_CHILD
-            offspring = self.copy(option, health=ENERGY_TO_CHILD * offspring_energy_distribution, energy=ENERGY_TO_CHILD * (1-offspring_energy_distribution))
+            offspring = self.copy(
+                option,
+                health=ENERGY_TO_CHILD * offspring_energy_distribution,
+                energy=ENERGY_TO_CHILD * (1 - offspring_energy_distribution),
+            )
             simulation.organisms.add(offspring)
             simulation.plants.add(offspring)
 
@@ -275,4 +314,5 @@ class Plant(Organism):
         copied_dna.mutate()
 
         return Plant(tile, parent=self, dna=copied_dna, health=health, energy=energy)
-    #endregion
+
+    # endregion

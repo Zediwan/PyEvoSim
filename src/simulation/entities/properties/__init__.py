@@ -1,1 +1,1 @@
-__all__ = ['dna', 'gene']
+__all__ = ["dna", "gene"]

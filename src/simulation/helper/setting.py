@@ -1,6 +1,8 @@
-import pygame_menu
 import random
 from abc import ABC, abstractmethod
+
+import pygame_menu
+
 
 class Setting(ABC):
     """
@@ -20,8 +22,11 @@ class Setting(ABC):
         randomise_value(self, type: str = "uniform") -> None: Abstract method to randomize the value of the setting.
         add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser: bool = False) -> None: Abstract method to add the setting controller to a menu.
     """
+
     # TODO think of making value an optional argument and if _mid existst then setting value equal to it else it being 0
-    def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
+    def __init__(
+        self, *args, value: float = 0, name: str = "None", type: str = "onreturn"
+    ) -> None:
         """
         Initialize a Setting object with the given parameters.
 
@@ -36,7 +41,7 @@ class Setting(ABC):
         """
         self._value = value
         self._name = name
-        
+
         self.widget = None
 
         # Set update type
@@ -45,10 +50,10 @@ class Setting(ABC):
         if type == "onreturn":
             self._onreturn = True
         elif type == "onchange":
-            self._onchange= True
+            self._onchange = True
         else:
             raise ValueError(f"{type} is not a valid type.")
-        
+
         # Add post update methods
         self.post_update_methods: list = []
         for arg in args:
@@ -84,7 +89,7 @@ class Setting(ABC):
         pass
 
     @abstractmethod
-    def randomise_value(self, type = "uniform") -> None:
+    def randomise_value(self, type="uniform") -> None:
         """
         Randomize the value of the setting based on the specified type.
 
@@ -97,7 +102,7 @@ class Setting(ABC):
         pass
 
     @abstractmethod
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser=False) -> None:
         """
         Add the setting controller to a menu.
 
@@ -109,6 +114,7 @@ class Setting(ABC):
             None
         """
         pass
+
 
 class BoundedSetting(Setting):
     """
@@ -129,7 +135,17 @@ class BoundedSetting(Setting):
     Inherits from:
         Setting
     """
-    def __init__(self, *args, value: float = None, name: str = "None", min: float = None, max: float = None, type: str = "onreturn", increment = None) -> None:
+
+    def __init__(
+        self,
+        *args,
+        value: float = None,
+        name: str = "None",
+        min: float = None,
+        max: float = None,
+        type: str = "onreturn",
+        increment=None,
+    ) -> None:
         """
         Initialize a BoundedSetting object with the given parameters.
 
@@ -147,7 +163,7 @@ class BoundedSetting(Setting):
         """
         self._min = min
         self._max = max
-        self._mid = (self._max-self._min) / 2
+        self._mid = (self._max - self._min) / 2
 
         if value is None:
             value = self._mid
@@ -158,7 +174,7 @@ class BoundedSetting(Setting):
         if increment is not None:
             self.increment = increment
         else:
-            self.increment = (self._max-self._min)/100
+            self.increment = (self._max - self._min) / 100
 
     def set_value(self, new_value: float) -> None:
         """
@@ -178,7 +194,7 @@ class BoundedSetting(Setting):
         self._value = new_value
         self.post_update()
 
-    def randomise_value(self, type = "uniform") -> None:
+    def randomise_value(self, type="uniform") -> None:
         """
         Randomize the value of the setting based on the specified type.
 
@@ -192,13 +208,13 @@ class BoundedSetting(Setting):
         if type == "uniform":
             self.set_value(random.uniform(self._min, self._max))
         elif type == "gauss":
-            self.set_value(random.gauss(self._mid, self._mid/2))
+            self.set_value(random.gauss(self._mid, self._mid / 2))
         else:
             raise ValueError("Type not defined")
         if self.widget:
             self.widget.set_value(self._value)
 
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser=False) -> None:
         """
         Add the setting controller to a menu.
 
@@ -209,7 +225,12 @@ class BoundedSetting(Setting):
         Returns:
             None.
         """
-        self.widget = menu.add.range_slider(self._name, default=self._value, range_values=(self._min, self._max), increment=self.increment)
+        self.widget = menu.add.range_slider(
+            self._name,
+            default=self._value,
+            range_values=(self._min, self._max),
+            increment=self.increment,
+        )
 
         if self._onreturn:
             self.widget.set_onreturn(self.set_value)
@@ -218,10 +239,15 @@ class BoundedSetting(Setting):
 
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
-            height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
+            height = (
+                max(self.widget.get_height(), randomiser_buttom.get_height()) + 10
+            )  # TODO fix the usage of +10 (throws error)
             frame = menu.add.frame_h(menu.get_width(inner=True) * 0.8, height)
             frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
-            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
+            frame.pack(
+                randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT
+            )
+
 
 class UnboundedSetting(Setting):
     """
@@ -238,7 +264,10 @@ class UnboundedSetting(Setting):
     Raises:
         NotImplementedError: If the randomise_value method is not implemented in the subclass.
     """
-    def __init__(self, *args, value: float = 0, name: str = "None", type: str = "onreturn") -> None:
+
+    def __init__(
+        self, *args, value: float = 0, name: str = "None", type: str = "onreturn"
+    ) -> None:
         super().__init__(*args, value=value, name=name, type=type)
 
     def set_value(self, new_value: float) -> None:
@@ -288,7 +317,7 @@ class UnboundedSetting(Setting):
         if self.widget:
             self.widget.set_value(self._value)
 
-    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser = False) -> None:
+    def add_controller_to_menu(self, menu: pygame_menu.Menu, randomiser=False) -> None:
         """
         Add the unbounded setting controller to a menu.
 
@@ -299,7 +328,11 @@ class UnboundedSetting(Setting):
         Returns:
             None
         """
-        self.widget: pygame_menu.pygame_menu.widgets.TextInput = menu.add.text_input(self._name, default=self._value, input_type=pygame_menu.pygame_menu.locals.INPUT_INT) # TODO does input int make most sense here? why not use float?
+        self.widget: pygame_menu.pygame_menu.widgets.TextInput = menu.add.text_input(
+            self._name,
+            default=self._value,
+            input_type=pygame_menu.pygame_menu.locals.INPUT_INT,
+        )  # TODO does input int make most sense here? why not use float?
 
         if self._onreturn:
             self.widget.set_onreturn(self.set_value)
@@ -308,7 +341,11 @@ class UnboundedSetting(Setting):
 
         if randomiser:
             randomiser_buttom = menu.add.button("Randomise", self.randomise_value)
-            height = max(self.widget.get_height(), randomiser_buttom.get_height()) + 10 # TODO fix the usage of +10 (throws error)
+            height = (
+                max(self.widget.get_height(), randomiser_buttom.get_height()) + 10
+            )  # TODO fix the usage of +10 (throws error)
             frame = menu.add.frame_h(menu.get_width(inner=True) * 0.8, height)
             frame.pack(self.widget, align=pygame_menu.pygame_menu.locals.ALIGN_LEFT)
-            frame.pack(randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT)
+            frame.pack(
+                randomiser_buttom, align=pygame_menu.pygame_menu.locals.ALIGN_RIGHT
+            )

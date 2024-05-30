@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import math
+
 import opensimplex
-from .setting import Setting, BoundedSetting
-import pygame_menu
 import pygame
+import pygame_menu
+
+from .setting import BoundedSetting, Setting
 
 
-class NoiseFunction():
+class NoiseFunction:
     """
     Class representing a NoiseFunction with various settings for factor, offset, power, and fudge values.
 
@@ -45,6 +47,7 @@ class NoiseFunction():
     Note:
         This class is designed to work with Perlin noise functions and provides settings for transformation and normalization of noise values.
     """
+
     # TODO add the option to display the function as it is written
     FACTOR_MIN = 0
     FACTOR_MAX = 10
@@ -57,7 +60,18 @@ class NoiseFunction():
     FUNCTION_ID = 0
     DEFAULT_WEIGHT = 1
 
-    def __init__(self, *args, factor_x = 1, factor_y = 1, offset_x = 0, offset_y = 0, pow_x = 1, pow_y = 1, pow = 1, fudge = 1.2) -> None:
+    def __init__(
+        self,
+        *args,
+        factor_x=1,
+        factor_y=1,
+        offset_x=0,
+        offset_y=0,
+        pow_x=1,
+        pow_y=1,
+        pow=1,
+        fudge=1.2,
+    ) -> None:
         """
         Initialize a NoiseFunction object with the specified settings.
 
@@ -78,15 +92,74 @@ class NoiseFunction():
         self.id = NoiseFunction.FUNCTION_ID
         NoiseFunction.FUNCTION_ID += 1
 
-        self.factor_x = BoundedSetting(*args, value=factor_x, name="Factor x", min = self.FACTOR_MIN, max=self.FACTOR_MAX, type="onchange")
-        self.factor_y = BoundedSetting(*args, value=factor_y, name="Factor y", min = self.FACTOR_MIN, max=self.FACTOR_MAX, type="onchange")
-        self.offset_x = BoundedSetting(*args, value=offset_x, name="Offset x", min = self.OFFSET_MIN, max=self.OFFSET_MAX, type="onchange")
-        self.offset_y = BoundedSetting(*args, value=offset_y, name="Offset y", min = self.OFFSET_MIN, max=self.OFFSET_MAX, type="onchange")
-        self.pow_x = BoundedSetting(*args, value=pow_x, name="Pow x", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
-        self.pow_y = BoundedSetting(*args, value=pow_y, name="Pow y", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
-        self.pow = BoundedSetting(*args, value=pow, name="Pow", min = self.POW_MIN, max=self.POW_MAX, type="onchange", increment = 1)
-        self.fudge = BoundedSetting(*args, value=fudge, name="Fudge", min = self.FUDGE_MIN, max=self.FUDGE_MAX, type="onchange")
-        
+        self.factor_x = BoundedSetting(
+            *args,
+            value=factor_x,
+            name="Factor x",
+            min=self.FACTOR_MIN,
+            max=self.FACTOR_MAX,
+            type="onchange",
+        )
+        self.factor_y = BoundedSetting(
+            *args,
+            value=factor_y,
+            name="Factor y",
+            min=self.FACTOR_MIN,
+            max=self.FACTOR_MAX,
+            type="onchange",
+        )
+        self.offset_x = BoundedSetting(
+            *args,
+            value=offset_x,
+            name="Offset x",
+            min=self.OFFSET_MIN,
+            max=self.OFFSET_MAX,
+            type="onchange",
+        )
+        self.offset_y = BoundedSetting(
+            *args,
+            value=offset_y,
+            name="Offset y",
+            min=self.OFFSET_MIN,
+            max=self.OFFSET_MAX,
+            type="onchange",
+        )
+        self.pow_x = BoundedSetting(
+            *args,
+            value=pow_x,
+            name="Pow x",
+            min=self.POW_MIN,
+            max=self.POW_MAX,
+            type="onchange",
+            increment=1,
+        )
+        self.pow_y = BoundedSetting(
+            *args,
+            value=pow_y,
+            name="Pow y",
+            min=self.POW_MIN,
+            max=self.POW_MAX,
+            type="onchange",
+            increment=1,
+        )
+        self.pow = BoundedSetting(
+            *args,
+            value=pow,
+            name="Pow",
+            min=self.POW_MIN,
+            max=self.POW_MAX,
+            type="onchange",
+            increment=1,
+        )
+        self.fudge = BoundedSetting(
+            *args,
+            value=fudge,
+            name="Fudge",
+            min=self.FUDGE_MIN,
+            max=self.FUDGE_MAX,
+            type="onchange",
+        )
+
         self.settings: list[Setting] = []
         self.settings.append(self.factor_x)
         self.settings.append(self.factor_y)
@@ -114,11 +187,15 @@ class NoiseFunction():
         _y = y * self.factor_y._value
 
         try:
-            _x = math.pow(_x, self.pow_x._value) # TODO figure cause of ValueError "math domain error" in math.pow
+            _x = math.pow(
+                _x, self.pow_x._value
+            )  # TODO figure cause of ValueError "math domain error" in math.pow
         except ValueError:
             print("math domain error!")
         try:
-            _y = math.pow(_y, self.pow_y._value) # TODO figure cause of ValueError "math domain error" in math.pow
+            _y = math.pow(
+                _y, self.pow_y._value
+            )  # TODO figure cause of ValueError "math domain error" in math.pow
         except ValueError:
             print("math domain error!")
 
@@ -127,7 +204,7 @@ class NoiseFunction():
 
         return _x, _y
 
-    def noise(self, x:float, y:float) -> float:
+    def noise(self, x: float, y: float) -> float:
         """
         Calculate the noise value at the given coordinates (x, y) using Perlin noise.
 
@@ -145,17 +222,21 @@ class NoiseFunction():
         _noise = NoiseFunction._normalise(_noise)
         _noise *= self.fudge._value
         try:
-            value = math.pow(_noise, self.pow._value) # TODO figure cause of ValueError "math domain error" in math.pow
+            value = math.pow(
+                _noise, self.pow._value
+            )  # TODO figure cause of ValueError "math domain error" in math.pow
         except ValueError:
             print("math domain error!")
             value = _noise
 
         value = pygame.math.clamp(value, 0, 1)
-        if not(0 <= value <= 1):
+        if not (0 <= value <= 1):
             raise ValueError(f"noise value not in range [0, 1] {value}")
         return value
-    
-    def add_submenu(self, menu: pygame_menu.Menu, add_randomiser = False) -> pygame_menu.Menu:
+
+    def add_submenu(
+        self, menu: pygame_menu.Menu, add_randomiser=False
+    ) -> pygame_menu.Menu:
         """
         Add a submenu to the specified menu for the NoiseFunction instance.
 
@@ -173,10 +254,12 @@ class NoiseFunction():
             height=menu.get_height(),
             position=(menu.get_position()[0], menu.get_position()[1], False),
             theme=menu.get_theme(),
-            title=f"Function {self.id}" #TODO implement name updating
+            title=f"Function {self.id}",  # TODO implement name updating
         )
         # Create the button in the parent menu that leads to the submenu
-        self.hook_button = menu.add.button(f"Function {self.id}", self.menu) #TODO implement name updating
+        self.hook_button = menu.add.button(
+            f"Function {self.id}", self.menu
+        )  # TODO implement name updating
 
         # if wanted add Randomiser
         if add_randomiser:
@@ -186,7 +269,7 @@ class NoiseFunction():
         for setting in self.settings:
             setting.add_controller_to_menu(self.menu, randomiser=True)
 
-        # Add a back button
+        # Add a back button
         self.menu.add.button("Back", pygame_menu.pygame_menu.events.BACK)
 
         return self.menu
@@ -222,12 +305,18 @@ class NoiseFunction():
         """
         value += 1
         value /= 2
-        if not(0 <= value <= 1):
+        if not (0 <= value <= 1):
             raise ValueError(f"noise value not in range [0, 1] {value}")
         return value
-    
+
     @classmethod
-    def weigh(cls, x:float, y:float, functions: list[NoiseFunction], weights: list[float] = None) -> float:
+    def weigh(
+        cls,
+        x: float,
+        y: float,
+        functions: list[NoiseFunction],
+        weights: list[float] = None,
+    ) -> float:
         """
         Calculate the weighted average of noise values generated by multiple NoiseFunction instances at the given coordinates (x, y).
 
@@ -257,9 +346,8 @@ class NoiseFunction():
             total_noise += function.noise(x, y) * weight
             weight_sum += weight
         value = total_noise / weight_sum
-        
-        if not(0 <= value <= 1):
+
+        if not (0 <= value <= 1):
             raise ValueError(f"noise value not in range [0, 1] {value}")
 
         return value
-        

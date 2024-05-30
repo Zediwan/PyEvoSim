@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import random
+
 import pygame
 
-import random
-from .gene import Gene, ColorComponentGene, PercentageGene
+from .gene import ColorComponentGene, Gene, PercentageGene
 
 
 class DNA:
@@ -60,11 +61,12 @@ class DNA:
 
         mutate(): Mutate each gene in the DNA instance based on the mutation chance.
     """
-    #region Gene settings
+
+    # region Gene settings
     attack_power_min: float = 0
     attack_power_max: float = 50
     attack_power_mutation_range: float = 2
-    
+
     defense_min: float = 0
     defense_max: float = attack_power_max / 2
     defense_muation_range: float = 2
@@ -98,8 +100,9 @@ class DNA:
     energy_to_offspring_min: float = 0
     energy_to_offspring_max: float = 1
     energy_to_offspring_mutation_range: float = 0.01
-    #endregion
-    #region class methods
+
+    # endregion
+    # region class methods
     @classmethod
     def set_attack_power_mutation_range(cls, value):
         """
@@ -112,7 +115,7 @@ class DNA:
             None
         """
         cls.attack_power_mutation_range = value
-    
+
     @classmethod
     def set_defense_mutation_range(cls, value):
         """
@@ -203,7 +206,7 @@ class DNA:
             None
         """
         cls.reproduction_chance_mutation_range = value
-    
+
     @classmethod
     def set_mutation_chance_mutation_range(cls, value):
         """
@@ -229,7 +232,8 @@ class DNA:
             None
         """
         cls.energy_to_offspring_mutation_range = value
-    #endregion
+
+    # endregion
 
     def __init__(
         self,
@@ -242,7 +246,7 @@ class DNA:
         min_reproduction_energy: float,
         reproduction_chance: float,
         energy_to_offspring_ratio: float,
-        defense: float
+        defense: float,
     ) -> None:
         """
         Initializes a new DNA instance with the provided parameters.
@@ -265,9 +269,8 @@ class DNA:
         self.genes: list[Gene] = []
 
         self.color_r_gene: ColorComponentGene = ColorComponentGene(
-            value=color.r, 
-            mutation_range=DNA.color_mutation_range
-            )
+            value=color.r, mutation_range=DNA.color_mutation_range
+        )
         self.genes.append(self.color_r_gene)
         self.color_g_gene: ColorComponentGene = ColorComponentGene(
             value=color.g,
@@ -311,35 +314,35 @@ class DNA:
             max_value=DNA.mutation_chance_max,
             min_value=DNA.mutation_chance_min,
             value=muation_chance,
-            mutation_range=DNA.mutation_chance_mutation_range
+            mutation_range=DNA.mutation_chance_mutation_range,
         )
         self.genes.append(self.mutation_chance_gene)
         self.min_reproduction_health_gene: PercentageGene = PercentageGene(
             max_value=DNA.min_reproduction_health_max,
             min_value=DNA.min_reproduction_health_min,
             value=min_reproduction_health,
-            mutation_range=DNA.min_reproduction_health_mutation_range
+            mutation_range=DNA.min_reproduction_health_mutation_range,
         )
         self.genes.append(self.min_reproduction_health_gene)
         self.min_reproduction_energy_gene: PercentageGene = PercentageGene(
             max_value=DNA.min_reproduction_energy_max,
             min_value=DNA.min_reproduction_energy_min,
             value=min_reproduction_energy,
-            mutation_range=DNA.min_reproduction_energy_mutation_range
+            mutation_range=DNA.min_reproduction_energy_mutation_range,
         )
         self.genes.append(self.min_reproduction_energy_gene)
         self.reproduction_chance_gene: PercentageGene = PercentageGene(
             max_value=DNA.reproduction_chance_max,
             min_value=DNA.reproduction_chance_min,
             value=reproduction_chance,
-            mutation_range=DNA.reproduction_chance_mutation_range
+            mutation_range=DNA.reproduction_chance_mutation_range,
         )
         self.genes.append(self.reproduction_chance_gene)
         self.energy_to_offspring_ratio_gene: PercentageGene = PercentageGene(
             max_value=DNA.energy_to_offspring_max,
             min_value=DNA.energy_to_offspring_min,
             value=energy_to_offspring_ratio,
-            mutation_range=DNA.energy_to_offspring_mutation_range
+            mutation_range=DNA.energy_to_offspring_mutation_range,
         )
         self.genes.append(self.energy_to_offspring_ratio_gene)
 
@@ -374,7 +377,7 @@ class DNA:
             self.min_reproduction_energy_gene.value,
             self.reproduction_chance_gene.value,
             self.energy_to_offspring_ratio_gene.value,
-            self.defense_gene.value
+            self.defense_gene.value,
         )
 
     def mutate(self) -> None:

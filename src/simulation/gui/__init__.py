@@ -1,1 +1,1 @@
-__all__ = ['stat_panel']
+__all__ = ["stat_panel"]

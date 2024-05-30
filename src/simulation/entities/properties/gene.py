@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import random
+
 import pygame_menu
+
 
 class Gene:
     """
@@ -35,8 +37,9 @@ class Gene:
     Returns:
         None
     """
+
     MUTATION_TYPE: str = "gauss"
-    
+
     @classmethod
     def set_mutation_type(cls, selected_item: str, type: str) -> None:
         """
@@ -59,8 +62,14 @@ class Gene:
                 cls.MUTATION_TYPE = type
             case _:
                 raise ValueError(f"{type} is invalid!")
-    
-    def __init__(self, max_value: float, min_value: float, value: float | int, mutation_range: float) -> None:
+
+    def __init__(
+        self,
+        max_value: float,
+        min_value: float,
+        value: float | int,
+        mutation_range: float,
+    ) -> None:
         """
         Initialize a new Gene instance with the provided parameters.
 
@@ -77,7 +86,9 @@ class Gene:
         - None
         """
         if max_value < min_value:
-            raise ValueError(f"Max Value {max_value} needs to be bigger or equal than min value {min_value}.")
+            raise ValueError(
+                f"Max Value {max_value} needs to be bigger or equal than min value {min_value}."
+            )
         if mutation_range < 0:
             raise ValueError(f"Mutation Range {mutation_range} cannot be negative!")
 
@@ -133,7 +144,9 @@ class Gene:
         mutation = None
         match self.MUTATION_TYPE:
             case "gauss":
-                mutation = random.gauss(0, self._mutation_range/3) # TODO figure if it makes sense so that most values are in the mutation range
+                mutation = random.gauss(
+                    0, self._mutation_range / 3
+                )  # TODO figure if it makes sense so that most values are in the mutation range
             case "uniform":
                 mutation = random.uniform(-self._mutation_range, self._mutation_range)
             case _:
@@ -142,8 +155,9 @@ class Gene:
         self.value += mutation
 
     def subscribe_controller(self, menu: pygame_menu.Menu, name: str) -> None:
-        #TODO implement class to add a gene controller
+        # TODO implement class to add a gene controller
         pass
+
 
 class PercentageGene(Gene):
     """
@@ -164,10 +178,18 @@ class PercentageGene(Gene):
         Returns:
             None
     """
+
     MAX = 1
     MIN = 0
     BASE_MUTATION_RANGE = 0.01
-    def __init__(self, value: float | int, max_value: float = MAX, min_value: float = MIN, mutation_range: float = BASE_MUTATION_RANGE) -> None:
+
+    def __init__(
+        self,
+        value: float | int,
+        max_value: float = MAX,
+        min_value: float = MIN,
+        mutation_range: float = BASE_MUTATION_RANGE,
+    ) -> None:
         """
         Initialize a PercentageGene object.
 
@@ -184,11 +206,21 @@ class PercentageGene(Gene):
         - None
         """
         if max_value > PercentageGene.MAX:
-            raise ValueError(f"Percentage gene max {max_value} cannot exceed {PercentageGene.MAX}.")
+            raise ValueError(
+                f"Percentage gene max {max_value} cannot exceed {PercentageGene.MAX}."
+            )
         if min_value < PercentageGene.MIN:
-            raise ValueError(f"Percentage gene min {min_value} cannot be smaller than {PercentageGene.MIN}.")
-        super().__init__(max_value=max_value, min_value=min_value, value=value, mutation_range=mutation_range)
-        
+            raise ValueError(
+                f"Percentage gene min {min_value} cannot be smaller than {PercentageGene.MIN}."
+            )
+        super().__init__(
+            max_value=max_value,
+            min_value=min_value,
+            value=value,
+            mutation_range=mutation_range,
+        )
+
+
 class ColorComponentGene(Gene):
     """
     Represents a gene for color component values with a value that can mutate within a specified range.
@@ -208,10 +240,18 @@ class ColorComponentGene(Gene):
     Returns:
         None
     """
+
     MAX = 255
     MIN = 1
     BASE_MUTATION_RANGE = 1
-    def __init__(self, value: float | int, max_value: float = MAX, min_value: float = MIN, mutation_range: float = BASE_MUTATION_RANGE) -> None:
+
+    def __init__(
+        self,
+        value: float | int,
+        max_value: float = MAX,
+        min_value: float = MIN,
+        mutation_range: float = BASE_MUTATION_RANGE,
+    ) -> None:
         """
         Initialize a ColorComponentGene object.
 
@@ -228,8 +268,17 @@ class ColorComponentGene(Gene):
         - None
         """
         if max_value > ColorComponentGene.MAX:
-            raise ValueError(f"Color gene max {max_value} cannot exceed {ColorComponentGene.MAX}.")
+            raise ValueError(
+                f"Color gene max {max_value} cannot exceed {ColorComponentGene.MAX}."
+            )
         if min_value < ColorComponentGene.MIN:
-            raise ValueError(f"Color gene min {min_value} cannot be smaller than {ColorComponentGene.MIN}.")
+            raise ValueError(
+                f"Color gene min {min_value} cannot be smaller than {ColorComponentGene.MIN}."
+            )
 
-        super().__init__(max_value=max_value, min_value=min_value, value=value, mutation_range=mutation_range)
+        super().__init__(
+            max_value=max_value,
+            min_value=min_value,
+            value=value,
+            mutation_range=mutation_range,
+        )
