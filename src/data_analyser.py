@@ -2,6 +2,7 @@ import glob
 from tkinter import *
 import pygame
 import pygame_menu
+import warnings
 
 import customtkinter as ctk
 import matplotlib.pyplot as plt
@@ -10,24 +11,29 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from pandasql import sqldf
 from pandastable import Table
+import os
 
 class Data_Analyser():
     def __init__(self, width: int, height: int, pos: tuple[int, int] = (0, 0), csv_path: str = None, dataframe: pd.DataFrame = None) -> None:
-        if csv_path is None:
-            csv_path = Data_Analyser.get_newest_csv()
-        if csv_path is None:
-            raise ValueError("Cannot find a default csv")
-
-        self.csv_path = csv_path
+        if width < 0:
+            raise ValueError(f"Width must be bigger than 0. {width}")
+        if height < 0:
+            raise ValueError(f"Height must be bigger than 0. {height}")
+        self.rect = pygame.Rect(pos[0], pos[1], width, height)
+        self.surface = pygame.Surface(self.rect.size)
 
         if dataframe is None:
-            dataframe = pd.read_csv(self.csv_path)
-
+            if csv_path is None:
+                csv_path = Data_Analyser.get_newest_csv()
+            elif not os.path.isfile(csv_path):
+                raise ValueError(f"Path {csv_path} does not exist!")
+            dataframe = pd.read_csv(csv_path)
+        else:
+            if csv_path is not None:
+                warnings.warn("CSV path and dataframe has been given. Note that the df is used and csv ignored", Warning, stacklevel=1)
         self.df = dataframe
         self.df.drop(axis="rows", index=0, inplace=True)
 
-        self.rect = pygame.Rect(pos[0], pos[1], width=width, height=height)
-        self.surface = pygame.Surface(self.rect.size)
         #region starting menu
         self.starting_menu = pygame_menu.Menu("Welcome", width=self.rect.w, height=self.rect.h)
         self.starting_menu.add.button("Table", self.show_table)
@@ -42,9 +48,11 @@ class Data_Analyser():
         pass
 
     @classmethod
-    def get_newest_csv():
+    def get_newest_csv(cls):
         csvs = glob.glob("data/organism_database_*.csv")
         newest_csv = max(csvs)
+        if newest_csv is None:
+            raise ValueError("Cannot find newest csv!")
         return newest_csv
 
 # def pysqldf(query):
