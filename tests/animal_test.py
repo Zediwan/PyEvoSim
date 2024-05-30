@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pygame
 
-from ..src.entities.animal import Animal
+from src.entities.animal import Animal
 
 
 # TODO test what happens if rect of animal is bigger than tile rect

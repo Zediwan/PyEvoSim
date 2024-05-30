@@ -1,6 +1,6 @@
 import unittest
 
-from ..src.data_analyser import Data_Analyser
+from src.data_analyser import Data_Analyser
 
 class TestDataAnalyser(unittest.TestCase):
     def setUp(self) -> None:
