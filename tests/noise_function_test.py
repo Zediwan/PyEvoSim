@@ -1,6 +1,6 @@
 import unittest
 
-from src.simulation.helper.noise_function import NoiseFunction
+from src.helper.noise_function import NoiseFunction
 
 
 class TestWeigh(unittest.TestCase):

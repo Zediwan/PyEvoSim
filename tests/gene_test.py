@@ -1,7 +1,7 @@
 import threading
 import unittest
 
-from src.simulation.entities.properties.gene import Gene
+from src.entities.properties.gene import Gene
 
 
 class TestGene(unittest.TestCase):
