@@ -1,6 +1,6 @@
-# Evolution Simulation Project
+# PyEvoSim
 
-Welcome to the Evolution Simulation project!
+Welcome to the PyEvoSim project!
 
 Our goal is to simulate the evolution of virtual organisms using neural networks within a dynamic environment. Our main vision is to maintain procedural simulation, avoiding the implementation of predefined animal types. This approach allows evolutionary selection to unfold freely, potentially surprising us with its results.
 
