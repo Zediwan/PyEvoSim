@@ -107,7 +107,7 @@ class Simulation:
         # Setting the world size
         world_rect: pygame.Rect = self._surface.get_rect()
         world_rect.width *= 0.6
-        tile_size: int = world_rect.width // 100
+        tile_size: int = world_rect.width // 50
         self.world: World = World(world_rect, tile_size)
         # Runtime variables
         self.selected_org = None
