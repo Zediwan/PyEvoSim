@@ -12,9 +12,9 @@ from .properties.dna import DNA
 
 class Plant(Organism):
     # region class settings
-    _BASE_ENERGY_MAINTENANCE: float = 1
-    _MAX_HEALTH: float = 200
-    _MAX_ENERGY: float = 100
+    _BASE_ENERGY_MAINTENANCE: float = 0
+    _MAX_HEALTH: float = 50
+    _MAX_ENERGY: float = 50
     _NUTRITION_FACTOR: float = 0.8
     _REPRODUCTION_ENERGY_COST_FACTOR: float = 0.5
     _OFFSPRING_HEALTH_FACTOR: float = 0
@@ -192,7 +192,7 @@ class Plant(Organism):
             energy,
             dna,
         )
-
+        self.image.set_alpha(100)
         self.parent: Plant | None = parent
 
     # region main methods
