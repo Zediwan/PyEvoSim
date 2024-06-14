@@ -15,7 +15,7 @@ class Animal(Organism):
     _BASE_ENERGY_MAINTENANCE: float = 10
     _MAX_HEALTH: float = 50
     _MAX_ENERGY: float = 50
-    _NUTRITION_FACTOR: float = 2
+    _NUTRITION_FACTOR: float = 1
     _MAX_ALPHA: float = 255
     _MIN_ALPHA: float = 150
     _MOVEMENT_ENERGY_COST: float = 2
