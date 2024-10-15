@@ -816,7 +816,7 @@ class Simulation:
             None
         """
         # TODO improve visual of info tool
-        tile = tiles.pop(1)
+        tile = tiles.pop(0)
         if tile.has_animal():
             self.selected_org = tile.animal.sprite
         elif tile.has_plant():
